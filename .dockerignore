@@ -1,0 +1,73 @@
+# =============================================================================
+# Frontend .dockerignore
+# =============================================================================
+# Files and folders listed here are NOT copied into the Docker image.
+# This makes builds faster and keeps the image smaller.
+# =============================================================================
+
+# Dependencies (will be installed fresh in Docker)
+node_modules/
+
+# Build output (will be built fresh in Docker)
+dist/
+build/
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment files (secrets should be passed as build args)
+.env
+.env.local
+.env.*.local
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.docker/
+
+# Documentation
+*.md
+!README.md
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# ESLint cache
+.eslintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Storybook
+.storybook/
+storybook-static/
+
+# Playwright
+playwright-report/
+test-results/
