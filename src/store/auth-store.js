@@ -14,6 +14,44 @@ const initialState = {
   error: null,
 };
 
+/**
+ * Map error codes/messages to user-friendly messages
+ */
+const getErrorMessage = (error) => {
+  // Handle AbortError (request cancelled/timeout)
+  if (error.name === 'AbortError') {
+    return 'Request was cancelled. Please try again.';
+  }
+
+  // Use the error message directly if it's already user-friendly
+  const message = error.message || error.detail || 'An error occurred';
+
+  // Map common error patterns to friendlier messages
+  const errorMappings = {
+    'Invalid email or password': 'Invalid email or password. Please check your credentials and try again.',
+    'Account is temporarily locked': 'Your account is temporarily locked due to too many failed attempts. Please try again later.',
+    'This account has been deactivated': 'This account has been deactivated. Please contact support.',
+    'Please verify your email': 'Please verify your email address before logging in. Check your inbox for the verification link.',
+    'No active account': 'No account found with these credentials.',
+    'Network Error': 'Unable to connect to the server. Please check your internet connection.',
+    'timeout': 'Request timed out. Please try again.',
+    'Session expired': 'Your session has expired. Please log in again.',
+    'created with Google Sign-In': 'This account uses Google Sign-In. Please click "Continue with Google" to log in.',
+    'signal is aborted': 'Request was cancelled. Please try again.',
+    'An unexpected error occurred': 'Something went wrong on our end. Please try again in a moment.',
+    'An error occurred': 'Something went wrong. Please try again.',
+  };
+
+  // Check for partial matches
+  for (const [pattern, friendlyMessage] of Object.entries(errorMappings)) {
+    if (message.toLowerCase().includes(pattern.toLowerCase())) {
+      return friendlyMessage;
+    }
+  }
+
+  return message;
+};
+
 export const useAuthStore = create(
   devtools(
     persist(
@@ -24,25 +62,39 @@ export const useAuthStore = create(
          * Login user with email and password
          */
         login: async (email, password) => {
+          // Prevent double submission
+          if (get().isLoading) {
+            return null;
+          }
+
           set({ isLoading: true, error: null });
 
           try {
             const response = await apiClient.post('/auth/login/', { email, password }, { skipAuth: true });
 
-            tokenManager.setTokens(response.access, response.refresh);
+            // Handle both wrapped and unwrapped response formats
+            const data = response.data || response;
+            tokenManager.setTokens(data.access, data.refresh);
 
             set({
-              user: response.user,
+              user: data.user,
               isAuthenticated: true,
               isLoading: false,
               error: null,
             });
 
-            return response;
+            return data.user;
           } catch (error) {
+            // Don't show error if request was aborted (user navigated away)
+            if (error.name === 'AbortError') {
+              set({ isLoading: false });
+              return null;
+            }
+
+            const friendlyMessage = getErrorMessage(error);
             set({
               isLoading: false,
-              error: error.message || 'Login failed',
+              error: friendlyMessage,
             });
             throw error;
           }
@@ -52,18 +104,33 @@ export const useAuthStore = create(
          * Register new user
          */
         register: async (userData) => {
+          // Prevent double submission
+          if (get().isLoading) {
+            return null;
+          }
+
           set({ isLoading: true, error: null });
 
           try {
-            const response = await apiClient.post('/auth/register/', userData, { skipAuth: true });
+            const response = await apiClient.post('/auth/register/', userData, {
+              skipAuth: true,
+              timeout: 60000, // 60 seconds for registration (may be slower due to email sending)
+            });
 
             set({ isLoading: false, error: null });
 
-            return response;
+            return response.data || response;
           } catch (error) {
+            // Don't show error if request was aborted (user navigated away)
+            if (error.name === 'AbortError') {
+              set({ isLoading: false });
+              return null;
+            }
+
+            const friendlyMessage = getErrorMessage(error);
             set({
               isLoading: false,
-              error: error.message || 'Registration failed',
+              error: friendlyMessage,
             });
             throw error;
           }
@@ -141,9 +208,10 @@ export const useAuthStore = create(
 
             return user;
           } catch (error) {
+            const friendlyMessage = getErrorMessage(error);
             set({
               isLoading: false,
-              error: error.message || 'Update failed',
+              error: friendlyMessage,
             });
             throw error;
           }
@@ -166,9 +234,10 @@ export const useAuthStore = create(
 
             return true;
           } catch (error) {
+            const friendlyMessage = getErrorMessage(error);
             set({
               isLoading: false,
-              error: error.message || 'Password change failed',
+              error: friendlyMessage,
             });
             throw error;
           }
@@ -185,9 +254,10 @@ export const useAuthStore = create(
             set({ isLoading: false });
             return true;
           } catch (error) {
+            const friendlyMessage = getErrorMessage(error);
             set({
               isLoading: false,
-              error: error.message || 'Password reset request failed',
+              error: friendlyMessage,
             });
             throw error;
           }
@@ -212,9 +282,10 @@ export const useAuthStore = create(
             set({ isLoading: false });
             return true;
           } catch (error) {
+            const friendlyMessage = getErrorMessage(error);
             set({
               isLoading: false,
-              error: error.message || 'Password reset failed',
+              error: friendlyMessage,
             });
             throw error;
           }
@@ -231,9 +302,30 @@ export const useAuthStore = create(
             set({ isLoading: false });
             return true;
           } catch (error) {
+            const friendlyMessage = getErrorMessage(error);
             set({
               isLoading: false,
-              error: error.message || 'Email verification failed',
+              error: friendlyMessage,
+            });
+            throw error;
+          }
+        },
+
+        /**
+         * Resend verification email (no auth required)
+         */
+        resendVerification: async (email) => {
+          set({ isLoading: true, error: null });
+
+          try {
+            await apiClient.post('/auth/email/resend/', { email }, { skipAuth: true });
+            set({ isLoading: false });
+            return true;
+          } catch (error) {
+            const friendlyMessage = getErrorMessage(error);
+            set({
+              isLoading: false,
+              error: friendlyMessage,
             });
             throw error;
           }
@@ -243,6 +335,19 @@ export const useAuthStore = create(
          * Clear any errors
          */
         clearError: () => set({ error: null }),
+
+        /**
+         * Set auth state directly (used for OAuth callbacks)
+         */
+        setAuth: ({ accessToken, refreshToken, user }) => {
+          tokenManager.setTokens(accessToken, refreshToken);
+          set({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+        },
 
         /**
          * Check if user has specific role
