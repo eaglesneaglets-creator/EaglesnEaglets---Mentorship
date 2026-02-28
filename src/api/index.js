@@ -205,15 +205,77 @@ export const apiClient = {
     try {
       const token = await refreshAccessToken();
       processQueue(null, token);
+
+      // Dispatch token refreshed event (for UI notifications if needed)
+      window.dispatchEvent(
+        new CustomEvent('auth:token_refreshed', {
+          detail: { timestamp: Date.now() }
+        })
+      );
+
       return token;
     } catch (error) {
       processQueue(error, null);
-      // Dispatch logout event
-      window.dispatchEvent(new CustomEvent('auth:logout', { detail: { reason: 'session_expired' } }));
+      // Dispatch logout event with reason
+      window.dispatchEvent(
+        new CustomEvent('auth:logout', {
+          detail: { reason: 'session_expired', error: error.message }
+        })
+      );
       throw error;
     } finally {
       isRefreshing = false;
     }
+  },
+
+  /**
+   * Extract clean error message from various API response formats
+   */
+  extractErrorMessage(data) {
+    if (!data) return 'An error occurred';
+
+    // Standard API error format: { success: false, error: { message: '...' } }
+    if (data.error?.message) {
+      return data.error.message;
+    }
+
+    // DRF detail format: { detail: '...' } or { detail: ['...'] }
+    if (data.detail) {
+      if (Array.isArray(data.detail)) {
+        return data.detail[0] || 'An error occurred';
+      }
+      return data.detail;
+    }
+
+    // Non-field errors: { non_field_errors: ['...'] }
+    if (data.non_field_errors) {
+      if (Array.isArray(data.non_field_errors)) {
+        return data.non_field_errors[0] || 'An error occurred';
+      }
+      return data.non_field_errors;
+    }
+
+    // Field-level errors: { field_name: ['error message'] }
+    // Return the first field error
+    const fieldKeys = Object.keys(data).filter(key =>
+      !['success', 'error', 'code', 'type'].includes(key)
+    );
+    if (fieldKeys.length > 0) {
+      const firstError = data[fieldKeys[0]];
+      if (Array.isArray(firstError) && firstError.length > 0) {
+        return `${fieldKeys[0]}: ${firstError[0]}`;
+      }
+      if (typeof firstError === 'string') {
+        return `${fieldKeys[0]}: ${firstError}`;
+      }
+    }
+
+    // Generic error message
+    if (data.message) {
+      return data.message;
+    }
+
+    return 'An error occurred';
   },
 
   /**
@@ -230,15 +292,16 @@ export const apiClient = {
       } else {
         data = null;
       }
-    } catch (e) {
+    } catch {
       data = null;
     }
 
     if (!response.ok) {
-      const errorMessage = data?.error?.message || data?.detail || 'An error occurred';
+      const errorMessage = this.extractErrorMessage(data);
       const errorCode = data?.error?.code || data?.code || response.status;
+      const errorDetails = data?.error?.details || null;
 
-      throw new ApiError(errorMessage, response.status, errorCode, data?.error?.details);
+      throw new ApiError(errorMessage, response.status, errorCode, errorDetails);
     }
 
     return data;

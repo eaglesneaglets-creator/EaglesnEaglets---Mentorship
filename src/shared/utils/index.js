@@ -3,6 +3,16 @@
  * Helper functions used across modules
  */
 
+// XSS Protection / HTML Sanitization
+export {
+  sanitizeHtml,
+  sanitizeStrict,
+  sanitizeToText,
+  escapeHtml,
+  sanitizeUrl,
+  createSafeInnerHTML,
+} from './sanitize';
+
 /**
  * Format currency (Nigerian Naira)
  */
