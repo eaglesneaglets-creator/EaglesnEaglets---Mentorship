@@ -67,11 +67,11 @@ const GoogleCallbackPage = () => {
             navigate('/admin/dashboard', { replace: true });
           } else if (user.role === 'eagle') {
             if (user.kyc_status === 'draft' || !user.kyc_status) {
-              navigate('/kyc', { replace: true });
+              navigate('/mentor-profile', { replace: true });
             } else if (user.kyc_status === 'submitted' || user.kyc_status === 'under_review') {
-              navigate('/kyc/pending', { replace: true });
-            } else if (user.kyc_status === 'requires_changes') {
-              navigate('/kyc', { replace: true });
+              navigate('/pending-approval', { replace: true });
+            } else if (user.kyc_status === 'requires_changes' || user.kyc_status === 'rejected') {
+              navigate('/mentor-profile', { replace: true });
             } else {
               navigate('/dashboard', { replace: true });
             }

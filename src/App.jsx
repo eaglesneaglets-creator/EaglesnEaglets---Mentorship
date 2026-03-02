@@ -10,8 +10,9 @@ const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 const GoogleCallbackPage = lazy(() => import('./pages/auth/GoogleCallbackPage'));
-const KYCWizardPage = lazy(() => import('./pages/kyc/KYCWizardPage'));
-const KYCPendingPage = lazy(() => import('./pages/kyc/KYCPendingPage'));
+// Legacy KYC pages - kept for reference but routes now redirect to new profile pages
+// const KYCWizardPage = lazy(() => import('./pages/kyc/KYCWizardPage'));
+// const KYCPendingPage = lazy(() => import('./pages/kyc/KYCPendingPage'));
 const EagletOnboardingPage = lazy(() => import('./pages/eaglet/EagletOnboardingPage'));
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
 
@@ -122,8 +123,9 @@ function App() {
               <Route element={<AuthGuard />}>
                 {/* Eagle (Mentor) Only Routes */}
                 <Route element={<RoleGuard allowedRoles={['eagle']} />}>
-                  <Route path="/kyc" element={<KYCWizardPage />} />
-                  <Route path="/kyc/pending" element={<KYCPendingPage />} />
+                  {/* Redirect legacy KYC routes to new profile page */}
+                  <Route path="/kyc" element={<Navigate to="/mentor-profile" replace />} />
+                  <Route path="/kyc/pending" element={<Navigate to="/pending-approval" replace />} />
                   <Route path="/mentor-profile" element={<MentorProfilePage />} />
                   {/* Eagle Dashboard */}
                   <Route path="/eagle/dashboard" element={<EagleDashboardPage />} />

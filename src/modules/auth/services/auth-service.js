@@ -265,9 +265,12 @@ export const profileService = {
 export const adminService = {
   /**
    * Get admin dashboard stats
+   * @param {Object} params - Query parameters (e.g. { period: 'weekly' | 'monthly' })
    */
-  getStats: () =>
-    apiClient.get('/auth/admin/stats/'),
+  getStats: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiClient.get(`/auth/admin/stats/${query ? `?${query}` : ''}`);
+  },
 
   /**
    * Get KYC applications list
@@ -321,6 +324,21 @@ export const adminService = {
    */
   addKYCNote: (kycId, role, note) =>
     apiClient.post(`/auth/admin/kyc/${kycId}/notes/`, { note, role }),
+
+  /**
+   * Suspend a user (revoke platform access)
+   * @param {string} userId - User ID
+   * @param {string} reason - Suspension reason
+   */
+  suspendUser: (userId, reason) =>
+    apiClient.post(`/auth/admin/users/${userId}/suspend/`, { reason }),
+
+  /**
+   * Reactivate a suspended user
+   * @param {string} userId - User ID
+   */
+  reactivateUser: (userId) =>
+    apiClient.post(`/auth/admin/users/${userId}/reactivate/`),
 };
 
 export default authService;

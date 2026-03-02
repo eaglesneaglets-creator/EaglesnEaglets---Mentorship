@@ -1,8 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuthStore } from '@store';
+import { adminService } from '../../../modules/auth/services/auth-service';
 import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
+
+const timeAgo = (iso) => {
+  if (!iso) return '';
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+};
 
 /**
  * Animated Background Component
@@ -103,11 +113,44 @@ const DashboardLayout = ({ children, variant = 'default' }) => {
   const { user, logout } = useAuthStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [pendingKycCount, setPendingKycCount] = useState(0);
+  const notifRef = useRef(null);
 
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false); // eslint-disable-line react-hooks/set-state-in-effect
   }, [location.pathname]);
+
+  // Fetch admin stats for notifications & KYC badge
+  const fetchAdminData = useCallback(async () => {
+    if (user?.role !== 'admin') return;
+    try {
+      const response = await adminService.getStats();
+      if (response.success) {
+        setPendingKycCount(response.data.kyc?.total_pending || 0);
+        setNotifications(response.data.recent_activity || []);
+      }
+    } catch {
+      // Silently fail
+    }
+  }, [user?.role]);
+
+  useEffect(() => {
+    fetchAdminData();
+  }, [fetchAdminData]);
+
+  // Close notification dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -122,7 +165,7 @@ const DashboardLayout = ({ children, variant = 'default' }) => {
       return [
         { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
         { to: '/admin/users', icon: 'group', label: 'Users' },
-        { to: '/admin/kyc', icon: 'verified_user', label: 'KYC Reviews', badge: '4' },
+        { to: '/admin/kyc', icon: 'verified_user', label: 'KYC Reviews', badge: pendingKycCount > 0 ? pendingKycCount : undefined },
         { to: '/admin/nests', icon: 'diversity_3', label: 'Nests' },
         { to: '/admin/content', icon: 'library_books', label: 'Content' },
         { to: '/admin/donations', icon: 'volunteer_activism', label: 'Donations' },
@@ -299,12 +342,61 @@ const DashboardLayout = ({ children, variant = 'default' }) => {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group">
-              <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
-                notifications
-              </span>
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-            </button>
+            {/* Notification Bell + Dropdown */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group"
+              >
+                <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
+                  notifications
+                </span>
+                {notifications.length > 0 && (
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white">
+                    {notifications.length > 9 ? '9+' : notifications.length}
+                  </span>
+                )}
+              </button>
+
+              {/* Dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 top-12 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-fade-in">
+                  <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                    <h4 className="font-bold text-slate-900 text-sm">Notifications</h4>
+                    <span className="text-xs text-slate-400">{notifications.length} recent</span>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                    {notifications.length > 0 ? notifications.slice(0, 8).map((n, i) => (
+                      <div key={i} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer">
+                        <div className={`w-8 h-8 rounded-lg ${n.icon_bg} flex items-center justify-center flex-shrink-0`}>
+                          <span className="material-symbols-outlined text-sm">{n.icon}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-slate-900">{n.title}</p>
+                          <p className="text-xs text-slate-500 truncate">{n.description}</p>
+                        </div>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap flex-shrink-0">{timeAgo(n.timestamp)}</span>
+                      </div>
+                    )) : (
+                      <div className="px-4 py-8 text-center">
+                        <span className="material-symbols-outlined text-2xl text-slate-300">notifications_off</span>
+                        <p className="text-xs text-slate-400 mt-1">No notifications</p>
+                      </div>
+                    )}
+                  </div>
+                  {user?.role === 'admin' && notifications.length > 0 && (
+                    <Link
+                      to="/admin/dashboard"
+                      onClick={() => setShowNotifications(false)}
+                      className="block px-4 py-2.5 text-center text-xs font-medium text-primary hover:bg-primary/5 border-t border-slate-100 transition-colors"
+                    >
+                      View all activity
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+
             <button className="p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group">
               <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
                 help
