@@ -43,6 +43,7 @@ const MentorProfilePage = () => {
       national_id_number: '',
       marital_status: '',
       employment_status: '',
+      phone_number: '',
       profile_description: '',
       linkedin_url: '',
       mentorship_types: [],
@@ -54,22 +55,23 @@ const MentorProfilePage = () => {
   const selectedMentorshipTypes = watchedValues.mentorship_types || [];
   const profileDescription = watchedValues.profile_description || '';
 
-  // Calculate completion percentage locally based on filled fields
+  // Always calculate completion locally from current form values
   const completionPercentage = useMemo(() => {
     const requiredFields = [
       { key: 'location', filled: !!watchedValues.location?.trim() },
       { key: 'national_id_number', filled: !!watchedValues.national_id_number?.trim() },
       { key: 'marital_status', filled: !!watchedValues.marital_status },
       { key: 'employment_status', filled: !!watchedValues.employment_status },
+      { key: 'phone_number', filled: !!watchedValues.phone_number?.trim() },
       { key: 'profile_description', filled: (watchedValues.profile_description?.trim()?.length || 0) >= 100 },
       { key: 'mentorship_types', filled: (watchedValues.mentorship_types?.length || 0) > 0 },
       { key: 'profile_picture', filled: !!pictureUrl },
-      { key: 'cv', filled: cvUploaded || !!profileData?.cv_url },
+      { key: 'cv', filled: cvUploaded || !!profileData?.cv },
     ];
 
     const filledCount = requiredFields.filter(f => f.filled).length;
     return Math.round((filledCount / requiredFields.length) * 100);
-  }, [watchedValues, pictureUrl, cvUploaded, profileData?.cv_url]);
+  }, [watchedValues, pictureUrl, cvUploaded, profileData?.cv]);
 
   // Load existing profile data
   useEffect(() => {
@@ -80,7 +82,7 @@ const MentorProfilePage = () => {
           const data = response.data;
           setProfileData(data);
           setPictureUrl(data.display_picture);
-          if (data.cv_url) setCvUploaded(true);
+          if (data.cv) setCvUploaded(true);
 
           // Reset form with existing data
           reset({
@@ -88,6 +90,7 @@ const MentorProfilePage = () => {
             national_id_number: data.national_id_number || '',
             marital_status: data.marital_status || '',
             employment_status: data.employment_status || '',
+            phone_number: data.user_phone_number || '',
             profile_description: data.profile_description || '',
             linkedin_url: data.linkedin_url || '',
             mentorship_types: data.mentorship_types || [],
@@ -247,8 +250,13 @@ const MentorProfilePage = () => {
     );
   }
 
-  const isLocked = profileData?.status === 'submitted' || profileData?.status === 'under_review';
-  const canSubmit = completionPercentage === 100 && !isLocked;
+  const kycStatus = profileData?.status;
+  const isLocked = kycStatus === 'submitted' || kycStatus === 'under_review' || kycStatus === 'approved';
+  const isRejected = kycStatus === 'rejected';
+  const needsChanges = kycStatus === 'requires_changes';
+  const canEdit = !isLocked;
+  const canSubmit = completionPercentage === 100 && canEdit;
+  const isResubmission = isRejected || needsChanges;
 
   return (
     <div className="min-h-screen bg-background">
@@ -285,10 +293,12 @@ const MentorProfilePage = () => {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-text-primary mb-2">
-            Complete Your Mentor Profile
+            {isResubmission ? 'Update Your Mentor Profile' : 'Complete Your Mentor Profile'}
           </h1>
           <p className="text-text-secondary">
-            Fill in your details to become an Eagle Mentor. All fields marked with * are required.
+            {isResubmission
+              ? 'Please address the feedback below and resubmit your profile for review.'
+              : 'Fill in your details to become an Eagle Mentor. All fields marked with * are required.'}
           </p>
 
           {/* Completion Badge */}
@@ -313,10 +323,65 @@ const MentorProfilePage = () => {
           </Alert>
         )}
 
-        {isLocked && (
+        {isLocked && kycStatus !== 'approved' && (
           <Alert variant="info" className="mb-6">
             Your profile is currently under review. You cannot make changes until the review is complete.
           </Alert>
+        )}
+
+        {kycStatus === 'approved' && (
+          <Alert variant="success" className="mb-6">
+            Your profile has been approved. Welcome to Eagles & Eaglets!
+          </Alert>
+        )}
+
+        {/* Rejection / Changes Requested Feedback */}
+        {isRejected && (
+          <div className="mb-6 rounded-xl border-2 border-red-200 bg-red-50 p-5">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-red-800 mb-1">Profile Rejected</h3>
+                <p className="text-sm text-red-700 mb-2">
+                  Your profile was not approved. Please review the feedback below, make necessary changes, and resubmit.
+                </p>
+                {profileData?.rejection_reason && (
+                  <div className="mt-2 p-3 bg-white rounded-lg border border-red-200">
+                    <p className="text-sm font-medium text-red-800 mb-1">Admin Feedback:</p>
+                    <p className="text-sm text-red-700">{profileData.rejection_reason}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {needsChanges && (
+          <div className="mb-6 rounded-xl border-2 border-amber-200 bg-amber-50 p-5">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-amber-800 mb-1">Changes Requested</h3>
+                <p className="text-sm text-amber-700 mb-2">
+                  The admin has requested some updates to your profile. Please address the feedback below and resubmit.
+                </p>
+                {profileData?.rejection_reason && (
+                  <div className="mt-2 p-3 bg-white rounded-lg border border-amber-200">
+                    <p className="text-sm font-medium text-amber-800 mb-1">Requested Changes:</p>
+                    <p className="text-sm text-amber-700">{profileData.rejection_reason}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -379,6 +444,31 @@ const MentorProfilePage = () => {
             </div>
           </div>
 
+          {/* Contact Information */}
+          <div className="bg-white rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">Contact Information</h2>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Email Address"
+                  value={profileData?.user_email || user?.email || ''}
+                  disabled
+                  hint="From your account"
+                />
+
+                <Input
+                  label="Phone Number"
+                  placeholder="e.g., +233 XX XXX XXXX"
+                  {...register('phone_number')}
+                  error={errors.phone_number?.message}
+                  required
+                  disabled={isLocked}
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Professional Profile */}
           <div className="bg-white rounded-xl border border-border p-6">
             <h2 className="text-lg font-semibold text-text-primary mb-4">Professional Profile</h2>
@@ -418,10 +508,10 @@ const MentorProfilePage = () => {
                 disabled={isLocked}
                 required
               />
-              {!cvUploaded && !cvFile && !profileData?.cv_url && (
+              {!cvUploaded && !cvFile && !profileData?.cv && (
                 <p className="text-sm text-error">CV is required</p>
               )}
-              {(cvUploaded || profileData?.cv_url) && (
+              {(cvUploaded || profileData?.cv) && (
                 <p className="text-sm text-green-600">CV uploaded ✓</p>
               )}
             </div>
@@ -483,11 +573,11 @@ const MentorProfilePage = () => {
               disabled={isSubmitting || !canSubmit}
               onClick={handleSubmitForReview}
             >
-              Submit for Review
+              {isResubmission ? 'Resubmit for Review' : 'Submit for Review'}
             </Button>
           </div>
 
-          {!canSubmit && !isLocked && (
+          {!canSubmit && canEdit && (
             <p className="text-center text-sm text-text-muted">
               Complete all required fields ({completionPercentage}% done) to submit for review.
             </p>

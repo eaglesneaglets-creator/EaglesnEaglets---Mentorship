@@ -148,11 +148,11 @@ const LoginPage = () => {
       } else if (user.role === 'eagle') {
         // Eagle users - check KYC status
         if (!user.kyc_status || user.kyc_status === 'draft') {
-          navigate('/kyc');
+          navigate('/mentor-profile');
         } else if (user.kyc_status === 'submitted' || user.kyc_status === 'under_review') {
-          navigate('/kyc/pending');
-        } else if (user.kyc_status === 'requires_changes') {
-          navigate('/kyc');
+          navigate('/pending-approval');
+        } else if (user.kyc_status === 'requires_changes' || user.kyc_status === 'rejected') {
+          navigate('/mentor-profile');
         } else {
           navigate('/dashboard');
         }

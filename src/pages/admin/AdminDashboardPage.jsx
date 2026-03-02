@@ -1,18 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { adminService } from '../../modules/auth/services/auth-service';
 
-/**
- * Stat Card Component
- */
+// ─── Helper ─────────────────────────────────────────────────────────────────
+const timeAgo = (iso) => {
+  if (!iso) return '';
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+// ─── Stat Card ──────────────────────────────────────────────────────────────
 const StatCard = ({ icon, iconBg, gradient, label, value, change, delay = 0 }) => (
   <div
     className={`group relative rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${gradient || 'bg-white/80 backdrop-blur-sm border border-slate-200/50'}`}
     style={{ animationDelay: `${delay}ms` }}
   >
-    {/* Decorative Wave */}
     {gradient && (
       <div className="absolute bottom-0 right-0 w-32 h-32 opacity-20">
         <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -20,7 +28,6 @@ const StatCard = ({ icon, iconBg, gradient, label, value, change, delay = 0 }) =
         </svg>
       </div>
     )}
-
     <div className="relative flex items-start justify-between">
       <div className="flex flex-col gap-1">
         <div className={`p-2.5 rounded-xl w-fit mb-2 ${iconBg} ${gradient ? '' : 'transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3'}`}>
@@ -28,7 +35,7 @@ const StatCard = ({ icon, iconBg, gradient, label, value, change, delay = 0 }) =
         </div>
         <div className="flex items-baseline gap-3">
           <p className={`text-3xl font-bold ${gradient ? 'text-white' : 'text-slate-900'}`}>{value}</p>
-          {change !== undefined && (
+          {change !== undefined && change !== null && (
             <span className={`flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full ${
               gradient ? 'bg-white/20 text-white' : change > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
             }`}>
@@ -45,9 +52,7 @@ const StatCard = ({ icon, iconBg, gradient, label, value, change, delay = 0 }) =
   </div>
 );
 
-/**
- * Chart Bar Component
- */
+// ─── Chart Bar ──────────────────────────────────────────────────────────────
 const ChartBar = ({ day, height, value, isHighlighted }) => (
   <div className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
     <div className="relative w-full flex justify-center">
@@ -70,74 +75,129 @@ const ChartBar = ({ day, height, value, isHighlighted }) => (
   </div>
 );
 
-/**
- * Recent Activity Item Component
- */
-const ActivityItem = ({ icon, iconBg, title, description, time }) => (
+// ─── Activity Item ──────────────────────────────────────────────────────────
+const ActivityItem = ({ icon, icon_bg, iconBg, title, description, time, timestamp }) => (
   <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 transition-all duration-300 group cursor-pointer">
-    <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110`}>
+    <div className={`w-10 h-10 rounded-xl ${icon_bg || iconBg} flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110`}>
       <span className="material-symbols-outlined text-lg">{icon}</span>
     </div>
     <div className="flex-1 min-w-0">
       <p className="font-semibold text-slate-900 text-sm">{title}</p>
       <p className="text-xs text-slate-500 truncate">{description}</p>
     </div>
-    <span className="text-xs text-slate-400 whitespace-nowrap">{time}</span>
+    <span className="text-xs text-slate-400 whitespace-nowrap">{time || timeAgo(timestamp)}</span>
   </div>
 );
 
-/**
- * Admin Dashboard Page
- * Clean platform overview without integrated KYC
- */
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════════════════════════
 const AdminDashboardPage = () => {
   const { user } = useAuthStore();
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [chartPeriod, setChartPeriod] = useState('weekly');
+  const [chartLoading, setChartLoading] = useState(false);
 
-  // Fetch stats
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await adminService.getStats();
-        if (response.success) {
-          setStats(response.data);
-        }
-      } catch {
-        // Use fallback data if API fails
-        setStats({
-          total_users: 12450,
-          active_nests: 856,
-          total_donations: 45200,
-          pending_kyc: 4,
-        });
-      } finally {
-        setIsLoading(false);
+  const fetchStats = useCallback(async (period = 'weekly') => {
+    try {
+      const response = await adminService.getStats({ period });
+      if (response.success) {
+        setStats(response.data);
       }
-    };
-    fetchStats();
+    } catch {
+      // Silently fail — UI will show "0" for empty data
+    }
   }, []);
 
-  // Mock chart data
-  const chartData = [
-    { day: 'Mon', value: 400, height: 40 },
-    { day: 'Tue', value: 650, height: 65 },
-    { day: 'Wed', value: 500, height: 50 },
-    { day: 'Thu', value: 850, height: 85 },
-    { day: 'Fri', value: 700, height: 70, isHighlighted: true },
-    { day: 'Sat', value: 450, height: 45 },
-    { day: 'Sun', value: 300, height: 30 },
-  ];
+  // Initial load
+  useEffect(() => {
+    const load = async () => {
+      await fetchStats(chartPeriod);
+      setIsLoading(false);
+    };
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Mock recent activity
-  const recentActivity = [
-    { icon: 'person_add', iconBg: 'bg-emerald-100 text-emerald-600', title: 'New user registered', description: 'John Doe joined as an Eaglet', time: '2 min ago' },
-    { icon: 'verified_user', iconBg: 'bg-blue-100 text-blue-600', title: 'KYC Approved', description: 'Mary Smith mentor application approved', time: '15 min ago' },
-    { icon: 'volunteer_activism', iconBg: 'bg-amber-100 text-amber-600', title: 'New donation', description: '$500 donation received', time: '1 hour ago' },
-    { icon: 'diversity_3', iconBg: 'bg-purple-100 text-purple-600', title: 'New Nest created', description: 'Tech Leaders nest by David Chen', time: '3 hours ago' },
-    { icon: 'upload_file', iconBg: 'bg-indigo-100 text-indigo-600', title: 'Content uploaded', description: 'New video course: Leadership 101', time: '5 hours ago' },
-  ];
+  // Refetch when chart period changes
+  const handlePeriodChange = useCallback(async (newPeriod) => {
+    if (newPeriod === chartPeriod) return;
+    setChartPeriod(newPeriod);
+    setChartLoading(true);
+    await fetchStats(newPeriod);
+    setChartLoading(false);
+  }, [chartPeriod, fetchStats]);
+
+  // Build chart data from recent_registrations
+  const chartData = useMemo(() => {
+    const regs = stats?.recent_registrations || [];
+
+    if (chartPeriod === 'monthly') {
+      // Monthly view: show last 4 weeks
+      const weekLabels = [];
+      for (let i = 3; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i * 7);
+        const weekStart = new Date(d);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // Monday
+        const dateStr = weekStart.toISOString().split('T')[0];
+        const label = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const match = regs.find((r) => {
+          const regDate = typeof r.date === 'string' ? r.date : r.date;
+          return regDate === dateStr;
+        });
+        weekLabels.push({
+          day: `Wk ${label}`,
+          value: match?.count || 0,
+          date: dateStr,
+        });
+      }
+
+      const maxVal = Math.max(...weekLabels.map((d) => d.value), 1);
+      return weekLabels.map((d, idx) => ({
+        ...d,
+        height: Math.max(5, (d.value / maxVal) * 100),
+        isHighlighted: idx === weekLabels.length - 1,
+      }));
+    }
+
+    // Weekly view: show last 7 days
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const match = regs.find((r) => {
+        const regDate = typeof r.date === 'string' ? r.date : r.date;
+        return regDate === dateStr;
+      });
+      days.push({
+        day: dayNames[d.getDay()],
+        value: match?.count || 0,
+        date: dateStr,
+      });
+    }
+
+    const maxVal = Math.max(...days.map((d) => d.value), 1);
+    return days.map((d, idx) => ({
+      ...d,
+      height: Math.max(5, (d.value / maxVal) * 100),
+      isHighlighted: idx === days.length - 1,
+    }));
+  }, [stats, chartPeriod]);
+
+  // Total registrations for the period
+  const totalChartRegistrations = useMemo(() => {
+    return chartData.reduce((sum, d) => sum + d.value, 0);
+  }, [chartData]);
+
+  // Derived values
+  const totalUsers = stats?.users?.total || 0;
+  const totalEagles = stats?.users?.eagles || 0;
+  const totalEaglets = stats?.users?.eaglets || 0;
+  const pendingKYC = stats?.kyc?.total_pending || 0;
+  const recentActivity = stats?.recent_activity || [];
 
   return (
     <DashboardLayout variant="admin">
@@ -169,26 +229,23 @@ const AdminDashboardPage = () => {
             iconBg="bg-white/20 text-white"
             gradient="bg-gradient-to-br from-blue-500 to-indigo-600"
             label="Total Users"
-            value={isLoading ? '...' : (stats?.total_users?.toLocaleString() || '12,450')}
-            change={8}
+            value={isLoading ? '...' : totalUsers.toLocaleString()}
             delay={0}
           />
           <StatCard
-            icon="diversity_3"
+            icon="school"
             iconBg="bg-white/20 text-white"
             gradient="bg-gradient-to-br from-emerald-500 to-green-600"
-            label="Active Nests"
-            value={isLoading ? '...' : (stats?.active_nests?.toLocaleString() || '856')}
-            change={12}
+            label="Eagles (Mentors)"
+            value={isLoading ? '...' : totalEagles.toLocaleString()}
             delay={100}
           />
           <StatCard
-            icon="volunteer_activism"
+            icon="person"
             iconBg="bg-white/20 text-white"
             gradient="bg-gradient-to-br from-amber-500 to-orange-600"
-            label="Total Donations"
-            value={isLoading ? '...' : `$${(stats?.total_donations || 45200).toLocaleString()}`}
-            change={23}
+            label="Eaglets (Mentees)"
+            value={isLoading ? '...' : totalEaglets.toLocaleString()}
             delay={200}
           />
           <Link to="/admin/kyc" className="block">
@@ -197,7 +254,7 @@ const AdminDashboardPage = () => {
               iconBg="bg-white/20 text-white"
               gradient="bg-gradient-to-br from-rose-500 to-pink-600"
               label="Pending KYC Reviews"
-              value={isLoading ? '...' : (stats?.pending_kyc || 4)}
+              value={isLoading ? '...' : pendingKYC}
               delay={300}
             />
           </Link>
@@ -210,11 +267,18 @@ const AdminDashboardPage = () => {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-lg font-bold text-slate-900">User Growth Analytics</h3>
-                <p className="text-sm text-slate-500">New registrations this week</p>
+                <p className="text-sm text-slate-500">
+                  {chartPeriod === 'weekly' ? 'New registrations this week' : 'New registrations this month'}
+                  {!isLoading && !chartLoading && (
+                    <span className="ml-2 font-semibold text-primary">
+                      ({totalChartRegistrations} total)
+                    </span>
+                  )}
+                </p>
               </div>
               <div className="flex bg-slate-100 rounded-lg p-1">
                 <button
-                  onClick={() => setChartPeriod('weekly')}
+                  onClick={() => handlePeriodChange('weekly')}
                   className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${
                     chartPeriod === 'weekly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                   }`}
@@ -222,7 +286,7 @@ const AdminDashboardPage = () => {
                   Weekly
                 </button>
                 <button
-                  onClick={() => setChartPeriod('monthly')}
+                  onClick={() => handlePeriodChange('monthly')}
                   className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${
                     chartPeriod === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
                   }`}
@@ -233,18 +297,26 @@ const AdminDashboardPage = () => {
             </div>
 
             <div className="relative h-52 w-full flex items-end justify-between gap-2 md:gap-4 pt-4">
+              {/* Grid lines */}
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="border-t border-slate-100 w-full h-0" />
                 ))}
               </div>
-              {chartData.map((data) => (
-                <ChartBar key={data.day} {...data} />
-              ))}
+
+              {chartLoading ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-2xl animate-spin text-slate-400">progress_activity</span>
+                </div>
+              ) : (
+                chartData.map((data) => (
+                  <ChartBar key={data.date || data.day} {...data} />
+                ))
+              )}
             </div>
           </div>
 
-          {/* Quick Stats */}
+          {/* Platform Stats */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-6 shadow-sm hover:shadow-lg transition-shadow duration-500 flex flex-col">
             <h3 className="text-lg font-bold text-slate-900 mb-4">Platform Stats</h3>
             <div className="flex-1 flex flex-col gap-4">
@@ -255,7 +327,9 @@ const AdminDashboardPage = () => {
                   </div>
                   <span className="font-medium text-slate-700">Eagles</span>
                 </div>
-                <span className="text-xl font-bold text-slate-900">1,234</span>
+                <span className="text-xl font-bold text-slate-900">
+                  {isLoading ? '...' : totalEagles.toLocaleString()}
+                </span>
               </div>
               <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl">
                 <div className="flex items-center gap-3">
@@ -264,16 +338,20 @@ const AdminDashboardPage = () => {
                   </div>
                   <span className="font-medium text-slate-700">Eaglets</span>
                 </div>
-                <span className="text-xl font-bold text-slate-900">11,216</span>
+                <span className="text-xl font-bold text-slate-900">
+                  {isLoading ? '...' : totalEaglets.toLocaleString()}
+                </span>
               </div>
-              <div className="flex items-center justify-between p-4 bg-amber-50 rounded-xl">
+              <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <span className="material-symbols-outlined text-amber-600">library_books</span>
+                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <span className="material-symbols-outlined text-red-600">block</span>
                   </div>
-                  <span className="font-medium text-slate-700">Content Items</span>
+                  <span className="font-medium text-slate-700">Suspended</span>
                 </div>
-                <span className="text-xl font-bold text-slate-900">2,847</span>
+                <span className="text-xl font-bold text-slate-900">
+                  {isLoading ? '...' : (stats?.users?.suspended || 0).toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
@@ -286,13 +364,24 @@ const AdminDashboardPage = () => {
             <div className="p-6 border-b border-slate-100">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-slate-900">Recent Activity</h3>
-                <button className="text-sm text-primary font-medium hover:underline">View All</button>
               </div>
             </div>
             <div className="divide-y divide-slate-100">
-              {recentActivity.map((activity, index) => (
-                <ActivityItem key={index} {...activity} />
-              ))}
+              {isLoading ? (
+                <div className="p-8 text-center text-slate-400">
+                  <span className="material-symbols-outlined text-3xl animate-spin mb-2">progress_activity</span>
+                  <p className="text-sm">Loading activity...</p>
+                </div>
+              ) : recentActivity.length > 0 ? (
+                recentActivity.map((activity, index) => (
+                  <ActivityItem key={index} {...activity} />
+                ))
+              ) : (
+                <div className="p-8 text-center text-slate-400">
+                  <span className="material-symbols-outlined text-3xl text-slate-300 mb-2">inbox</span>
+                  <p className="text-sm">No recent activity</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -309,7 +398,7 @@ const AdminDashboardPage = () => {
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-slate-900">Review KYC Applications</p>
-                  <p className="text-xs text-slate-500">{stats?.pending_kyc || 4} pending reviews</p>
+                  <p className="text-xs text-slate-500">{pendingKYC} pending reviews</p>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300">arrow_forward</span>
               </Link>
@@ -323,7 +412,7 @@ const AdminDashboardPage = () => {
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-slate-900">Manage Users</p>
-                  <p className="text-xs text-slate-500">View all platform users</p>
+                  <p className="text-xs text-slate-500">{totalUsers} total users</p>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300">arrow_forward</span>
               </Link>

@@ -10,6 +10,9 @@ export const mentorProfileSchema = z.object({
   marital_status: z.string().min(1, 'Please select your marital status'),
   employment_status: z.string().min(1, 'Please select your employment status'),
 
+  // Contact
+  phone_number: z.string().min(1, 'Phone number is required'),
+
   // Professional Profile
   profile_description: z
     .string()
