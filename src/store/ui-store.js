@@ -163,7 +163,7 @@ if (typeof window !== 'undefined') {
       if (parsed.state?.theme) {
         document.documentElement.classList.add(parsed.state.theme);
       }
-    } catch (e) {
+    } catch {
       // Ignore parsing errors
     }
   }

@@ -5,6 +5,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+// Re-export inactivity timeout hook
+export { useInactivityTimeout } from './useInactivityTimeout';
+
 /**
  * useLocalStorage - Persist state in localStorage
  */
