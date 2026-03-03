@@ -42,13 +42,6 @@ export default defineConfig(({ mode }) => {
       target: 'es2020',
       outDir: 'dist',
       sourcemap: mode !== 'production',
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: mode === 'production',
-          drop_debugger: mode === 'production',
-        },
-      },
       rollupOptions: {
         output: {
           // Code splitting for better caching
