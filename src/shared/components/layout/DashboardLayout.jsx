@@ -5,14 +5,7 @@ import { useAuthStore } from '@store';
 import { adminService } from '../../../modules/auth/services/auth-service';
 import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
 
-const timeAgo = (iso) => {
-  if (!iso) return '';
-  const diff = (Date.now() - new Date(iso)) / 1000;
-  if (diff < 60) return 'Just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-};
+import { formatRelativeTime } from '../../../shared/utils';
 
 /**
  * Animated Background Component
@@ -375,7 +368,7 @@ const DashboardLayout = ({ children, variant = 'default' }) => {
                           <p className="text-xs font-semibold text-slate-900">{n.title}</p>
                           <p className="text-xs text-slate-500 truncate">{n.description}</p>
                         </div>
-                        <span className="text-[10px] text-slate-400 whitespace-nowrap flex-shrink-0">{timeAgo(n.timestamp)}</span>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap flex-shrink-0">{formatRelativeTime(n.timestamp)}</span>
                       </div>
                     )) : (
                       <div className="px-4 py-8 text-center">

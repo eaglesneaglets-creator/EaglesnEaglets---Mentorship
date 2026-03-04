@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { profileService } from '../../modules/profile/services/profile-service';
 import { Button, Alert } from '@components/ui';
+import { logger } from '../../shared/utils/logger';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
 
 /**
@@ -39,7 +40,7 @@ const PendingApprovalPage = () => {
           // Note: rejected status stays on this page to show rejection message
         }
       } catch (err) {
-        console.error('Failed to load profile:', err);
+        logger.error('Failed to load profile:', err);
       } finally {
         setIsLoading(false);
       }
@@ -193,10 +194,10 @@ const PendingApprovalPage = () => {
                 <p className="text-xs text-text-muted mt-1">
                   Submitted: {profileData?.submitted_at
                     ? new Date(profileData.submitted_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })
                     : 'Pending'}
                 </p>
               </div>

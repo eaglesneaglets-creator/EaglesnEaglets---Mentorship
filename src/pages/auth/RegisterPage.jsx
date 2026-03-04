@@ -4,6 +4,7 @@ import { useAuthStore } from '@store';
 import { Button, Input, Checkbox, Alert } from '@components/ui';
 import { registerSchema } from '../../modules/auth/schemas/register-schema';
 import { authService } from '../../modules/auth/services/auth-service';
+import { logger } from '../../shared/utils/logger';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
 
 /**
@@ -33,7 +34,7 @@ const FloatingShape = ({ delay, duration, left, top, size, type }) => {
         viewBox="0 0 24 24"
         fill="currentColor"
       >
-        <path d="M20.12 6.71c-2.15-2.15-5.64-2.15-7.79 0l-2.12 2.12c-.59.59-.59 1.54 0 2.12.59.59 1.54.59 2.12 0l2.12-2.12c.98-.98 2.56-.98 3.54 0 .98.98.98 2.56 0 3.54l-6.36 6.36c-.98.98-2.56.98-3.54 0-.98-.98-.98-2.56 0-3.54l.71-.71c.59-.59.59-1.54 0-2.12-.59-.59-1.54-.59-2.12 0l-.71.71c-2.15 2.15-2.15 5.64 0 7.79 2.15 2.15 5.64 2.15 7.79 0l6.36-6.36c2.15-2.15 2.15-5.64 0-7.79z"/>
+        <path d="M20.12 6.71c-2.15-2.15-5.64-2.15-7.79 0l-2.12 2.12c-.59.59-.59 1.54 0 2.12.59.59 1.54.59 2.12 0l2.12-2.12c.98-.98 2.56-.98 3.54 0 .98.98.98 2.56 0 3.54l-6.36 6.36c-.98.98-2.56.98-3.54 0-.98-.98-.98-2.56 0-3.54l.71-.71c.59-.59.59-1.54 0-2.12-.59-.59-1.54-.59-2.12 0l-.71.71c-2.15 2.15-2.15 5.64 0 7.79 2.15 2.15 5.64 2.15 7.79 0l6.36-6.36c2.15-2.15 2.15-5.64 0-7.79z" />
       </svg>
     ),
     star: (
@@ -43,7 +44,7 @@ const FloatingShape = ({ delay, duration, left, top, size, type }) => {
         viewBox="0 0 24 24"
         fill="currentColor"
       >
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
       </svg>
     ),
   };
@@ -173,7 +174,7 @@ const RegisterPage = () => {
         }, 5000);
       }
     } catch (err) {
-      console.error('Registration failed:', err);
+      logger.error('Registration failed:', err);
     }
   };
 
@@ -249,11 +250,10 @@ const RegisterPage = () => {
         <div className="max-w-md w-full text-center relative z-10">
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-border animate-success-pop">
             {/* Icon changes based on email status */}
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
-              emailSent
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${emailSent
                 ? 'bg-gradient-to-br from-success/20 to-success/10'
                 : 'bg-gradient-to-br from-amber-100 to-amber-50'
-            }`}>
+              }`}>
               {emailSent ? (
                 <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
