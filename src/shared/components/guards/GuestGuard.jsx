@@ -1,57 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@store';
-
-/**
- * Helper function to get the appropriate redirect path based on user role and KYC status
- */
-const getRedirectPath = (user) => {
-  // Admin users go directly to admin dashboard
-  if (user?.role === 'admin') {
-    return '/admin/dashboard';
-  }
-
-  const kycStatus = user?.kyc_status;
-
-  // KYC not started or in draft - redirect to profile completion
-  if (!kycStatus || kycStatus === 'draft') {
-    if (user?.role === 'eagle') {
-      return '/mentor-profile';
-    }
-    if (user?.role === 'eaglet') {
-      return '/mentee-profile';
-    }
-  }
-
-  // KYC submitted or under review - redirect to pending approval
-  if (kycStatus === 'submitted' || kycStatus === 'under_review') {
-    return '/pending-approval';
-  }
-
-  // KYC requires changes - redirect to profile to make updates
-  if (kycStatus === 'requires_changes') {
-    if (user?.role === 'eagle') {
-      return '/mentor-profile';
-    }
-    if (user?.role === 'eaglet') {
-      return '/mentee-profile';
-    }
-  }
-
-  // KYC rejected - redirect to pending approval (will show rejection message)
-  if (kycStatus === 'rejected') {
-    return '/pending-approval';
-  }
-
-  // KYC approved - redirect to role-specific dashboard
-  if (user?.role === 'eagle') {
-    return '/eagle/dashboard';
-  }
-  if (user?.role === 'eaglet') {
-    return '/eaglet/dashboard';
-  }
-
-  return '/dashboard';
-};
+import { getKYCRedirectPath } from '../../../shared/utils/getKYCRedirectPath';
 
 /**
  * GuestGuard Component
@@ -71,8 +20,7 @@ const GuestGuard = () => {
 
   // Redirect to appropriate page if already authenticated
   if (isAuthenticated && user) {
-    // Determine the correct redirect path based on KYC status
-    const redirectPath = getRedirectPath(user);
+    const redirectPath = getKYCRedirectPath(user);
     return <Navigate to={redirectPath} replace />;
   }
 
@@ -80,3 +28,4 @@ const GuestGuard = () => {
 };
 
 export default GuestGuard;
+

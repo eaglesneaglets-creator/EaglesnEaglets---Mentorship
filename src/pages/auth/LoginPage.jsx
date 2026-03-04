@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { Button, Input, Checkbox, Alert } from '@components/ui';
 import { authService } from '../../modules/auth/services/auth-service';
+import { logger } from '../../shared/utils/logger';
 import { loginSchema } from '../../modules/auth/schemas/register-schema';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
 
@@ -19,7 +20,7 @@ const Feather = ({ delay, duration, left, size = 24 }) => (
     viewBox="0 0 24 24"
     fill="currentColor"
   >
-    <path d="M20.12 6.71c-2.15-2.15-5.64-2.15-7.79 0l-2.12 2.12c-.59.59-.59 1.54 0 2.12.59.59 1.54.59 2.12 0l2.12-2.12c.98-.98 2.56-.98 3.54 0 .98.98.98 2.56 0 3.54l-6.36 6.36c-.98.98-2.56.98-3.54 0-.98-.98-.98-2.56 0-3.54l.71-.71c.59-.59.59-1.54 0-2.12-.59-.59-1.54-.59-2.12 0l-.71.71c-2.15 2.15-2.15 5.64 0 7.79 2.15 2.15 5.64 2.15 7.79 0l6.36-6.36c2.15-2.15 2.15-5.64 0-7.79z"/>
+    <path d="M20.12 6.71c-2.15-2.15-5.64-2.15-7.79 0l-2.12 2.12c-.59.59-.59 1.54 0 2.12.59.59 1.54.59 2.12 0l2.12-2.12c.98-.98 2.56-.98 3.54 0 .98.98.98 2.56 0 3.54l-6.36 6.36c-.98.98-2.56.98-3.54 0-.98-.98-.98-2.56 0-3.54l.71-.71c.59-.59.59-1.54 0-2.12-.59-.59-1.54-.59-2.12 0l-.71.71c-2.15 2.15-2.15 5.64 0 7.79 2.15 2.15 5.64 2.15 7.79 0l6.36-6.36c2.15-2.15 2.15-5.64 0-7.79z" />
   </svg>
 );
 
@@ -46,7 +47,7 @@ const LoginPage = () => {
 
   const stateMessage = location.state?.message;
   const isSessionExpiry = stateMessage?.toLowerCase().includes('session') ||
-                          stateMessage?.toLowerCase().includes('inactivity');
+    stateMessage?.toLowerCase().includes('inactivity');
 
   // Check if the error is about email verification
   const isVerificationError = authError?.toLowerCase().includes('verify your email');
@@ -112,7 +113,7 @@ const LoginPage = () => {
         window.location.href = response.data.auth_url;
       }
     } catch (err) {
-      console.error('Failed to get Google auth URL:', err);
+      logger.error('Failed to get Google auth URL:', err);
       setIsGoogleLoading(false);
     }
   };
@@ -173,7 +174,7 @@ const LoginPage = () => {
         navigate('/dashboard');
       }
     } catch (err) {
-      console.error('Login failed:', err);
+      logger.error('Login failed:', err);
     }
   };
 
@@ -331,7 +332,7 @@ const LoginPage = () => {
         {/* Flying eagle silhouette */}
         <div className="absolute top-1/4 animate-eagle-soar">
           <svg className="w-12 h-12 xl:w-16 xl:h-16 text-white/10" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M21.9 8.89l-1.05-4.37c-.22-.9-1-1.52-1.91-1.52H5.05c-.9 0-1.69.63-1.9 1.52L2.1 8.89c-.24 1.02.27 2.06 1.23 2.51l.5.24-.74 6.65c-.12 1.07.74 2 1.81 2h14.2c1.07 0 1.93-.93 1.81-2l-.74-6.65.5-.24c.96-.45 1.47-1.49 1.23-2.51zm-4.39 9.79H6.49l.74-6.65 4.77 2.31 4.77-2.31.74 6.65z"/>
+            <path d="M21.9 8.89l-1.05-4.37c-.22-.9-1-1.52-1.91-1.52H5.05c-.9 0-1.69.63-1.9 1.52L2.1 8.89c-.24 1.02.27 2.06 1.23 2.51l.5.24-.74 6.65c-.12 1.07.74 2 1.81 2h14.2c1.07 0 1.93-.93 1.81-2l-.74-6.65.5-.24c.96-.45 1.47-1.49 1.23-2.51zm-4.39 9.79H6.49l.74-6.65 4.77 2.31 4.77-2.31.74 6.65z" />
           </svg>
         </div>
 
@@ -352,7 +353,7 @@ const LoginPage = () => {
               className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 lg:mb-6 leading-tight animate-slide-in-right"
               style={{ animationDelay: '0.4s' }}
             >
-              Soar to <br/>
+              Soar to <br />
               <span className="text-emerald-200 animate-float-up inline-block">New Heights</span>
             </h1>
 
@@ -369,15 +370,15 @@ const LoginPage = () => {
               style={{ animationDelay: '0.8s' }}
             >
               <div className="text-center p-2 lg:p-3 rounded-lg bg-white/10 backdrop-blur-sm">
-                <div className="text-lg lg:text-xl xl:text-2xl font-bold">500+</div>
+                <div className="text-lg lg:text-xl xl:text-2xl font-bold">{import.meta.env.VITE_STAT_MENTORS || '100+'}</div>
                 <div className="text-[10px] lg:text-xs opacity-80">Mentors</div>
               </div>
               <div className="text-center p-2 lg:p-3 rounded-lg bg-white/10 backdrop-blur-sm">
-                <div className="text-lg lg:text-xl xl:text-2xl font-bold">2K+</div>
+                <div className="text-lg lg:text-xl xl:text-2xl font-bold">{import.meta.env.VITE_STAT_MENTEES || '500+'}</div>
                 <div className="text-[10px] lg:text-xs opacity-80">Mentees</div>
               </div>
               <div className="text-center p-2 lg:p-3 rounded-lg bg-white/10 backdrop-blur-sm">
-                <div className="text-lg lg:text-xl xl:text-2xl font-bold">98%</div>
+                <div className="text-lg lg:text-xl xl:text-2xl font-bold">{import.meta.env.VITE_STAT_SUCCESS || '95%'}</div>
                 <div className="text-[10px] lg:text-xs opacity-80">Success</div>
               </div>
             </div>

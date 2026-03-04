@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { FileUpload, Alert } from '@components/ui';
 import { kycService } from '../../modules/auth/services/auth-service';
+import { logger } from '../../shared/utils/logger';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
 
 // Step definitions
@@ -186,7 +187,7 @@ const KYCWizardPage = () => {
           setCompletedSteps(completed);
         }
       } catch (err) {
-        console.error('Failed to load KYC:', err);
+        logger.error('Failed to load KYC:', err);
       } finally {
         setIsLoading(false);
       }

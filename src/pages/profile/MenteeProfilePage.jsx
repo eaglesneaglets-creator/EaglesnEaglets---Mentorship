@@ -15,6 +15,7 @@ import ProfilePictureUpload from '../../modules/profile/components/ProfilePictur
 import { Button, Input, Select, Textarea, Alert, Checkbox } from '@components/ui';
 import FileUpload from '@components/ui/FileUpload';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+import { logger } from '../../shared/utils/logger';
 
 /**
  * MenteeProfilePage Component
@@ -106,7 +107,7 @@ const MenteeProfilePage = () => {
         }
       } catch {
         // Profile might not exist yet for new users
-        console.log('No existing profile data');
+        logger.debug('No existing profile data');
       } finally {
         setIsLoading(false);
       }
