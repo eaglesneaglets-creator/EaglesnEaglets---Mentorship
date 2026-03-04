@@ -66,7 +66,7 @@ const FloatingShape = ({ delay, duration, left, top, size, type }) => {
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { register, isLoading, error: authError, clearError } = useAuthStore();
+  const { error: authError, clearError } = useAuthStore();
 
   const [selectedRole, setSelectedRole] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -83,6 +83,10 @@ const RegisterPage = () => {
 
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registrationFailed, setRegistrationFailed] = useState(false);
+  const [failureMessage, setFailureMessage] = useState('');
+  const [countdown, setCountdown] = useState(null);
   const [emailSent, setEmailSent] = useState(true);
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
@@ -143,6 +147,9 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Prevent double submission
+    if (isSubmitting) return;
+
     // Validate form data
     const result = registerSchema.safeParse(formData);
     if (!result.success) {
@@ -159,22 +166,32 @@ const RegisterPage = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
-      const response = await register(formData);
+      // Use authService directly instead of the store's register()
+      // to avoid setting store.isLoading, which causes GuestGuard
+      // to unmount this page and reset all local state.
+      const response = await authService.register(formData);
+      const data = response?.data || response;
       setSuccess(true);
 
       // Check if email was sent successfully
-      const wasEmailSent = response?.email_sent !== false;
+      const wasEmailSent = data?.email_sent !== false;
       setEmailSent(wasEmailSent);
 
-      // Only auto-redirect if email was sent successfully
+      // Start countdown for auto-redirect if email was sent
       if (wasEmailSent) {
-        setTimeout(() => {
-          navigate('/login', { state: { message: 'Please check your email to verify your account.' } });
-        }, 5000);
+        setCountdown(5);
       }
     } catch (err) {
       logger.error('Registration failed:', err);
+      setRegistrationFailed(true);
+      setFailureMessage(
+        err?.message || 'An unexpected error occurred. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -188,10 +205,8 @@ const RegisterPage = () => {
       if (response.success) {
         setResendSuccess(true);
         setEmailSent(true);
-        // Now allow redirect after successful resend
-        setTimeout(() => {
-          navigate('/login', { state: { message: 'Verification email sent. Please check your inbox.' } });
-        }, 3000);
+        // Start countdown for redirect after successful resend
+        setCountdown(3);
       }
     } catch (err) {
       setResendError(err.message || 'Failed to resend verification email. Please try again.');
@@ -199,6 +214,164 @@ const RegisterPage = () => {
       setIsResending(false);
     }
   };
+
+  // Handle "Try Again" from failure screen
+  const handleTryAgain = () => {
+    setRegistrationFailed(false);
+    setFailureMessage('');
+    clearError?.();
+  };
+
+  // Countdown timer for auto-redirect
+  useEffect(() => {
+    if (countdown === null || countdown < 0) return;
+
+    if (countdown === 0) {
+      const message = resendSuccess
+        ? 'Verification email sent. Please check your inbox.'
+        : 'Please check your email to verify your account.';
+      navigate('/login', { state: { message } });
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown, navigate, resendSuccess]);
+
+  // Failure state - show full-screen error result
+  if (registrationFailed) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 relative overflow-hidden">
+        {/* Failure animation styles */}
+        <style>{`
+          @keyframes failure-pop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          @keyframes x-draw {
+            0% { stroke-dashoffset: 30; }
+            100% { stroke-dashoffset: 0; }
+          }
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 50%, 90% { transform: translateX(-4px); }
+            30%, 70% { transform: translateX(4px); }
+          }
+          @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.15); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+          }
+          .animate-failure-pop {
+            animation: failure-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          }
+          .animate-x-draw {
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+            animation: x-draw 0.4s ease-out 0.3s forwards;
+          }
+          .animate-shake {
+            animation: shake 0.5s ease-in-out 0.6s;
+          }
+          .animate-pulse-ring {
+            animation: pulse-ring 2s ease-out infinite;
+          }
+        `}</style>
+
+        {/* Subtle red gradient accents */}
+        <div className="absolute -top-20 -right-20 sm:-top-40 sm:-right-40 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, transparent 70%)' }}
+        />
+        <div className="absolute -bottom-20 -left-20 sm:-bottom-40 sm:-left-40 w-64 h-64 sm:w-80 sm:h-80 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(239, 68, 68, 0.07) 0%, transparent 70%)' }}
+        />
+
+        <div className="max-w-md w-full text-center relative z-10">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-border animate-failure-pop">
+            {/* Animated error icon */}
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              {/* Pulse ring behind icon */}
+              <div className="absolute inset-0 rounded-full bg-red-100 animate-pulse-ring" />
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-red-100 to-red-50 flex items-center justify-center animate-shake">
+                <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    className="animate-x-draw"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M6 18L18 6"
+                  />
+                  <path
+                    className="animate-x-draw"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M6 6l12 12"
+                    style={{ animationDelay: '0.45s' }}
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-text-primary mb-2">
+              Registration Failed
+            </h2>
+
+            <p className="text-text-secondary mb-6">
+              We couldn&apos;t create your account. Please review the error below and try again.
+            </p>
+
+            {/* Error message card */}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-left">
+              <div className="flex gap-3">
+                <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-medium text-red-800">What went wrong</p>
+                  <p className="text-sm text-red-700 mt-1">{failureMessage}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="space-y-3">
+              <Button
+                variant="primary"
+                fullWidth
+                onClick={handleTryAgain}
+                className="btn-hover-lift"
+              >
+                Try Again
+              </Button>
+
+              <Link to="/login">
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  className="btn-hover-lift mt-3"
+                >
+                  Go to Login
+                </Button>
+              </Link>
+            </div>
+
+            <p className="text-xs text-text-muted mt-5">
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary font-semibold hover:underline">
+                Log in here
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Success state
   if (success) {
@@ -219,6 +392,11 @@ const RegisterPage = () => {
             0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
           }
+          @keyframes countdown-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+          }
           .animate-success-pop {
             animation: success-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
           }
@@ -229,6 +407,9 @@ const RegisterPage = () => {
           }
           .confetti {
             animation: confetti-fall linear forwards;
+          }
+          .countdown-number {
+            animation: countdown-pulse 1s ease-in-out infinite;
           }
         `}</style>
 
@@ -251,8 +432,8 @@ const RegisterPage = () => {
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-border animate-success-pop">
             {/* Icon changes based on email status */}
             <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${emailSent
-                ? 'bg-gradient-to-br from-success/20 to-success/10'
-                : 'bg-gradient-to-br from-amber-100 to-amber-50'
+              ? 'bg-gradient-to-br from-success/20 to-success/10'
+              : 'bg-gradient-to-br from-amber-100 to-amber-50'
               }`}>
               {emailSent ? (
                 <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,7 +453,7 @@ const RegisterPage = () => {
             </div>
 
             <h2 className="text-2xl font-bold text-text-primary mb-2">
-              {emailSent ? 'Registration Successful!' : 'Account Created!'}
+              {emailSent ? 'Account Created Successfully!' : 'Account Created!'}
             </h2>
 
             {/* Email sent successfully */}
@@ -363,10 +544,20 @@ const RegisterPage = () => {
               </Link>
             </div>
 
-            {/* Auto-redirect message */}
-            {(emailSent || resendSuccess) && (
+            {/* Auto-redirect countdown */}
+            {(emailSent || resendSuccess) && countdown !== null && countdown > 0 && (
+              <div className="mt-5">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                  <p className="text-sm text-text-secondary">
+                    Redirecting to login in <span className="font-bold text-primary countdown-number inline-block">{countdown}</span> {countdown === 1 ? 'second' : 'seconds'}...
+                  </p>
+                </div>
+              </div>
+            )}
+            {(emailSent || resendSuccess) && countdown === 0 && (
               <p className="text-xs text-text-muted mt-4">
-                Redirecting to login in a few seconds...
+                Redirecting now...
               </p>
             )}
           </div>
@@ -912,7 +1103,7 @@ const RegisterPage = () => {
                 variant="primary"
                 size="lg"
                 fullWidth
-                loading={isLoading}
+                loading={isSubmitting}
                 className="btn-hover-lift !py-3 sm:!py-3.5"
               >
                 {selectedRole === 'eagle' ? 'Create Mentor Account' : 'Create Account'}
