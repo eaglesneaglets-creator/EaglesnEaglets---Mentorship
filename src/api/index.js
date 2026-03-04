@@ -130,32 +130,43 @@ export const apiClient = {
       }
     }
 
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    const config = {
-      ...fetchOptions,
-      headers,
-      signal: controller.signal,
-    };
-
     let lastError;
 
     // Retry loop with exponential backoff
+    // Each iteration creates a fresh AbortController so a timeout on one
+    // attempt does not poison the signal for subsequent retries.
     for (let attempt = 0; attempt <= retries; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+
       try {
-        const response = await fetch(url, config);
+        const response = await fetch(url, {
+          ...fetchOptions,
+          headers,
+          signal: controller.signal,
+        });
         clearTimeout(timeoutId);
 
         // Handle 401 - Token expired
         if (response.status === 401 && !skipAuth) {
           const newToken = await this.handleTokenRefresh();
           if (newToken) {
-            // Retry request with new token
+            // Retry request with new token and a fresh controller
             headers['Authorization'] = `Bearer ${newToken}`;
-            const retryResponse = await fetch(url, { ...config, headers });
-            return await this.handleResponse(retryResponse);
+            const retryController = new AbortController();
+            const retryTimeoutId = setTimeout(() => retryController.abort(), timeout);
+            try {
+              const retryResponse = await fetch(url, {
+                ...fetchOptions,
+                headers,
+                signal: retryController.signal,
+              });
+              clearTimeout(retryTimeoutId);
+              return await this.handleResponse(retryResponse);
+            } catch (retryError) {
+              clearTimeout(retryTimeoutId);
+              throw retryError;
+            }
           }
         }
 

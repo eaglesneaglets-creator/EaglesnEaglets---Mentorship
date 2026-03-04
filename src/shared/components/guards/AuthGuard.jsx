@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@store';
+import { getKYCRedirectPath } from '../../../shared/utils/getKYCRedirectPath';
 
 // Routes that should be accessible even when KYC is not approved
 const KYC_EXEMPT_ROUTES = [
@@ -47,34 +48,15 @@ const AuthGuard = () => {
   if (!isKycExemptRoute && user) {
     const kycStatus = user.kyc_status;
 
-    // KYC not started or in draft - redirect to profile completion
-    if (!kycStatus || kycStatus === 'draft') {
-      if (user.role === 'eagle') {
-        return <Navigate to="/mentor-profile" replace />;
+    // Only allow through if KYC is approved (or status not requiring redirect)
+    if (!kycStatus || kycStatus === 'draft' || kycStatus === 'submitted' ||
+      kycStatus === 'under_review' || kycStatus === 'requires_changes' ||
+      kycStatus === 'rejected') {
+      const redirectTo = getKYCRedirectPath(user);
+      // Avoid redirect loop: only redirect if target is different from current path
+      if (redirectTo !== location.pathname) {
+        return <Navigate to={redirectTo} replace />;
       }
-      if (user.role === 'eaglet') {
-        return <Navigate to="/mentee-profile" replace />;
-      }
-    }
-
-    // KYC submitted or under review - redirect to pending approval
-    if (kycStatus === 'submitted' || kycStatus === 'under_review') {
-      return <Navigate to="/pending-approval" replace />;
-    }
-
-    // KYC requires changes - redirect to profile to make updates
-    if (kycStatus === 'requires_changes') {
-      if (user.role === 'eagle') {
-        return <Navigate to="/mentor-profile" replace />;
-      }
-      if (user.role === 'eaglet') {
-        return <Navigate to="/mentee-profile" replace />;
-      }
-    }
-
-    // KYC rejected - redirect to pending approval (will show rejection message)
-    if (kycStatus === 'rejected') {
-      return <Navigate to="/pending-approval" replace />;
     }
   }
 
@@ -83,3 +65,4 @@ const AuthGuard = () => {
 };
 
 export default AuthGuard;
+

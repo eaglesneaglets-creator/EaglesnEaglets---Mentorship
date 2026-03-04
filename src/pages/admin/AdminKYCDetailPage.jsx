@@ -325,7 +325,7 @@ const AdminKYCDetailPage = () => {
   const pendingDays = daysBetween(kyc.submitted_at);
   const completionPct = kyc.completion_percentage ?? 100;
 
-  const avatarUrl = kyc.display_picture || kyc.user_avatar || kyc.avatar;
+  const avatarUrl = kyc.display_picture_url || kyc.display_picture || kyc.user_profile_picture_url || kyc.user_avatar || kyc.avatar;
   const fullAvatarUrl = avatarUrl ? (avatarUrl.startsWith('http') ? avatarUrl : `${BACKEND_URL}${avatarUrl}`) : null;
   const fullName = kyc.full_name || kyc.user_full_name || `${kyc.first_name || ''} ${kyc.last_name || ''}`.trim() || 'Unknown';
   const email = kyc.email || kyc.user_email || '';
@@ -342,7 +342,7 @@ const AdminKYCDetailPage = () => {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
       <InfoField label="Full Name" value={fullName} />
       <InfoField label="Email" value={email} />
-      <InfoField label="Phone" value={kyc.phone_number} />
+      <InfoField label="Phone" value={kyc.user_phone_number || kyc.phone_number} />
       <InfoField label="National ID" value={kyc.national_id_number} />
       <InfoField label="Marital Status" value={kyc.marital_status?.replace('_', ' ')} />
       {isMentor ? (
@@ -355,22 +355,24 @@ const AdminKYCDetailPage = () => {
         </>
       )}
       <InfoField label="Employment Status" value={kyc.employment_status?.replace('_', ' ')} />
-      <InfoField label="Account Created" value={formatDate(kyc.created_at)} />
+      <InfoField label="Account Created" value={formatDate(kyc.user_created_at || kyc.created_at)} />
     </div>
   );
 
-  const renderProfessionalTab = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
-      {isMentor && <InfoField label="Area of Expertise" value={kyc.area_of_expertise} />}
-      {isMentor && <InfoField label="Current Occupation" value={kyc.current_occupation} />}
-      <InfoField label="Employment Status" value={kyc.employment_status?.replace('_', ' ')} />
-      <InfoField label="LinkedIn" value={kyc.linkedin_url} isLink />
-      <div className="sm:col-span-2">
-        <InfoField label="CV / Resume" value={kyc.cv_url || kyc.cv} isDocument
-          onDocClick={() => setDocumentViewer({ isOpen: true, url: kyc.cv_url || kyc.cv, title: 'Curriculum Vitae' })} />
+  const renderProfessionalTab = () => {
+    const cvUrl = kyc.cv_url || kyc.cv;
+    const cvFullUrl = cvUrl ? (cvUrl.startsWith('http') ? cvUrl : `${BACKEND_URL}${cvUrl}`) : null;
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+        <InfoField label="Employment Status" value={kyc.employment_status?.replace('_', ' ')} />
+        <InfoField label="LinkedIn" value={kyc.linkedin_url} isLink />
+        <div className="sm:col-span-2">
+          <InfoField label="CV / Resume" value={cvFullUrl} isDocument
+            onDocClick={() => setDocumentViewer({ isOpen: true, url: cvFullUrl, title: 'Curriculum Vitae' })} />
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderAboutTab = () => (
     <div className="space-y-5">
@@ -382,12 +384,12 @@ const AdminKYCDetailPage = () => {
           {sanitizeToText(kyc.profile_description || kyc.bio) || <span className="text-slate-300 italic">No information provided</span>}
         </div>
       </div>
-      {kyc.display_picture && (
+      {(kyc.display_picture_url || kyc.display_picture) && (
         <div>
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Display Picture</span>
-          <button onClick={() => setDocumentViewer({ isOpen: true, url: kyc.display_picture, title: 'Display Picture' })}
+          <button onClick={() => setDocumentViewer({ isOpen: true, url: kyc.display_picture_url || kyc.display_picture, title: 'Display Picture' })}
             className="mt-2 block">
-            <img src={kyc.display_picture?.startsWith('http') ? kyc.display_picture : `${BACKEND_URL}${kyc.display_picture}`}
+            <img src={(() => { const url = kyc.display_picture_url || kyc.display_picture; return url?.startsWith('http') ? url : `${BACKEND_URL}${url}`; })()}
               alt="Display" className="w-32 h-32 object-cover rounded-xl border border-slate-200 hover:shadow-lg transition-shadow" />
           </button>
         </div>

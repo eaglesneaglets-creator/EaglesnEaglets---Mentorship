@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { Button, Alert } from '@components/ui';
 import { kycService } from '../../modules/auth/services/auth-service';
+import { logger } from '../../shared/utils/logger';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
 
 /**
@@ -22,7 +23,7 @@ const KYCPendingPage = () => {
           setKycData(response.data);
         }
       } catch (err) {
-        console.error('Failed to load KYC status:', err);
+        logger.error('Failed to load KYC status:', err);
       } finally {
         setIsLoading(false);
       }

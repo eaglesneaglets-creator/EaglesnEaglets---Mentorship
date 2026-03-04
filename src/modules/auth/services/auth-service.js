@@ -31,10 +31,10 @@ export const authService = {
   /**
    * Handle Google OAuth callback
    * @param {string} code - Authorization code from Google
-   * @param {string} role - User role (eagle/eaglet)
+   * @param {string} state - OAuth state parameter (contains nonce + role, base64-encoded)
    */
-  googleCallback: (code, role) =>
-    apiClient.post('/auth/google/callback/', { code, role }, { skipAuth: true }),
+  googleCallback: (code, state) =>
+    apiClient.post('/auth/google/callback/', { code, state }, { skipAuth: true }),
 
   /**
    * Logout user and blacklist token
@@ -188,75 +188,6 @@ export const eagletProfileService = {
     apiClient.post('/auth/eaglet/onboarding/skip/'),
 };
 
-/**
- * Profile Service (NEW PM Requirements)
- * Handles KYC profile for both Mentors and Mentees
- */
-export const profileService = {
-  // =========================================================================
-  // MENTOR (Eagle) Profile
-  // =========================================================================
-
-  /**
-   * Get mentor profile/KYC data
-   */
-  getMentorProfile: () =>
-    apiClient.get('/auth/mentor-profile/'),
-
-  /**
-   * Update mentor profile/KYC data
-   * @param {Object} data - Profile data to update
-   */
-  updateMentorProfile: (data) =>
-    apiClient.patch('/auth/mentor-profile/', data),
-
-  // =========================================================================
-  // MENTEE (Eaglet) Profile
-  // =========================================================================
-
-  /**
-   * Get mentee profile/KYC data
-   */
-  getMenteeProfile: () =>
-    apiClient.get('/auth/mentee-profile/'),
-
-  /**
-   * Update mentee profile/KYC data
-   * @param {Object} data - Profile data to update
-   */
-  updateMenteeProfile: (data) =>
-    apiClient.patch('/auth/mentee-profile/', data),
-
-  // =========================================================================
-  // Common Operations
-  // =========================================================================
-
-  /**
-   * Submit profile for admin review (works for both roles)
-   */
-  submitProfile: () =>
-    apiClient.post('/auth/profile/submit/'),
-
-  /**
-   * Upload display picture
-   * @param {File} file - Image file
-   */
-  uploadDisplayPicture: (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return apiClient.upload('/auth/upload/picture/', formData);
-  },
-
-  /**
-   * Upload CV document
-   * @param {File} file - CV file (PDF/DOCX)
-   */
-  uploadCV: (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return apiClient.upload('/auth/upload/cv/', formData);
-  },
-};
 
 /**
  * Admin Service
