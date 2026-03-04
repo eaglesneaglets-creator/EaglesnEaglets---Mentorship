@@ -4,16 +4,7 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { adminService } from '../../modules/auth/services/auth-service';
 
-// ─── Helper ─────────────────────────────────────────────────────────────────
-const timeAgo = (iso) => {
-  if (!iso) return '';
-  const diff = (Date.now() - new Date(iso)) / 1000;
-  if (diff < 60) return 'Just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-};
+import { formatRelativeTime } from '../../shared/utils';
 
 // ─── Stat Card ──────────────────────────────────────────────────────────────
 const StatCard = ({ icon, iconBg, gradient, label, value, change, delay = 0 }) => (
@@ -36,9 +27,8 @@ const StatCard = ({ icon, iconBg, gradient, label, value, change, delay = 0 }) =
         <div className="flex items-baseline gap-3">
           <p className={`text-3xl font-bold ${gradient ? 'text-white' : 'text-slate-900'}`}>{value}</p>
           {change !== undefined && change !== null && (
-            <span className={`flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full ${
-              gradient ? 'bg-white/20 text-white' : change > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
-            }`}>
+            <span className={`flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full ${gradient ? 'bg-white/20 text-white' : change > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+              }`}>
               <span className="material-symbols-outlined text-xs">
                 {change > 0 ? 'trending_up' : 'trending_down'}
               </span>
@@ -61,11 +51,10 @@ const ChartBar = ({ day, height, value, isHighlighted }) => (
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-slate-800" />
       </div>
       <div
-        className={`w-full max-w-[40px] rounded-t-lg transition-all duration-500 ease-out group-hover:scale-105 ${
-          isHighlighted
-            ? 'bg-primary shadow-lg shadow-primary/30'
-            : 'bg-primary/30 group-hover:bg-primary/50'
-        }`}
+        className={`w-full max-w-[40px] rounded-t-lg transition-all duration-500 ease-out group-hover:scale-105 ${isHighlighted
+          ? 'bg-primary shadow-lg shadow-primary/30'
+          : 'bg-primary/30 group-hover:bg-primary/50'
+          }`}
         style={{ height: `${height}%` }}
       />
     </div>
@@ -85,7 +74,7 @@ const ActivityItem = ({ icon, icon_bg, iconBg, title, description, time, timesta
       <p className="font-semibold text-slate-900 text-sm">{title}</p>
       <p className="text-xs text-slate-500 truncate">{description}</p>
     </div>
-    <span className="text-xs text-slate-400 whitespace-nowrap">{time || timeAgo(timestamp)}</span>
+    <span className="text-xs text-slate-400 whitespace-nowrap">{time || formatRelativeTime(timestamp)}</span>
   </div>
 );
 
@@ -279,17 +268,15 @@ const AdminDashboardPage = () => {
               <div className="flex bg-slate-100 rounded-lg p-1">
                 <button
                   onClick={() => handlePeriodChange('weekly')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${
-                    chartPeriod === 'weekly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'weekly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    }`}
                 >
                   Weekly
                 </button>
                 <button
                   onClick={() => handlePeriodChange('monthly')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${
-                    chartPeriod === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                    }`}
                 >
                   Monthly
                 </button>

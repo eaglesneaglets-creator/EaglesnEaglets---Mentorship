@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { authService } from '../../modules/auth/services/auth-service';
+import { getKYCRedirectPath } from '../../shared/utils/getKYCRedirectPath';
+import { logger } from '../../shared/utils/logger';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
 
 /**
@@ -44,7 +46,8 @@ const GoogleCallbackPage = () => {
       hasProcessed.current = true;
 
       try {
-        const response = await authService.googleCallback(code, state || 'eaglet');
+        // Pass the full state parameter (contains CSRF nonce + role) to the backend
+        const response = await authService.googleCallback(code, state || '');
 
         if (response.success) {
           const { access, refresh, user } = response.data;
@@ -60,43 +63,15 @@ const GoogleCallbackPage = () => {
           localStorage.setItem('accessToken', access);
           localStorage.setItem('refreshToken', refresh);
 
-          // Redirect based on user role and status
-          const isAdmin = user.is_staff || user.is_superuser || user.role === 'admin';
-
-          if (isAdmin) {
-            navigate('/admin/dashboard', { replace: true });
-          } else if (user.role === 'eagle') {
-            if (user.kyc_status === 'draft' || !user.kyc_status) {
-              navigate('/mentor-profile', { replace: true });
-            } else if (user.kyc_status === 'submitted' || user.kyc_status === 'under_review') {
-              navigate('/pending-approval', { replace: true });
-            } else if (user.kyc_status === 'requires_changes' || user.kyc_status === 'rejected') {
-              navigate('/mentor-profile', { replace: true });
-            } else {
-              navigate('/dashboard', { replace: true });
-            }
-          } else if (user.role === 'eaglet') {
-            // Eaglet users - check KYC status (Eaglets now require admin approval)
-            if (!user.kyc_status || user.kyc_status === 'draft') {
-              navigate('/mentee-profile', { replace: true });
-            } else if (user.kyc_status === 'submitted' || user.kyc_status === 'under_review') {
-              navigate('/pending-approval', { replace: true });
-            } else if (user.kyc_status === 'requires_changes') {
-              navigate('/mentee-profile', { replace: true });
-            } else if (user.kyc_status === 'approved') {
-              navigate('/dashboard', { replace: true });
-            } else {
-              navigate('/dashboard', { replace: true });
-            }
-          } else {
-            navigate('/dashboard', { replace: true });
-          }
+          // Redirect using shared KYC redirect logic
+          const redirectPath = getKYCRedirectPath(user);
+          navigate(redirectPath, { replace: true });
         } else {
           setError(response.error?.message || 'Failed to authenticate with Google.');
           setIsProcessing(false);
         }
       } catch (err) {
-        console.error('Google callback error:', err);
+        logger.error('Google callback error:', err);
         setError(err.message || 'An error occurred during authentication.');
         setIsProcessing(false);
       }
