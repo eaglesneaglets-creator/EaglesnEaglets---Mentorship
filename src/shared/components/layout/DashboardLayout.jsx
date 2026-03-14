@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuthStore } from '@store';
 import { adminService } from '../../../modules/auth/services/auth-service';
+import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead } from '../../../modules/notifications/hooks/useNotifications';
 import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
 
 import { formatRelativeTime } from '../../../shared/utils';
@@ -13,28 +14,28 @@ import { formatRelativeTime } from '../../../shared/utils';
  */
 const AnimatedBackground = ({ variant = 'default' }) => {
   const variants = {
-    admin: 'from-slate-50 via-blue-50/30 to-indigo-50/40',
-    eagle: 'from-slate-50 via-amber-50/30 to-orange-50/40',
-    eaglet: 'from-slate-50 via-emerald-50/30 to-green-50/40',
+    admin: 'from-blue-50 via-indigo-50/30 to-slate-50',
+    eagle: 'from-amber-50 via-orange-50/30 to-slate-50',
+    eaglet: 'from-emerald-50 via-green-50/30 to-slate-50',
     default: 'from-slate-50 via-white to-gray-50/40',
   };
+
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* Gradient Background */}
       <div className={`absolute inset-0 bg-gradient-to-br ${variants[variant]} animate-gradient`} />
 
-      {/* Floating Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float-slow" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-float-medium" />
-      <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl animate-float-fast" />
+      {/* Floating Orbs - Reduced for performance */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float-slow opacity-60" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-float-medium opacity-40" />
 
       {/* Grid Pattern */}
       <div
-        className="absolute inset-0 opacity-[0.015]"
+        className="absolute inset-0 opacity-[0.01]"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`,
-          backgroundSize: '64px 64px',
+          backgroundSize: '80px 80px',
         }}
       />
     </div>
@@ -48,7 +49,7 @@ AnimatedBackground.propTypes = {
 /**
  * Navigation Item Component
  */
-const NavItem = ({ to, icon, label, isActive, badge, isCollapsed, onClick }) => (
+const NavItem = React.memo(({ to, icon, label, isActive, badge, isCollapsed, onClick }) => (
   <Link
     to={to}
     onClick={onClick}
@@ -84,7 +85,9 @@ const NavItem = ({ to, icon, label, isActive, badge, isCollapsed, onClick }) => 
       </span>
     )}
   </Link>
-);
+));
+
+NavItem.displayName = 'NavItem';
 
 NavItem.propTypes = {
   to: PropTypes.string.isRequired,
@@ -100,39 +103,89 @@ NavItem.propTypes = {
  * DashboardLayout Component
  * Shared layout with animated sidebar and background
  */
-const DashboardLayout = ({ children, variant = 'default' }) => {
+const DashboardLayout = ({
+  children,
+  variant = 'default',
+  fullWidth = false,
+  noPadding = false,
+  hideHeader = false
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([]);
   const [pendingKycCount, setPendingKycCount] = useState(0);
   const notifRef = useRef(null);
+
+
+  // Real notification hooks — work for all roles
+  const { data: notificationsData } = useNotifications();
+  const { data: unreadData } = useUnreadCount();
+  const markAsReadMutation = useMarkAsRead();
+  const markAllAsReadMutation = useMarkAllAsRead();
+
+  const notifications = notificationsData?.data?.results || notificationsData?.data || [];
+  const unreadCount = unreadData?.data?.count ?? unreadData?.data?.unread_count ?? 0;
+
+  const NOTIF_TYPE_META = {
+    mentorship_request: { icon: 'person_add', bg: 'bg-blue-100 text-blue-600' },
+    mentorship_approved: { icon: 'check_circle', bg: 'bg-emerald-100 text-emerald-600' },
+    mentorship_rejected: { icon: 'cancel', bg: 'bg-red-100 text-red-600' },
+    content_published: { icon: 'library_books', bg: 'bg-purple-100 text-purple-600' },
+    points_awarded: { icon: 'stars', bg: 'bg-amber-100 text-amber-600' },
+    badge_earned: { icon: 'military_tech', bg: 'bg-yellow-100 text-yellow-700' },
+    nest_post: { icon: 'forum', bg: 'bg-cyan-100 text-cyan-600' },
+    assignment_graded: { icon: 'grading', bg: 'bg-indigo-100 text-indigo-600' },
+    post_like: { icon: 'favorite', bg: 'bg-red-100 text-red-500' },
+    post_comment: { icon: 'chat_bubble', bg: 'bg-blue-100 text-blue-600' },
+    general: { icon: 'notifications', bg: 'bg-slate-100 text-slate-600' },
+  };
+
+  const [bellShaking, setBellShaking] = useState(false);
+  const prevUnreadRef = useRef(unreadCount);
+
+  useEffect(() => {
+    if (unreadCount > prevUnreadRef.current) {
+      setBellShaking(true);
+      setTimeout(() => setBellShaking(false), 600);
+    }
+    prevUnreadRef.current = unreadCount;
+  }, [unreadCount]);
+
+  const handleNotifClick = (notif) => {
+    if (!notif.is_read) {
+      markAsReadMutation.mutate(notif.id);
+    }
+    if (notif.action_url) {
+      navigate(notif.action_url);
+    }
+    setShowNotifications(false);
+  };
 
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false); // eslint-disable-line react-hooks/set-state-in-effect
   }, [location.pathname]);
 
-  // Fetch admin stats for notifications & KYC badge
-  const fetchAdminData = useCallback(async () => {
-    if (user?.role !== 'admin') return;
-    try {
-      const response = await adminService.getStats();
-      if (response.success) {
-        setPendingKycCount(response.data.kyc?.total_pending || 0);
-        setNotifications(response.data.recent_activity || []);
-      }
-    } catch {
-      // Silently fail
-    }
-  }, [user?.role]);
-
+  // Fetch admin KYC badge count only
   useEffect(() => {
-    fetchAdminData();
-  }, [fetchAdminData]);
+    let active = true;
+    const fetchStats = async () => {
+      if (user?.role !== 'admin') return;
+      try {
+        const response = await adminService.getStats();
+        if (response.success && active) {
+          setPendingKycCount(response.data.kyc?.total_pending || 0);
+        }
+      } catch {
+        // Silently fail
+      }
+    };
+    fetchStats();
+    return () => { active = false; };
+  }, [user?.role]);
 
   // Close notification dropdown on outside click
   useEffect(() => {
@@ -171,6 +224,7 @@ const DashboardLayout = ({ children, variant = 'default' }) => {
         { to: '/eagle/dashboard', icon: 'dashboard', label: 'Dashboard' },
         { to: '/eagle/nests', icon: 'diversity_3', label: 'My Nests' },
         { to: '/eagle/eaglets', icon: 'group', label: 'My Eaglets' },
+        { to: '/eagle/grading', icon: 'grading', label: 'Grading Center' },
         { to: '/eagle/content', icon: 'upload_file', label: 'Content' },
         { to: '/eagle/messages', icon: 'chat', label: 'Messages', badge: '2' },
         { to: '/eagle/resources', icon: 'library_books', label: 'Resources' },
@@ -181,7 +235,8 @@ const DashboardLayout = ({ children, variant = 'default' }) => {
     // Eaglet (mentee)
     return [
       { to: '/eaglet/dashboard', icon: 'dashboard', label: 'Dashboard' },
-      { to: '/eaglet/nest', icon: 'diversity_1', label: 'My Nest' },
+      { to: '/eaglet/nest', icon: 'search', label: 'Find Mentors' },
+      { to: '/eaglet/my-requests', icon: 'mail', label: 'My Requests' },
       { to: '/eaglet/assignments', icon: 'assignment', label: 'Assignments' },
       { to: '/eaglet/messages', icon: 'chat', label: 'Messages', badge: '3' },
       { to: '/eaglet/leaderboard', icon: 'leaderboard', label: 'Leaderboard' },
@@ -310,97 +365,117 @@ const DashboardLayout = ({ children, variant = 'default' }) => {
       {/* Main Content */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? 'lg:ml-0' : 'lg:ml-0'}`}>
         {/* Top Header */}
-        <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 lg:px-8 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
-          >
-            <span className="material-symbols-outlined">menu</span>
-          </button>
+        {!hideHeader && (
+          <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 lg:px-8 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
-            <div className="w-full relative group">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl transition-colors group-focus-within:text-primary">
-                search
-              </span>
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-slate-100/80 border-none text-sm placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all duration-300"
-              />
-            </div>
-          </div>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-2">
-            {/* Notification Bell + Dropdown */}
-            <div className="relative" ref={notifRef}>
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group"
-              >
-                <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
-                  notifications
+            {/* Search Bar */}
+            <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
+              <div className="w-full relative group">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl transition-colors group-focus-within:text-primary">
+                  search
                 </span>
-                {notifications.length > 0 && (
-                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white">
-                    {notifications.length > 9 ? '9+' : notifications.length}
-                  </span>
-                )}
-              </button>
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full h-10 pl-10 pr-4 rounded-xl bg-slate-100/80 border-none text-sm placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all duration-300"
+                />
+              </div>
+            </div>
 
-              {/* Dropdown */}
-              {showNotifications && (
-                <div className="absolute right-0 top-12 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-fade-in">
-                  <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                    <h4 className="font-bold text-slate-900 text-sm">Notifications</h4>
-                    <span className="text-xs text-slate-400">{notifications.length} recent</span>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
-                    {notifications.length > 0 ? notifications.slice(0, 8).map((n, i) => (
-                      <div key={i} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer">
-                        <div className={`w-8 h-8 rounded-lg ${n.icon_bg} flex items-center justify-center flex-shrink-0`}>
-                          <span className="material-symbols-outlined text-sm">{n.icon}</span>
+            {/* Right Actions */}
+            <div className="flex items-center gap-2">
+              {/* Notification Bell + Dropdown */}
+              <div className="relative" ref={notifRef}>
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group"
+                >
+                  <span className={`material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors ${bellShaking ? 'animate-wiggle' : ''}`}>
+                    notifications
+                  </span>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white animate-pulse">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Dropdown */}
+                {showNotifications && (
+                  <div className="absolute right-0 top-12 w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-fade-in">
+                    <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                      <h4 className="font-bold text-slate-900 text-sm">Notifications</h4>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={() => markAllAsReadMutation.mutate()}
+                          disabled={markAllAsReadMutation.isPending}
+                          className="text-xs text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                      {notifications.length > 0 ? notifications.slice(0, 8).map((n) => {
+                        const meta = NOTIF_TYPE_META[n.notification_type] || NOTIF_TYPE_META.general;
+                        return (
+                          <div
+                            key={n.id}
+                            onClick={() => handleNotifClick(n)}
+                            className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer ${!n.is_read ? 'bg-primary/[0.03]' : ''}`}
+                          >
+                            <div className={`w-8 h-8 rounded-lg ${meta.bg} flex items-center justify-center flex-shrink-0`}>
+                              <span className="material-symbols-outlined text-sm">{meta.icon}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-xs text-slate-900 ${!n.is_read ? 'font-bold' : 'font-semibold'}`}>{n.title}</p>
+                              <p className="text-xs text-slate-500 truncate">{n.message}</p>
+                            </div>
+                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                              <span className="text-[10px] text-slate-400 whitespace-nowrap">{formatRelativeTime(n.created_at)}</span>
+                              {!n.is_read && <span className="w-2 h-2 rounded-full bg-primary" />}
+                            </div>
+                          </div>
+                        );
+                      }) : (
+                        <div className="px-4 py-8 text-center">
+                          <span className="material-symbols-outlined text-2xl text-slate-300">notifications_off</span>
+                          <p className="text-xs text-slate-400 mt-1">No notifications yet</p>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-slate-900">{n.title}</p>
-                          <p className="text-xs text-slate-500 truncate">{n.description}</p>
-                        </div>
-                        <span className="text-[10px] text-slate-400 whitespace-nowrap flex-shrink-0">{formatRelativeTime(n.timestamp)}</span>
-                      </div>
-                    )) : (
-                      <div className="px-4 py-8 text-center">
-                        <span className="material-symbols-outlined text-2xl text-slate-300">notifications_off</span>
-                        <p className="text-xs text-slate-400 mt-1">No notifications</p>
-                      </div>
+                      )}
+                    </div>
+                    {notifications.length > 0 && (
+                      <Link
+                        to="/notifications"
+                        onClick={() => setShowNotifications(false)}
+                        className="block px-4 py-2.5 text-center text-xs font-medium text-primary hover:bg-primary/5 border-t border-slate-100 transition-colors"
+                      >
+                        View all notifications
+                      </Link>
                     )}
                   </div>
-                  {user?.role === 'admin' && notifications.length > 0 && (
-                    <Link
-                      to="/admin/dashboard"
-                      onClick={() => setShowNotifications(false)}
-                      className="block px-4 py-2.5 text-center text-xs font-medium text-primary hover:bg-primary/5 border-t border-slate-100 transition-colors"
-                    >
-                      View all activity
-                    </Link>
-                  )}
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <button className="p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group">
-              <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
-                help
-              </span>
-            </button>
-          </div>
-        </header>
+              <button className="p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group">
+                <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
+                  help
+                </span>
+              </button>
+            </div>
+          </header>
+        )}
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-8">
-          <div className="max-w-7xl mx-auto animate-fade-in-up">
+        <main className={`flex-1 ${noPadding ? '' : 'p-4 lg:p-8'}`}>
+          <div className={`${fullWidth ? 'max-w-none w-full' : 'max-w-7xl mx-auto'} animate-fade-in-up h-full`}>
             {children}
           </div>
         </main>

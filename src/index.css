@@ -8,6 +8,7 @@
 @theme {
   /* Primary Colors - Logo Green */
   --color-primary: #22C55E;
+  --color-primary-rgb: 34 197 94;
   --color-primary-dark: #16A34A;
   --color-primary-light: #86EFAC;
   --color-primary-50: #F0FDF4;
@@ -122,7 +123,7 @@ body {
 .form-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgb(34 197 94 / 0.2);
+  box-shadow: 0 0 0 3px rgb(var(--color-primary-rgb) / 0.2);
 }
 
 .form-input-error {
@@ -252,6 +253,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -270,6 +272,26 @@ body {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* =============================================================================
+   VANTA.JS HERO STYLES
+   ============================================================================= */
+
+.vanta-hero {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.vanta-hero canvas {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0;
 }
 
 /* =============================================================================
@@ -299,8 +321,15 @@ body {
 
 /* Animated gradient background */
 @keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .animated-gradient-bg {
@@ -311,13 +340,27 @@ body {
 
 /* Floating orbs animation */
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
 }
 
 @keyframes floatReverse {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(20px) rotate(-5deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(20px) rotate(-5deg);
+  }
 }
 
 .floating-orb {
@@ -334,6 +377,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -345,11 +389,25 @@ body {
   opacity: 0;
 }
 
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+
+.stagger-5 {
+  animation-delay: 0.5s;
+}
 
 /* Scale up animation */
 @keyframes scaleUp {
@@ -357,6 +415,7 @@ body {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -369,8 +428,13 @@ body {
 
 /* Shimmer loading effect */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .shimmer {
@@ -382,13 +446,15 @@ body {
 /* Pulse ring animation */
 @keyframes pulseRing {
   0% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    box-shadow: 0 0 0 0 rgb(var(--color-primary-rgb) / 0.4);
   }
+
   70% {
-    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 10px rgb(var(--color-primary-rgb) / 0);
   }
+
   100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 0 rgb(var(--color-primary-rgb) / 0);
   }
 }
 
@@ -438,8 +504,8 @@ body {
 }
 
 .status-dot-approved {
-  background: #22C55E;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  background: var(--color-primary);
+  box-shadow: 0 0 8px rgb(var(--color-primary-rgb) / 0.5);
 }
 
 .status-dot-rejected {
@@ -461,7 +527,7 @@ body {
   transform: translateY(-50%);
   width: 3px;
   height: 0;
-  background: #22C55E;
+  background: var(--color-primary);
   border-radius: 0 4px 4px 0;
   transition: height 0.2s ease;
 }
@@ -478,11 +544,31 @@ body {
 
 /* Counter badge animation */
 @keyframes counterPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .counter-badge {
   animation: counterPop 0.3s ease-out;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-12deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(8deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.6s ease-in-out;
 }
