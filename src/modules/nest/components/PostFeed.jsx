@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import data from '@emoji-mart/data';
-import { Picker } from '@emoji-mart/react';
+import Picker from '@emoji-mart/react';
 import { useAuthStore } from '@store';
 import { useNestPosts, useCreatePost } from '../hooks/useNests';
 import { useToggleLike } from '../hooks/useToggleLike';

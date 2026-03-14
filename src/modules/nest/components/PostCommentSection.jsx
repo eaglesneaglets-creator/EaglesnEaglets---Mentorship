@@ -1,7 +1,7 @@
 // src/modules/nest/components/PostCommentSection.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import data from '@emoji-mart/data';
-import { Picker } from '@emoji-mart/react';
+import Picker from '@emoji-mart/react';
 import { usePostComments } from '../hooks/usePostComments';
 import { useAddComment } from '../hooks/useAddComment';
 import CommentBubble from './CommentBubble';
