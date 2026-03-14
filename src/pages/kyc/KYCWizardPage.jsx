@@ -359,7 +359,7 @@ const KYCWizardPage = () => {
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #22C55E 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, var(--color-primary) 1px, transparent 0)`,
             backgroundSize: '40px 40px'
           }}
         />
@@ -461,7 +461,7 @@ const KYCWizardPage = () => {
                     mt-3 text-xs sm:text-sm font-semibold transition-colors duration-300
                     ${isCurrent ? 'text-primary' : isCompleted ? 'text-gray-700' : 'text-gray-400'}
                   `}>
-                    {step.label}
+                    <span className="hidden sm:inline">{step.label}</span>
                   </span>
                 </button>
               );

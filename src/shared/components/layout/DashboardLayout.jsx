@@ -370,7 +370,7 @@ const DashboardLayout = ({
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+              className="lg:hidden p-2 min-h-[44px] min-w-[44px] rounded-lg hover:bg-slate-100 transition-colors"
             >
               <span className="material-symbols-outlined">menu</span>
             </button>
@@ -395,7 +395,7 @@ const DashboardLayout = ({
               <div className="relative" ref={notifRef}>
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group"
+                  className="relative p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group"
                 >
                   <span className={`material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors ${bellShaking ? 'animate-wiggle' : ''}`}>
                     notifications
@@ -409,7 +409,7 @@ const DashboardLayout = ({
 
                 {/* Dropdown */}
                 {showNotifications && (
-                  <div className="absolute right-0 top-12 w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-fade-in">
+                  <div className="absolute right-0 top-12 w-96 max-w-[calc(100vw-1rem)] bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-fade-in">
                     <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                       <h4 className="font-bold text-slate-900 text-sm">Notifications</h4>
                       {unreadCount > 0 && (
@@ -464,7 +464,7 @@ const DashboardLayout = ({
                 )}
               </div>
 
-              <button className="p-2 rounded-xl hover:bg-slate-100 transition-all duration-300 group">
+              <button className="p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group">
                 <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
                   help
                 </span>
