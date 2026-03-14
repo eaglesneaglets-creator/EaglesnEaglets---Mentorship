@@ -456,12 +456,12 @@ const KYCWizardPage = () => {
                     {isCompleted ? Icons.check : Icons[step.icon]}
                   </div>
 
-                  {/* Step Label */}
+                  {/* Step Label — hidden on mobile to prevent indicator overflow */}
                   <span className={`
-                    mt-3 text-xs sm:text-sm font-semibold transition-colors duration-300
+                    hidden sm:inline mt-3 text-xs sm:text-sm font-semibold transition-colors duration-300
                     ${isCurrent ? 'text-primary' : isCompleted ? 'text-gray-700' : 'text-gray-400'}
                   `}>
-                    <span className="hidden sm:inline">{step.label}</span>
+                    {step.label}
                   </span>
                 </button>
               );
