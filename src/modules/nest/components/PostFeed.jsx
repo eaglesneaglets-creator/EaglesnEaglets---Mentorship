@@ -81,7 +81,13 @@ const PostComposer = ({ nestId, user }) => {
   };
 
   return (
-    <div className={`bg-white rounded-2xl shadow-sm border transition-all ${isFocused ? 'border-primary/30 shadow-primary/10 shadow-lg' : 'border-slate-100'}`}>
+    <div className={`relative bg-white rounded-2xl shadow-sm border transition-all ${isFocused ? 'border-primary/30 shadow-primary/10 shadow-lg' : 'border-slate-100'}`}>
+      {/* Emoji picker — hoisted to card level so it isn't clipped by the toolbar's height animation */}
+      {showEmojiPicker && (
+        <div ref={pickerRef} className="absolute bottom-full left-0 mb-2 z-50">
+          <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" previewPosition="none" />
+        </div>
+      )}
       <div className="p-4">
         <div className="flex gap-3">
           {/* Avatar */}
@@ -136,15 +142,8 @@ const PostComposer = ({ nestId, user }) => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
-            <div className="px-4 pb-4 flex justify-between items-center border-t border-slate-100 pt-3 relative">
-              <div className="flex gap-1 relative">
-                {/* Emoji picker */}
-                {showEmojiPicker && (
-                  <div ref={pickerRef} className="absolute bottom-full left-0 mb-2 z-50">
-                    <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" previewPosition="none" />
-                  </div>
-                )}
-
+            <div className="px-4 pb-4 flex justify-between items-center border-t border-slate-100 pt-3">
+              <div className="flex gap-1">
                 <button
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   className="w-9 h-9 flex items-center justify-center text-amber-500 hover:bg-slate-100 rounded-lg transition-colors"
