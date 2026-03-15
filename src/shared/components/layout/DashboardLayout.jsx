@@ -235,7 +235,7 @@ const DashboardLayout = ({
     // Eaglet (mentee)
     return [
       { to: '/eaglet/dashboard', icon: 'dashboard', label: 'Dashboard' },
-      { to: '/eaglet/nest', icon: 'search', label: 'Find Mentors' },
+      { to: '/eaglet/nest', icon: 'nest_eco_leaf', label: 'Nest' },
       { to: '/eaglet/my-requests', icon: 'mail', label: 'My Requests' },
       { to: '/eaglet/assignments', icon: 'assignment', label: 'Assignments' },
       { to: '/eaglet/messages', icon: 'chat', label: 'Messages', badge: '3' },
