@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useBadges } from '../../../modules/points/hooks/usePoints';
+import { useMyBadges } from '../../../modules/points/hooks/usePoints';
 
 export default function BadgeShelf() {
-    const { data, isLoading } = useBadges();
+    const { data, isLoading } = useMyBadges();
     const badges = data?.data ?? [];
 
     if (isLoading) {

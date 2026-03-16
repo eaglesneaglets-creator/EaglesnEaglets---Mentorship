@@ -137,7 +137,7 @@ const BadgeCard = ({ badge, onClick }) => {
 export default function BadgesPage() {
     const [activeTab, setActiveTab] = useState('all');
     const [selectedBadge, setSelectedBadge] = useState(null);
-    const { data, isLoading } = useAllBadges();
+    const { data, isLoading, isError } = useAllBadges();
 
     const badges = data?.data ?? [];
     const earnedCount = badges.filter(b => b.earned).length;
@@ -181,7 +181,13 @@ export default function BadgesPage() {
                 </div>
 
                 {/* Grid */}
-                {isLoading ? (
+                {isError ? (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <span className="material-symbols-outlined text-4xl text-slate-300 mb-3">error_outline</span>
+                        <p className="text-slate-500 font-medium">Could not load badges</p>
+                        <p className="text-sm text-slate-400">Please check your connection and try again.</p>
+                    </div>
+                ) : isLoading ? (
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
                         {Array.from({ length: 12 }).map((_, i) => (
                             <div key={i} className="h-28 rounded-2xl bg-slate-100 animate-pulse" />
