@@ -47,6 +47,9 @@ const HomePage = lazy(() => import('./pages/home/HomePage'));
 // Points & Leaderboard Pages
 const PointsLeaderboardPage = lazy(() => import('./pages/points/PointsLeaderboardPage'));
 
+// Badges Page
+const BadgesPage = lazy(() => import('./pages/badges/BadgesPage'));
+
 // Notifications Page
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'));
 
@@ -196,6 +199,7 @@ function App() {
                     <Route path="/eaglet/assignments/:moduleId/:itemId" element={<AssignmentDetailPage />} />
                     <Route path="/eaglet/modules/:moduleId/quiz" element={<ModuleQuizPage />} />
                     <Route path="/eaglet/leaderboard" element={<PointsLeaderboardPage />} />
+                    <Route path="/eaglet/badges" element={<BadgesPage />} />
                     <Route path="/eaglet/messages" element={<ChatPage />} />
                     <Route path="/eaglet/resources" element={<ResourceCenterPage />} />
                     <Route path="/eaglet/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
