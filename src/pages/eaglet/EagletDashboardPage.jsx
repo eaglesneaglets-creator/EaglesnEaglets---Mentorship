@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import StatCard from '../../shared/components/ui/StatCard';
 import AnimatedContentItem from '../../shared/components/ui/AnimatedContentItem';
 import AnimatedNestCard from '../../shared/components/ui/AnimatedNestCard';
+import BadgeShelf from '../../shared/components/ui/BadgeShelf';
 
 /**
  * Quick Action Button
@@ -114,6 +115,14 @@ const EagletDashboardPage = () => {
             <span className="material-symbols-outlined text-lg group-hover:animate-bounce">play_arrow</span>
             Resume Learning
           </button>
+        </div>
+
+        {/* Badges */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-slate-700">My Badges</h3>
+          </div>
+          <BadgeShelf />
         </div>
 
         {/* Stats Row */}
@@ -261,8 +270,8 @@ const EagletDashboardPage = () => {
               </div>
 
               <div className="flex flex-col">
-                {leaderboard.map((item) => (
-                  <LeaderboardRow key={item.rank} {...item} />
+                {leaderboard.map((item, index) => (
+                  <LeaderboardRow key={item.id || index} rank={index + 1} {...item} />
                 ))}
               </div>
 
