@@ -1,123 +1,60 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
-
-/**
- * Stat Card Component for Eagle Dashboard
- */
-const StatCard = ({ icon, iconBg, label, value, hoverBorder, delay = 0 }) => (
-  <div
-    className={`group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-slate-200/50 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden hover:border-${hoverBorder}/30`}
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {/* Shimmer Effect */}
-    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-    <div className="relative flex items-start justify-between">
-      <div className="flex flex-col gap-1">
-        <p className="text-slate-500 text-sm font-medium">{label}</p>
-        <p className="text-slate-900 text-3xl font-bold">{value}</p>
-      </div>
-      <div className={`p-2.5 rounded-xl ${iconBg} transition-all duration-300 group-hover:scale-110 group-hover:rotate-6`}>
-        <span className="material-symbols-outlined text-xl">{icon}</span>
-      </div>
-    </div>
-  </div>
-);
-
-/**
- * Nest Card Component
- */
-const NestCard = ({ title, description, image, icon, iconColor, eagletCount, meetingDay, delay = 0 }) => (
-  <div
-    className="group relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-slate-200/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:-translate-y-2"
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {/* Cover Image */}
-    <div className="h-28 w-full bg-cover bg-center relative overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-        style={{ backgroundImage: `url(${image})` }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-    </div>
-
-    {/* Content */}
-    <div className="p-5 relative">
-      {/* Floating Icon */}
-      <div className={`absolute -top-7 right-5 w-12 h-12 rounded-xl border-2 border-white bg-white shadow-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 ${iconColor}`}>
-        <span className="material-symbols-outlined">{icon}</span>
-      </div>
-
-      <h3 className="font-bold text-lg text-slate-900 pr-14">{title}</h3>
-      <p className="text-sm text-slate-500 mt-1 mb-4 line-clamp-1">{description}</p>
-
-      <div className="flex items-center gap-4 text-xs font-medium text-slate-600">
-        <span className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-lg">
-          <span className="material-symbols-outlined text-sm">group</span>
-          {eagletCount} Eaglets
-        </span>
-        <span className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-lg">
-          <span className="material-symbols-outlined text-sm">event</span>
-          {meetingDay}
-        </span>
-      </div>
-    </div>
-  </div>
-);
+import { useEagleDashboardStats } from '../../modules/analytics/hooks/useAnalytics';
+import StatCard from '../../shared/components/ui/StatCard';
+import AnimatedNestCard from '../../shared/components/ui/AnimatedNestCard';
 
 /**
  * Eaglet Performance Row
  */
 const EagletRow = ({ eaglet, delay = 0 }) => {
   const statusConfig = {
-    active: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'Active' },
-    behind: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Behind' },
-    review: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Review' },
-    completed: { bg: 'bg-slate-100', text: 'text-slate-700', label: 'Completed' },
+    active: { bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Active' },
+    behind: { bg: 'bg-amber-50', text: 'text-amber-600', label: 'Behind' },
+    review: { bg: 'bg-blue-50', text: 'text-blue-600', label: 'Review' },
+    completed: { bg: 'bg-slate-50', text: 'text-slate-600', label: 'Completed' },
   };
   const config = statusConfig[eaglet.status] || statusConfig.active;
 
   return (
     <tr
-      className="group hover:bg-slate-50/80 transition-all duration-300"
+      className="group hover:bg-slate-50/60 transition-colors duration-500"
       style={{ animationDelay: `${delay}ms` }}
     >
-      <td className="py-4">
-        <div className="flex items-center gap-3">
+      <td className="py-4 px-2">
+        <div className="flex items-center gap-3 transition-transform duration-500 ease-out group-hover:translate-x-1">
           {eaglet.avatar ? (
-            <img src={eaglet.avatar} alt={eaglet.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-sm transition-transform duration-300 group-hover:scale-110" />
+            <img src={eaglet.avatar} alt={eaglet.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-sm transition-transform duration-500 group-hover:scale-105" />
           ) : (
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm">
-              {eaglet.name.charAt(0)}
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400/80 to-emerald-600/80 flex items-center justify-center text-white font-bold text-sm shadow-sm transition-transform duration-500 group-hover:scale-105">
+              {eaglet.name?.charAt(0) || '?'}
             </div>
           )}
           <div>
-            <p className="font-semibold text-sm text-slate-900">{eaglet.name}</p>
-            <p className="text-xs text-slate-500">{eaglet.nest}</p>
+            <p className="font-semibold text-sm text-slate-900 group-hover:text-primary transition-colors duration-300">{eaglet.name}</p>
+            <p className="text-xs text-slate-500">{eaglet.nest_name || 'No Nest'}</p>
           </div>
         </div>
       </td>
       <td className="py-4">
-        <p className="text-sm text-slate-900 font-medium">{eaglet.module}</p>
-        <p className="text-xs text-slate-500">{eaglet.dueDate}</p>
+        <p className="text-sm text-slate-900 font-medium transition-transform duration-500 ease-out group-hover:translate-x-1">{eaglet.module || 'In progress'}</p>
       </td>
       <td className="py-4">
-        <div className="w-full max-w-[120px]">
-          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+        <div className="w-full max-w-[120px] transition-transform duration-500 ease-out group-hover:translate-x-1">
+          <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
             <div
-              className={`h-2 rounded-full transition-all duration-1000 ${
-                eaglet.progress >= 75 ? 'bg-primary' : eaglet.progress >= 50 ? 'bg-amber-500' : 'bg-emerald-500'
-              }`}
+              className={`h-1.5 rounded-full transition-all duration-[1500ms] ease-out ${eaglet.progress >= 75 ? 'bg-primary/80' : eaglet.progress >= 50 ? 'bg-amber-400' : 'bg-emerald-400'
+                }`}
               style={{ width: `${eaglet.progress}%` }}
             />
           </div>
-          <p className="text-xs text-slate-500 mt-1 text-right">{eaglet.progress}%</p>
+          <p className="text-xs font-medium text-slate-500 mt-1.5 text-right">{eaglet.progress}%</p>
         </div>
       </td>
-      <td className="py-4 text-right">
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
+      <td className="py-4 text-right pr-2">
+        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all duration-500 ${config.bg} ${config.text} group-hover:shadow-sm`}>
           {config.label}
         </span>
       </td>
@@ -148,88 +85,105 @@ const CalendarDay = ({ day, isCurrentMonth = true, isToday = false, hasEvent = f
 /**
  * Session Card Component
  */
-const SessionCard = ({ title, time, date, month, attendees, isUpcoming = false }) => (
-  <div className={`flex gap-4 items-start p-4 rounded-xl transition-all duration-300 ${
-    isUpcoming
+const SessionCard = ({ title, date, link, isUpcoming = false }) => {
+  const d = new Date(date);
+  const day = d.getDate();
+  const month = d.toLocaleDateString('default', { month: 'short' });
+  const time = d.toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' });
+
+  return (
+    <div className={`flex gap-4 items-start p-4 rounded-xl transition-all duration-300 ${isUpcoming
       ? 'bg-slate-50 border-l-4 border-primary shadow-sm'
       : 'bg-white hover:bg-slate-50 border border-transparent hover:border-slate-200'
-  }`}>
-    <div className="flex flex-col items-center min-w-[3rem]">
-      <span className="text-xs font-bold text-slate-500 uppercase">{month}</span>
-      <span className="text-2xl font-bold text-slate-900">{date}</span>
+      }`}>
+      <div className="flex flex-col items-center min-w-[3rem]">
+        <span className="text-xs font-bold text-slate-500 uppercase">{month}</span>
+        <span className="text-2xl font-bold text-slate-900">{day}</span>
+      </div>
+      <div className="flex-1">
+        <h4 className="font-bold text-sm text-slate-900">{title}</h4>
+        <p className="text-xs text-slate-500 mb-2">{time}</p>
+        {link && (
+          <a href={link} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
+            <span className="material-symbols-outlined text-[12px]">link</span>
+            Join Session
+          </a>
+        )}
+      </div>
     </div>
-    <div className="flex-1">
-      <h4 className="font-bold text-sm text-slate-900">{title}</h4>
-      <p className="text-xs text-slate-500 mb-2">{time}</p>
-      {attendees && (
-        <div className="flex -space-x-2">
-          {attendees.slice(0, 3).map((_, i) => (
-            <div key={i} className="w-6 h-6 rounded-full bg-slate-300 ring-2 ring-white" />
-          ))}
-          {attendees.length > 3 && (
-            <div className="w-6 h-6 rounded-full bg-slate-200 ring-2 ring-white flex items-center justify-center text-[8px] font-bold text-slate-600">
-              +{attendees.length - 3}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  </div>
-);
+  );
+};
 
 /**
  * Eagle Dashboard Page
  */
 const EagleDashboardPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const [currentMonth] = useState('Oct 2023');
+  const { data: dashboardData, isLoading } = useEagleDashboardStats();
 
-  // Mock data
-  const nests = [
-    {
-      id: 1,
-      title: 'Alpha Cohort 2023',
-      description: 'Foundational Theology & Leadership',
-      image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&h=200&fit=crop',
-      icon: 'school',
-      iconColor: 'text-primary',
-      eagletCount: 8,
-      meetingDay: 'Tuesdays',
-    },
-    {
-      id: 2,
-      title: 'Beta Discipleship',
-      description: 'Advanced Spiritual Formation',
-      image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=200&fit=crop',
-      icon: 'light_mode',
-      iconColor: 'text-amber-600',
-      eagletCount: 4,
-      meetingDay: 'Fridays',
-    },
-  ];
+  const totalEaglets = dashboardData?.total_eaglets || 0;
+  const pendingRequests = dashboardData?.pending_requests || 0;
+  const pointsAwarded = dashboardData?.points_awarded || 0;
+  const nests = dashboardData?.nests || [];
+  const eaglets = dashboardData?.eaglets || [];
+  const sessions = dashboardData?.upcoming_sessions || [];
 
-  const eaglets = [
-    { id: 1, name: 'Sarah Jenkins', nest: 'Alpha Nest', module: 'Servant Leadership', dueDate: 'Due in 2 days', progress: 75, status: 'active' },
-    { id: 2, name: 'Michael Chen', nest: 'Beta Nest', module: 'Biblical Ethics', dueDate: 'Due today', progress: 45, status: 'behind' },
-    { id: 3, name: 'David Okonjo', nest: 'Alpha Nest', module: 'Servant Leadership', dueDate: 'Completed', progress: 100, status: 'review' },
-  ];
+  // Real Calendar days logic
+  const today = new Date();
 
-  const sessions = [
-    { id: 1, title: 'Alpha Nest Weekly', time: '2:00 PM - 3:30 PM', month: 'Oct', date: '05', attendees: Array(8).fill(null), isUpcoming: true },
-    { id: 2, title: '1:1 Mentorship', time: 'With Michael Chen • 10:00 AM', month: 'Oct', date: '10', attendees: null, isUpcoming: false },
-  ];
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-  // Calendar days (simplified)
-  const calendarDays = [
-    { day: 29, isCurrentMonth: false },
-    { day: 30, isCurrentMonth: false },
-    ...Array.from({ length: 12 }, (_, i) => ({
-      day: i + 1,
+  const currentMonthDisplay = currentDate.toLocaleDateString('default', { month: 'short', year: 'numeric' });
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
+  const getFirstDayOfMonth = (y, m) => new Date(y, m, 1).getDay();
+
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDay = getFirstDayOfMonth(year, month);
+  const prevMonthDays = getDaysInMonth(year, month - 1);
+
+  const calendarDays = [];
+
+  for (let i = firstDay - 1; i >= 0; i--) {
+    calendarDays.push({ day: prevMonthDays - i, isCurrentMonth: false });
+  }
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    const isThisMonth = year === today.getFullYear() && month === today.getMonth();
+    // Basic event check (assuming session.date is an ISO date string, or we fallback)
+    const hasEvent = sessions.some(s => {
+      if (!s.date) return false;
+      const d = new Date(s.date);
+      return d.getDate() === i && d.getMonth() === month && d.getFullYear() === year;
+    });
+
+    calendarDays.push({
+      day: i,
       isCurrentMonth: true,
-      isToday: i + 1 === 5,
-      hasEvent: i + 1 === 10,
-    })),
-  ];
+      isToday: isThisMonth && i === today.getDate(),
+      hasEvent: hasEvent,
+    });
+  }
+
+  const handlePrevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+  const handleNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+
+  if (isLoading) {
+    return (
+      <DashboardLayout variant="eagle">
+        <div className="flex h-64 items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-slate-500 font-medium">Loading your dashboard...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout variant="eagle">
@@ -244,7 +198,10 @@ const EagleDashboardPage = () => {
               Here is an overview of your mentorship activities and eaglet progress.
             </p>
           </div>
-          <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5">
+          <button
+            onClick={() => navigate('/eagle/content/upload')}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
+          >
             <span className="material-symbols-outlined text-lg">cloud_upload</span>
             Upload Content
           </button>
@@ -260,7 +217,7 @@ const EagleDashboardPage = () => {
                 icon="group"
                 iconBg="bg-blue-50 text-primary"
                 label="Total Eaglets"
-                value="12"
+                value={totalEaglets}
                 hoverBorder="primary"
                 delay={0}
               />
@@ -268,7 +225,7 @@ const EagleDashboardPage = () => {
                 icon="person_add"
                 iconBg="bg-amber-50 text-amber-600"
                 label="Pending Requests"
-                value="3"
+                value={pendingRequests}
                 hoverBorder="amber-500"
                 delay={100}
               />
@@ -276,7 +233,7 @@ const EagleDashboardPage = () => {
                 icon="military_tech"
                 iconBg="bg-emerald-50 text-emerald-600"
                 label="Points Awarded"
-                value="450"
+                value={pointsAwarded}
                 hoverBorder="emerald-500"
                 delay={200}
               />
@@ -294,9 +251,26 @@ const EagleDashboardPage = () => {
                 </Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {nests.map((nest, index) => (
-                  <NestCard key={nest.id} {...nest} delay={index * 100} />
-                ))}
+                {nests.length > 0 ? (
+                  nests.map((nest, index) => (
+                    <AnimatedNestCard
+                      key={nest.id || index}
+                      title={nest.name}
+                      description={nest.description || "Active community of eaglets learning to soar."}
+                      image={nest.banner_image}
+                      icon="diversity_3"
+                      iconColor="text-primary"
+                      memberCount={nest.member_count || 0}
+                      additionalInfo="Active"
+                      linkTo={`/eagle/nests/${nest.id}`}
+                      delay={index * 100}
+                    />
+                  ))
+                ) : (<div className="col-span-1 border border-dashed border-slate-200 rounded-xl p-6 text-center">
+                  <span className="material-symbols-outlined text-slate-400 mb-2">inbox</span>
+                  <p className="text-slate-500 text-sm">No active nests yet.</p>
+                </div>
+                )}
               </div>
             </div>
 
@@ -326,9 +300,18 @@ const EagleDashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {eaglets.map((eaglet, index) => (
-                      <EagletRow key={eaglet.id} eaglet={eaglet} delay={index * 50} />
-                    ))}
+                    {eaglets.length > 0 ? (
+                      eaglets.map((eaglet, index) => (
+                        <EagletRow key={eaglet.id} eaglet={eaglet} delay={index * 50} />
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="py-8 text-center text-slate-500">
+                          <span className="material-symbols-outlined mb-2 text-slate-400">group_off</span>
+                          <p className="text-sm">No eaglets to display.</p>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -350,11 +333,11 @@ const EagleDashboardPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-slate-900">Calendar</h2>
                 <div className="flex items-center gap-2">
-                  <button className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
+                  <button onClick={handlePrevMonth} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
                     <span className="material-symbols-outlined text-sm text-slate-400">chevron_left</span>
                   </button>
-                  <span className="text-sm font-semibold text-slate-900">{currentMonth}</span>
-                  <button className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
+                  <span className="text-sm font-semibold text-slate-900">{currentMonthDisplay}</span>
+                  <button onClick={handleNextMonth} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
                     <span className="material-symbols-outlined text-sm text-slate-400">chevron_right</span>
                   </button>
                 </div>
@@ -362,8 +345,8 @@ const EagleDashboardPage = () => {
 
               {/* Calendar Grid */}
               <div className="grid grid-cols-7 mb-2">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                  <div key={day} className="text-xs font-medium text-slate-400 text-center py-2">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                  <div key={`${day}-${i}`} className="text-xs font-medium text-slate-400 text-center py-2">
                     {day}
                   </div>
                 ))}
@@ -379,9 +362,15 @@ const EagleDashboardPage = () => {
                 Upcoming Sessions
               </h3>
               <div className="flex flex-col gap-3">
-                {sessions.map((session) => (
-                  <SessionCard key={session.id} {...session} />
-                ))}
+                {sessions.length > 0 ? (
+                  sessions.map((session) => (
+                    <SessionCard key={session.id} {...session} />
+                  ))
+                ) : (
+                  <div className="text-center py-4 border border-dashed border-slate-200 rounded-xl">
+                    <p className="text-slate-500 text-sm">No upcoming sessions.</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -400,7 +389,11 @@ const EagleDashboardPage = () => {
                 <p className="text-blue-100 text-sm mb-5 leading-relaxed">
                   A new guide to help your eaglets integrate faith into their professional lives.
                 </p>
-                <button className="w-full bg-white text-primary text-sm font-bold py-3 px-4 rounded-xl hover:bg-slate-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                <button
+                  disabled
+                  title="Coming soon"
+                  className="w-full bg-white text-primary text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg opacity-50 cursor-not-allowed"
+                >
                   Share with Nests
                 </button>
               </div>
