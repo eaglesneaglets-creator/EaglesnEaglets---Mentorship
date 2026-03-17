@@ -90,18 +90,20 @@ const ContentItemViewerModal = ({ isOpen, onClose, item }) => {
 
     // Prevent scrolling when modal is open
     useEffect(() => {
+        document.body.style.overflow = isOpen ? 'hidden' : 'unset';
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [isOpen]);
+
+    const [prevResetKey, setPrevResetKey] = useState(`${isOpen}-${item?.id}`);
+    const resetKey = `${isOpen}-${item?.id}`;
+    if (prevResetKey !== resetKey) {
+        setPrevResetKey(resetKey);
         if (isOpen) {
-            document.body.style.overflow = 'hidden';
             setProgressPercentage(0);
             setLastSyncTime(0);
             hasReported50.current = false;
-        } else {
-            document.body.style.overflow = 'unset';
         }
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
-    }, [isOpen, item]);
+    }
 
     // Report 50% progress when eaglet opens an external document/link
     const handleDocumentOpen = () => {

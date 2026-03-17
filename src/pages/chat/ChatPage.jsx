@@ -283,11 +283,11 @@ const ChatPage = () => {
         [conversations]
     );
 
-    useEffect(() => {
-        if (activeConversation) {
-            setMessages(generateMockMessages(activeConversation.id));
-        }
-    }, [activeConversation]);
+    const [prevConv, setPrevConv] = useState(activeConversation);
+    if (prevConv !== activeConversation) {
+        setPrevConv(activeConversation);
+        setMessages(activeConversation ? generateMockMessages(activeConversation.id) : []);
+    }
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

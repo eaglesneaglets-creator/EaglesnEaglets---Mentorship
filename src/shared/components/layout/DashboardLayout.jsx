@@ -148,8 +148,12 @@ const DashboardLayout = ({
 
   useEffect(() => {
     if (unreadCount > prevUnreadRef.current) {
-      setBellShaking(true);
-      setTimeout(() => setBellShaking(false), 600);
+      const t = setTimeout(() => {
+        setBellShaking(true);
+        setTimeout(() => setBellShaking(false), 600);
+      }, 0);
+      prevUnreadRef.current = unreadCount;
+      return () => clearTimeout(t);
     }
     prevUnreadRef.current = unreadCount;
   }, [unreadCount]);
@@ -165,9 +169,11 @@ const DashboardLayout = ({
   };
 
   // Close mobile menu on route change
-  useEffect(() => {
-    setIsMobileMenuOpen(false); // eslint-disable-line react-hooks/set-state-in-effect
-  }, [location.pathname]);
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
+  if (prevPathname !== location.pathname) {
+    setPrevPathname(location.pathname);
+    setIsMobileMenuOpen(false);
+  }
 
   // Fetch admin KYC badge count only
   useEffect(() => {

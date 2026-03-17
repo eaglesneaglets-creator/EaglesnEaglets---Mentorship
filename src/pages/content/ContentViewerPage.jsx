@@ -35,15 +35,10 @@ const ContentViewerPage = () => {
     const moduleData = moduleResponse?.data || moduleResponse || {};
     const items = useMemo(() => itemsResponse?.data?.data || itemsResponse?.data || [], [itemsResponse]);
 
-    // Auto-select first item when items load
-    useEffect(() => {
-        if (items.length > 0 && !activeItemId) {
-            setActiveItemId(items[0].id);
-        }
-    }, [items, activeItemId]);
+    const effectiveItemId = activeItemId ?? items[0]?.id ?? null;
 
-    const activeItem = items.find(i => i.id === activeItemId) || null;
-    const activeIndex = items.findIndex(i => i.id === activeItemId);
+    const activeItem = items.find(i => i.id === effectiveItemId) || null;
+    const activeIndex = items.findIndex(i => i.id === effectiveItemId);
     const hasPrev = activeIndex > 0;
     const hasNext = activeIndex < items.length - 1;
 
@@ -103,11 +98,13 @@ const ContentViewerPage = () => {
     };
 
     // Reset progress when switching items
-    useEffect(() => {
+    const [prevEffectiveItemId, setPrevEffectiveItemId] = useState(effectiveItemId);
+    if (prevEffectiveItemId !== effectiveItemId) {
+        setPrevEffectiveItemId(effectiveItemId);
         setProgressPercentage(0);
         setLastSyncTime(0);
         setIsSaving(false);
-    }, [activeItemId]);
+    }
 
     // Cleanup scroll
     useEffect(() => {
@@ -303,8 +300,8 @@ const ContentViewerPage = () => {
 
                                 <button
                                     onClick={handleMarkComplete}
-                                    disabled={isSaving || isCompleted(activeItemId)}
-                                    className={`flex items-center gap-3 px-10 py-4 rounded-2xl font-black transition-all shadow-xl ${isCompleted(activeItemId)
+                                    disabled={isSaving || isCompleted(effectiveItemId)}
+                                    className={`flex items-center gap-3 px-10 py-4 rounded-2xl font-black transition-all shadow-xl ${isCompleted(effectiveItemId)
                                         ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-none'
                                         : isSaving
                                             ? 'bg-slate-100 text-slate-400 cursor-wait'
@@ -312,7 +309,7 @@ const ContentViewerPage = () => {
                                         }`}
                                 >
 
-                                    {isCompleted(activeItemId) ? (
+                                    {isCompleted(effectiveItemId) ? (
                                         <>
                                             <span className="material-symbols-outlined">check_circle</span>
                                             Mark as Complete
@@ -376,27 +373,27 @@ const ContentViewerPage = () => {
                                             {/* Sub-item matching your reference (2.1, 2.2, etc) */}
                                             <button
                                                 onClick={() => setActiveItemId(group.id)}
-                                                className={`w-full text-left px-6 py-6 flex items-center gap-5 transition-all relative ${activeItemId === group.id
+                                                className={`w-full text-left px-6 py-6 flex items-center gap-5 transition-all relative ${effectiveItemId === group.id
                                                     ? 'bg-emerald-50/50'
                                                     : 'hover:bg-slate-50'
                                                     }`}
                                             >
 
                                                 {/* Active Indicator Bar */}
-                                                {activeItemId === group.id && (
+                                                {effectiveItemId === group.id && (
                                                     <motion.div layoutId="sidebar-active" className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
                                                 )}
 
                                                 <div className={`shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${isCompleted(group.id)
                                                     ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                                                    : activeItemId === group.id
+                                                    : effectiveItemId === group.id
                                                         ? 'bg-slate-900 text-white shadow-lg'
                                                         : 'bg-slate-100 text-slate-400'
                                                     }`}>
 
                                                     {isCompleted(group.id) ? (
                                                         <span className="material-symbols-outlined text-[20px]">check</span>
-                                                    ) : activeItemId === group.id ? (
+                                                    ) : effectiveItemId === group.id ? (
                                                         <span className="material-symbols-outlined text-[20px] animate-pulse">play_arrow</span>
                                                     ) : (
                                                         <span className="material-symbols-outlined text-[20px]">
@@ -406,7 +403,7 @@ const ContentViewerPage = () => {
                                                 </div>
 
                                                 <div className="flex-1 min-w-0">
-                                                    <p className={`text-sm font-bold truncate ${activeItemId === group.id ? 'text-slate-900' : 'text-slate-600'
+                                                    <p className={`text-sm font-bold truncate ${effectiveItemId === group.id ? 'text-slate-900' : 'text-slate-600'
                                                         }`}>
 
                                                         {gIdx + 1}.{1} {group.title}

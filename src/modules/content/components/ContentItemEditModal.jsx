@@ -1,20 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUpdateItem } from '../hooks/useContent';
 
 const ContentItemEditModal = ({ isOpen, onClose, moduleId, item }) => {
     const [formData, setFormData] = useState({
-        title: '',
-        content_type: 'reading',
-        duration_minutes: 0,
-        points_value: 0,
-        is_required: true,
-        order: 0,
+        title: item?.title || '',
+        content_type: item?.content_type || 'reading',
+        duration_minutes: item?.duration_minutes || 0,
+        points_value: item?.points_value || 0,
+        is_required: item?.is_required ?? true,
+        order: item?.order || 0,
     });
 
     const updateItemMutation = useUpdateItem(moduleId);
 
-    useEffect(() => {
+    const [prevItem, setPrevItem] = useState(item);
+    if (prevItem !== item) {
+        setPrevItem(item);
         if (item) {
             setFormData({
                 title: item.title || '',
@@ -25,7 +27,7 @@ const ContentItemEditModal = ({ isOpen, onClose, moduleId, item }) => {
                 order: item.order || 0,
             });
         }
-    }, [item]);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
