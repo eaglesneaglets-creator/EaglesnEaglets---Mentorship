@@ -5,7 +5,7 @@ const ContentService = {
     getModules: (params) => {
         // Clean params to avoid ?nest=undefined
         const cleanParams = Object.fromEntries(
-            Object.entries(params || {}).filter(([_, v]) => v != null && v !== 'undefined')
+            Object.entries(params || {}).filter(([, v]) => v != null && v !== 'undefined')
         );
         const query = Object.keys(cleanParams).length ? `?${new URLSearchParams(cleanParams)}` : '';
         return apiClient.get(`/content/modules/${query}`);
@@ -42,7 +42,7 @@ const ContentService = {
         return apiClient.get(`/content/assignments/submissions/${query}`);
     },
     gradeSubmission: (assignmentId, submissionId, data) =>
-        apiClient.post(`/content/assignments/${assignmentId}/grade/${submissionId}/`, data),
+        apiClient.patch(`/content/assignments/${assignmentId}/grade/${submissionId}/`, data),
 
     // --- Progress ---
     getMyProgress: () => apiClient.get('/content/my-progress/'),

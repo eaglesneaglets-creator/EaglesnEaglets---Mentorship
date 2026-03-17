@@ -432,7 +432,7 @@ const MyEagletsPage = () => {
     if (uid) navigate(`/eagle/eaglets/${uid}`);
   }, [navigate]);
 
-  const handleMessage = useCallback((member) => {
+  const handleMessage = useCallback(() => {
     navigate('/eagle/messages');
   }, [navigate]);
 

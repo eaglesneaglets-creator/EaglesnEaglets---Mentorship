@@ -200,7 +200,7 @@ export const useGradeSubmission = () => {
     return useMutation({
         mutationFn: ({ assignmentId, submissionId, data }) =>
             ContentService.gradeSubmission(assignmentId, submissionId, data),
-        onSuccess: (_, { assignmentId }) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: contentKeys.assignments() });
             queryClient.invalidateQueries({ queryKey: ['points'] });
             queryClient.invalidateQueries({ queryKey: contentKeys.submissions() });

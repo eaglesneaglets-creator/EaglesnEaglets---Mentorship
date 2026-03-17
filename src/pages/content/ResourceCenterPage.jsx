@@ -81,7 +81,7 @@ const FeaturedCard = ({ item, module, onClick, delay = 0 }) => {
 };
 
 /* ─── Compact Row Item (for Videos, Documents, Links sections) ─── */
-const CompactItem = ({ item, module, onClick, delay = 0 }) => {
+const CompactItem = ({ item, onClick, delay = 0 }) => {
     const type = item?.content_type || 'reading';
     const config = TYPE_CONFIG[type] || TYPE_CONFIG.reading;
 

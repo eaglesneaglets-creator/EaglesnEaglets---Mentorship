@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
@@ -111,7 +111,6 @@ const AssignmentDetailPage = () => {
     };
 
     // moduleId is undefined on the standalone route (/eaglet/assignments/standalone/:itemId)
-    const isStandalone = !moduleId;
     const backPath = user?.role === 'eagle'
         ? (moduleId ? `/eagle/content/${moduleId}` : '/eagle/learning-center')
         : (moduleId ? `/eaglet/assignments/${moduleId}` : '/eaglet/assignments');

@@ -234,8 +234,6 @@ const HeroSection = () => {
    ABOUT SECTION — 2-column: text left, illustration right
    ═══════════════════════════════════════════════ */
 const AboutSection = () => {
-    const navigate = useNavigate();
-
     return (
         <section id="about" className="py-24 px-6 bg-white">
             <div className="max-w-7xl mx-auto">

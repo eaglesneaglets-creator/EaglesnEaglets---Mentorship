@@ -84,7 +84,7 @@ const LoginPage = () => {
   useEffect(() => {
     if (prevAuthError.current && !authError) {
       hasAutoResent.current = false;
-      setResendStatus(null); // eslint-disable-line react-hooks/set-state-in-effect
+      setResendStatus(null);
     }
     prevAuthError.current = authError;
   }, [authError]);
@@ -110,7 +110,18 @@ const LoginPage = () => {
       // or default to eaglet for new users
       const response = await authService.getGoogleAuthUrl('eaglet');
       if (response.success && response.data.auth_url) {
-        window.location.href = response.data.auth_url;
+        // Security: validate redirect URL to prevent open redirect attacks
+        const authUrl = response.data.auth_url;
+        try {
+          const parsed = new URL(authUrl);
+          if (parsed.hostname !== 'accounts.google.com' || parsed.protocol !== 'https:') {
+            throw new Error('Invalid OAuth redirect URL');
+          }
+          window.location.href = authUrl;
+        } catch {
+          logger.error('Invalid Google auth URL received');
+          setIsGoogleLoading(false);
+        }
       }
     } catch (err) {
       logger.error('Failed to get Google auth URL:', err);
@@ -287,7 +298,7 @@ const LoginPage = () => {
           left: 0;
           width: 0;
           height: 2px;
-          background: linear-gradient(90deg, #22C55E, #16A34A);
+          background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
           transition: width 0.3s ease;
         }
         @media (hover: hover) {
@@ -314,7 +325,7 @@ const LoginPage = () => {
         <div
           className="absolute inset-0 animate-gradient-shift"
           style={{
-            background: 'linear-gradient(135deg, #15803D 0%, #22C55E 25%, #16A34A 50%, #166534 75%, #22C55E 100%)',
+            background: 'linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary) 25%, var(--color-primary-dark) 50%, #166534 75%, var(--color-primary) 100%)',
             backgroundSize: '400% 400%',
           }}
         />

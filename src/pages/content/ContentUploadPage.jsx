@@ -204,9 +204,9 @@ const ContentUploadPage = () => {
     const [itemTitle, setItemTitle] = useState('');
     const [linkUrl, setLinkUrl] = useState('');
     const [file, setFile] = useState(null);
-    const [itemDuration, setItemDuration] = useState(0);
-    const [itemPoints, setItemPoints] = useState(0);
-    const [isRequired, setIsRequired] = useState(true);
+    const [itemDuration, _setItemDuration] = useState(0);
+    const [itemPoints, _setItemPoints] = useState(0);
+    const [isRequired, _setIsRequired] = useState(true);
     const [visibility, setVisibility] = useState('all_mentees');
 
     const createItemMutation = useCreateItem(selectedModuleId);

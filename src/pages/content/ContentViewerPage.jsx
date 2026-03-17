@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
@@ -17,15 +17,14 @@ const TYPE_CONFIG = {
 
 const ContentViewerPage = () => {
     const { moduleId } = useParams();
-    const navigate = useNavigate();
     const { user } = useAuthStore();
 
     const videoRef = useRef(null);
     const { mutate: updateProgress } = useUpdateProgress();
 
     const [activeItemId, setActiveItemId] = useState(null);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [progressPercentage, setProgressPercentage] = useState(0);
+    const [sidebarOpen] = useState(true);
+    const [, setProgressPercentage] = useState(0);
     const [lastSyncTime, setLastSyncTime] = useState(0);
     const [isSaving, setIsSaving] = useState(false);
     const [completedItems, setCompletedItems] = useState(new Set());

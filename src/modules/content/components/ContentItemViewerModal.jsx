@@ -28,7 +28,7 @@ const ContentItemViewerModal = ({ isOpen, onClose, item }) => {
                             },
                         },
                         {
-                            onSuccess: (data) => {
+                            onSuccess: () => {
                                 // If the status just transitioned to completed, notify!
                                 // We check if force was true, which usually means 100% completion in our UI handling.
                                 if (force && percent >= 100) {
