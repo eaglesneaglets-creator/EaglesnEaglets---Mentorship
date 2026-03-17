@@ -450,7 +450,10 @@ const LearningCenterPage = () => {
     const { data: modulesResponse, isLoading } = useModules(modulesQuery);
     const { data: progressResponse } = useMyProgress();
 
-    const modules = modulesResponse?.data || modulesResponse?.results || [];
+    const modules = useMemo(
+        () => modulesResponse?.data || modulesResponse?.results || [],
+        [modulesResponse]
+    );
     const pData = progressResponse?.data || {};
     const overallProgress = Math.round(pData.average_progress ?? pData.overall_progress ?? 0);
 

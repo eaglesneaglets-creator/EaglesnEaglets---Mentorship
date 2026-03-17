@@ -198,7 +198,10 @@ const ResourceCenterPage = () => {
     const { data: modulesResponse, isLoading } = useModules({ nest: nestId });
     const { data: progressResponse } = useMyProgress();
 
-    const modules = modulesResponse?.data || modulesResponse?.results || [];
+    const modules = useMemo(
+        () => modulesResponse?.data || modulesResponse?.results || [],
+        [modulesResponse]
+    );
     const pData = progressResponse?.data || {};
 
     // Flatten all items from all modules for categorized display

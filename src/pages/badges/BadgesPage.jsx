@@ -139,7 +139,7 @@ export default function BadgesPage() {
     const [selectedBadge, setSelectedBadge] = useState(null);
     const { data, isLoading, isError } = useAllBadges();
 
-    const badges = data?.data ?? [];
+    const badges = useMemo(() => data?.data ?? [], [data]);
     const earnedCount = badges.filter(b => b.earned).length;
 
     const filtered = useMemo(() => {

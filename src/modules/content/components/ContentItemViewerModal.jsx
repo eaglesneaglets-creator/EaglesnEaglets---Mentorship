@@ -101,9 +101,14 @@ const ContentItemViewerModal = ({ isOpen, onClose, item }) => {
         if (isOpen) {
             setProgressPercentage(0);
             setLastSyncTime(0);
-            hasReported50.current = false;
         }
     }
+
+    useEffect(() => {
+        if (isOpen) {
+            hasReported50.current = false;
+        }
+    }, [isOpen, item?.id]);
 
     // Report 50% progress when eaglet opens an external document/link
     const handleDocumentOpen = () => {

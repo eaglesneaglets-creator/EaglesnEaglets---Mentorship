@@ -317,6 +317,8 @@ const EmptyState = ({ query }) => (
 
 EmptyState.propTypes = { query: PropTypes.string };
 
+const SKELETON_WIDTHS = [72, 88, 65, 91, 78, 83, 69];
+
 /**
  * Skeleton row for loading state
  */
@@ -324,7 +326,7 @@ const SkeletonRow = () => (
   <tr className="border-b border-slate-100">
     {[...Array(7)].map((_, i) => (
       <td key={i} className="py-4 px-3">
-        <div className="h-4 bg-slate-100 rounded-lg animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }} />
+        <div className="h-4 bg-slate-100 rounded-lg animate-pulse" style={{ width: `${SKELETON_WIDTHS[i]}%` }} />
       </td>
     ))}
   </tr>
