@@ -1,8 +1,7 @@
 // src/modules/nest/components/PostFeed.jsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
+const Picker = lazy(() => import('@emoji-mart/react'));
 import { useAuthStore } from '@store';
 import { useNestPosts, useCreatePost } from '../hooks/useNests';
 import { useToggleLike } from '../hooks/useToggleLike';
@@ -85,7 +84,9 @@ const PostComposer = ({ nestId, user }) => {
       {/* Emoji picker — hoisted to card level so it isn't clipped by the toolbar's height animation */}
       {showEmojiPicker && (
         <div ref={pickerRef} className="absolute bottom-full left-0 mb-2 z-50">
-          <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" previewPosition="none" />
+          <Suspense fallback={<div className="w-8 h-8 animate-pulse bg-slate-100 rounded" />}>
+            <Picker data={() => import('@emoji-mart/data').then(m => m.default)} onEmojiSelect={handleEmojiSelect} theme="light" previewPosition="none" />
+          </Suspense>
         </div>
       )}
       <div className="p-4">

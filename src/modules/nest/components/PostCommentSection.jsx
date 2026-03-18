@@ -1,7 +1,6 @@
 // src/modules/nest/components/PostCommentSection.jsx
-import React, { useState, useRef, useEffect } from 'react';
-import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
+const Picker = lazy(() => import('@emoji-mart/react'));
 import { usePostComments } from '../hooks/usePostComments';
 import { useAddComment } from '../hooks/useAddComment';
 import CommentBubble from './CommentBubble';
@@ -111,7 +110,9 @@ const PostCommentSection = ({ postId, nestId }) => {
           {/* Emoji picker */}
           {showEmojiPicker && (
             <div ref={pickerRef} className="absolute bottom-full right-0 mb-2 z-50 shadow-xl rounded-2xl overflow-hidden">
-              <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
+              <Suspense fallback={<div className="w-8 h-8 animate-pulse bg-slate-100 rounded" />}>
+                <Picker data={() => import('@emoji-mart/data').then(m => m.default)} onEmojiSelect={handleEmojiSelect} theme="light" />
+              </Suspense>
             </div>
           )}
         </div>
