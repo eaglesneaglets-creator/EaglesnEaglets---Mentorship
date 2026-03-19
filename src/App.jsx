@@ -21,6 +21,41 @@ const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage')
 const EagleDashboardPage = lazy(() => import('./pages/eagle/EagleDashboardPage'));
 const EagletDashboardPage = lazy(() => import('./pages/eaglet/EagletDashboardPage'));
 
+// Nest Pages
+const NestCommunityHubPage = lazy(() => import('./pages/nest/NestCommunityHubPage'));
+const NestBrowsePage = lazy(() => import('./pages/nest/NestBrowsePage'));
+const NestSettingsPage = lazy(() => import('./pages/nest/NestSettingsPage'));
+const GradingCenterPage = lazy(() => import('./pages/eagle/GradingCenterPage'));
+const MyEagletsPage = lazy(() => import('./pages/eagle/MyEagletsPage'));
+const EagleNestPage = lazy(() => import('./pages/nest/EagleNestPage'));
+const EagletNestPage = lazy(() => import('./pages/nest/EagletNestPage'));
+const MentorPublicProfilePage = lazy(() => import('./pages/nest/MentorPublicProfilePage'));
+const MyRequestsPage = lazy(() => import('./pages/nest/MyRequestsPage'));
+const NestJoinDetailPage = lazy(() => import('./pages/nest/NestJoinDetailPage'));
+const MentorshipRequestsPage = lazy(() => import('./pages/nest/MentorshipRequestsPage'));
+
+// Content Pages
+const LearningCenterPage = lazy(() => import('./pages/content/LearningCenterPage'));
+const ContentViewerPage = lazy(() => import('./pages/content/ContentViewerPage'));
+const AssignmentDetailPage = lazy(() => import('./pages/content/AssignmentDetailPage'));
+const ContentUploadPage = lazy(() => import('./pages/content/ContentUploadPage'));
+const ResourceCenterPage = lazy(() => import('./pages/content/ResourceCenterPage'));
+const ModuleQuizPage = lazy(() => import('./modules/content/components/ModuleQuizPage'));
+const LandingPage = lazy(() => import('./pages/public/LandingPage'));
+const HomePage = lazy(() => import('./pages/home/HomePage'));
+
+// Points & Leaderboard Pages
+const PointsLeaderboardPage = lazy(() => import('./pages/points/PointsLeaderboardPage'));
+
+// Badges Page
+const BadgesPage = lazy(() => import('./pages/badges/BadgesPage'));
+
+// Notifications Page
+const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'));
+
+// Chat Page
+const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
+
 // Profile Pages (NEW)
 const MentorProfilePage = lazy(() => import('./pages/profile/MentorProfilePage'));
 const MenteeProfilePage = lazy(() => import('./pages/profile/MenteeProfilePage'));
@@ -103,86 +138,107 @@ function App() {
           <InactivityManager>
             <Suspense fallback={<PageLoader />}>
               <Routes>
-              {/* ============================================================= */}
-              {/* PUBLIC ROUTES (Guest Only) */}
-              {/* ============================================================= */}
-              <Route element={<GuestGuard />}>
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              </Route>
-
-              {/* Public routes (accessible to all) */}
-              <Route path="/verify-email" element={<VerifyEmailPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
-
-              {/* ============================================================= */}
-              {/* PROTECTED ROUTES (Authenticated) */}
-              {/* ============================================================= */}
-              <Route element={<AuthGuard />}>
-                {/* Eagle (Mentor) Only Routes */}
-                <Route element={<RoleGuard allowedRoles={['eagle']} />}>
-                  {/* Redirect legacy KYC routes to new profile page */}
-                  <Route path="/kyc" element={<Navigate to="/mentor-profile" replace />} />
-                  <Route path="/kyc/pending" element={<Navigate to="/pending-approval" replace />} />
-                  <Route path="/mentor-profile" element={<MentorProfilePage />} />
-                  {/* Eagle Dashboard */}
-                  <Route path="/eagle/dashboard" element={<EagleDashboardPage />} />
-                  {/* Eagle Coming Soon Pages */}
-                  <Route path="/eagle/nests" element={<ComingSoonPage title="My Nests" description="Manage your mentorship nests, create new groups, and organize your mentees effectively." icon="diversity_3" />} />
-                  <Route path="/eagle/eaglets" element={<ComingSoonPage title="My Eaglets" description="View and manage all your mentees, track their progress, and provide guidance." icon="group" />} />
-                  <Route path="/eagle/content" element={<ComingSoonPage title="Content Management" description="Upload and manage learning materials, assignments, and resources for your mentees." icon="upload_file" />} />
-                  <Route path="/eagle/messages" element={<ComingSoonPage title="Messages" description="Communicate with your mentees through our secure messaging system." icon="chat" />} />
-                  <Route path="/eagle/resources" element={<ComingSoonPage title="Resources" description="Access a library of mentorship resources, guides, and best practices." icon="library_books" />} />
-                  <Route path="/eagle/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
+                {/* ============================================================= */}
+                {/* PUBLIC ROUTES (Guest Only) */}
+                {/* ============================================================= */}
+                <Route element={<GuestGuard />}>
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 </Route>
 
-                {/* Eaglet (Mentee) Only Routes */}
-                <Route element={<RoleGuard allowedRoles={['eaglet']} />}>
-                  <Route path="/onboarding" element={<EagletOnboardingPage />} />
-                  <Route path="/mentee-profile" element={<MenteeProfilePage />} />
-                  {/* Eaglet Dashboard */}
-                  <Route path="/eaglet/dashboard" element={<EagletDashboardPage />} />
-                  {/* Eaglet Coming Soon Pages */}
-                  <Route path="/eaglet/nest" element={<ComingSoonPage title="My Nest" description="Join your mentor's nest and connect with fellow mentees on your learning journey." icon="diversity_1" />} />
-                  <Route path="/eaglet/assignments" element={<ComingSoonPage title="Assignments" description="View and complete assignments given by your mentor to track your progress." icon="assignment" />} />
-                  <Route path="/eaglet/messages" element={<ComingSoonPage title="Messages" description="Communicate with your mentor and fellow mentees through our secure messaging system." icon="chat" />} />
-                  <Route path="/eaglet/leaderboard" element={<ComingSoonPage title="Leaderboard" description="See how you rank among your peers and track your achievements." icon="leaderboard" />} />
-                  <Route path="/eaglet/resources" element={<ComingSoonPage title="Resources" description="Access learning materials, guides, and resources shared by your mentor." icon="library_books" />} />
-                  <Route path="/eaglet/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
+                {/* Public routes (accessible to all) */}
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+
+                {/* ============================================================= */}
+                {/* PROTECTED ROUTES (Authenticated) */}
+                {/* ============================================================= */}
+                <Route element={<AuthGuard />}>
+                  {/* Eagle (Mentor) Only Routes */}
+                  <Route element={<RoleGuard allowedRoles={['eagle']} />}>
+                    {/* Redirect legacy KYC routes to new profile page */}
+                    <Route path="/kyc" element={<Navigate to="/mentor-profile" replace />} />
+                    <Route path="/kyc/pending" element={<Navigate to="/pending-approval" replace />} />
+                    <Route path="/mentor-profile" element={<MentorProfilePage />} />
+                    {/* Eagle Dashboard */}
+                    <Route path="/eagle/dashboard" element={<EagleDashboardPage />} />
+                    {/* Eagle Nests Routes */}
+                    <Route path="/eagle/nests" element={<EagleNestPage />} />
+                    <Route path="/eagle/grading" element={<GradingCenterPage />} />
+                    <Route path="/eagle/nests/:nestId" element={<NestCommunityHubPage />} />
+                    <Route path="/eagle/nests/:nestId/settings" element={<NestSettingsPage />} />
+                    <Route path="/eagle/nests/:nestId/requests" element={<MentorshipRequestsPage />} />
+                    <Route path="/eagle/content" element={<LearningCenterPage />} />
+                    <Route path="/eagle/content/upload" element={<ContentUploadPage />} />
+                    <Route path="/eagle/content/:moduleId" element={<ContentViewerPage />} />
+                    <Route path="/eagle/leaderboard" element={<PointsLeaderboardPage />} />
+                    <Route path="/eagle/eaglets" element={<MyEagletsPage />} />
+                    <Route path="/eagle/messages" element={<ChatPage />} />
+                    <Route path="/eagle/resources" element={<ResourceCenterPage />} />
+                    <Route path="/eagle/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
+                  </Route>
+
+                  {/* Eaglet (Mentee) Only Routes */}
+                  <Route element={<RoleGuard allowedRoles={['eaglet']} />}>
+                    <Route path="/onboarding" element={<EagletOnboardingPage />} />
+                    <Route path="/mentee-profile" element={<MenteeProfilePage />} />
+                    {/* Eaglet Dashboard */}
+                    <Route path="/eaglet/dashboard" element={<EagletDashboardPage />} />
+                    {/* Eaglet Nests Routes */}
+                    <Route path="/eaglet/nest" element={<EagletNestPage />} />
+                    <Route path="/eaglet/nest/:nestId" element={<NestCommunityHubPage />} />
+                    <Route path="/eaglet/mentor/:nestId" element={<MentorPublicProfilePage />} />
+                    <Route path="/eaglet/mentor/:nestId/join" element={<NestJoinDetailPage />} />
+                    <Route path="/eaglet/my-requests" element={<MyRequestsPage />} />
+                    <Route path="/eaglet/assignments" element={<LearningCenterPage />} />
+                    {/* standalone/:itemId must come before :moduleId/:itemId so the literal "standalone" wins */}
+                    <Route path="/eaglet/assignments/standalone/:itemId" element={<AssignmentDetailPage />} />
+                    <Route path="/eaglet/assignments/:moduleId" element={<ContentViewerPage />} />
+                    <Route path="/eaglet/assignments/:moduleId/:itemId" element={<AssignmentDetailPage />} />
+                    <Route path="/eaglet/modules/:moduleId/quiz" element={<ModuleQuizPage />} />
+                    <Route path="/eaglet/leaderboard" element={<PointsLeaderboardPage />} />
+                    <Route path="/eaglet/badges" element={<BadgesPage />} />
+                    <Route path="/eaglet/messages" element={<ChatPage />} />
+                    <Route path="/eaglet/resources" element={<ResourceCenterPage />} />
+                    <Route path="/eaglet/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
+                  </Route>
+
+                  {/* Notifications - accessible to all authenticated roles */}
+                  <Route path="/notifications" element={<NotificationsPage />} />
+
+                  {/* Profile Routes - accessible to both Eagles and Eaglets */}
+                  <Route path="/complete-profile" element={<ProfileRedirect />} />
+                  <Route path="/pending-approval" element={<PendingApprovalPage />} />
+
+                  {/* Dashboard redirect - directs to role-specific dashboard */}
+                  <Route path="/dashboard" element={<DashboardRedirect />} />
+
+                  {/* Admin Only Routes */}
+                  <Route element={<AdminGuard />}>
+                    <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+                    <Route path="/admin/kyc" element={<AdminKYCPortalPage />} />
+                    <Route path="/admin/kyc/:kycId" element={<AdminKYCDetailPage />} />
+                    {/* Admin Coming Soon Pages */}
+                    <Route path="/admin/users" element={<ComingSoonPage title="Users Management" description="View, manage, and moderate all platform users including Eagles and Eaglets." icon="group" />} />
+                    <Route path="/admin/nests" element={<ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" />} />
+                    <Route path="/admin/content" element={<LearningCenterPage />} />
+                    <Route path="/admin/content/upload" element={<ContentUploadPage />} />
+                    <Route path="/admin/donations" element={<ComingSoonPage title="Donations" description="Track and manage donations, view reports, and handle financial transactions." icon="volunteer_activism" />} />
+                    <Route path="/admin/settings" element={<ComingSoonPage title="Platform Settings" description="Configure platform-wide settings, policies, and system preferences." icon="settings" />} />
+                  </Route>
                 </Route>
 
-                {/* Profile Routes - accessible to both Eagles and Eaglets */}
-                <Route path="/complete-profile" element={<ProfileRedirect />} />
-                <Route path="/pending-approval" element={<PendingApprovalPage />} />
+                {/* ============================================================= */}
+                {/* DEFAULT ROUTES */}
+                {/* ============================================================= */}
+                {/* Home/Landing */}
+                <Route path="/" element={<HomePage />} />
 
-                {/* Dashboard redirect - directs to role-specific dashboard */}
-                <Route path="/dashboard" element={<DashboardRedirect />} />
-
-                {/* Admin Only Routes */}
-                <Route element={<AdminGuard />}>
-                  <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-                  <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-                  <Route path="/admin/kyc" element={<AdminKYCPortalPage />} />
-                  <Route path="/admin/kyc/:kycId" element={<AdminKYCDetailPage />} />
-                  {/* Admin Coming Soon Pages */}
-                  <Route path="/admin/users" element={<ComingSoonPage title="Users Management" description="View, manage, and moderate all platform users including Eagles and Eaglets." icon="group" />} />
-                  <Route path="/admin/nests" element={<ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" />} />
-                  <Route path="/admin/content" element={<ComingSoonPage title="Content Moderation" description="Review and moderate content uploaded by mentors across the platform." icon="library_books" />} />
-                  <Route path="/admin/donations" element={<ComingSoonPage title="Donations" description="Track and manage donations, view reports, and handle financial transactions." icon="volunteer_activism" />} />
-                  <Route path="/admin/settings" element={<ComingSoonPage title="Platform Settings" description="Configure platform-wide settings, policies, and system preferences." icon="settings" />} />
-                </Route>
-              </Route>
-
-              {/* ============================================================= */}
-              {/* DEFAULT ROUTES */}
-              {/* ============================================================= */}
-              {/* Home/Landing - redirect to login for now */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
-
-              {/* 404 - Catch all */}
-              <Route path="*" element={<Navigate to="/login" replace />} />
+                {/* 404 - Catch all */}
+                <Route path="*" element={<Navigate to="/login" replace />} />
               </Routes>
             </Suspense>
           </InactivityManager>

@@ -1,57 +1,13 @@
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
-
-/**
- * Stat Card with Icon Background
- */
-const StatCard = ({ icon, iconColor, label, value, subValue, subColor = 'text-emerald-600', progress, delay = 0 }) => (
-  <div
-    className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-slate-200/50 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500 hover:-translate-y-1 overflow-hidden"
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {/* Background Icon */}
-    <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500 ${iconColor}`}>
-      <span className="material-symbols-outlined text-6xl">{icon}</span>
-    </div>
-
-    <p className="text-slate-500 text-sm font-medium">{label}</p>
-    <div className="flex items-baseline gap-2 mt-1">
-      <p className="text-slate-900 text-2xl font-bold">{value}</p>
-      {subValue && (
-        <p className={`text-xs font-bold ${subColor}`}>{subValue}</p>
-      )}
-    </div>
-
-    {progress !== undefined && (
-      <div className="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-        <div
-          className="bg-emerald-500 h-1.5 rounded-full transition-all duration-1000 ease-out"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-    )}
-  </div>
-);
-
-/**
- * Content Item Component
- */
-const ContentItem = ({ icon, iconBg, title, subtitle, rightElement, delay = 0 }) => (
-  <div
-    className="flex items-center gap-4 p-4 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200/50 hover:border-primary/30 transition-all duration-300 cursor-pointer group hover:shadow-lg hover:shadow-primary/5"
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${iconBg} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-      <span className="material-symbols-outlined text-xl">{icon}</span>
-    </div>
-    <div className="flex-1 min-w-0">
-      <h4 className="text-slate-900 text-base font-medium truncate">{title}</h4>
-      <p className="text-slate-500 text-sm truncate">{subtitle}</p>
-    </div>
-    {rightElement}
-  </div>
-);
+import { useEagletDashboardStats, useCheckIn } from '../../modules/analytics/hooks/useAnalytics';
+import toast from 'react-hot-toast';
+import StatCard from '../../shared/components/ui/StatCard';
+import AnimatedContentItem from '../../shared/components/ui/AnimatedContentItem';
+import AnimatedNestCard from '../../shared/components/ui/AnimatedNestCard';
+import BadgeShelf from '../../shared/components/ui/BadgeShelf';
 
 /**
  * Quick Action Button
@@ -68,82 +24,78 @@ const QuickAction = ({ icon, iconColor, label }) => (
 /**
  * Leaderboard Row
  */
-const LeaderboardRow = ({ rank, name, points, avatar, isYou = false, rankColor }) => (
-  <div className={`flex items-center gap-3 p-3 transition-colors duration-300 ${
-    isYou ? 'bg-blue-50/80 rounded-xl' : 'hover:bg-slate-50 border-b border-slate-100 last:border-0'
-  }`}>
-    <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${rankColor}`}>
-      {rank}
-    </span>
-    {avatar ? (
-      <img src={avatar} alt={name} className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm" />
-    ) : (
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-xs">
-        {name.charAt(0)}
-      </div>
-    )}
-    <p className={`flex-1 text-sm ${isYou ? 'font-bold text-primary' : 'font-medium text-slate-900'}`}>
-      {isYou ? 'You' : name}
-    </p>
-    <p className="text-xs font-bold text-emerald-600">{points.toLocaleString()} pts</p>
-  </div>
-);
+const LeaderboardRow = React.memo(({ rank, name, points, avatar, isYou = false }) => {
+  const rankColors = {
+    1: 'bg-amber-100 text-amber-600',
+    2: 'bg-slate-100 text-slate-600',
+    3: 'bg-orange-100 text-orange-600',
+  };
+  const rankColor = rankColors[rank] || 'bg-blue-50 text-blue-600';
+
+  return (
+    <div className={`flex items-center gap-3 p-3 transition-colors duration-300 ${isYou ? 'bg-blue-50/80 rounded-xl' : 'hover:bg-slate-50 border-b border-slate-100 last:border-0'
+      }`}>
+      <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${rankColor}`}>
+        {rank}
+      </span>
+      {avatar ? (
+        <img
+          src={avatar}
+          alt={name}
+          loading="lazy"
+          className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
+        />
+      ) : (
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-xs">
+          {name?.charAt(0) || '?'}
+        </div>
+      )}
+      <p className={`flex-1 text-sm ${isYou ? 'font-bold text-primary' : 'font-medium text-slate-900'}`}>
+        {isYou ? 'You' : name}
+      </p>
+      <p className="text-xs font-bold text-emerald-600">{points?.toLocaleString()} pts</p>
+    </div>
+  );
+});
+
+LeaderboardRow.displayName = 'LeaderboardRow';
 
 /**
  * Eaglet Dashboard Page
  */
 const EagletDashboardPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { data: dashboardData } = useEagletDashboardStats();
+  const { mutate: checkIn, isLoading: isCheckingIn } = useCheckIn();
 
-  // Mock data
+  const points = dashboardData?.points || 0;
+  const modulesCompleted = dashboardData?.modules_completed || 0;
+  const streak = dashboardData?.streak || 0;
+  const hasCheckedInToday = dashboardData?.has_checked_in_today || false;
+  const weeklyCheckins = dashboardData?.weekly_checkins || [false, false, false, false, false, false, false];
+
+  const handleCheckIn = () => {
+    checkIn(null, {
+      onSuccess: () => {
+        toast.success('Awesome! You earned 10 points for checking in.');
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Check-in failed');
+      }
+    });
+  };
+
+  // Use dynamic or fallback
   const stats = [
-    { icon: 'psychiatry', iconColor: 'text-emerald-500', label: 'Spiritual Points', value: '1,240', subValue: '+120 this week', progress: 65 },
-    { icon: 'school', iconColor: 'text-blue-500', label: 'Modules Completed', value: '12', subValue: '/ 40', subColor: 'text-slate-400' },
-    { icon: 'local_fire_department', iconColor: 'text-orange-500', label: 'Prayer Streak', value: '5 Days', subValue: 'Personal best!', subColor: 'text-emerald-600' },
-    { icon: 'menu_book', iconColor: 'text-purple-500', label: 'Scriptures Memorized', value: '24', subValue: '+3 since last session' },
+    { icon: 'psychiatry', iconColor: 'text-emerald-500', label: 'Spiritual Points', value: points.toLocaleString(), subValue: 'Keep earning!', progress: Math.min((points % 1000) / 10, 100) },
+    { icon: 'school', iconColor: 'text-blue-500', label: 'Modules Completed', value: modulesCompleted.toString(), subValue: 'Total completed', subColor: 'text-slate-400' },
+    { icon: 'local_fire_department', iconColor: 'text-orange-500', label: 'Prayer Streak', value: `${streak} Days`, subValue: 'Keep it going!', subColor: 'text-emerald-600' },
+    { icon: 'menu_book', iconColor: 'text-purple-500', label: 'Recent Action', value: 'Active', subValue: 'Based on logs' },
   ];
 
-  const recentContent = [
-    {
-      icon: 'play_circle',
-      iconBg: 'bg-blue-50 text-primary',
-      title: 'Understanding Grace - Part 2',
-      subtitle: 'Video Module • 15 mins',
-      rightElement: (
-        <button className="p-2 text-primary hover:bg-blue-50 rounded-full transition-colors">
-          <span className="material-symbols-outlined">arrow_forward</span>
-        </button>
-      ),
-    },
-    {
-      icon: 'menu_book',
-      iconBg: 'bg-emerald-50 text-emerald-600',
-      title: 'Weekly Devotional: Patience',
-      subtitle: 'Reading • 5 mins remaining',
-      rightElement: (
-        <div className="h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
-          <div className="h-full bg-emerald-500 w-3/4" />
-        </div>
-      ),
-    },
-    {
-      icon: 'quiz',
-      iconBg: 'bg-purple-50 text-purple-600',
-      title: 'Foundations Quiz',
-      subtitle: 'Assignment • Due Tomorrow',
-      rightElement: (
-        <span className="px-2.5 py-1 text-xs font-bold bg-orange-50 text-orange-600 rounded-lg animate-pulse">
-          Due Soon
-        </span>
-      ),
-    },
-  ];
-
-  const leaderboard = [
-    { rank: 1, name: 'Sarah M.', points: 1450, rankColor: 'bg-amber-100 text-amber-700' },
-    { rank: 2, name: 'James L.', points: 1320, rankColor: 'bg-slate-100 text-slate-600' },
-    { rank: 3, name: user?.first_name || 'You', points: 1240, isYou: true, rankColor: 'bg-orange-100 text-orange-700' },
-  ];
+  const recentContent = dashboardData?.recent_content || [];
+  const leaderboard = dashboardData?.leaderboard_preview || [];
 
   return (
     <DashboardLayout variant="eaglet">
@@ -156,10 +108,21 @@ const EagletDashboardPage = () => {
             </h1>
             <p className="text-slate-500 mt-1">Ready to continue your spiritual journey today?</p>
           </div>
-          <button className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group">
+          <button
+            onClick={() => navigate('/eaglet/assignments')}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
+          >
             <span className="material-symbols-outlined text-lg group-hover:animate-bounce">play_arrow</span>
             Resume Learning
           </button>
+        </div>
+
+        {/* Badges */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-slate-700">My Badges</h3>
+          </div>
+          <BadgeShelf />
         </div>
 
         {/* Stats Row */}
@@ -171,51 +134,48 @@ const EagletDashboardPage = () => {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Nest & Content */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* My Nest Card */}
-            <div className="relative overflow-hidden rounded-2xl h-72 shadow-xl group">
-              {/* Background Image */}
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                style={{
-                  backgroundImage: 'url(https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&h=400&fit=crop)',
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-              {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col sm:flex-row items-end justify-between gap-4">
-                <div className="flex flex-col gap-2 text-white">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="material-symbols-outlined text-emerald-400">diversity_1</span>
-                    <p className="text-xs font-bold uppercase tracking-wider text-emerald-400">Current Cohort</p>
-                  </div>
-                  <h3 className="text-2xl font-bold leading-tight">Eagle's Nest Alpha</h3>
-                  <p className="text-slate-200 text-sm">Mentor: David Smith</p>
-
-                  {/* Member Avatars */}
-                  <div className="flex -space-x-2 mt-2">
-                    {[...Array(3)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 ring-2 ring-white"
-                      />
-                    ))}
-                    <div className="w-8 h-8 rounded-full bg-slate-700 ring-2 ring-white flex items-center justify-center text-white text-xs font-medium">
-                      +4
-                    </div>
-                  </div>
+            {dashboardData?.nests && dashboardData.nests.length > 0 ? (
+              dashboardData.nests.map((nest, index) => (
+                <AnimatedNestCard
+                  key={nest.id}
+                  title={nest.name}
+                  description={`Learn to fly with our amazing community in ${nest.name}.`}
+                  memberCount="Active"
+                  additionalInfo={`Mentor: ${nest.eagle_name}`}
+                  linkTo="/eaglet/nest"
+                  delay={index * 100}
+                />
+              ))
+            ) : dashboardData?.pending_requests > 0 ? (
+              <div className="bg-amber-50/80 border border-amber-200/50 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+                <div>
+                  <h3 className="text-amber-800 font-bold text-lg mb-1 flex items-center gap-2">
+                    <span className="material-symbols-outlined">hourglass_empty</span>
+                    Request Pending Review
+                  </h3>
+                  <p className="text-amber-700/80 text-sm">
+                    You have requested to join a Nest. Your Eagle mentor will review this soon!
+                  </p>
                 </div>
-
-                <Link
-                  to="/eaglet/nest"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-105"
-                >
-                  View Nest
+              </div>
+            ) : (
+              <div className="bg-blue-50/80 border border-blue-200/50 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-slate-900 font-bold text-lg mb-1 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">diversity_3</span>
+                    Join a Community
+                  </h3>
+                  <p className="text-slate-500 text-sm">
+                    You haven't joined a Nest yet. Browse available Eagles and request a mentor.
+                  </p>
+                </div>
+                <Link to="/eaglet/nest" className="whitespace-nowrap inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-0.5">
+                  <span className="material-symbols-outlined text-base">diversity_3</span>
+                  Browse Nests
                 </Link>
               </div>
-            </div>
+            )}
 
             {/* Recent Content Section */}
             <div className="flex flex-col gap-4">
@@ -233,21 +193,72 @@ const EagletDashboardPage = () => {
               </div>
 
               <div className="flex flex-col gap-3">
-                {recentContent.map((item, index) => (
-                  <ContentItem key={item.title} {...item} delay={index * 75} />
-                ))}
+                {recentContent.length > 0 ? (
+                  recentContent.map((item, index) => {
+                    const iconMap = {
+                      link: 'link',
+                      document: 'description',
+                      file: 'attachment',
+                      video: 'play_circle',
+                    };
+                    const typeLabels = {
+                      link: 'Resource Link',
+                      document: 'Document',
+                      file: 'File Attachment',
+                      video: 'Video Resource',
+                    };
+
+                    return (
+                      <AnimatedContentItem
+                        key={item.id || index}
+                        icon={iconMap[item.type] || 'article'}
+                        iconBg="bg-blue-50 text-blue-600"
+                        title={item.title}
+                        subtitle={`${item.nestName} • ${typeLabels[item.type] || item.type}`}
+                        rightElement={
+                          <span className="text-[10px] font-bold text-blue-600 uppercase">New</span>
+                        }
+                        delay={index * 75}
+                      />
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8 border border-dashed border-slate-200 rounded-xl">
+                    <p className="text-slate-400 text-sm italic">No recent content available in your nests.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Right Column - Widgets */}
+          {/* Sidebar Section */}
           <div className="flex flex-col gap-6">
-            {/* Quick Actions */}
-            <div className="flex flex-col gap-3">
-              <h3 className="text-base font-bold text-slate-900">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <QuickAction icon="add_task" iconColor="text-primary" label="Submit Assignment" />
-                <QuickAction icon="chat" iconColor="text-emerald-600" label="Message Mentor" />
+            {/* Streak Widget */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-900">Daily Check-in</h3>
+                <div className="flex items-center gap-1 text-emerald-600">
+                  <span className="material-symbols-outlined text-sm">local_fire_department</span>
+                  <span className="text-sm font-bold">{streak} day streak</span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center gap-2">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => {
+                  const isChecked = weeklyCheckins[i];
+                  return (
+                    <div key={`${day}-${i}`} className="flex flex-col items-center gap-1.5">
+                      <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${isChecked
+                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-110'
+                        : 'bg-slate-100 text-slate-400'
+                        }`}>
+                        {isChecked ? (
+                          <span className="material-symbols-outlined text-sm">check</span>
+                        ) : day}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -259,8 +270,8 @@ const EagletDashboardPage = () => {
               </div>
 
               <div className="flex flex-col">
-                {leaderboard.map((item) => (
-                  <LeaderboardRow key={item.rank} {...item} />
+                {leaderboard.map((item, index) => (
+                  <LeaderboardRow key={item.id || index} rank={index + 1} {...item} />
                 ))}
               </div>
 
@@ -298,16 +309,27 @@ const EagletDashboardPage = () => {
             {/* Check-In Card */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 group">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
-                  <span className="material-symbols-outlined text-white text-2xl">schedule</span>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${hasCheckedInToday ? 'from-emerald-400 to-emerald-600' : 'from-amber-400 to-orange-500'} flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
+                  <span className="material-symbols-outlined text-white text-2xl">
+                    {hasCheckedInToday ? 'verified' : 'schedule'}
+                  </span>
                 </div>
                 <div className="flex-1">
                   <h4 className="font-bold text-slate-900">Daily Check-In</h4>
-                  <p className="text-xs text-slate-500">You haven't checked in today</p>
+                  <p className="text-xs text-slate-500">
+                    {hasCheckedInToday ? "You're all set for today!" : "Don't forget to check in today"}
+                  </p>
                 </div>
               </div>
-              <button className="w-full mt-4 py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary/90 transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02]">
-                Check In Now
+              <button
+                onClick={handleCheckIn}
+                disabled={hasCheckedInToday || isCheckingIn}
+                className={`w-full mt-4 py-3 rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] ${hasCheckedInToday
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                  : 'bg-primary text-white shadow-primary/25 hover:shadow-primary/30'
+                  }`}
+              >
+                {isCheckingIn ? 'Checking in...' : hasCheckedInToday ? 'Checked In' : 'Check In Now'}
               </button>
             </div>
           </div>

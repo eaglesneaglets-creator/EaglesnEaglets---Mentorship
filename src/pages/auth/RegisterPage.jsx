@@ -671,7 +671,7 @@ const RegisterPage = () => {
           left: 0;
           width: 0;
           height: 2px;
-          background: linear-gradient(90deg, #22C55E, #16A34A);
+          background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
           transition: width 0.3s ease;
         }
         @media (hover: hover) {

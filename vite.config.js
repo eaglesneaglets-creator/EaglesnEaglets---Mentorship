@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        '@shared': path.resolve(__dirname, './src/shared'),
         '@components': path.resolve(__dirname, './src/shared/components'),
         '@hooks': path.resolve(__dirname, './src/shared/hooks'),
         '@utils': path.resolve(__dirname, './src/shared/utils'),
@@ -28,6 +29,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       strictPort: true,
+      watch: {
+        usePolling: true,
+      },
       proxy: {
         '/api': {
           target: env.VITE_API_URL || 'http://localhost:8000',
@@ -47,14 +51,14 @@ export default defineConfig(({ mode }) => {
           // Code splitting for better caching
           manualChunks: {
             vendor: ['react', 'react-dom'],
-            // Add more chunks as needed
-            // router: ['react-router-dom'],
-            // state: ['zustand', '@tanstack/react-query'],
+            router: ['react-router-dom'],
+            state: ['zustand', '@tanstack/react-query'],
+            ui: ['framer-motion', 'lucide-react'],
           },
         },
       },
-      // Chunk size warnings
-      chunkSizeWarningLimit: 500,
+      // Chunk size warnings (three.js is ~725 KB minified, intentionally lazy-loaded)
+      chunkSizeWarningLimit: 800,
     },
 
     // Environment variable prefix
