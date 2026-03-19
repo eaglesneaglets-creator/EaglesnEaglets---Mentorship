@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { adminService } from '../../modules/auth/services/auth-service';
 import { sanitizeToText } from '../../shared/utils/sanitize';
@@ -148,7 +148,6 @@ const DocumentViewer = ({ isOpen, onClose, url, title }) => {
 
 const AdminKYCDetailPage = () => {
   const { kycId } = useParams();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role') || 'mentor';
 
@@ -406,7 +405,7 @@ const AdminKYCDetailPage = () => {
             {isMentor ? 'Mentorship Types Offered' : 'Mentorship Interests'}
           </span>
           <div className="flex flex-wrap gap-2 mt-3">
-            {types.length > 0 ? types.map((t) => <MentorshipChip key={t} type={t} />) : (
+            {types.length > 0 ? types.map((t, idx) => <MentorshipChip key={`${t}-${idx}`} type={t} />) : (
               <span className="text-sm text-slate-300 italic">None specified</span>
             )}
           </div>
@@ -531,11 +530,10 @@ const AdminKYCDetailPage = () => {
               <div className="flex border-b border-slate-100 bg-slate-50/50">
                 {tabs.map((tab) => (
                   <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium transition-all border-b-2 -mb-px ${
-                      activeTab === tab.id
-                        ? 'border-primary text-primary bg-white'
-                        : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-white/50'
-                    }`}>
+                    className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium transition-all border-b-2 -mb-px ${activeTab === tab.id
+                      ? 'border-primary text-primary bg-white'
+                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-white/50'
+                      }`}>
                     <span className="material-symbols-outlined text-lg">{tab.icon}</span>
                     {tab.label}
                   </button>
@@ -658,12 +656,10 @@ const AdminKYCDetailPage = () => {
                 {/* Reviewed */}
                 {kyc.reviewed_at && (
                   <div className="relative">
-                    <div className={`absolute -left-6 top-0.5 w-[18px] h-[18px] rounded-full flex items-center justify-center ${
-                      kyc.status === 'approved' ? 'bg-emerald-100' : kyc.status === 'rejected' ? 'bg-red-100' : 'bg-amber-100'
-                    }`}>
-                      <div className={`w-2 h-2 rounded-full ${
-                        kyc.status === 'approved' ? 'bg-emerald-500' : kyc.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500'
-                      }`} />
+                    <div className={`absolute -left-6 top-0.5 w-[18px] h-[18px] rounded-full flex items-center justify-center ${kyc.status === 'approved' ? 'bg-emerald-100' : kyc.status === 'rejected' ? 'bg-red-100' : 'bg-amber-100'
+                      }`}>
+                      <div className={`w-2 h-2 rounded-full ${kyc.status === 'approved' ? 'bg-emerald-500' : kyc.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500'
+                        }`} />
                     </div>
                     <p className="text-sm font-medium text-slate-900">
                       {kyc.status === 'approved' ? 'Approved' : kyc.status === 'rejected' ? 'Rejected' : 'Review Updated'}

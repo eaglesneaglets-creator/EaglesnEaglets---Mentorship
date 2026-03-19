@@ -107,7 +107,7 @@ export const apiClient = {
    */
   async request(endpoint, options = {}) {
     const {
-      retries = 3,
+      retries = 1,
       retryDelay = 1000,
       skipAuth = false,
       timeout = 30000,
@@ -176,12 +176,14 @@ export const apiClient = {
         lastError = error;
 
         // Don't retry on client errors (4xx) except 408 (timeout) and 429 (rate limit)
+        // Also don't retry if it's a known auth error or 404
         if (
-          error instanceof ApiError &&
-          error.status >= 400 &&
-          error.status < 500 &&
-          error.status !== 408 &&
-          error.status !== 429
+          (error instanceof ApiError &&
+            error.status >= 400 &&
+            error.status < 500 &&
+            error.status !== 408 &&
+            error.status !== 429) ||
+          [401, 403, 404].includes(error.status)
         ) {
           throw error;
         }
@@ -353,22 +355,37 @@ export const apiClient = {
 
   /**
    * Upload files with multipart form data
+   * Includes token refresh handling for expired tokens
    */
   async upload(endpoint, formData, options = {}) {
-    const token = tokenManager.getAccessToken();
-    const headers = {};
+    const makeUploadRequest = async () => {
+      const token = tokenManager.getAccessToken();
+      const headers = {};
 
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      // Don't set Content-Type - let browser set it with boundary
+      const response = await fetch(`${this.baseURL}${endpoint}`, {
+        method: 'POST',
+        headers,
+        body: formData,
+        ...options,
+      });
+
+      return response;
+    };
+
+    let response = await makeUploadRequest();
+
+    // Handle 401 - Token expired: refresh and retry once
+    if (response.status === 401) {
+      const newToken = await this.handleTokenRefresh();
+      if (newToken) {
+        response = await makeUploadRequest();
+      }
     }
-
-    // Don't set Content-Type - let browser set it with boundary
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
-      method: 'POST',
-      headers,
-      body: formData,
-      ...options,
-    });
 
     return this.handleResponse(response);
   },

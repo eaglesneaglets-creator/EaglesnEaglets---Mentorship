@@ -6,41 +6,7 @@ import { adminService } from '../../modules/auth/services/auth-service';
 
 import { formatRelativeTime } from '../../shared/utils';
 
-// ─── Stat Card ──────────────────────────────────────────────────────────────
-const StatCard = ({ icon, iconBg, gradient, label, value, change, delay = 0 }) => (
-  <div
-    className={`group relative rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${gradient || 'bg-white/80 backdrop-blur-sm border border-slate-200/50'}`}
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {gradient && (
-      <div className="absolute bottom-0 right-0 w-32 h-32 opacity-20">
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          <circle cx="80" cy="80" r="60" fill="currentColor" className="text-white" />
-        </svg>
-      </div>
-    )}
-    <div className="relative flex items-start justify-between">
-      <div className="flex flex-col gap-1">
-        <div className={`p-2.5 rounded-xl w-fit mb-2 ${iconBg} ${gradient ? '' : 'transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3'}`}>
-          <span className="material-symbols-outlined text-xl">{icon}</span>
-        </div>
-        <div className="flex items-baseline gap-3">
-          <p className={`text-3xl font-bold ${gradient ? 'text-white' : 'text-slate-900'}`}>{value}</p>
-          {change !== undefined && change !== null && (
-            <span className={`flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full ${gradient ? 'bg-white/20 text-white' : change > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
-              }`}>
-              <span className="material-symbols-outlined text-xs">
-                {change > 0 ? 'trending_up' : 'trending_down'}
-              </span>
-              {Math.abs(change)}%
-            </span>
-          )}
-        </div>
-        <p className={`text-sm font-medium ${gradient ? 'text-white/80' : 'text-slate-500'}`}>{label}</p>
-      </div>
-    </div>
-  </div>
-);
+import StatCard from '../../shared/components/ui/StatCard';
 
 // ─── Chart Bar ──────────────────────────────────────────────────────────────
 const ChartBar = ({ day, height, value, isHighlighted }) => (
@@ -66,15 +32,15 @@ const ChartBar = ({ day, height, value, isHighlighted }) => (
 
 // ─── Activity Item ──────────────────────────────────────────────────────────
 const ActivityItem = ({ icon, icon_bg, iconBg, title, description, time, timestamp }) => (
-  <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50 transition-all duration-300 group cursor-pointer">
-    <div className={`w-10 h-10 rounded-xl ${icon_bg || iconBg} flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110`}>
-      <span className="material-symbols-outlined text-lg">{icon}</span>
+  <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50/80 transition-all duration-500 ease-out group cursor-pointer hover:shadow-sm hover:border-slate-200/50 border border-transparent">
+    <div className={`w-10 h-10 rounded-xl ${icon_bg || iconBg} flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3`}>
+      <span className="material-symbols-outlined text-lg transition-transform duration-500 group-hover:-translate-y-0.5">{icon}</span>
     </div>
-    <div className="flex-1 min-w-0">
+    <div className="flex-1 min-w-0 transition-transform duration-500 ease-out group-hover:translate-x-1">
       <p className="font-semibold text-slate-900 text-sm">{title}</p>
       <p className="text-xs text-slate-500 truncate">{description}</p>
     </div>
-    <span className="text-xs text-slate-400 whitespace-nowrap">{time || formatRelativeTime(timestamp)}</span>
+    <span className="text-xs text-slate-400 whitespace-nowrap transition-transform duration-500 group-hover:-translate-x-1">{time || formatRelativeTime(timestamp)}</span>
   </div>
 );
 
@@ -117,28 +83,46 @@ const AdminDashboardPage = () => {
     setChartLoading(false);
   }, [chartPeriod, fetchStats]);
 
+  // Helper: format date as YYYY-MM-DD using local timezone (matches backend TruncDate)
+  const toLocalDateStr = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
   // Build chart data from recent_registrations
   const chartData = useMemo(() => {
     const regs = stats?.recent_registrations || [];
 
+    // Match helper: sum counts for a date range (week) or exact date
+    const findCount = (dateStr) => {
+      const match = regs.find((r) => r.date === dateStr);
+      return match?.count || 0;
+    };
+
     if (chartPeriod === 'monthly') {
-      // Monthly view: show last 4 weeks
+      // Monthly view: show last 4 weeks, sum each week's daily counts
       const weekLabels = [];
       for (let i = 3; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i * 7);
         const weekStart = new Date(d);
         weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // Monday
-        const dateStr = weekStart.toISOString().split('T')[0];
         const label = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const match = regs.find((r) => {
-          const regDate = typeof r.date === 'string' ? r.date : r.date;
-          return regDate === dateStr;
-        });
+
+        // Sum all days in this week
+        let weekTotal = 0;
+        for (let day = 0; day < 7; day++) {
+          const wd = new Date(weekStart);
+          wd.setDate(wd.getDate() + day);
+          weekTotal += findCount(toLocalDateStr(wd));
+        }
+
         weekLabels.push({
           day: `Wk ${label}`,
-          value: match?.count || 0,
-          date: dateStr,
+          value: weekTotal,
+          date: toLocalDateStr(weekStart),
         });
       }
 
@@ -156,14 +140,10 @@ const AdminDashboardPage = () => {
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      const match = regs.find((r) => {
-        const regDate = typeof r.date === 'string' ? r.date : r.date;
-        return regDate === dateStr;
-      });
+      const dateStr = toLocalDateStr(d);
       days.push({
         day: dayNames[d.getDay()],
-        value: match?.count || 0,
+        value: findCount(dateStr),
         date: dateStr,
       });
     }
@@ -378,58 +358,62 @@ const AdminDashboardPage = () => {
             <div className="space-y-3">
               <Link
                 to="/admin/kyc"
-                className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-emerald-500/10 border border-primary/20 hover:border-primary/40 transition-all duration-300 group"
+                className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-primary/5 overflow-hidden"
               >
-                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+                <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
                   <span className="material-symbols-outlined">verified_user</span>
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-slate-900">Review KYC Applications</p>
+                <div className="flex-1 z-10">
+                  <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors duration-300">Review KYC Applications</p>
                   <p className="text-xs text-slate-500">{pendingKYC} pending reviews</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300">arrow_forward</span>
+                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
               </Link>
 
               <Link
                 to="/admin/users"
-                className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all duration-300 group"
+                className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-blue-500/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-blue-500/5 overflow-hidden"
               >
-                <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+                <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
                   <span className="material-symbols-outlined">group</span>
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-slate-900">Manage Users</p>
+                <div className="flex-1 z-10">
+                  <p className="font-semibold text-slate-900 group-hover:text-blue-500 transition-colors duration-300">Manage Users</p>
                   <p className="text-xs text-slate-500">{totalUsers} total users</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300">arrow_forward</span>
+                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
               </Link>
 
               <Link
                 to="/admin/content"
-                className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all duration-300 group"
+                className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-purple-500/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-purple-500/5 overflow-hidden"
               >
-                <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+                <div className="w-10 h-10 bg-purple-500/10 text-purple-500 rounded-xl flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 z-10">
                   <span className="material-symbols-outlined">library_books</span>
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-slate-900">Manage Content</p>
+                <div className="flex-1 z-10">
+                  <p className="font-semibold text-slate-900 group-hover:text-purple-500 transition-colors duration-300">Manage Content</p>
                   <p className="text-xs text-slate-500">Videos, courses & resources</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300">arrow_forward</span>
+                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
               </Link>
 
               <Link
                 to="/admin/donations"
-                className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all duration-300 group"
+                className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-amber-500/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-amber-500/5 overflow-hidden"
               >
-                <div className="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+                <div className="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
                   <span className="material-symbols-outlined">volunteer_activism</span>
                 </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-slate-900">View Donations</p>
+                <div className="flex-1 z-10">
+                  <p className="font-semibold text-slate-900 group-hover:text-amber-500 transition-colors duration-300">View Donations</p>
                   <p className="text-xs text-slate-500">Track donation activity</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300">arrow_forward</span>
+                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
               </Link>
             </div>
           </div>

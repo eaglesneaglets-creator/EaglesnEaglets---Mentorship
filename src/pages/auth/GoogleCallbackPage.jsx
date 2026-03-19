@@ -59,9 +59,13 @@ const GoogleCallbackPage = () => {
             user,
           });
 
-          // Store tokens in localStorage
-          localStorage.setItem('accessToken', access);
-          localStorage.setItem('refreshToken', refresh);
+          // Store tokens in localStorage (validate fields exist)
+          if (access && typeof access === 'string') {
+            localStorage.setItem('accessToken', access);
+          }
+          if (refresh && typeof refresh === 'string') {
+            localStorage.setItem('refreshToken', refresh);
+          }
 
           // Redirect using shared KYC redirect logic
           const redirectPath = getKYCRedirectPath(user);
