@@ -58,8 +58,8 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy our built files from the builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy custom nginx configuration as a template so envsubst can process it
+COPY nginx.conf /etc/nginx/conf.d/default.conf.template
 
 # Create a non-root user for security
 RUN addgroup -g 1000 -S appgroup && \
@@ -70,16 +70,18 @@ RUN addgroup -g 1000 -S appgroup && \
     touch /var/run/nginx.pid && \
     chown -R appuser:appgroup /var/run/nginx.pid
 
-# Expose port 80
-EXPOSE 80
+# Set default PORT in case it's not provided
+ENV PORT=80
+
+# Expose port (metadata only)
+EXPOSE $PORT
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:80/ || exit 1
 
-# Start Nginx
-# "daemon off" keeps Nginx in the foreground (required for Docker)
-CMD ["nginx", "-g", "daemon off;"]
+# Start Nginx using envsubst to apply runtime PORT, then daemon off
+CMD ["/bin/sh", "-c", "envsubst '$$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
 
 # -----------------------------------------------------------------------------
 # STAGE 3: Development Stage (for local development with hot reload)
