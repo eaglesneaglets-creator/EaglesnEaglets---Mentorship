@@ -26,24 +26,24 @@ const Navbar = () => {
                 : 'bg-transparent'
                 }`}
         >
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                 {/* Logo */}
-                <Link to="/" className="flex items-center gap-2 group">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-                        <span className="material-symbols-outlined text-white text-2xl">nest_eco</span>
+                <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
+                    <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-white text-xl md:text-2xl">nest_eco</span>
                     </div>
-                    <span className="text-xl font-black text-slate-900 tracking-tighter">
+                    <span className="text-lg md:text-xl font-black text-slate-900 tracking-tighter">
                         The Nest<span className="text-emerald-500">.</span>
                     </span>
                 </Link>
 
                 {/* Desktop Nav */}
-                <div className="hidden md:flex items-center gap-8 bg-white/40 backdrop-blur-md px-8 py-2.5 rounded-full border border-white/20 shadow-sm">
+                <div className="hidden md:flex items-center gap-4 lg:gap-8 bg-white/40 backdrop-blur-md px-4 lg:px-8 py-2.5 rounded-full border border-white/20 shadow-sm">
                     {navLinks.map((link) => (
                         <Link
                             key={link.name}
                             to={link.path}
-                            className={`text-sm font-bold transition-colors hover:text-emerald-500 ${location.pathname === link.path
+                            className={`text-sm font-bold transition-colors hover:text-emerald-500 whitespace-nowrap ${location.pathname === link.path
                                 ? 'text-emerald-600'
                                 : 'text-slate-600'
                                 }`}
@@ -54,16 +54,16 @@ const Navbar = () => {
                 </div>
 
                 {/* Auth CTAs */}
-                <div className="hidden md:flex items-center gap-4">
+                <div className="hidden md:flex items-center gap-2 lg:gap-4 flex-shrink-0">
                     <Link
                         to="/login"
-                        className="text-sm font-bold text-slate-700 hover:text-emerald-500 transition-colors"
+                        className="text-sm font-bold text-slate-700 hover:text-emerald-500 transition-colors whitespace-nowrap"
                     >
                         Login
                     </Link>
                     <Link
                         to="/register"
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0"
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
                     >
                         Join the Nest
                     </Link>
