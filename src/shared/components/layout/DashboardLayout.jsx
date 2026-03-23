@@ -480,7 +480,7 @@ const DashboardLayout = ({
         )}
 
         {/* Page Content */}
-        <main className={`flex-1 ${noPadding ? '' : 'p-4 lg:p-8'}`}>
+        <main className={`flex-1 ${noPadding ? '' : 'p-3 sm:p-4 lg:p-8'}`}>
           <div className={`${fullWidth ? 'max-w-none w-full' : 'max-w-7xl mx-auto'} animate-fade-in-up h-full`}>
             {children}
           </div>
