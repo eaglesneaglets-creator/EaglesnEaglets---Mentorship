@@ -10,21 +10,26 @@ import StatCard from '../../shared/components/ui/StatCard';
 
 // ─── Chart Bar ──────────────────────────────────────────────────────────────
 const ChartBar = ({ day, height, value, isHighlighted }) => (
-  <div className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+  <div className="flex-1 flex flex-col items-center gap-1 group cursor-pointer min-w-0">
     <div className="relative w-full flex justify-center">
+      {/* Tooltip */}
       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:-translate-y-1 pointer-events-none whitespace-nowrap z-10">
-        {value} users
+        {value} user{value !== 1 ? 's' : ''}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-slate-800" />
       </div>
+      {/* Value label above bar when non-zero */}
+      {value > 0 && (
+        <span className="absolute -top-5 text-[10px] font-bold text-slate-500">{value}</span>
+      )}
       <div
-        className={`w-full max-w-[40px] rounded-t-lg transition-all duration-500 ease-out group-hover:scale-105 ${isHighlighted
+        className={`w-full max-w-[32px] rounded-t-md transition-all duration-500 ease-out group-hover:scale-105 ${isHighlighted
           ? 'bg-primary shadow-lg shadow-primary/30'
-          : 'bg-primary/30 group-hover:bg-primary/50'
+          : 'bg-primary/25 group-hover:bg-primary/50'
           }`}
-        style={{ height: `${height}%` }}
+        style={{ height: `${Math.max(12, height)}%` }}
       />
     </div>
-    <span className={`text-xs font-medium ${isHighlighted ? 'text-primary font-bold' : 'text-slate-400'}`}>
+    <span className={`text-[10px] sm:text-xs font-medium truncate w-full text-center ${isHighlighted ? 'text-primary font-bold' : 'text-slate-400'}`}>
       {day}
     </span>
   </div>
@@ -170,29 +175,29 @@ const AdminDashboardPage = () => {
 
   return (
     <DashboardLayout variant="admin">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6">
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Platform Overview</h1>
-            <p className="text-slate-500 mt-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Platform Overview</h1>
+            <p className="text-slate-500 mt-1 text-sm">
               Welcome back, {user?.first_name || 'Admin'}. Here&apos;s what&apos;s happening today.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all duration-300 flex items-center gap-2 hover:shadow-md">
+          <div className="flex items-center gap-2">
+            <button className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all duration-300 flex items-center gap-2 hover:shadow-md">
               <span className="material-symbols-outlined text-lg">download</span>
-              Export
+              <span className="hidden sm:inline">Export</span>
             </button>
-            <button className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-105">
+            <button className="px-3 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/25">
               <span className="material-symbols-outlined text-lg">add</span>
-              Add User
+              <span className="hidden sm:inline">Add User</span>
             </button>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <StatCard
             icon="group"
             iconBg="bg-white/20 text-white"
@@ -230,40 +235,38 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* User Growth Chart */}
-          <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-6 shadow-sm hover:shadow-lg transition-shadow duration-500">
-            <div className="flex items-center justify-between mb-8">
+          <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-4 md:p-6 shadow-sm hover:shadow-lg transition-shadow duration-500">
+            <div className="flex items-start justify-between mb-6 gap-2">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">User Growth Analytics</h3>
-                <p className="text-sm text-slate-500">
+                <h3 className="text-base md:text-lg font-bold text-slate-900">User Growth Analytics</h3>
+                <p className="text-xs md:text-sm text-slate-500">
                   {chartPeriod === 'weekly' ? 'New registrations this week' : 'New registrations this month'}
                   {!isLoading && !chartLoading && (
-                    <span className="ml-2 font-semibold text-primary">
+                    <span className="ml-1 font-semibold text-primary">
                       ({totalChartRegistrations} total)
                     </span>
                   )}
                 </p>
               </div>
-              <div className="flex bg-slate-100 rounded-lg p-1">
+              <div className="flex bg-slate-100 rounded-lg p-1 flex-shrink-0">
                 <button
                   onClick={() => handlePeriodChange('weekly')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'weekly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                    }`}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'weekly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                   Weekly
                 </button>
                 <button
                   onClick={() => handlePeriodChange('monthly')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                    }`}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                   Monthly
                 </button>
               </div>
             </div>
 
-            <div className="relative h-52 w-full flex items-end justify-between gap-2 md:gap-4 pt-4">
+            <div className="relative h-44 md:h-52 w-full flex items-end justify-between gap-1 md:gap-3 pt-6">
               {/* Grid lines */}
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                 {[...Array(5)].map((_, i) => (
@@ -275,6 +278,13 @@ const AdminDashboardPage = () => {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="material-symbols-outlined text-2xl animate-spin text-slate-400">progress_activity</span>
                 </div>
+              ) : totalChartRegistrations === 0 ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                  {chartData.map((data) => (
+                    <ChartBar key={data.date || data.day} {...data} />
+                  ))}
+                  <p className="absolute bottom-8 text-xs text-slate-400 font-medium">No registrations yet for this period</p>
+                </div>
               ) : (
                 chartData.map((data) => (
                   <ChartBar key={data.date || data.day} {...data} />
@@ -284,8 +294,8 @@ const AdminDashboardPage = () => {
           </div>
 
           {/* Platform Stats */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-6 shadow-sm hover:shadow-lg transition-shadow duration-500 flex flex-col">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Platform Stats</h3>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-4 md:p-6 shadow-sm hover:shadow-lg transition-shadow duration-500 flex flex-col">
+            <h3 className="text-base md:text-lg font-bold text-slate-900 mb-4">Platform Stats</h3>
             <div className="flex-1 flex flex-col gap-4">
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
                 <div className="flex items-center gap-3">
@@ -325,7 +335,7 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* Recent Activity & Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Recent Activity */}
           <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-500">
             <div className="p-6 border-b border-slate-100">

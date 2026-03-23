@@ -32,23 +32,23 @@ const StatCard = ({
     if (gradient) {
         return (
             <div
-                className={`group relative rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${gradient}`}
+                className={`group relative rounded-2xl p-4 md:p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${gradient}`}
                 style={{ animationDelay: `${delay}ms` }}
             >
-                <div className="absolute bottom-0 right-0 w-32 h-32 opacity-20">
+                <div className="absolute bottom-0 right-0 w-24 h-24 md:w-32 md:h-32 opacity-20">
                     <svg viewBox="0 0 100 100" className="w-full h-full">
                         <circle cx="80" cy="80" r="60" fill="currentColor" className="text-white" />
                     </svg>
                 </div>
                 <div className="relative flex items-start justify-between">
                     <div className="flex flex-col gap-1">
-                        <div className={`p-2.5 rounded-xl w-fit mb-2 ${iconBg}`}>
-                            <span className="material-symbols-outlined text-xl">{icon}</span>
+                        <div className={`p-2 md:p-2.5 rounded-xl w-fit mb-1 md:mb-2 ${iconBg}`}>
+                            <span className="material-symbols-outlined text-lg md:text-xl">{icon}</span>
                         </div>
-                        <div className="flex items-baseline gap-3">
-                            <p className="text-3xl font-bold text-white">{value}</p>
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-2xl md:text-3xl font-bold text-white">{value}</p>
                             {change !== undefined && change !== null && (
-                                <span className="flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">
+                                <span className="flex items-center gap-0.5 text-xs font-bold px-1.5 py-0.5 rounded-full bg-white/20 text-white">
                                     <span className="material-symbols-outlined text-xs">
                                         {change > 0 ? 'trending_up' : 'trending_down'}
                                     </span>
@@ -56,7 +56,7 @@ const StatCard = ({
                                 </span>
                             )}
                         </div>
-                        <p className="text-sm font-medium text-white/80">{label}</p>
+                        <p className="text-xs md:text-sm font-medium text-white/80">{label}</p>
                     </div>
                 </div>
             </div>
