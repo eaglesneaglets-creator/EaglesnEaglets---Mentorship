@@ -281,7 +281,7 @@ const DashboardLayout = ({
           fixed lg:sticky top-0 left-0 h-screen z-50
           bg-white/90 backdrop-blur-xl border-r border-slate-200/50
           flex flex-col transition-all duration-300 ease-out
-          ${isSidebarOpen ? 'w-72' : 'w-[72px]'}
+          ${isSidebarOpen ? 'w-[85vw] sm:w-72 lg:w-72' : 'w-[85vw] sm:w-72 lg:w-[72px]'}
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >

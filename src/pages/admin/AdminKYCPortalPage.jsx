@@ -52,76 +52,143 @@ const StatCard = ({ icon, iconBg, gradient, label, value, change, pulse, delay =
 );
 
 /**
- * KYC Application Row Component
+ * KYC Mobile Card — shown on small screens instead of table row
+ */
+const KYCApplicationCard = ({ app, onReview, formatDate, formatTimeAgo, getStatusConfig }) => {
+  const statusConfig = getStatusConfig(app.status);
+  const appRole = app.role || (app.kyc_type === 'mentee' ? 'mentee' : 'mentor');
+  const isEagle = appRole === 'mentor' || appRole === 'eagle';
+
+  return (
+    <div className="p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors">
+      <div className="flex items-start gap-3">
+        {/* Avatar */}
+        {app.user_avatar || app.user_profile_picture_url ? (
+          <img
+            src={app.user_avatar || app.user_profile_picture_url}
+            alt={app.user_full_name}
+            className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-sm flex-shrink-0"
+          />
+        ) : (
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 ${
+            isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
+          }`}>
+            {app.user_full_name?.charAt(0) || 'U'}
+          </div>
+        )}
+
+        {/* Main info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="font-semibold text-slate-900 text-sm truncate">{app.user_full_name}</p>
+              <p className="text-xs text-slate-500 truncate">{app.user_email}</p>
+            </div>
+            {/* Status badge */}
+            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold capitalize border flex-shrink-0 ${statusConfig.bg} ${statusConfig.border} ${statusConfig.text}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+              {app.status?.replace(/_/g, ' ')}
+            </span>
+          </div>
+
+          {/* Meta row */}
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold ${
+              isEagle
+                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+            }`}>
+              <span className="material-symbols-outlined text-xs">{isEagle ? 'verified_user' : 'person'}</span>
+              {isEagle ? 'Eagle' : 'Eaglet'}
+            </span>
+            <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-lg text-xs capitalize">
+              {app.area_of_expertise?.replace(/_/g, ' ') || 'Not specified'}
+            </span>
+            <span className="text-xs text-slate-400">{formatDate(app.submitted_at)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Action row */}
+      <div className="mt-3 flex justify-end">
+        <button
+          onClick={() => onReview(app.id, appRole)}
+          className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-semibold hover:bg-primary/90 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-primary/25"
+        >
+          Review Application
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * KYC Application Row — desktop table row
  */
 const KYCApplicationRow = ({ app, onReview, formatDate, formatTimeAgo, getStatusConfig }) => {
   const statusConfig = getStatusConfig(app.status);
   const appRole = app.role || (app.kyc_type === 'mentee' ? 'mentee' : 'mentor');
+  const isEagle = appRole === 'mentor' || appRole === 'eagle';
 
   return (
     <tr className="group hover:bg-slate-50/80 transition-colors duration-300">
-      <td className="px-3 md:px-6 py-3 md:py-4">
-        <div className="flex items-center gap-2 md:gap-3">
+      <td className="px-6 py-4">
+        <div className="flex items-center gap-3">
           {app.user_avatar || app.user_profile_picture_url ? (
             <img
               src={app.user_avatar || app.user_profile_picture_url}
               alt={app.user_full_name}
-              className="w-9 h-9 md:w-12 md:h-12 rounded-xl object-cover ring-2 ring-white shadow-sm transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
+              className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-sm flex-shrink-0"
             />
           ) : (
-            <div className={`w-9 h-9 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0 ${
-              appRole === 'mentor' ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0 ${
+              isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
             }`}>
               {app.user_full_name?.charAt(0) || 'U'}
             </div>
           )}
           <div className="min-w-0">
-            <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors text-sm truncate">{app.user_full_name}</p>
-            <p className="text-xs text-slate-500 truncate max-w-[120px] md:max-w-none">{app.user_email}</p>
+            <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors text-sm">{app.user_full_name}</p>
+            <p className="text-xs text-slate-500 truncate">{app.user_email}</p>
           </div>
         </div>
       </td>
-      <td className="px-3 md:px-6 py-3 md:py-4">
-        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
-          appRole === 'mentor' || appRole === 'eagle'
-            ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+      <td className="px-6 py-4">
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+          isEagle ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
         }`}>
-          <span className="material-symbols-outlined text-sm">
-            {appRole === 'mentor' || appRole === 'eagle' ? 'verified_user' : 'person'}
-          </span>
-          {appRole === 'mentor' || appRole === 'eagle' ? 'Eagle' : 'Eaglet'}
+          <span className="material-symbols-outlined text-sm">{isEagle ? 'verified_user' : 'person'}</span>
+          {isEagle ? 'Eagle' : 'Eaglet'}
         </span>
       </td>
-      <td className="px-3 md:px-6 py-3 md:py-4">
-        <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium capitalize">
+      <td className="px-6 py-4">
+        <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium capitalize">
           {app.area_of_expertise?.replace(/_/g, ' ') || 'Not specified'}
         </span>
       </td>
-      <td className="px-3 md:px-6 py-3 md:py-4">
-        <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl text-xs font-semibold capitalize border ${statusConfig.bg} ${statusConfig.border} ${statusConfig.text}`}>
+      <td className="px-6 py-4">
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold capitalize border ${statusConfig.bg} ${statusConfig.border} ${statusConfig.text}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
           {app.status?.replace(/_/g, ' ')}
         </span>
       </td>
-      <td className="px-3 md:px-6 py-3 md:py-4">
+      <td className="px-6 py-4">
         <div className="flex flex-col">
           <p className="text-xs font-medium text-slate-700">{formatDate(app.submitted_at)}</p>
           {app.days_pending !== null && app.days_pending >= 0 && (
             <p className={`text-xs mt-0.5 ${
               app.days_pending >= 5 ? 'text-rose-500 font-medium' :
-              app.days_pending >= 3 ? 'text-amber-500' :
-              'text-slate-400'
+              app.days_pending >= 3 ? 'text-amber-500' : 'text-slate-400'
             }`}>
               {formatTimeAgo(app.days_pending)}
             </p>
           )}
         </div>
       </td>
-      <td className="px-3 md:px-6 py-3 md:py-4 text-right">
+      <td className="px-6 py-4 text-right">
         <button
           onClick={() => onReview(app.id, appRole)}
-          className="px-3 md:px-5 py-2 bg-primary text-white rounded-xl text-xs font-semibold hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-lg hover:shadow-primary/25"
+          className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-semibold hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-lg hover:shadow-primary/25"
         >
           Review
         </button>
@@ -383,17 +450,31 @@ const AdminKYCPortalPage = () => {
             </div>
           ) : (
             <>
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] text-left">
+              {/* Mobile card list — no horizontal scroll */}
+              <div className="md:hidden divide-y divide-slate-100">
+                {applications.map((app) => (
+                  <KYCApplicationCard
+                    key={app.id}
+                    app={app}
+                    onReview={handleReview}
+                    formatDate={formatDate}
+                    formatTimeAgo={formatTimeAgo}
+                    getStatusConfig={getStatusConfig}
+                  />
+                ))}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left">
                   <thead>
                     <tr className="bg-slate-50/80 border-b border-slate-100 text-xs uppercase text-slate-500 font-semibold tracking-wider">
-                      <th className="px-3 md:px-6 py-3 md:py-4">Applicant</th>
-                      <th className="px-3 md:px-6 py-3 md:py-4">Role</th>
-                      <th className="px-3 md:px-6 py-3 md:py-4">Expertise</th>
-                      <th className="px-3 md:px-6 py-3 md:py-4">Status</th>
-                      <th className="px-3 md:px-6 py-3 md:py-4">Submitted</th>
-                      <th className="px-3 md:px-6 py-3 md:py-4 text-right">Actions</th>
+                      <th className="px-6 py-4">Applicant</th>
+                      <th className="px-6 py-4">Role</th>
+                      <th className="px-6 py-4">Expertise</th>
+                      <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4">Submitted</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
