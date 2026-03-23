@@ -441,11 +441,11 @@ const LearningCenterPage = () => {
     const { data: myNestsResponse } = useMyNests();
     const nestId = myNestsResponse?.data?.[0]?.id || myNestsResponse?.data?.results?.[0]?.id || user?.nest_id;
 
-    // FOR ADMINS/EAGLES: Fetch everything they uploaded
-    // FOR EAGLETS: Fetch their specific nest modules
+    // FOR ADMINS/EAGLES: Fetch everything they uploaded (all visibilities)
+    // FOR EAGLETS: Fetch nest_only modules (Learning Modules / Assignments view)
     const modulesQuery = isEagleOrAdmin
         ? { created_by: user.id }
-        : { nest: nestId };
+        : { nest: nestId, visibility: 'nest_only' };
 
     const { data: modulesResponse, isLoading } = useModules(modulesQuery);
     const { data: progressResponse } = useMyProgress();

@@ -5,11 +5,12 @@ import { useAuthStore } from '@store';
 import { useEagleDashboardStats } from '../../modules/analytics/hooks/useAnalytics';
 import StatCard from '../../shared/components/ui/StatCard';
 import AnimatedNestCard from '../../shared/components/ui/AnimatedNestCard';
+import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
 
 /**
  * Eaglet Performance Row
  */
-const EagletRow = ({ eaglet, delay = 0 }) => {
+const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
   const statusConfig = {
     active: { bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Active' },
     behind: { bg: 'bg-amber-50', text: 'text-amber-600', label: 'Behind' },
@@ -57,6 +58,15 @@ const EagletRow = ({ eaglet, delay = 0 }) => {
         <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all duration-500 ${config.bg} ${config.text} group-hover:shadow-sm`}>
           {config.label}
         </span>
+      </td>
+      <td className="py-4 text-right pr-4">
+        <button
+          onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}
+          className="opacity-0 group-hover:opacity-100 inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-all duration-300"
+        >
+          <span className="material-symbols-outlined text-sm">military_tech</span>
+          Award
+        </button>
       </td>
     </tr>
   );
@@ -121,6 +131,10 @@ const EagleDashboardPage = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { data: dashboardData, isLoading } = useEagleDashboardStats();
+
+  const [awardModal, setAwardModal] = useState({ open: false, eagletId: null, nestId: null });
+  const openAwardModal = ({ eagletId, nestId }) => setAwardModal({ open: true, eagletId, nestId });
+  const closeAwardModal = () => setAwardModal({ open: false, eagletId: null, nestId: null });
 
   const totalEaglets = dashboardData?.total_eaglets || 0;
   const pendingRequests = dashboardData?.pending_requests || 0;
@@ -297,16 +311,17 @@ const EagleDashboardPage = () => {
                       <th className="pb-3 pt-4 px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Module</th>
                       <th className="pb-3 pt-4 px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/4">Progress</th>
                       <th className="pb-3 pt-4 px-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                      <th className="pb-3 pt-4 px-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {eaglets.length > 0 ? (
                       eaglets.map((eaglet, index) => (
-                        <EagletRow key={eaglet.id} eaglet={eaglet} delay={index * 50} />
+                        <EagletRow key={eaglet.id} eaglet={eaglet} delay={index * 50} onAwardPoints={openAwardModal} />
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" className="py-8 text-center text-slate-500">
+                        <td colSpan="5" className="py-8 text-center text-slate-500">
                           <span className="material-symbols-outlined mb-2 text-slate-400">group_off</span>
                           <p className="text-sm">No eaglets to display.</p>
                         </td>
@@ -401,6 +416,13 @@ const EagleDashboardPage = () => {
           </div>
         </div>
       </div>
+
+      <AwardPointsModal
+        isOpen={awardModal.open}
+        onClose={closeAwardModal}
+        prefillEagletId={awardModal.eagletId}
+        prefillNestId={awardModal.nestId}
+      />
     </DashboardLayout>
   );
 };

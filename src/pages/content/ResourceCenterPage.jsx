@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useModules, useMyProgress } from '../../modules/content/hooks/useContent';
-import { useMyNests } from '../../modules/nest/hooks/useNests';
+import { useMyNests, useNests } from '../../modules/nest/hooks/useNests';
 
 /* ─── Soft animated background ─── */
 const AnimatedBg = () => (
@@ -188,14 +188,17 @@ const ResourceCenterPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showAllFeatured, setShowAllFeatured] = useState(false);
 
-    // Get eaglet's nest
-    const { data: myNestsResponse } = useMyNests();
-    const nestId = myNestsResponse?.data?.[0]?.id
-        || myNestsResponse?.data?.results?.[0]?.id
+    // Get nest ID — eagles own nests (useNests list), eaglets join nests (useMyNests)
+    const isEagle = user?.role === 'eagle' || user?.role === 'admin';
+    const { data: eagleNestsResponse } = useNests();
+    const { data: eagletNestsResponse } = useMyNests();
+    const nestId = isEagle
+        ? (eagleNestsResponse?.data?.results?.[0]?.id || eagleNestsResponse?.data?.[0]?.id)
+        : (eagletNestsResponse?.data?.[0]?.id || eagletNestsResponse?.data?.results?.[0]?.id)
         || user?.nest_id;
 
-    // Fetch modules (published ones only — backend filters for eaglets)
-    const { data: modulesResponse, isLoading } = useModules({ nest: nestId });
+    // Resource Center shows only "All Mentees" visibility modules
+    const { data: modulesResponse, isLoading } = useModules({ nest: nestId, visibility: 'all_mentees' });
     const { data: progressResponse } = useMyProgress();
 
     const modules = useMemo(
@@ -253,12 +256,13 @@ const ResourceCenterPage = () => {
 
     const handleItemClick = (item) => {
         const moduleId = item._module?.id || item.id;
+        const contentBase = isEagle ? '/eagle/content' : '/eaglet/assignments';
         if (item._isModule) {
-            navigate(`/eaglet/assignments/${moduleId}`);
+            navigate(`${contentBase}/${moduleId}`);
         } else if (item.content_type === 'reading' && item.file_url) {
             window.open(item.file_url, '_blank');
         } else {
-            navigate(`/eaglet/assignments/${moduleId}/${item.id}`);
+            navigate(`${contentBase}/${moduleId}`);
         }
     };
 
@@ -270,9 +274,11 @@ const ResourceCenterPage = () => {
         return { icon: 'bolt', bg: 'bg-blue-50', color: 'text-blue-600' };
     };
 
+    const layoutVariant = isEagle ? 'eagle' : 'eaglet';
+
     if (isLoading) {
         return (
-            <DashboardLayout variant="eaglet">
+            <DashboardLayout variant={layoutVariant}>
                 <div className="max-w-[1200px] mx-auto py-8 px-4">
                     <div className="h-8 w-48 bg-slate-100 rounded-lg animate-pulse mb-8" />
                     <div className="h-24 bg-slate-50 rounded-2xl animate-pulse mb-8" />
@@ -287,7 +293,7 @@ const ResourceCenterPage = () => {
     }
 
     return (
-        <DashboardLayout variant="eaglet">
+        <DashboardLayout variant={layoutVariant}>
             <AnimatedBg />
 
             <div className="flex-1 w-full max-w-[1200px] mx-auto py-6 md:py-8 px-4">
