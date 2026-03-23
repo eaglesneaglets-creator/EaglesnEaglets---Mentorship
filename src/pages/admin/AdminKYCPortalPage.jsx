@@ -68,14 +68,17 @@ const KYCApplicationCard = ({ app, onReview, formatDate, formatTimeAgo, getStatu
             src={app.user_avatar || app.user_profile_picture_url}
             alt={app.user_full_name}
             className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-sm flex-shrink-0"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
           />
-        ) : (
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 ${
-            isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
-          }`}>
-            {app.user_full_name?.charAt(0) || 'U'}
-          </div>
-        )}
+        ) : null}
+        <div className={`w-10 h-10 rounded-xl items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 ${
+          isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
+        }`} style={{ display: (app.user_avatar || app.user_profile_picture_url) ? 'none' : 'flex' }}>
+          {app.user_full_name?.charAt(0) || 'U'}
+        </div>
 
         {/* Main info */}
         <div className="flex-1 min-w-0">
@@ -139,14 +142,17 @@ const KYCApplicationRow = ({ app, onReview, formatDate, formatTimeAgo, getStatus
               src={app.user_avatar || app.user_profile_picture_url}
               alt={app.user_full_name}
               className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-sm flex-shrink-0"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
             />
-          ) : (
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0 ${
-              isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
-            }`}>
-              {app.user_full_name?.charAt(0) || 'U'}
-            </div>
-          )}
+          ) : null}
+          <div className={`w-10 h-10 rounded-xl items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0 ${
+            isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
+          }`} style={{ display: (app.user_avatar || app.user_profile_picture_url) ? 'none' : 'flex' }}>
+            {app.user_full_name?.charAt(0) || 'U'}
+          </div>
           <div className="min-w-0">
             <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors text-sm">{app.user_full_name}</p>
             <p className="text-xs text-slate-500 truncate">{app.user_email}</p>

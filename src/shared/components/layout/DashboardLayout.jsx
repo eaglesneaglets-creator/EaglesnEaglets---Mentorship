@@ -318,7 +318,19 @@ const DashboardLayout = ({
         <div className={`border-b border-slate-200/50 ${isSidebarOpen ? 'px-4 py-4' : 'px-2 py-3'}`}>
           <div className={`flex items-center rounded-xl transition-all duration-300 cursor-pointer group ${isSidebarOpen ? 'gap-3 p-3 bg-slate-50/80 hover:bg-slate-100' : 'justify-center p-2 hover:bg-slate-100'}`}>
             <div className="relative flex-shrink-0">
-              <div className={`rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center font-bold shadow-lg transition-transform duration-300 group-hover:scale-105 ${isSidebarOpen ? 'w-10 h-10 text-sm' : 'w-10 h-10 text-sm'}`}>
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.first_name}
+                  className="w-10 h-10 rounded-xl object-cover shadow-lg transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white items-center justify-center font-bold shadow-lg transition-transform duration-300 group-hover:scale-105 text-sm`}
+                style={{ display: user?.avatar ? 'none' : 'flex' }}>
                 {getInitials(user?.first_name, user?.last_name)}
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />

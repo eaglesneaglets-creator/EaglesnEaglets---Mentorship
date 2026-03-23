@@ -99,11 +99,14 @@ const Modal = ({ isOpen, onClose, title, icon, children }) => {
 };
 
 // ─── Document Viewer ─────────────────────────────────────────────────────────
+// Note: PDFs from the backend cannot be embedded in an iframe due to the server's
+// X-Frame-Options: SAMEORIGIN header. We open them in a new tab instead.
 const DocumentViewer = ({ isOpen, onClose, url, title }) => {
   if (!isOpen) return null;
   const fullUrl = url?.startsWith('http') ? url : `${BACKEND_URL}${url}`;
-  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url || '');
-  const isPdf = /\.pdf$/i.test(url || '');
+  // Detect by extension OR Cloudinary URL patterns
+  const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url || '') || url?.includes('image/upload') || url?.includes('profile_pictures') || url?.includes('content_images');
+  const isPdf = /\.pdf/i.test(url || '') || url?.includes('/cvs/') || url?.includes('/documents/');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -113,7 +116,8 @@ const DocumentViewer = ({ isOpen, onClose, url, title }) => {
           <h3 className="font-bold text-slate-900">{title}</h3>
           <div className="flex items-center gap-2">
             <a href={fullUrl} target="_blank" rel="noopener noreferrer"
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-primary">
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-primary"
+              title="Open in new tab">
               <span className="material-symbols-outlined text-sm">open_in_new</span>
             </a>
             <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
@@ -123,15 +127,38 @@ const DocumentViewer = ({ isOpen, onClose, url, title }) => {
         </div>
         <div className="p-6 overflow-auto max-h-[70vh] flex items-center justify-center bg-slate-50">
           {isImage ? (
-            <img src={fullUrl} alt={title} className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-sm" />
+            <img
+              src={fullUrl}
+              alt={title}
+              className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-sm"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
           ) : isPdf ? (
-            <iframe src={fullUrl} className="w-full h-[60vh] rounded-lg" title={title} />
+            // PDFs cannot be iframed due to X-Frame-Options: SAMEORIGIN on the backend.
+            // Direct the admin to open in a new tab for proper viewing.
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-4xl text-red-400">picture_as_pdf</span>
+              </div>
+              <h4 className="font-bold text-slate-900 mb-1">{title}</h4>
+              <p className="text-slate-500 text-sm mb-5 max-w-xs mx-auto">
+                PDF documents must be opened in a new tab for security reasons.
+              </p>
+              <a href={fullUrl} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25">
+                <span className="material-symbols-outlined text-sm">open_in_new</span>
+                Open PDF
+              </a>
+            </div>
           ) : (
             <div className="text-center py-12">
               <span className="material-symbols-outlined text-5xl text-slate-300 mb-3">description</span>
-              <p className="text-slate-500">Preview not available.</p>
+              <p className="text-slate-500 mb-4">Preview not available for this file type.</p>
               <a href={fullUrl} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors">
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors">
                 <span className="material-symbols-outlined text-sm">download</span> Download File
               </a>
             </div>
@@ -388,8 +415,15 @@ const AdminKYCDetailPage = () => {
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Display Picture</span>
           <button onClick={() => setDocumentViewer({ isOpen: true, url: kyc.display_picture_url || kyc.display_picture, title: 'Display Picture' })}
             className="mt-2 block">
-            <img src={(() => { const url = kyc.display_picture_url || kyc.display_picture; return url?.startsWith('http') ? url : `${BACKEND_URL}${url}`; })()}
-              alt="Display" className="w-32 h-32 object-cover rounded-xl border border-slate-200 hover:shadow-lg transition-shadow" />
+            <img
+              src={(() => { const url = kyc.display_picture_url || kyc.display_picture; return url?.startsWith('http') ? url : `${BACKEND_URL}${url}`; })()}
+              alt="Display"
+              className="w-32 h-32 object-cover rounded-xl border border-slate-200 hover:shadow-lg transition-shadow"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentElement.innerHTML = '<div class="w-32 h-32 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-300"><span class="material-symbols-outlined text-3xl">broken_image</span><span class="text-xs mt-1">Not available</span></div>';
+              }}
+            />
           </button>
         </div>
       )}
@@ -468,16 +502,24 @@ const AdminKYCDetailPage = () => {
 
           <div className="p-6 flex flex-col sm:flex-row items-start gap-6">
             {/* Avatar */}
-            <div className="relative">
+            <div className="relative flex-shrink-0">
               {fullAvatarUrl ? (
                 <img src={fullAvatarUrl} alt={fullName}
                   className="w-20 h-20 rounded-2xl object-cover ring-4 ring-white shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => setDocumentViewer({ isOpen: true, url: avatarUrl, title: 'Profile Picture' })} />
-              ) : (
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                  {fullName.charAt(0)}
-                </div>
-              )}
+                  onClick={() => setDocumentViewer({ isOpen: true, url: avatarUrl, title: 'Profile Picture' })}
+                  onError={(e) => {
+                    // Image failed (404 from ephemeral disk) — show initials fallback
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div
+                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 items-center justify-center text-white text-2xl font-bold shadow-lg"
+                style={{ display: fullAvatarUrl ? 'none' : 'flex' }}
+              >
+                {fullName.charAt(0)}
+              </div>
               {isSuspended && (
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center ring-2 ring-white">
                   <span className="material-symbols-outlined text-white text-xs">block</span>
