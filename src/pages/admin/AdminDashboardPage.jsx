@@ -1,39 +1,27 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  ResponsiveContainer,
+  BarChart, Bar,
+  LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip,
+} from 'recharts';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { adminService } from '../../modules/auth/services/auth-service';
-
 import { formatRelativeTime } from '../../shared/utils';
-
 import StatCard from '../../shared/components/ui/StatCard';
 
-// ─── Chart Bar ──────────────────────────────────────────────────────────────
-const ChartBar = ({ day, height, value, isHighlighted }) => (
-  <div className="flex-1 flex flex-col items-center gap-1 group cursor-pointer min-w-0">
-    <div className="relative w-full flex justify-center">
-      {/* Tooltip */}
-      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs py-1.5 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:-translate-y-1 pointer-events-none whitespace-nowrap z-10">
-        {value} user{value !== 1 ? 's' : ''}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-slate-800" />
-      </div>
-      {/* Value label above bar when non-zero */}
-      {value > 0 && (
-        <span className="absolute -top-5 text-[10px] font-bold text-slate-500">{value}</span>
-      )}
-      <div
-        className={`w-full max-w-[32px] rounded-t-md transition-all duration-500 ease-out group-hover:scale-105 ${isHighlighted
-          ? 'bg-primary shadow-lg shadow-primary/30'
-          : 'bg-primary/25 group-hover:bg-primary/50'
-          }`}
-        style={{ height: `${Math.max(12, height)}%` }}
-      />
+// ─── Custom Tooltip ──────────────────────────────────────────────────────────
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-slate-800 text-white text-xs py-2 px-3 rounded-xl shadow-xl">
+      <p className="font-semibold text-slate-300 mb-0.5">{label}</p>
+      <p className="font-bold">{payload[0].value} user{payload[0].value !== 1 ? 's' : ''}</p>
     </div>
-    <span className={`text-[10px] sm:text-xs font-medium truncate w-full text-center ${isHighlighted ? 'text-primary font-bold' : 'text-slate-400'}`}>
-      {day}
-    </span>
-  </div>
-);
+  );
+};
 
 // ─── Activity Item ──────────────────────────────────────────────────────────
 const ActivityItem = ({ icon, icon_bg, iconBg, title, description, time, timestamp }) => (
@@ -58,6 +46,7 @@ const AdminDashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [chartPeriod, setChartPeriod] = useState('weekly');
   const [chartLoading, setChartLoading] = useState(false);
+  const [chartType, setChartType] = useState('bar');
 
   const fetchStats = useCallback(async (period = 'weekly') => {
     try {
@@ -238,10 +227,11 @@ const AdminDashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* User Growth Chart */}
           <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-4 md:p-6 shadow-sm hover:shadow-lg transition-shadow duration-500">
-            <div className="flex items-start justify-between mb-6 gap-2">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 md:mb-6 gap-2 sm:gap-3">
               <div>
-                <h3 className="text-base md:text-lg font-bold text-slate-900">User Growth Analytics</h3>
-                <p className="text-xs md:text-sm text-slate-500">
+                <h3 className="text-sm md:text-lg font-bold text-slate-900">User Growth Analytics</h3>
+                <p className="text-xs text-slate-500">
                   {chartPeriod === 'weekly' ? 'New registrations this week' : 'New registrations this month'}
                   {!isLoading && !chartLoading && (
                     <span className="ml-1 font-semibold text-primary">
@@ -250,45 +240,75 @@ const AdminDashboardPage = () => {
                   )}
                 </p>
               </div>
-              <div className="flex bg-slate-100 rounded-lg p-1 flex-shrink-0">
-                <button
-                  onClick={() => handlePeriodChange('weekly')}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'weekly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  Weekly
-                </button>
-                <button
-                  onClick={() => handlePeriodChange('monthly')}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  Monthly
-                </button>
+              <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                {/* Chart type toggle */}
+                <div className="flex bg-slate-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setChartType('bar')}
+                    title="Bar chart"
+                    className={`px-2.5 py-1.5 rounded-md transition-all duration-300 ${chartType === 'bar' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+                  >
+                    <span className="material-symbols-outlined text-base leading-none">bar_chart</span>
+                  </button>
+                  <button
+                    onClick={() => setChartType('line')}
+                    title="Line chart"
+                    className={`px-2.5 py-1.5 rounded-md transition-all duration-300 ${chartType === 'line' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+                  >
+                    <span className="material-symbols-outlined text-base leading-none">show_chart</span>
+                  </button>
+                </div>
+                {/* Period toggle */}
+                <div className="flex bg-slate-100 rounded-lg p-1">
+                  <button
+                    onClick={() => handlePeriodChange('weekly')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'weekly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    Weekly
+                  </button>
+                  <button
+                    onClick={() => handlePeriodChange('monthly')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    Monthly
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="relative h-44 md:h-52 w-full flex items-end justify-between gap-1 md:gap-3 pt-6">
-              {/* Grid lines */}
-              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="border-t border-slate-100 w-full h-0" />
-                ))}
-              </div>
-
+            {/* Chart */}
+            <div className="h-44 md:h-52 w-full">
               {chartLoading ? (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-full flex items-center justify-center">
                   <span className="material-symbols-outlined text-2xl animate-spin text-slate-400">progress_activity</span>
                 </div>
-              ) : totalChartRegistrations === 0 ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                  {chartData.map((data) => (
-                    <ChartBar key={data.date || data.day} {...data} />
-                  ))}
-                  <p className="absolute bottom-8 text-xs text-slate-400 font-medium">No registrations yet for this period</p>
-                </div>
+              ) : chartType === 'bar' ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }} barCategoryGap="30%">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <YAxis allowDecimals={false} domain={[0, (dataMax) => Math.max(dataMax, 3)]} tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f5f9', radius: 4 }} />
+                    <Bar dataKey="value" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={48} minPointSize={totalChartRegistrations === 0 ? 0 : 2} />
+                  </BarChart>
+                </ResponsiveContainer>
               ) : (
-                chartData.map((data) => (
-                  <ChartBar key={data.date || data.day} {...data} />
-                ))
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <YAxis allowDecimals={false} domain={[0, (dataMax) => Math.max(dataMax, 3)]} tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#10b981"
+                      strokeWidth={2.5}
+                      dot={{ fill: '#10b981', r: 4, strokeWidth: 0 }}
+                      activeDot={{ r: 6, fill: '#059669' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               )}
             </div>
           </div>

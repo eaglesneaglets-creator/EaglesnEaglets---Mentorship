@@ -67,15 +67,15 @@ const StatCard = ({
     if (iconColor) {
         return (
             <div
-                className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-5 border border-slate-200/50 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+                className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-3 md:p-5 border border-slate-200/50 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-500 hover:-translate-y-1 overflow-hidden"
                 style={{ animationDelay: `${delay}ms` }}
             >
-                <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500 ${iconColor}`}>
-                    <span className="material-symbols-outlined text-6xl">{icon}</span>
+                <div className={`absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500 ${iconColor}`}>
+                    <span className="material-symbols-outlined text-4xl md:text-6xl">{icon}</span>
                 </div>
-                <p className="text-slate-500 text-sm font-medium">{label}</p>
+                <p className="text-slate-500 text-xs md:text-sm font-medium">{label}</p>
                 <div className="flex items-baseline gap-2 mt-1">
-                    <p className="text-slate-900 text-2xl font-bold">{value}</p>
+                    <p className="text-slate-900 text-xl md:text-2xl font-bold">{value}</p>
                     {subValue && <p className={`text-xs font-bold ${subColor}`}>{subValue}</p>}
                 </div>
                 {progress !== undefined && (
@@ -94,17 +94,17 @@ const StatCard = ({
     if (iconBg) {
         return (
             <div
-                className={`group relative bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-200/50 shadow-sm hover:shadow-lg transition-all duration-700 ease-out hover:-translate-y-1 overflow-hidden ${hoverBorder ? `hover:border-${hoverBorder}/30` : ''}`}
+                className={`group relative bg-white/70 backdrop-blur-md rounded-2xl p-3 md:p-5 border border-slate-200/50 shadow-sm hover:shadow-lg transition-all duration-700 ease-out hover:-translate-y-1 overflow-hidden ${hoverBorder ? `hover:border-${hoverBorder}/30` : ''}`}
                 style={{ animationDelay: `${delay}ms` }}
             >
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1500ms] ease-in-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                 <div className="relative flex items-start justify-between">
                     <div className="flex flex-col gap-1">
-                        <p className="text-slate-500 text-sm font-medium">{label}</p>
-                        <p className="text-slate-900 text-3xl font-bold transition-colors duration-500">{value}</p>
+                        <p className="text-slate-500 text-xs md:text-sm font-medium">{label}</p>
+                        <p className="text-slate-900 text-2xl md:text-3xl font-bold transition-colors duration-500">{value}</p>
                     </div>
-                    <div className={`p-2.5 rounded-xl ${iconBg} transition-transform duration-700 ease-out group-hover:scale-105 group-hover:-translate-y-1`}>
-                        <span className="material-symbols-outlined text-xl transition-transform duration-500 group-hover:rotate-6">{icon}</span>
+                    <div className={`p-2 md:p-2.5 rounded-xl ${iconBg} transition-transform duration-700 ease-out group-hover:scale-105 group-hover:-translate-y-1`}>
+                        <span className="material-symbols-outlined text-lg md:text-xl transition-transform duration-500 group-hover:rotate-6">{icon}</span>
                     </div>
                 </div>
             </div>

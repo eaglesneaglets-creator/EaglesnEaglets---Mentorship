@@ -9,12 +9,12 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
  */
 const StatCard = ({ icon, iconBg, gradient, label, value, change, pulse, delay = 0 }) => (
   <div
-    className={`group relative rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${gradient || 'bg-white/80 backdrop-blur-sm border border-slate-200/50'}`}
+    className={`group relative rounded-2xl p-4 md:p-6 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${gradient || 'bg-white/80 backdrop-blur-sm border border-slate-200/50'}`}
     style={{ animationDelay: `${delay}ms` }}
   >
     {/* Decorative Wave */}
     {gradient && (
-      <div className="absolute bottom-0 right-0 w-32 h-32 opacity-20">
+      <div className="absolute bottom-0 right-0 w-20 h-20 md:w-32 md:h-32 opacity-20">
         <svg viewBox="0 0 100 100" className="w-full h-full">
           <circle cx="80" cy="80" r="60" fill="currentColor" className="text-white" />
         </svg>
@@ -23,13 +23,13 @@ const StatCard = ({ icon, iconBg, gradient, label, value, change, pulse, delay =
 
     <div className="relative flex items-start justify-between">
       <div className="flex flex-col gap-1">
-        <div className={`p-2.5 rounded-xl w-fit mb-2 ${iconBg} transition-transform duration-300 group-hover:scale-110`}>
-          <span className="material-symbols-outlined text-xl">{icon}</span>
+        <div className={`p-2 md:p-2.5 rounded-xl w-fit mb-1 md:mb-2 ${iconBg} transition-transform duration-300 group-hover:scale-110`}>
+          <span className="material-symbols-outlined text-lg md:text-xl">{icon}</span>
         </div>
-        <div className="flex items-baseline gap-3">
-          <p className={`text-3xl font-bold ${gradient ? 'text-white' : 'text-slate-900'}`}>{value}</p>
+        <div className="flex items-baseline gap-2">
+          <p className={`text-2xl md:text-3xl font-bold ${gradient ? 'text-white' : 'text-slate-900'}`}>{value}</p>
           {change !== undefined && (
-            <span className={`flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full ${
+            <span className={`flex items-center gap-0.5 text-xs font-bold px-1.5 py-0.5 rounded-full ${
               gradient ? 'bg-white/20 text-white' : change > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
             }`}>
               <span className="material-symbols-outlined text-xs">
@@ -39,7 +39,7 @@ const StatCard = ({ icon, iconBg, gradient, label, value, change, pulse, delay =
             </span>
           )}
         </div>
-        <p className={`text-sm font-medium ${gradient ? 'text-white/80' : 'text-slate-500'}`}>{label}</p>
+        <p className={`text-xs md:text-sm font-medium ${gradient ? 'text-white/80' : 'text-slate-500'}`}>{label}</p>
       </div>
       {pulse && value > 0 && (
         <span className="relative flex h-3 w-3">
@@ -60,29 +60,29 @@ const KYCApplicationRow = ({ app, onReview, formatDate, formatTimeAgo, getStatus
 
   return (
     <tr className="group hover:bg-slate-50/80 transition-colors duration-300">
-      <td className="px-6 py-4">
-        <div className="flex items-center gap-3">
+      <td className="px-3 md:px-6 py-3 md:py-4">
+        <div className="flex items-center gap-2 md:gap-3">
           {app.user_avatar || app.user_profile_picture_url ? (
             <img
               src={app.user_avatar || app.user_profile_picture_url}
               alt={app.user_full_name}
-              className="w-12 h-12 rounded-xl object-cover ring-2 ring-white shadow-sm transition-transform duration-300 group-hover:scale-105"
+              className="w-9 h-9 md:w-12 md:h-12 rounded-xl object-cover ring-2 ring-white shadow-sm transition-transform duration-300 group-hover:scale-105 flex-shrink-0"
             />
           ) : (
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg ${
+            <div className={`w-9 h-9 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0 ${
               appRole === 'mentor' ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
             }`}>
               {app.user_full_name?.charAt(0) || 'U'}
             </div>
           )}
-          <div>
-            <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors">{app.user_full_name}</p>
-            <p className="text-xs text-slate-500">{app.user_email}</p>
+          <div className="min-w-0">
+            <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors text-sm truncate">{app.user_full_name}</p>
+            <p className="text-xs text-slate-500 truncate max-w-[120px] md:max-w-none">{app.user_email}</p>
           </div>
         </div>
       </td>
-      <td className="px-6 py-4">
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
+      <td className="px-3 md:px-6 py-3 md:py-4">
+        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
           appRole === 'mentor' || appRole === 'eagle'
             ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
             : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
@@ -93,20 +93,20 @@ const KYCApplicationRow = ({ app, onReview, formatDate, formatTimeAgo, getStatus
           {appRole === 'mentor' || appRole === 'eagle' ? 'Eagle' : 'Eaglet'}
         </span>
       </td>
-      <td className="px-6 py-4">
-        <span className="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium capitalize truncate">
+      <td className="px-3 md:px-6 py-3 md:py-4">
+        <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium capitalize">
           {app.area_of_expertise?.replace(/_/g, ' ') || 'Not specified'}
         </span>
       </td>
-      <td className="px-6 py-4">
-        <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold capitalize border ${statusConfig.bg} ${statusConfig.border} ${statusConfig.text}`}>
-          <span className={`w-2 h-2 rounded-full ${statusConfig.dot}`} />
+      <td className="px-3 md:px-6 py-3 md:py-4">
+        <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-xl text-xs font-semibold capitalize border ${statusConfig.bg} ${statusConfig.border} ${statusConfig.text}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
           {app.status?.replace(/_/g, ' ')}
         </span>
       </td>
-      <td className="px-6 py-4">
+      <td className="px-3 md:px-6 py-3 md:py-4">
         <div className="flex flex-col">
-          <p className="text-sm font-medium text-slate-700">{formatDate(app.submitted_at)}</p>
+          <p className="text-xs font-medium text-slate-700">{formatDate(app.submitted_at)}</p>
           {app.days_pending !== null && app.days_pending >= 0 && (
             <p className={`text-xs mt-0.5 ${
               app.days_pending >= 5 ? 'text-rose-500 font-medium' :
@@ -118,10 +118,10 @@ const KYCApplicationRow = ({ app, onReview, formatDate, formatTimeAgo, getStatus
           )}
         </div>
       </td>
-      <td className="px-6 py-4 text-right">
+      <td className="px-3 md:px-6 py-3 md:py-4 text-right">
         <button
           onClick={() => onReview(app.id, appRole)}
-          className="px-5 py-2.5 bg-primary text-white rounded-xl text-xs font-semibold hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-lg hover:shadow-primary/25"
+          className="px-3 md:px-5 py-2 bg-primary text-white rounded-xl text-xs font-semibold hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-lg hover:shadow-primary/25"
         >
           Review
         </button>
@@ -241,32 +241,29 @@ const AdminKYCPortalPage = () => {
 
   return (
     <DashboardLayout variant="admin">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-primary rounded-xl shadow-lg shadow-primary/20">
-                <span className="material-symbols-outlined text-white">verified_user</span>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 bg-primary rounded-xl shadow-lg shadow-primary/20">
+                <span className="material-symbols-outlined text-white text-base">verified_user</span>
               </div>
               <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200">
                 KYC Management
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Review Portal</h1>
-            <p className="text-slate-500 mt-1">Review and manage mentor & mentee verification applications</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Review Portal</h1>
+            <p className="text-slate-500 mt-1 text-sm">Review and manage mentor & mentee verification applications</p>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="p-3 bg-white rounded-xl border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:shadow-lg transition-all duration-300 group">
-              <span className="material-symbols-outlined group-hover:rotate-12 transition-transform">notifications</span>
-            </button>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 setStatusFilter('pending');
                 setRoleFilter('all');
                 setSearchQuery('');
               }}
-              className="p-3 bg-white rounded-xl border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:shadow-lg transition-all duration-300 group"
+              className="p-2.5 bg-white rounded-xl border border-slate-200 text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:shadow-lg transition-all duration-300 group"
             >
               <span className="material-symbols-outlined group-hover:rotate-45 transition-transform">refresh</span>
             </button>
@@ -274,21 +271,21 @@ const AdminKYCPortalPage = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {summaryCards.map((card, index) => (
             <StatCard key={card.label} {...card} delay={index * 100} />
           ))}
         </div>
 
         {/* Filters Section */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50 shadow-sm">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 md:p-6 border border-slate-200/50 shadow-sm">
           {/* Role Filter Tabs */}
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-200/50">
-            <span className="text-sm font-medium text-slate-500 mr-2">Role:</span>
+          <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-slate-200/50">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Role:</span>
             {[
-              { value: 'all', label: 'All Applications', icon: 'apps' },
-              { value: 'mentor', label: 'Eagles (Mentors)', icon: 'verified_user' },
-              { value: 'mentee', label: 'Eaglets (Mentees)', icon: 'person' },
+              { value: 'all', label: 'All', labelFull: 'All Applications', icon: 'apps' },
+              { value: 'mentor', label: 'Eagles', labelFull: 'Eagles (Mentors)', icon: 'verified_user' },
+              { value: 'mentee', label: 'Eaglets', labelFull: 'Eaglets (Mentees)', icon: 'person' },
             ].map((tab) => (
               <button
                 key={tab.value}
@@ -296,27 +293,28 @@ const AdminKYCPortalPage = () => {
                   setRoleFilter(tab.value);
                   setPagination((prev) => ({ ...prev, page: 1 }));
                 }}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium text-sm transition-all duration-300 ${
                   roleFilter === tab.value
                     ? 'bg-slate-800 text-white shadow-lg'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                <span className="material-symbols-outlined text-lg">{tab.icon}</span>
-                {tab.label}
+                <span className="material-symbols-outlined text-base">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.labelFull}</span>
+                <span className="sm:hidden">{tab.label}</span>
               </button>
             ))}
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
             {/* Status Filter Pills */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {[
                 { value: 'pending', label: 'Pending', count: summary.pending },
                 { value: 'submitted', label: 'Submitted', count: summary.submitted || 0 },
                 { value: 'approved', label: 'Approved', count: summary.approved },
                 { value: 'rejected', label: 'Rejected', count: summary.rejected },
-                { value: 'requires_changes', label: 'Changes Needed', count: summary.requires_changes },
+                { value: 'requires_changes', label: 'Changes', count: summary.requires_changes },
                 { value: '', label: 'All', count: summary.total },
               ].map((tab) => (
                 <button
@@ -325,16 +323,18 @@ const AdminKYCPortalPage = () => {
                     setStatusFilter(tab.value);
                     setPagination((prev) => ({ ...prev, page: 1 }));
                   }}
-                  className={`px-4 py-2 rounded-xl font-medium text-sm transition-all duration-300 ${
+                  className={`px-2.5 py-1.5 rounded-lg font-semibold text-xs transition-all duration-300 ${
                     statusFilter === tab.value
                       ? 'bg-primary text-white shadow-lg shadow-primary/25'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
                   {tab.label}
-                  <span className={`ml-2 ${statusFilter === tab.value ? 'opacity-90' : 'opacity-50'}`}>
-                    {tab.count}
-                  </span>
+                  {tab.count > 0 && (
+                    <span className={`ml-1 ${statusFilter === tab.value ? 'opacity-90' : 'opacity-50'}`}>
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -385,15 +385,15 @@ const AdminKYCPortalPage = () => {
             <>
               {/* Table */}
               <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                <table className="w-full min-w-[640px] text-left">
                   <thead>
                     <tr className="bg-slate-50/80 border-b border-slate-100 text-xs uppercase text-slate-500 font-semibold tracking-wider">
-                      <th className="px-6 py-4">Applicant</th>
-                      <th className="px-6 py-4">Role</th>
-                      <th className="px-6 py-4">Expertise</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4">Submitted</th>
-                      <th className="px-6 py-4 text-right">Actions</th>
+                      <th className="px-3 md:px-6 py-3 md:py-4">Applicant</th>
+                      <th className="px-3 md:px-6 py-3 md:py-4">Role</th>
+                      <th className="px-3 md:px-6 py-3 md:py-4">Expertise</th>
+                      <th className="px-3 md:px-6 py-3 md:py-4">Status</th>
+                      <th className="px-3 md:px-6 py-3 md:py-4">Submitted</th>
+                      <th className="px-3 md:px-6 py-3 md:py-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">

@@ -470,9 +470,20 @@ const DashboardLayout = ({
                 )}
               </div>
 
-              <button className="p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group">
+              <button className="p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group hidden sm:flex">
                 <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
                   help
+                </span>
+              </button>
+
+              {/* Logout button — visible on mobile where sidebar bottom is hidden */}
+              <button
+                onClick={handleLogout}
+                className="lg:hidden p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-red-50 transition-all duration-300 group flex items-center justify-center"
+                title="Log Out"
+              >
+                <span className="material-symbols-outlined text-slate-600 group-hover:text-red-500 transition-colors">
+                  logout
                 </span>
               </button>
             </div>

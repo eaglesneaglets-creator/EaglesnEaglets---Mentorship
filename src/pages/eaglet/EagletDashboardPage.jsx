@@ -99,18 +99,18 @@ const EagletDashboardPage = () => {
 
   return (
     <DashboardLayout variant="eaglet">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Welcome Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               Welcome back, {user?.first_name || 'Eaglet'}!
             </h1>
-            <p className="text-slate-500 mt-1">Ready to continue your spiritual journey today?</p>
+            <p className="text-slate-500 mt-1 text-sm">Ready to continue your spiritual journey today?</p>
           </div>
           <button
             onClick={() => navigate('/eaglet/assignments')}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
           >
             <span className="material-symbols-outlined text-lg group-hover:animate-bounce">play_arrow</span>
             Resume Learning
@@ -118,7 +118,7 @@ const EagletDashboardPage = () => {
         </div>
 
         {/* Badges */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-3 md:p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-slate-700">My Badges</h3>
           </div>
@@ -126,15 +126,15 @@ const EagletDashboardPage = () => {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {stats.map((stat, index) => (
             <StatCard key={stat.label} {...stat} delay={index * 75} />
           ))}
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+          <div className="lg:col-span-2 flex flex-col gap-4 md:gap-6">
             {dashboardData?.nests && dashboardData.nests.length > 0 ? (
               dashboardData.nests.map((nest, index) => (
                 <AnimatedNestCard
