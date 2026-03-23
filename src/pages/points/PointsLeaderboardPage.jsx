@@ -4,6 +4,7 @@ import { useAuthStore } from '@store';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useMyPoints, useLeaderboard, useMyBadges } from '../../modules/points/hooks/usePoints';
 import BadgeGrid from '../../modules/points/components/BadgeGrid';
+import PointsHistoryPanel from '../../modules/points/components/PointsHistoryPanel';
 
 const FILTER_PARAMS = {
     'All Time': { period: 'all' },
@@ -314,9 +315,12 @@ const PointsLeaderboardPage = () => {
                 </div>
 
                 {/* Badges Section */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-8">
                     <BadgeGrid badges={badges} isLoading={myBadgesLoading} />
                 </div>
+
+                {/* Points History */}
+                <PointsHistoryPanel />
             </div>
         </DashboardLayout>
     );

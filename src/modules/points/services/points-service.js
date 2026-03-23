@@ -25,6 +25,9 @@ const PointsService = {
     // --- Manual Awarding (Eagle Only) ---
     awardManualPoints: (data) => apiClient.post('/points/award/', data),
 
+    // --- Eaglets by Nest (for award modal dropdown) ---
+    getEagletsByNest: (nestId) => apiClient.get(`/nests/${nestId}/eaglets/`),
+
     // --- Admin Configuration ---
     getPointConfig: () => apiClient.get('/points/config/'),
     updatePointConfig: (id, data) => apiClient.patch(`/points/config/${id}/`, data),

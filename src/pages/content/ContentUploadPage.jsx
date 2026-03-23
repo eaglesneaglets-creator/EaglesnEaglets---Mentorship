@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useCreateModule, useCreateItem, useModules } from '../../modules/content/hooks/useContent';
-import { useMyNests } from '../../modules/nest/hooks/useNests';
+import { useNests } from '../../modules/nest/hooks/useNests';
 import toast from 'react-hot-toast';
 
 /* ─── Constants ─── */
@@ -186,16 +186,17 @@ const ContentUploadPage = () => {
 
     const createModuleMutation = useCreateModule();
 
-    const { data: nestsResponse } = useMyNests();
-    const myNests = nestsResponse?.data || [];
+    // Eagles own nests — use /nests/ which returns eagle's own nests for eagle role
+    const { data: nestsResponse } = useNests();
+    const myNests = nestsResponse?.data?.results || nestsResponse?.data || [];
     const firstNestId = myNests?.[0]?.id || user?.nest_id;
     const { data: modulesResponse } = useModules({ nest: firstNestId });
-    const modules = modulesResponse?.data || [];
+    const modules = modulesResponse?.results || modulesResponse?.data || [];
 
     // Module form state
     const [moduleForm, setModuleForm] = useState({
         title: '', description: '', difficulty: 'beginner',
-        points_value: 100, nest: '', is_published: false,
+        points_value: 100, nest: '', is_published: false, visibility: 'nest_only',
     });
 
     // Item form state
@@ -207,7 +208,6 @@ const ContentUploadPage = () => {
     const [itemDuration, _setItemDuration] = useState(0);
     const [itemPoints, _setItemPoints] = useState(0);
     const [isRequired, _setIsRequired] = useState(true);
-    const [visibility, setVisibility] = useState('all_mentees');
 
     const createItemMutation = useCreateItem(selectedModuleId);
 
@@ -250,7 +250,7 @@ const ContentUploadPage = () => {
             onSuccess: (response) => {
                 const newModule = response?.data;
                 if (newModule?.id) setSelectedModuleId(newModule.id);
-                setModuleForm({ title: '', description: '', difficulty: 'beginner', points_value: 100, nest: '', is_published: false });
+                setModuleForm({ title: '', description: '', difficulty: 'beginner', points_value: 100, nest: '', is_published: false, visibility: 'nest_only' });
                 setModuleThumbnail(null);
                 toast.success('Module created! Now add content items.');
                 setActiveStep(STEP.ITEM);
@@ -402,6 +402,14 @@ const ContentUploadPage = () => {
                                     label="Module Cover Image (optional)"
                                 />
 
+                                {/* Visibility */}
+                                <FormField label="Visibility">
+                                    <select name="visibility" value={moduleForm.visibility} onChange={handleModuleChange} className={inputClass}>
+                                        <option value="all_mentees">All Mentees — appears in Resource Center</option>
+                                        <option value="nest_only">Nest Only — appears in Learning Modules (Assignments)</option>
+                                    </select>
+                                </FormField>
+
                                 {/* Publish toggle */}
                                 <div className="flex items-center gap-3 py-1">
                                     <button type="button"
@@ -544,14 +552,6 @@ const ContentUploadPage = () => {
                                     onChange={setItemThumbnail}
                                     label={contentType === 'video' ? 'Custom Thumbnail (optional — auto-generated if not set)' : 'Thumbnail (optional)'}
                                 />
-
-                                {/* Visibility selector — matching screenshot */}
-                                <FormField label="Visibility">
-                                    <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className={inputClass}>
-                                        <option value="all_mentees">All Mentees</option>
-                                        <option value="nest_only">Nest Only</option>
-                                    </select>
-                                </FormField>
 
                                 {/* Submit — right aligned, matching "Publish Content" in screenshot */}
                                 <div className="pt-4 border-t border-slate-100 flex justify-end">

@@ -72,12 +72,26 @@ export const useAwardManualPoints = () => {
         mutationFn: (data) => PointsService.awardManualPoints(data),
         onSuccess: () => {
             toast.success('Points awarded successfully!');
-            // Invalidate relevant queries; for instance if eagle is checking a user's points
-            // We might need to invalidate leaderboards too.
             queryClient.invalidateQueries({ queryKey: pointsKeys.leaderboard() });
+            queryClient.invalidateQueries({ queryKey: pointsKeys.transactions() });
+            queryClient.invalidateQueries({ queryKey: pointsKeys.myPoints() });
         },
         onError: (error) => {
-            toast.error(error.response?.data?.detail || 'Failed to award points');
-        }
+            toast.error(error.message || 'Failed to award points');
+        },
+    });
+};
+
+// nestEagletsKeys used for the eaglets-by-nest query in award modal
+export const nestEagletsKeys = {
+    eaglets: (nestId) => ['nests', nestId, 'eaglets'],
+};
+
+export const useEagletsByNest = (nestId) => {
+    return useQuery({
+        queryKey: nestEagletsKeys.eaglets(nestId),
+        queryFn: () => PointsService.getEagletsByNest(nestId),
+        enabled: !!nestId,
+        staleTime: 60 * 1000, // 1 min — nest membership rarely changes mid-session
     });
 };
