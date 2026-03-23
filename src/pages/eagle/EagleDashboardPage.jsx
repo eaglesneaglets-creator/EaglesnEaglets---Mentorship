@@ -187,14 +187,14 @@ const EagleDashboardPage = () => {
 
   return (
     <DashboardLayout variant="eagle">
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               Welcome back, {user?.first_name || 'Mentor'}
             </h1>
-            <p className="text-slate-500 mt-1">
+            <p className="text-slate-500 mt-1 text-sm">
               Here is an overview of your mentorship activities and eaglet progress.
             </p>
           </div>
@@ -208,11 +208,11 @@ const EagleDashboardPage = () => {
         </div>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 lg:gap-8">
           {/* Left Column */}
-          <div className="lg:col-span-8 flex flex-col gap-8">
+          <div className="lg:col-span-8 flex flex-col gap-4 md:gap-6 lg:gap-8">
             {/* Stats Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
               <StatCard
                 icon="group"
                 iconBg="bg-blue-50 text-primary"
@@ -327,7 +327,7 @@ const EagleDashboardPage = () => {
           </div>
 
           {/* Right Column - Calendar & Widgets */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="lg:col-span-4 flex flex-col gap-4 md:gap-6">
             {/* Calendar Widget */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm p-6 hover:shadow-lg transition-shadow duration-500">
               <div className="flex items-center justify-between mb-4">
