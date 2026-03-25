@@ -27,7 +27,7 @@ const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
       <td className="py-4 px-2">
         <div className="flex items-center gap-3 transition-transform duration-500 ease-out group-hover:translate-x-1">
           {eaglet.avatar ? (
-            <img src={eaglet.avatar} alt={eaglet.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-sm transition-transform duration-500 group-hover:scale-105" />
+            <img src={eaglet.avatar} alt={eaglet.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-sm transition-transform duration-500 group-hover:scale-105" loading="lazy" />
           ) : (
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400/80 to-emerald-600/80 flex items-center justify-center text-white font-bold text-sm shadow-sm transition-transform duration-500 group-hover:scale-105">
               {eaglet.name?.charAt(0) || '?'}

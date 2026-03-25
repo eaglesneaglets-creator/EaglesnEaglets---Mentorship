@@ -72,7 +72,7 @@ const ContentCard = ({ module, onClick, onAddItem, onEdit, onDelete, onAddQuiz, 
             {/* Thumbnail area */}
             <div className="relative h-44 bg-slate-50 overflow-hidden">
                 {module.thumbnail_url ? (
-                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
                         <span className={`material-symbols-outlined text-5xl text-slate-300`}>{typeMeta.icon}</span>
@@ -185,7 +185,7 @@ const AssignmentCard = ({ module, onClick, onTakeQuiz, delay = 0 }) => {
             {/* Thumbnail area for Assignment */}
             <div className="relative h-40 bg-slate-50 overflow-hidden">
                 {module.thumbnail_url ? (
-                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-emerald-50/10">
                         <span className="material-symbols-outlined text-4xl text-primary/20">assignment</span>

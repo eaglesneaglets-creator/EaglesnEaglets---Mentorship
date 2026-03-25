@@ -54,7 +54,7 @@ const Navbar = () => {
     const navLinks = [
         { label: 'Home', href: '#hero' },
         { label: 'About', href: '#about' },
-        { label: 'Store', href: '#store' },
+        { label: 'Store', href: '/store', external: true },
         { label: 'Donate', href: '#donate' },
     ];
 
@@ -82,11 +82,19 @@ const Navbar = () => {
                 </Link>
                 <div className={`w-px h-6 mx-1 transition-colors duration-500 ${scrolled ? 'bg-slate-200/50' : 'bg-white/30'}`} />
                 {navLinks.map((link) => (
-                    <button key={link.label} onClick={() => scrollTo(link.href)}
-                        className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'
-                            }`}>
-                        {link.label}
-                    </button>
+                    link.external ? (
+                        <Link key={link.label} to={link.href}
+                            className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'
+                                }`}>
+                            {link.label}
+                        </Link>
+                    ) : (
+                        <button key={link.label} onClick={() => scrollTo(link.href)}
+                            className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'
+                                }`}>
+                            {link.label}
+                        </button>
+                    )
                 ))}
                 <div className={`w-px h-6 mx-1 transition-colors duration-500 ${scrolled ? 'bg-slate-200/50' : 'bg-white/30'}`} />
                 <Link to="/login" className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'
@@ -118,10 +126,17 @@ const Navbar = () => {
                         className="md:hidden mt-2 bg-white/95 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl p-3 mx-4"
                     >
                         {navLinks.map((link) => (
-                            <button key={link.label} onClick={() => scrollTo(link.href)}
-                                className="w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
-                                {link.label}
-                            </button>
+                            link.external ? (
+                                <Link key={link.label} to={link.href} onClick={() => setMobileOpen(false)}
+                                    className="block w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
+                                    {link.label}
+                                </Link>
+                            ) : (
+                                <button key={link.label} onClick={() => scrollTo(link.href)}
+                                    className="w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
+                                    {link.label}
+                                </button>
+                            )
                         ))}
                         <div className="border-t border-slate-100 mt-2 pt-2 flex gap-2">
                             <Link to="/login" className="flex-1 text-center py-2.5 text-sm font-semibold text-slate-600 rounded-xl border border-slate-200 hover:border-primary/30">Login</Link>
@@ -416,7 +431,7 @@ const StoreSection = () => {
                             <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Ministry Shop</h2>
                             <p className="text-sm text-slate-400 mt-2">Exclusive apparel and resources for the community.</p>
                         </div>
-                        <Link to="/register" className="hidden md:flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-dark transition-colors group">
+                        <Link to="/store" className="hidden md:flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-dark transition-colors group">
                             View All Items
                             <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
                         </Link>
@@ -426,6 +441,7 @@ const StoreSection = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {products.map((prod, i) => (
                         <FadeIn key={prod.name} delay={i * 0.1} direction="up">
+                            <Link to="/store">
                             <motion.div whileHover={{ y: -6 }} className="group cursor-pointer">
                                 <div className="relative aspect-square rounded-2xl border border-slate-200/50 overflow-hidden mb-4 group-hover:shadow-lg transition-all duration-300 bg-slate-100">
                                     <img
@@ -447,6 +463,7 @@ const StoreSection = () => {
                                 <p className="text-xs text-slate-400 mt-0.5">{prod.desc}</p>
                                 <p className="text-sm font-bold text-slate-900 mt-2">{prod.price}</p>
                             </motion.div>
+                            </Link>
                         </FadeIn>
                     ))}
                 </div>

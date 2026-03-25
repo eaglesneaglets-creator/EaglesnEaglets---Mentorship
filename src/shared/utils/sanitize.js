@@ -95,6 +95,20 @@ export function escapeHtml(input) {
 }
 
 /**
+ * Strip Cloudinary delivery signature token (s--TOKEN--) from a URL.
+ * When the Cloudinary account has unsigned delivery enabled, stored URLs with
+ * signatures may fail or show security warnings. Stripping the token lets
+ * Cloudinary serve the asset without it.
+ * @param {string} url - Cloudinary URL that may contain s--TOKEN--
+ * @returns {string} URL with signature segment removed, or original URL unchanged
+ */
+export function stripCloudinarySignature(url) {
+  if (!url || typeof url !== 'string') return url;
+  // Match /s--<base64url_chars>--/ and remove it
+  return url.replace(/\/s--[A-Za-z0-9_-]+--(?=\/)/, '');
+}
+
+/**
  * Sanitize URL to prevent javascript: and data: protocols
  * @param {string} url - The URL to sanitize
  * @returns {string} Safe URL or empty string if dangerous
@@ -161,6 +175,7 @@ export default {
   sanitizeToText,
   escapeHtml,
   sanitizeUrl,
+  stripCloudinarySignature,
   useSanitizedHtml,
   createSafeInnerHTML,
 };

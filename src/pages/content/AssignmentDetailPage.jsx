@@ -5,6 +5,7 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useAssignmentDetail, useSubmitAssignment } from '../../modules/content/hooks/useContent';
 import toast from 'react-hot-toast';
+import { stripCloudinarySignature } from '../../shared/utils/sanitize';
 
 /* ─── Status Configs ─── */
 const STATUS_MAP = {
@@ -44,7 +45,7 @@ const ResourceItem = ({ resource }) => {
 
     return (
         <a
-            href={resource.url || resource.file_url || '#'}
+            href={stripCloudinarySignature(resource.url || resource.file_url) || '#'}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-primary/30 hover:bg-primary/[0.02] transition-all group"
@@ -168,7 +169,7 @@ const AssignmentDetailPage = () => {
                                 <div className="flex items-center gap-2 shrink-0">
                                     {assignment.file_url ? (
                                         <a
-                                            href={assignment.file_url}
+                                            href={stripCloudinarySignature(assignment.file_url)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             download
@@ -259,7 +260,7 @@ const AssignmentDetailPage = () => {
                                                 </div>
                                             </div>
                                             {latestSubmission.file_url && (
-                                                <a href={latestSubmission.file_url} target="_blank" rel="noopener noreferrer"
+                                                <a href={stripCloudinarySignature(latestSubmission.file_url)} target="_blank" rel="noopener noreferrer"
                                                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors">
                                                     <span className="material-symbols-outlined text-[14px]">download</span>
                                                     View

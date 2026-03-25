@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useModules, useMyProgress } from '../../modules/content/hooks/useContent';
-import { useMyNests, useNests } from '../../modules/nest/hooks/useNests';
 
 /* ─── Soft animated background ─── */
 const AnimatedBg = () => (
@@ -48,7 +47,7 @@ const FeaturedCard = ({ item, module, onClick, delay = 0 }) => {
             {/* Thumbnail */}
             <div className="relative h-48 bg-slate-100 overflow-hidden">
                 {module?.thumbnail_url ? (
-                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                         <span className="material-symbols-outlined text-5xl text-slate-300">{config.icon}</span>
@@ -188,17 +187,11 @@ const ResourceCenterPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showAllFeatured, setShowAllFeatured] = useState(false);
 
-    // Get nest ID — eagles own nests (useNests list), eaglets join nests (useMyNests)
     const isEagle = user?.role === 'eagle' || user?.role === 'admin';
-    const { data: eagleNestsResponse } = useNests();
-    const { data: eagletNestsResponse } = useMyNests();
-    const nestId = isEagle
-        ? (eagleNestsResponse?.data?.results?.[0]?.id || eagleNestsResponse?.data?.[0]?.id)
-        : (eagletNestsResponse?.data?.[0]?.id || eagletNestsResponse?.data?.results?.[0]?.id)
-        || user?.nest_id;
 
-    // Resource Center shows only "All Mentees" visibility modules
-    const { data: modulesResponse, isLoading } = useModules({ nest: nestId, visibility: 'all_mentees' });
+    // Platform-wide Resource Center: all roles see all published "all_mentees" modules
+    // across the entire platform, regardless of which nest they belong to.
+    const { data: modulesResponse, isLoading } = useModules({ visibility: 'all_mentees' });
     const { data: progressResponse } = useMyProgress();
 
     const modules = useMemo(
@@ -365,7 +358,11 @@ const ResourceCenterPage = () => {
                                     <span className="material-symbols-outlined text-4xl text-slate-300 block mb-3">library_books</span>
                                     <p className="text-sm font-bold text-slate-700 mb-1">No resources yet</p>
                                     <p className="text-xs text-slate-400">
-                                        {searchQuery ? 'No resources match your search.' : 'Your mentor hasn\'t shared any content yet. Check back soon!'}
+                                        {searchQuery
+                                            ? 'No resources match your search.'
+                                            : isEagle
+                                                ? 'You haven\'t created any content yet. Head to the Content section to add your first module!'
+                                                : 'Your mentor hasn\'t shared any content yet. Check back soon!'}
                                     </p>
                                 </div>
                             ) : (
@@ -507,24 +504,26 @@ const ResourceCenterPage = () => {
                             )}
                         </motion.div>
 
-                        {/* Your Progress Card */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 16 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border border-emerald-200/50 p-5"
-                        >
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-primary mb-4">
-                                YOUR PROGRESS
-                            </h3>
-                            <ProgressBar
-                                value={pData.completed || 0}
-                                max={pData.total_items || filteredItems.length || 0}
-                            />
-                            <p className="text-xs text-slate-500 italic mt-4 leading-relaxed">
-                                "Knowledge is the wing wherewith we fly to heaven."
-                            </p>
-                        </motion.div>
+                        {/* Your Progress Card — Eaglet only */}
+                        {!isEagle && (
+                            <motion.div
+                                initial={{ opacity: 0, x: 16 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border border-emerald-200/50 p-5"
+                            >
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-primary mb-4">
+                                    YOUR PROGRESS
+                                </h3>
+                                <ProgressBar
+                                    value={pData.completed || 0}
+                                    max={pData.total_items || filteredItems.length || 0}
+                                />
+                                <p className="text-xs text-slate-500 italic mt-4 leading-relaxed">
+                                    "Knowledge is the wing wherewith we fly to heaven."
+                                </p>
+                            </motion.div>
+                        )}
                     </div>
                 </div>
             </div>

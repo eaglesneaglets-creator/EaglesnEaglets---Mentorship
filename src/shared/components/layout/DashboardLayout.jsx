@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuthStore } from '@store';
 import { adminService } from '../../../modules/auth/services/auth-service';
-import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead } from '../../../modules/notifications/hooks/useNotifications';
+import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, useNotificationSocket } from '../../../modules/notifications/hooks/useNotifications';
+import { useTotalUnread } from '../../../modules/chat/hooks/useChat';
 import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
 
 import { formatRelativeTime } from '../../../shared/utils';
@@ -20,19 +21,35 @@ const AnimatedBackground = ({ variant = 'default' }) => {
     default: 'from-slate-50 via-white to-gray-50/40',
   };
 
+  const dotColors = {
+    eaglet: 'rgba(16, 185, 129, 0.06)',
+    eagle:  'rgba(245, 158, 11, 0.06)',
+    admin:  'rgba(99, 102, 241, 0.06)',
+    default: 'rgba(100, 116, 139, 0.05)',
+  };
+  const dotColor = dotColors[variant] || dotColors.default;
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* Gradient Background */}
       <div className={`absolute inset-0 bg-gradient-to-br ${variants[variant]} animate-gradient`} />
 
-      {/* Floating Orbs - Reduced for performance */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float-slow opacity-60" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-float-medium opacity-40" />
-
-      {/* Grid Pattern */}
+      {/* Animated dot-grid — subtle diagonal drift */}
       <div
-        className="absolute inset-0 opacity-[0.01]"
+        className="absolute inset-0 animate-dot-grid"
+        style={{
+          backgroundImage: `radial-gradient(circle, ${dotColor} 1px, transparent 1px)`,
+          backgroundSize: '32px 32px',
+        }}
+      />
+
+      {/* Floating Orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float-slow opacity-80" />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-float-medium opacity-60" />
+
+      {/* Grid Pattern — subtle structural lines */}
+      <div
+        className="absolute inset-0 opacity-[0.04]"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`,
           backgroundSize: '80px 80px',
@@ -119,12 +136,18 @@ const DashboardLayout = ({
   const [pendingKycCount, setPendingKycCount] = useState(0);
   const notifRef = useRef(null);
 
+  // Real unread chat count for sidebar badge
+  const chatUnread = useTotalUnread();
+  const chatBadge = chatUnread > 0 ? chatUnread : undefined;
+
 
   // Real notification hooks — work for all roles
   const { data: notificationsData } = useNotifications();
   const { data: unreadData } = useUnreadCount();
   const markAsReadMutation = useMarkAsRead();
   const markAllAsReadMutation = useMarkAllAsRead();
+  // Mount WS connection — single instance for the entire dashboard session
+  useNotificationSocket();
 
   const notifications = notificationsData?.data?.results || notificationsData?.data || [];
   const unreadCount = unreadData?.data?.count ?? unreadData?.data?.unread_count ?? 0;
@@ -219,6 +242,7 @@ const DashboardLayout = ({
         { to: '/admin/users', icon: 'group', label: 'Users' },
         { to: '/admin/kyc', icon: 'verified_user', label: 'KYC Reviews', badge: pendingKycCount > 0 ? pendingKycCount : undefined },
         { to: '/admin/nests', icon: 'diversity_3', label: 'Nests' },
+        { to: '/admin/store', icon: 'storefront', label: 'Store' },
         { to: '/admin/content', icon: 'library_books', label: 'Content' },
         { to: '/admin/donations', icon: 'volunteer_activism', label: 'Donations' },
         { to: '/admin/settings', icon: 'settings', label: 'Settings' },
@@ -232,7 +256,7 @@ const DashboardLayout = ({
         { to: '/eagle/eaglets', icon: 'group', label: 'My Eaglets' },
         { to: '/eagle/grading', icon: 'grading', label: 'Grading Center' },
         { to: '/eagle/content', icon: 'upload_file', label: 'Content' },
-        { to: '/eagle/messages', icon: 'chat', label: 'Messages', badge: '2' },
+        { to: '/eagle/messages', icon: 'chat', label: 'Messages', badge: chatBadge },
         { to: '/eagle/resources', icon: 'library_books', label: 'Resources' },
         { to: '/eagle/settings', icon: 'settings', label: 'Settings' },
       ];
@@ -244,7 +268,7 @@ const DashboardLayout = ({
       { to: '/eaglet/nest', icon: 'nest_eco_leaf', label: 'Nest' },
       { to: '/eaglet/my-requests', icon: 'mail', label: 'My Requests' },
       { to: '/eaglet/assignments', icon: 'assignment', label: 'Assignments' },
-      { to: '/eaglet/messages', icon: 'chat', label: 'Messages', badge: '3' },
+      { to: '/eaglet/messages', icon: 'chat', label: 'Messages', badge: chatBadge },
       { to: '/eaglet/leaderboard', icon: 'leaderboard', label: 'Leaderboard' },
       { to: '/eaglet/resources', icon: 'library_books', label: 'Resources' },
       { to: '/eaglet/settings', icon: 'settings', label: 'Settings' },
@@ -548,6 +572,11 @@ const DashboardLayout = ({
         }
         .animate-fade-in { animation: fade-in 0.3s ease-out; }
         .animate-fade-in-up { animation: fade-in-up 0.5s ease-out; }
+        @keyframes drift-grid {
+          0%   { background-position: 0px 0px; }
+          100% { background-position: 32px 32px; }
+        }
+        .animate-dot-grid { animation: drift-grid 12s linear infinite; }
       `}</style>
     </div>
   );
