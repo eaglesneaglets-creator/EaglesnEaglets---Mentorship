@@ -38,7 +38,7 @@ export default function BadgeShelf() {
                             title={badge.name}
                             className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden border-2 border-white shadow-sm"
                         >
-                            <img src={badge.icon} alt={badge.name} className="w-full h-full" />
+                            <img src={badge.icon} alt={badge.name} className="w-full h-full" loading="lazy" />
                         </motion.div>
                     );
                 })}

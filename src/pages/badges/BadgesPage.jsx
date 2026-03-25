@@ -52,7 +52,7 @@ const BadgeModal = ({ badge, onClose }) => {
                 className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center"
             >
                 <div className={`w-24 h-24 rounded-2xl mx-auto mb-5 flex items-center justify-center overflow-hidden ${!badge.earned ? 'grayscale opacity-40' : ''}`}>
-                    <img src={badge.icon} alt={badge.name} className="w-full h-full" />
+                    <img src={badge.icon} alt={badge.name} className="w-full h-full" loading="lazy" />
                 </div>
 
                 <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3 ${meta.bg} ${meta.colour}`}>
@@ -123,7 +123,7 @@ const BadgeCard = ({ badge, onClick }) => {
             )}
             <div className={`w-14 h-14 rounded-xl mb-3 flex items-center justify-center overflow-hidden
                 ${!badge.earned ? 'grayscale opacity-40' : ''}`}>
-                <img src={badge.icon} alt={badge.name} className="w-full h-full" />
+                <img src={badge.icon} alt={badge.name} className="w-full h-full" loading="lazy" />
             </div>
             <p className="text-xs font-semibold text-slate-700 text-center leading-tight">{badge.name}</p>
             <span className={`mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.bg} ${meta.colour}`}>

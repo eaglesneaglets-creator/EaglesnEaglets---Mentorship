@@ -4,6 +4,7 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { formatDate } from '../../shared/utils';
 import { useSubmissions, useGradeSubmission } from '../../modules/content/hooks/useContent';
 import StatCard from '../../shared/components/ui/StatCard';
+import { stripCloudinarySignature } from '../../shared/utils/sanitize';
 
 /* ─── Soft animated background blobs ─── */
 const AnimatedBg = () => (
@@ -82,7 +83,7 @@ const GradingModal = ({ submission, onClose, onGrade, isSubmitting }) => {
                         {/* File Attachment */}
                         {submission.file_url && (
                             <a
-                                href={submission.file_url}
+                                href={stripCloudinarySignature(submission.file_url)}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/10 rounded-2xl text-primary hover:bg-primary/10 transition-all group"

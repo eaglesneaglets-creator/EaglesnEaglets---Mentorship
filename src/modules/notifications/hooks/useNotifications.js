@@ -1,5 +1,9 @@
+import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import NotificationService from '../services/notification-service';
+import { useWebSocket } from '@hooks/useWebSocket';
+import { useAuthStore } from '@store';
 
 export const notificationKeys = {
     all: ['notifications'],
@@ -18,7 +22,7 @@ export const useUnreadCount = () => {
     return useQuery({
         queryKey: notificationKeys.unread(),
         queryFn: () => NotificationService.getUnreadCount(),
-        refetchInterval: 30000, // Poll every 30s for new notifications
+        // Removed refetchInterval: 30000 — WebSocket push replaces polling
     });
 };
 
@@ -40,4 +44,53 @@ export const useMarkAllAsRead = () => {
             queryClient.invalidateQueries({ queryKey: notificationKeys.all });
         },
     });
+};
+
+/**
+ * useNotificationSocket — connects to ws/notifications/ and handles incoming push notifications.
+ *
+ * On each push:
+ *   1. Increments unread count in React Query cache (instant badge update)
+ *   2. Invalidates notifications list so it refetches on next open
+ *   3. Shows a toast
+ *
+ * Mount this ONCE in DashboardLayout.
+ */
+export const useNotificationSocket = () => {
+    const queryClient = useQueryClient();
+    const { user } = useAuthStore();
+
+    const onMessage = useCallback((data) => {
+        // Only handle messages with a notification payload
+        if (!data?.data?.title) return;
+
+        const notification = data.data;
+
+        // Update unread count in cache for instant badge update
+        queryClient.setQueryData(notificationKeys.unread(), (old) => {
+            if (!old) return old;
+            const current = old?.data?.count ?? old?.data ?? 0;
+            if (old?.data?.count !== undefined) {
+                return { ...old, data: { ...old.data, count: current + 1 } };
+            }
+            return old;
+        });
+
+        // Invalidate list so it refetches on next open
+        queryClient.invalidateQueries({ queryKey: notificationKeys.list() });
+
+        // Show toast notification
+        toast(notification.title, {
+            icon: '🔔',
+            duration: 4000,
+        });
+    }, [queryClient]);
+
+    const { status } = useWebSocket({
+        path: 'ws/notifications/',
+        onMessage,
+        enabled: !!user,
+    });
+
+    return { status };
 };

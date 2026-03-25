@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/danie/Desktop/Work/EaglesnEaglet-Project/**)",
+      "Read(//c/Users/danie/Desktop/Work/EaglesnEaglet-Project/Backend/**)"
+    ]
+  }
+}

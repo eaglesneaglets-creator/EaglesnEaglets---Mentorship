@@ -46,6 +46,8 @@ export default defineConfig(({ mode }) => {
       target: 'es2020',
       outDir: 'dist',
       sourcemap: mode !== 'production',
+      minify: 'esbuild',     // esbuild is faster than terser, built into Vite
+      cssMinify: true,        // explicitly enable CSS minification
       rollupOptions: {
         output: {
           // Code splitting for better caching
@@ -54,11 +56,14 @@ export default defineConfig(({ mode }) => {
             router: ['react-router-dom'],
             state: ['zustand', '@tanstack/react-query'],
             ui: ['framer-motion', 'lucide-react'],
+            charts: ['recharts'],  // isolate heavy chart library
           },
         },
+        treeshake: {
+          moduleSideEffects: false,  // tree-shake side-effect-free packages
+        },
       },
-      // Chunk size warnings (three.js is ~725 KB minified, intentionally lazy-loaded)
-      chunkSizeWarningLimit: 800,
+      chunkSizeWarningLimit: 600,  // tighter limit — flag large chunks early
     },
 
     // Environment variable prefix

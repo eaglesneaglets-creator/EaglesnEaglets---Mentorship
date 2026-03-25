@@ -14,7 +14,7 @@ const BadgeGrid = ({ badges = [], isLoading }) => {
                             <div key={item.id} className="group flex flex-col items-center gap-3 p-4 rounded-xl bg-white border border-slate-100 hover:border-blue-500/50 transition-colors cursor-pointer">
                                 <div className="size-16 rounded-full overflow-hidden flex-shrink-0">
                                     {badge.icon ? (
-                                        <img src={badge.icon} alt={badge.name} className="w-full h-full" />
+                                        <img src={badge.icon} alt={badge.name} className="w-full h-full" loading="lazy" />
                                     ) : (
                                         <div className="w-full h-full bg-blue-100 flex items-center justify-center">
                                             <span className="material-symbols-outlined text-2xl text-blue-500">military_tech</span>

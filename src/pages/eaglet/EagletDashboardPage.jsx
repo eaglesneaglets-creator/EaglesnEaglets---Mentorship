@@ -102,7 +102,7 @@ const EagletDashboardPage = () => {
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Welcome Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div>
+          <div className="pl-3 border-l-4 border-primary/40 sm:pl-0 sm:border-l-0">
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               Welcome back, {user?.first_name || 'Eaglet'}!
             </h1>
@@ -126,7 +126,7 @@ const EagletDashboardPage = () => {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
           {stats.map((stat, index) => (
             <StatCard key={stat.label} {...stat} delay={index * 75} />
           ))}
@@ -248,7 +248,7 @@ const EagletDashboardPage = () => {
                   const isChecked = weeklyCheckins[i];
                   return (
                     <div key={`${day}-${i}`} className="flex flex-col items-center gap-1.5">
-                      <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${isChecked
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${isChecked
                         ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-110'
                         : 'bg-slate-100 text-slate-400'
                         }`}>

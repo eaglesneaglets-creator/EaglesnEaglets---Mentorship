@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { adminService } from '../../modules/auth/services/auth-service';
-import { sanitizeToText } from '../../shared/utils/sanitize';
+import { sanitizeToText, stripCloudinarySignature } from '../../shared/utils/sanitize';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const BACKEND_URL = API_BASE_URL.replace('/api/v1', '');
+
 
 // ─── Status Helpers ──────────────────────────────────────────────────────────
 const STATUS_MAP = {
@@ -103,7 +104,8 @@ const Modal = ({ isOpen, onClose, title, icon, children }) => {
 // X-Frame-Options: SAMEORIGIN header. We open them in a new tab instead.
 const DocumentViewer = ({ isOpen, onClose, url, title }) => {
   if (!isOpen) return null;
-  const fullUrl = url?.startsWith('http') ? url : `${BACKEND_URL}${url}`;
+  const rawUrl = url?.startsWith('http') ? url : `${BACKEND_URL}${url}`;
+  const fullUrl = stripCloudinarySignature(rawUrl);
   // Detect by extension OR Cloudinary URL patterns
   const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url || '') || url?.includes('image/upload') || url?.includes('profile_pictures') || url?.includes('content_images');
   const isPdf = /\.pdf/i.test(url || '') || url?.includes('/cvs/') || url?.includes('/documents/');

@@ -68,7 +68,7 @@ const RequestCard = ({ request, onRespond, isResponding }) => {
                 {/* Avatar */}
                 {user.profile_picture ? (
                     <img src={user.profile_picture} alt={name}
-                        className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+                        className="w-12 h-12 rounded-xl object-cover flex-shrink-0" loading="lazy" />
                 ) : (
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/80 to-emerald-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {initials}

@@ -3,6 +3,25 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Suspense, lazy } from 'react';
 import ErrorBoundary from '@components/ErrorBoundary';
 
+// Route-level error fallback — shown when a lazy chunk fails to load
+const RouteErrorFallback = ({ retry }) => (
+  <div className="min-h-screen flex items-center justify-center p-8 bg-slate-50">
+    <div className="text-center max-w-md">
+      <span className="material-symbols-outlined text-5xl text-slate-300 block mb-4">error</span>
+      <h2 className="text-xl font-bold text-slate-800 mb-2">Page failed to load</h2>
+      <p className="text-sm text-slate-500 mb-6">
+        This section could not be loaded. Check your connection and try again.
+      </p>
+      <button
+        onClick={retry}
+        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
+      >
+        Try Again
+      </button>
+    </div>
+  </div>
+);
+
 // Lazy load pages for code splitting
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
@@ -55,6 +74,13 @@ const NotificationsPage = lazy(() => import('./pages/notifications/Notifications
 
 // Chat Page
 const ChatPage = lazy(() => import('./pages/chat/ChatPage'));
+
+// Store Pages
+const StorePage = lazy(() => import('./pages/store/StorePage'));
+const ProductDetailPage = lazy(() => import('./pages/store/ProductDetailPage'));
+const CartPage = lazy(() => import('./pages/store/CartPage'));
+const OrderConfirmationPage = lazy(() => import('./pages/store/OrderConfirmationPage'));
+const AdminStorePage = lazy(() => import('./pages/admin/AdminStorePage'));
 
 // Profile Pages (NEW)
 const MentorProfilePage = lazy(() => import('./pages/profile/MentorProfilePage'));
@@ -124,8 +150,13 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,   // 5 minutes — data considered fresh
+      gcTime: 10 * 60 * 1000,     // 10 minutes — keep in cache after stale
+    },
+    mutations: {
+      retry: 0, // Never auto-retry mutations (form submits, payments, etc.)
     },
   },
 });
@@ -151,6 +182,10 @@ function App() {
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+
+                {/* Public Store — accessible without login */}
+                <Route path="/store" element={<StorePage />} />
+                <Route path="/store/:slug" element={<ProductDetailPage />} />
 
                 {/* ============================================================= */}
                 {/* PROTECTED ROUTES (Authenticated) */}
@@ -205,6 +240,10 @@ function App() {
                     <Route path="/eaglet/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
                   </Route>
 
+                  {/* Store — authenticated routes */}
+                  <Route path="/store/cart" element={<CartPage />} />
+                  <Route path="/store/orders/:id" element={<OrderConfirmationPage />} />
+
                   {/* Notifications - accessible to all authenticated roles */}
                   <Route path="/notifications" element={<NotificationsPage />} />
 
@@ -226,6 +265,7 @@ function App() {
                     <Route path="/admin/nests" element={<ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" />} />
                     <Route path="/admin/content" element={<LearningCenterPage />} />
                     <Route path="/admin/content/upload" element={<ContentUploadPage />} />
+                    <Route path="/admin/store" element={<AdminStorePage />} />
                     <Route path="/admin/donations" element={<ComingSoonPage title="Donations" description="Track and manage donations, view reports, and handle financial transactions." icon="volunteer_activism" />} />
                     <Route path="/admin/settings" element={<ComingSoonPage title="Platform Settings" description="Configure platform-wide settings, policies, and system preferences." icon="settings" />} />
                   </Route>
