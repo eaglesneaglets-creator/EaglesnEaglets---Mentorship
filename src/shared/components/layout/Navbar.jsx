@@ -13,6 +13,11 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    // Close menu on route change
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [location.pathname]);
+
     const navLinks = [
         { name: 'Home', path: '/' },
         { name: 'Store', path: '/store' },
@@ -21,40 +26,48 @@ const Navbar = () => {
 
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-6 py-4 ${isScrolled
-                ? 'bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-lg py-3'
-                : 'bg-transparent'
-                }`}
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+                isScrolled
+                    ? 'bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-lg'
+                    : 'bg-transparent'
+            }`}
         >
-            <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-                {/* Logo */}
+            {/* Single-row bar — never wraps */}
+            <div className="max-w-7xl mx-auto flex items-center h-14 sm:h-16 px-4 sm:px-6 gap-3">
+
+                {/* Logo — icon + text on md+, icon only on mobile */}
                 <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
-                    <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-                        <span className="material-symbols-outlined text-white text-xl md:text-2xl">nest_eco</span>
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-white text-lg sm:text-xl">nest_eco</span>
                     </div>
-                    <span className="text-lg md:text-xl font-black text-slate-900 tracking-tighter">
+                    {/* Hidden on xs, visible from sm */}
+                    <span className="hidden sm:inline text-base md:text-lg font-black text-slate-900 tracking-tighter whitespace-nowrap">
                         The Nest<span className="text-emerald-500">.</span>
                     </span>
                 </Link>
 
-                {/* Desktop Nav */}
-                <div className="hidden md:flex items-center gap-4 lg:gap-8 bg-white/40 backdrop-blur-md px-4 lg:px-8 py-2.5 rounded-full border border-white/20 shadow-sm">
+                {/* Desktop pill nav — md+ only */}
+                <div className="hidden md:flex items-center gap-6 lg:gap-8 bg-white/40 backdrop-blur-md px-6 lg:px-8 py-2 rounded-full border border-white/20 shadow-sm mx-auto">
                     {navLinks.map((link) => (
                         <Link
                             key={link.name}
                             to={link.path}
-                            className={`text-sm font-bold transition-colors hover:text-emerald-500 whitespace-nowrap ${location.pathname === link.path
-                                ? 'text-emerald-600'
-                                : 'text-slate-600'
-                                }`}
+                            className={`text-sm font-bold transition-colors hover:text-emerald-500 whitespace-nowrap ${
+                                location.pathname === link.path
+                                    ? 'text-emerald-600'
+                                    : 'text-slate-600'
+                            }`}
                         >
                             {link.name}
                         </Link>
                     ))}
                 </div>
 
-                {/* Auth CTAs */}
-                <div className="hidden md:flex items-center gap-2 lg:gap-4 flex-shrink-0">
+                {/* Spacer on mobile to push CTAs right */}
+                <div className="flex-1 md:hidden" />
+
+                {/* Desktop auth CTAs */}
+                <div className="hidden md:flex items-center gap-3 lg:gap-4 flex-shrink-0 ml-auto">
                     <Link
                         to="/login"
                         className="text-sm font-bold text-slate-700 hover:text-emerald-500 transition-colors whitespace-nowrap"
@@ -63,58 +76,73 @@ const Navbar = () => {
                     </Link>
                     <Link
                         to="/register"
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 lg:px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
                     >
                         Join the Nest
                     </Link>
                 </div>
 
-                {/* Mobile Toggle */}
-                <button
-                    className="md:hidden text-slate-900"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                    <span className="material-symbols-outlined text-3xl">
-                        {isMobileMenuOpen ? 'close' : 'menu'}
-                    </span>
-                </button>
+                {/* Mobile: compact "Join" pill + hamburger */}
+                <div className="flex md:hidden items-center gap-2 flex-shrink-0">
+                    <Link
+                        to="/register"
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-full font-bold text-xs transition-all shadow-md shadow-emerald-500/20 whitespace-nowrap"
+                    >
+                        Join
+                    </Link>
+                    <button
+                        className="w-8 h-8 flex items-center justify-center text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        <span className="material-symbols-outlined text-2xl leading-none">
+                            {isMobileMenuOpen ? 'close' : 'menu'}
+                        </span>
+                    </button>
+                </div>
             </div>
 
-            {/* Mobile Menu */}
+            {/* Mobile drawer */}
             <AnimatePresence>
                 {isMobileMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: -8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="absolute top-full left-0 right-0 bg-white border-b border-slate-100 p-6 flex flex-col gap-6 md:hidden shadow-2xl"
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.18, ease: 'easeOut' }}
+                        className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-slate-100 shadow-2xl"
                     >
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                to={link.path}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="text-xl font-bold text-slate-900"
-                            >
-                                {link.name}
-                            </Link>
-                        ))}
-                        <hr className="border-slate-100" />
-                        <div className="flex flex-col gap-4">
-                            <Link
-                                to="/login"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="text-center font-bold text-slate-600"
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                to="/register"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="bg-emerald-500 text-white text-center py-4 rounded-2xl font-bold"
-                            >
-                                Join the Nest
-                            </Link>
+                        <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col gap-1">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.name}
+                                    to={link.path}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className={`flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-base transition-colors ${
+                                        location.pathname === link.path
+                                            ? 'text-emerald-600 bg-emerald-50'
+                                            : 'text-slate-700 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    {link.name}
+                                </Link>
+                            ))}
+                            <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-2">
+                                <Link
+                                    to="/login"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="text-center font-bold text-slate-600 py-3 rounded-xl hover:bg-slate-50 transition-colors"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="bg-emerald-500 hover:bg-emerald-600 text-white text-center py-3.5 rounded-2xl font-bold transition-colors shadow-lg shadow-emerald-500/20"
+                                >
+                                    Join the Nest
+                                </Link>
+                            </div>
                         </div>
                     </motion.div>
                 )}

@@ -25,10 +25,16 @@ export const useProductDetail = (id) => useQuery({
     enabled: !!id,
 });
 
+export const useProductBySlug = (slug) => useQuery({
+    queryKey: storeKeys.product(slug),
+    queryFn: () => StoreService.getProductBySlug(slug),
+    enabled: !!slug,
+});
+
 export const useCreateProduct = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: (data) => StoreService.createProduct(data),
+        mutationFn: ({ data, images }) => StoreService.createProduct({ data, images }),
         onSuccess: () => qc.invalidateQueries({ queryKey: storeKeys.all }),
     });
 };
@@ -36,7 +42,7 @@ export const useCreateProduct = () => {
 export const useUpdateProduct = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, data }) => StoreService.updateProduct(id, data),
+        mutationFn: ({ id, data, images }) => StoreService.updateProduct(id, { data, images }),
         onSuccess: () => qc.invalidateQueries({ queryKey: storeKeys.all }),
     });
 };

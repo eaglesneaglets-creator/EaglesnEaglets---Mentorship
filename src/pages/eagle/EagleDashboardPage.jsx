@@ -62,7 +62,7 @@ const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
       <td className="py-4 text-right pr-4">
         <button
           onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}
-          className="opacity-0 group-hover:opacity-100 inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-all duration-300"
+          className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-all duration-300"
         >
           <span className="material-symbols-outlined text-sm">military_tech</span>
           Award
@@ -71,6 +71,7 @@ const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
     </tr>
   );
 };
+/** * Eaglet Mobile Card - shown on small screens instead of table */const EagletMobileCard = ({ eaglet, delay = 0, onAwardPoints }) => {  const statusConfig = {    active: { bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Active' },    behind: { bg: 'bg-amber-50', text: 'text-amber-600', label: 'Behind' },    review: { bg: 'bg-blue-50', text: 'text-blue-600', label: 'Review' },    completed: { bg: 'bg-slate-50', text: 'text-slate-600', label: 'Completed' },  };  const config = statusConfig[eaglet.status] || statusConfig.active;  return (    <div className="bg-white rounded-xl border border-slate-100 p-4 flex flex-col gap-3" style={{ animationDelay: `${delay}ms` }}>      <div className="flex items-center justify-between">        <div className="flex items-center gap-3">          {eaglet.avatar ? (            <img src={eaglet.avatar} alt={eaglet.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm" loading="lazy" />          ) : (            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400/80 to-emerald-600/80 flex items-center justify-center text-white font-bold text-sm shadow-sm">              {eaglet.name?.charAt(0) || '?'}            </div>          )}          <div>            <p className="font-semibold text-sm text-slate-900">{eaglet.name}</p>            <p className="text-xs text-slate-500">{eaglet.nest_name || 'No Nest'}</p>          </div>        </div>        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${config.bg} ${config.text}`}>          {config.label}        </span>      </div>      <div className="flex items-center gap-3">        <p className="text-xs text-slate-500 flex-shrink-0">Module:</p>        <p className="text-sm text-slate-900 font-medium truncate">{eaglet.module || 'In progress'}</p>      </div>      <div>        <div className="flex items-center justify-between mb-1">          <p className="text-xs text-slate-500">Progress</p>          <p className="text-xs font-bold text-slate-700">{eaglet.progress}%</p>        </div>        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">          <div            className={`h-2 rounded-full transition-all duration-1000 ${eaglet.progress >= 75 ? 'bg-primary/80' : eaglet.progress >= 50 ? 'bg-amber-400' : 'bg-emerald-400'}`}            style={{ width: `${eaglet.progress}%` }}          />        </div>      </div>      <button        onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}        className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 active:bg-emerald-200 transition-all"      >        <span className="material-symbols-outlined text-sm">military_tech</span>        Award Points      </button>    </div>  );};
 
 /**
  * Calendar Day Component
@@ -290,7 +291,7 @@ const EagleDashboardPage = () => {
 
             {/* Eaglet Performance Table */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-500">
-              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+              <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                 <h2 className="text-xl font-bold text-slate-900">Eaglet Performance</h2>
                 <div className="flex gap-2">
                   <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
@@ -303,15 +304,29 @@ const EagleDashboardPage = () => {
                   </button>
                 </div>
               </div>
-              <div className="overflow-x-auto">
+              {/* Mobile Card View */}
+              <div className="sm:hidden p-3 flex flex-col gap-3">
+                {eaglets.length > 0 ? (
+                  eaglets.map((eaglet, index) => (
+                    <EagletMobileCard key={eaglet.id} eaglet={eaglet} delay={index * 50} onAwardPoints={openAwardModal} />
+                  ))
+                ) : (
+                  <div className="py-8 text-center text-slate-500">
+                    <span className="material-symbols-outlined mb-2 text-slate-400">group_off</span>
+                    <p className="text-sm">No eaglets to display.</p>
+                  </div>
+                )}
+              </div>
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full min-w-[600px]">
                   <thead>
                     <tr className="border-b border-slate-200">
-                      <th className="pb-3 pt-4 px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Eaglet</th>
-                      <th className="pb-3 pt-4 px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Module</th>
-                      <th className="pb-3 pt-4 px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/4">Progress</th>
-                      <th className="pb-3 pt-4 px-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                      <th className="pb-3 pt-4 px-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                      <th className="pb-3 pt-4 px-3 sm:px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Eaglet</th>
+                      <th className="pb-3 pt-4 px-3 sm:px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Module</th>
+                      <th className="pb-3 pt-4 px-3 sm:px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/4">Progress</th>
+                      <th className="pb-3 pt-4 px-3 sm:px-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                      <th className="pb-3 pt-4 px-3 sm:px-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">

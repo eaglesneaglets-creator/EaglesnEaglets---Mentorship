@@ -257,6 +257,17 @@ export const adminService = {
     apiClient.post(`/auth/admin/kyc/${kycId}/notes/`, { note, role }),
 
   /**
+   * Get paginated list of all platform users
+   * @param {Object} params - role, status, search, ordering, page, per_page
+   */
+  getUsers: (params = {}) => {
+    const query = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== '' && v !== 'all'))
+    ).toString();
+    return apiClient.get(`/auth/admin/users/${query ? `?${query}` : ''}`);
+  },
+
+  /**
    * Suspend a user (revoke platform access)
    * @param {string} userId - User ID
    * @param {string} reason - Suspension reason

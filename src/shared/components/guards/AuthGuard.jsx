@@ -10,6 +10,8 @@ const KYC_EXEMPT_ROUTES = [
   '/pending-approval',
   '/kyc',
   '/kyc/pending',
+  '/store/cart',
+  '/store/orders',
 ];
 
 /**

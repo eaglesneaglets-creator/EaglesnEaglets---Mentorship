@@ -238,11 +238,13 @@ const DashboardLayout = ({
 
     if (role === 'admin') {
       return [
+        { to: '/', icon: 'home', label: 'Home' },
         { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
         { to: '/admin/users', icon: 'group', label: 'Users' },
         { to: '/admin/kyc', icon: 'verified_user', label: 'KYC Reviews', badge: pendingKycCount > 0 ? pendingKycCount : undefined },
         { to: '/admin/nests', icon: 'diversity_3', label: 'Nests' },
-        { to: '/admin/store', icon: 'storefront', label: 'Store' },
+        { to: '/admin/store', icon: 'storefront', label: 'Store', exact: true },
+        { to: '/admin/store/orders', icon: 'receipt_long', label: 'Orders' },
         { to: '/admin/content', icon: 'library_books', label: 'Content' },
         { to: '/admin/donations', icon: 'volunteer_activism', label: 'Donations' },
         { to: '/admin/settings', icon: 'settings', label: 'Settings' },
@@ -251,6 +253,7 @@ const DashboardLayout = ({
 
     if (role === 'eagle') {
       return [
+        { to: '/', icon: 'home', label: 'Home' },
         { to: '/eagle/dashboard', icon: 'dashboard', label: 'Dashboard' },
         { to: '/eagle/nests', icon: 'diversity_3', label: 'My Nests' },
         { to: '/eagle/eaglets', icon: 'group', label: 'My Eaglets' },
@@ -264,6 +267,7 @@ const DashboardLayout = ({
 
     // Eaglet (mentee)
     return [
+      { to: '/', icon: 'home', label: 'Home' },
       { to: '/eaglet/dashboard', icon: 'dashboard', label: 'Dashboard' },
       { to: '/eaglet/nest', icon: 'nest_eco_leaf', label: 'Nest' },
       { to: '/eaglet/my-requests', icon: 'mail', label: 'My Requests' },
@@ -311,7 +315,7 @@ const DashboardLayout = ({
       >
         {/* Header with Logo and Collapse Toggle */}
         <div className={`h-16 flex items-center border-b border-slate-200/50 ${isSidebarOpen ? 'px-4 justify-between' : 'px-2 justify-center'}`}>
-          <div className={`flex items-center gap-3 ${isSidebarOpen ? '' : 'justify-center'}`}>
+          <Link to="/" className={`flex items-center gap-3 ${isSidebarOpen ? '' : 'justify-center'}`}>
             <div className="relative group flex-shrink-0">
               <img
                 src={Logo}
@@ -325,7 +329,7 @@ const DashboardLayout = ({
                 <p className="text-[10px] text-slate-500 truncate">Mentorship Platform</p>
               </div>
             )}
-          </div>
+          </Link>
 
           {/* Collapse Toggle Button */}
           <button
@@ -384,7 +388,8 @@ const DashboardLayout = ({
               key={item.to}
               {...item}
               isCollapsed={!isSidebarOpen}
-              isActive={location.pathname === item.to || location.pathname.startsWith(item.to + '/')}
+              isActive={location.pathname === item.to || (!item.exact && location.pathname.startsWith(item.to + '/'))}
+              onClick={() => setIsMobileMenuOpen(false)}
             />
           ))}
         </nav>
@@ -451,7 +456,7 @@ const DashboardLayout = ({
 
                 {/* Dropdown */}
                 {showNotifications && (
-                  <div className="absolute right-0 top-12 w-96 max-w-[calc(100vw-1rem)] bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-fade-in">
+                  <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-fade-in">
                     <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                       <h4 className="font-bold text-slate-900 text-sm">Notifications</h4>
                       {unreadCount > 0 && (

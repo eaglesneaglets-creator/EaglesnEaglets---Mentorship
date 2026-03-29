@@ -581,3 +581,13 @@ body {
 .animate-blob { animation: blob 10s ease-in-out infinite; }
 .animation-delay-2000 { animation-delay: 2s; }
 .animation-delay-4000 { animation-delay: 4s; }
+
+/* Store UI animations */
+@keyframes bounce-once {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.animate-bounce-once {
+  animation: bounce-once 0.4s ease-in-out;
+}

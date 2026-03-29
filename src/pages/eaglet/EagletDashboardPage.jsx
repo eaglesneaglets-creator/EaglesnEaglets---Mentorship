@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
@@ -68,6 +68,7 @@ const EagletDashboardPage = () => {
   const { user } = useAuthStore();
   const { data: dashboardData } = useEagletDashboardStats();
   const { mutate: checkIn, isLoading: isCheckingIn } = useCheckIn();
+  const checkInLockRef = useRef(false);
 
   const points = dashboardData?.points || 0;
   const modulesCompleted = dashboardData?.modules_completed || 0;
@@ -76,13 +77,18 @@ const EagletDashboardPage = () => {
   const weeklyCheckins = dashboardData?.weekly_checkins || [false, false, false, false, false, false, false];
 
   const handleCheckIn = () => {
+    if (checkInLockRef.current) return;
+    checkInLockRef.current = true;
     checkIn(null, {
       onSuccess: () => {
         toast.success('Awesome! You earned 10 points for checking in.');
       },
       onError: (error) => {
         toast.error(error.message || 'Check-in failed');
-      }
+      },
+      onSettled: () => {
+        checkInLockRef.current = false;
+      },
     });
   };
 
@@ -170,7 +176,7 @@ const EagletDashboardPage = () => {
                     You haven't joined a Nest yet. Browse available Eagles and request a mentor.
                   </p>
                 </div>
-                <Link to="/eaglet/nest" className="whitespace-nowrap inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-0.5">
+                <Link to="/eaglet/nest" className="whitespace-nowrap inline-flex items-center gap-2 px-5 py-3 min-h-[44px] bg-primary text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-0.5">
                   <span className="material-symbols-outlined text-base">diversity_3</span>
                   Browse Nests
                 </Link>

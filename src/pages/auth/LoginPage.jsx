@@ -49,6 +49,10 @@ const LoginPage = () => {
   const isSessionExpiry = stateMessage?.toLowerCase().includes('session') ||
     stateMessage?.toLowerCase().includes('inactivity');
 
+  // Capture redirect target from ?next= param or router state
+  const nextParam = new URLSearchParams(location.search).get('next');
+  const redirectAfterLogin = nextParam || location.state?.from?.pathname || null;
+
   // Check if the error is about email verification
   const isVerificationError = authError?.toLowerCase().includes('verify your email');
 
@@ -150,6 +154,12 @@ const LoginPage = () => {
 
     try {
       const user = await login(formData.email, formData.password);
+
+      // If there's a ?next= or state.from redirect target, go there first
+      if (redirectAfterLogin) {
+        navigate(redirectAfterLogin, { replace: true });
+        return;
+      }
 
       // Redirect based on user role and status
       const isAdmin = user.is_staff || user.is_superuser || user.role === 'admin';
@@ -417,7 +427,7 @@ const LoginPage = () => {
           </Link>
           <Link
             to="/register"
-            className="px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-2.5 text-xs sm:text-sm font-semibold text-primary border-2 border-primary rounded-lg sm:rounded-xl
+            className="px-3 py-2.5 sm:px-4 sm:py-2.5 min-h-[44px] flex items-center lg:px-5 lg:py-2.5 text-xs sm:text-sm font-semibold text-primary border-2 border-primary rounded-lg sm:rounded-xl
               btn-hover-lift hover:bg-primary hover:text-white"
           >
             Sign Up

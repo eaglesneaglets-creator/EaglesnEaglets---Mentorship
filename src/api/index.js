@@ -75,7 +75,7 @@ const refreshAccessToken = async () => {
   const refreshToken = tokenManager.getRefreshToken();
 
   if (!refreshToken) {
-    throw new ApiError('No refresh token available', 401, 'no_refresh_token');
+    throw new ApiError('Please log in to continue', 401, 'no_refresh_token');
   }
 
   const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
@@ -229,12 +229,15 @@ export const apiClient = {
       return token;
     } catch (error) {
       processQueue(error, null);
-      // Dispatch logout event with reason
-      window.dispatchEvent(
-        new CustomEvent('auth:logout', {
-          detail: { reason: 'session_expired', error: error.message }
-        })
-      );
+      // Only fire auth:logout when a session actually expired (had a refresh token
+      // but the server rejected it). Don't fire for guests with no token at all.
+      if (error.code !== 'no_refresh_token') {
+        window.dispatchEvent(
+          new CustomEvent('auth:logout', {
+            detail: { reason: 'session_expired', error: error.message }
+          })
+        );
+      }
       throw error;
     } finally {
       isRefreshing = false;

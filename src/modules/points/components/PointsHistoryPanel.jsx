@@ -16,7 +16,7 @@ const sourceLabel = (source) => {
 const formatDate = (dateStr) => {
     if (!dateStr) return '—';
     const d = new Date(dateStr);
-    return d.toLocaleDateString('default', { day: 'numeric', month: 'short', year: 'numeric' });
+    return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
 const PointsHistoryPanel = () => {
