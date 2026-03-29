@@ -530,7 +530,7 @@ const LearningCenterPage = () => {
                                 placeholder={isEagleOrAdmin ? "Search content..." : "Search tasks..."}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2.5 w-52 rounded-xl bg-white text-slate-700 text-sm placeholder:text-slate-400 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all shadow-sm"
+                                className="pl-10 pr-4 py-2.5 w-full sm:w-52 rounded-xl bg-white text-slate-700 text-sm placeholder:text-slate-400 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all shadow-sm"
                             />
                         </div>
 

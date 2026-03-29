@@ -14,10 +14,10 @@ export {
 } from './sanitize';
 
 /**
- * Format currency (Nigerian Naira)
+ * Format currency (Ghanaian Cedi)
  */
-export const formatCurrency = (amount, currency = 'NGN') => {
-  return new Intl.NumberFormat('en-NG', {
+export const formatCurrency = (amount, currency = 'GHS') => {
+  return new Intl.NumberFormat('en-GH', {
     style: 'currency',
     currency,
   }).format(amount);
@@ -34,7 +34,7 @@ export const formatDate = (date, options = {}) => {
     ...options,
   };
 
-  return new Intl.DateTimeFormat('en-NG', defaultOptions).format(new Date(date));
+  return new Intl.DateTimeFormat('en-GH', defaultOptions).format(new Date(date));
 };
 
 /**

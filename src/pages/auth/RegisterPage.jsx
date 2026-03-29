@@ -769,7 +769,7 @@ const RegisterPage = () => {
           </Link>
           <Link
             to="/login"
-            className="px-3 py-2 sm:px-4 sm:py-2.5 lg:px-5 lg:py-2.5 text-xs sm:text-sm font-semibold text-primary border-2 border-primary rounded-lg sm:rounded-xl
+            className="px-3 py-2.5 sm:px-4 sm:py-2.5 min-h-[44px] flex items-center lg:px-5 lg:py-2.5 text-xs sm:text-sm font-semibold text-primary border-2 border-primary rounded-lg sm:rounded-xl
               btn-hover-lift hover:bg-primary hover:text-white"
           >
             Log In

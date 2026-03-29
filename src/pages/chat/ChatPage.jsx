@@ -147,7 +147,7 @@ const ChatHeader = ({ conversation, onBack, currentUserId }) => {
                     <button
                         onClick={() => toggleDropdown('call')}
                         title="Voice call"
-                        className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
+                        className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
                     >
                         <span className="material-symbols-outlined text-xl text-slate-400">call</span>
                     </button>
@@ -160,7 +160,7 @@ const ChatHeader = ({ conversation, onBack, currentUserId }) => {
                     <button
                         onClick={() => toggleDropdown('video')}
                         title="Video call"
-                        className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
+                        className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
                     >
                         <span className="material-symbols-outlined text-xl text-slate-400">videocam</span>
                     </button>
@@ -168,10 +168,10 @@ const ChatHeader = ({ conversation, onBack, currentUserId }) => {
                         <ComingSoonDropdown onClose={() => setOpenDropdown(null)} />
                     )}
                 </div>
-                <button className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors">
+                <button className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors">
                     <span className="material-symbols-outlined text-xl text-slate-400">search</span>
                 </button>
-                <button className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors">
+                <button className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors">
                     <span className="material-symbols-outlined text-xl text-slate-400">more_vert</span>
                 </button>
             </div>
@@ -433,7 +433,7 @@ const ChatPage = () => {
                                 <button
                                     onClick={() => setShowNewChat((v) => !v)}
                                     title="New conversation"
-                                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${
+                                    className={`w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${
                                         showNewChat
                                             ? 'bg-primary text-white shadow-sm shadow-primary/20'
                                             : 'bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700'

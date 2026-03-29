@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useAuthStore } from '@store';
 import logoImg from '../../assets/EaglesnEagletsLogo.jpeg';
 import aboutIllustration from '../../assets/about-illustration.png';
 
@@ -39,16 +40,48 @@ const FadeIn = ({ children, delay = 0, direction = 'up', className = '' }) => {
 };
 
 /* ═══════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════ */
+const getDashboardPath = (user) => {
+    if (!user) return '/dashboard';
+    if (user.role === 'admin' || user.is_staff || user.is_superuser) return '/admin/dashboard';
+    if (user.role === 'eagle') return '/eagle/dashboard';
+    return '/eaglet/dashboard';
+};
+
+const getInitials = (user) => {
+    if (!user) return '?';
+    const f = user.first_name?.charAt(0) || '';
+    const l = user.last_name?.charAt(0) || '';
+    return (f + l).toUpperCase() || user.email?.charAt(0).toUpperCase() || '?';
+};
+
+/* ═══════════════════════════════════════════════
    FLOATING NAVBAR
    ═══════════════════════════════════════════════ */
 const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const navigate = useNavigate();
+    const { isAuthenticated, user, logout } = useAuthStore();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 40);
         window.addEventListener('scroll', onScroll);
         return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handler = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
     }, []);
 
     const navLinks = [
@@ -63,6 +96,15 @@ const Navbar = () => {
         const el = document.querySelector(href);
         if (el) el.scrollIntoView({ behavior: 'smooth' });
     };
+
+    const handleLogout = async () => {
+        setDropdownOpen(false);
+        setMobileOpen(false);
+        await logout();
+        navigate('/login');
+    };
+
+    const linkClass = `px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'}`;
 
     return (
         <motion.nav
@@ -83,25 +125,84 @@ const Navbar = () => {
                 <div className={`w-px h-6 mx-1 transition-colors duration-500 ${scrolled ? 'bg-slate-200/50' : 'bg-white/30'}`} />
                 {navLinks.map((link) => (
                     link.external ? (
-                        <Link key={link.label} to={link.href}
-                            className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'
-                                }`}>
-                            {link.label}
-                        </Link>
+                        <Link key={link.label} to={link.href} className={linkClass}>{link.label}</Link>
                     ) : (
-                        <button key={link.label} onClick={() => scrollTo(link.href)}
-                            className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'
-                                }`}>
-                            {link.label}
-                        </button>
+                        <button key={link.label} onClick={() => scrollTo(link.href)} className={linkClass}>{link.label}</button>
                     )
                 ))}
                 <div className={`w-px h-6 mx-1 transition-colors duration-500 ${scrolled ? 'bg-slate-200/50' : 'bg-white/30'}`} />
-                <Link to="/login" className={`px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'
-                    }`}>Login</Link>
-                <Link to="/register" className="px-5 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary/25">
-                    Join the Nest
-                </Link>
+
+                {isAuthenticated && user ? (
+                    /* Profile avatar + dropdown */
+                    <div className="relative" ref={dropdownRef}>
+                        <button
+                            onClick={() => setDropdownOpen((o) => !o)}
+                            className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-white/15 transition-colors focus:outline-none"
+                        >
+                            {user.avatar ? (
+                                <img src={user.avatar} alt={user.first_name} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30" />
+                            ) : (
+                                <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-bold flex items-center justify-center ring-2 ring-primary/30">
+                                    {getInitials(user)}
+                                </div>
+                            )}
+                            <span className={`text-sm font-semibold max-w-[90px] truncate transition-colors duration-500 ${scrolled ? 'text-slate-700' : 'text-white'}`}>
+                                {user.first_name || user.email}
+                            </span>
+                            <span className={`material-symbols-outlined text-base transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''} ${scrolled ? 'text-slate-400' : 'text-white/70'}`}>
+                                expand_more
+                            </span>
+                        </button>
+
+                        {/* Dropdown */}
+                        <div className={`absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden
+                            transition-all duration-200 origin-top-right
+                            ${dropdownOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}
+                        >
+                            <div className="px-4 py-3 border-b border-slate-100">
+                                <p className="text-sm font-semibold text-slate-900 truncate">{user.first_name} {user.last_name}</p>
+                                <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                                <span className="mt-1 inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize">
+                                    {user.role}
+                                </span>
+                            </div>
+                            <div className="py-1">
+                                <Link
+                                    to={getDashboardPath(user)}
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-base text-primary">dashboard</span>
+                                    Go to Dashboard
+                                </Link>
+                                <Link
+                                    to="/store"
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-base text-slate-500">storefront</span>
+                                    Store
+                                </Link>
+                            </div>
+                            <div className="border-t border-slate-100 py-1">
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-base">logout</span>
+                                    Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <Link to="/login" className={linkClass}>Login</Link>
+                        <Link to="/register" className="px-5 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary/25">
+                            Join the Nest
+                        </Link>
+                    </>
+                )}
             </div>
 
             {/* Mobile */}
@@ -111,9 +212,24 @@ const Navbar = () => {
                     <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover" />
                     <span className={`font-extrabold text-sm transition-colors duration-500 ${scrolled ? 'text-slate-900' : 'text-white'}`}>Eagles & Eaglets</span>
                 </Link>
-                <button onClick={() => setMobileOpen(!mobileOpen)} className="ml-auto w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                    <span className={`material-symbols-outlined text-xl ${scrolled ? 'text-slate-700' : 'text-white'}`}>{mobileOpen ? 'close' : 'menu'}</span>
-                </button>
+                {isAuthenticated && user ? (
+                    <div className="ml-auto flex items-center gap-2">
+                        {user.avatar ? (
+                            <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30" />
+                        ) : (
+                            <div className="w-8 h-8 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
+                                {getInitials(user)}
+                            </div>
+                        )}
+                        <button onClick={() => setMobileOpen(!mobileOpen)} className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                            <span className={`material-symbols-outlined text-xl ${scrolled ? 'text-slate-700' : 'text-white'}`}>{mobileOpen ? 'close' : 'menu'}</span>
+                        </button>
+                    </div>
+                ) : (
+                    <button onClick={() => setMobileOpen(!mobileOpen)} className="ml-auto w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                        <span className={`material-symbols-outlined text-xl ${scrolled ? 'text-slate-700' : 'text-white'}`}>{mobileOpen ? 'close' : 'menu'}</span>
+                    </button>
+                )}
             </div>
 
             <AnimatePresence>
@@ -138,9 +254,35 @@ const Navbar = () => {
                                 </button>
                             )
                         ))}
-                        <div className="border-t border-slate-100 mt-2 pt-2 flex gap-2">
-                            <Link to="/login" className="flex-1 text-center py-2.5 text-sm font-semibold text-slate-600 rounded-xl border border-slate-200 hover:border-primary/30">Login</Link>
-                            <Link to="/register" className="flex-1 text-center py-2.5 text-sm font-bold text-white bg-primary rounded-xl shadow-md hover:bg-primary-dark">Join</Link>
+                        <div className="border-t border-slate-100 mt-2 pt-2">
+                            {isAuthenticated && user ? (
+                                <div className="space-y-1">
+                                    <div className="px-4 py-2">
+                                        <p className="text-sm font-semibold text-slate-900">{user.first_name} {user.last_name}</p>
+                                        <p className="text-xs text-slate-500">{user.email}</p>
+                                    </div>
+                                    <Link
+                                        to={getDashboardPath(user)}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                                    >
+                                        <span className="material-symbols-outlined text-base text-primary">dashboard</span>
+                                        Go to Dashboard
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                    >
+                                        <span className="material-symbols-outlined text-base">logout</span>
+                                        Sign Out
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex gap-2">
+                                    <Link to="/login" className="flex-1 text-center py-2.5 text-sm font-semibold text-slate-600 rounded-xl border border-slate-200 hover:border-primary/30">Login</Link>
+                                    <Link to="/register" className="flex-1 text-center py-2.5 text-sm font-bold text-white bg-primary rounded-xl shadow-md hover:bg-primary-dark">Join</Link>
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 )}
@@ -455,7 +597,7 @@ const StoreSection = () => {
                                             {prod.badge}
                                         </span>
                                     )}
-                                    <button className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary hover:text-white text-slate-700">
+                                    <button className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 hover:bg-primary hover:text-white text-slate-700">
                                         <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
                                     </button>
                                 </div>
@@ -611,7 +753,7 @@ const DonateSection = () => {
                         </div>
 
                         {/* Icons row */}
-                        <div className="flex items-center justify-center gap-8">
+                        <div className="flex items-center justify-center gap-4 sm:gap-8">
                             {icons.map((item, i) => (
                                 <motion.div
                                     key={item.label}

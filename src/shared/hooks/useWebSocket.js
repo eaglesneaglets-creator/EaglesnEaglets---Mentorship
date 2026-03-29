@@ -12,7 +12,13 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { tokenManager } from '@api';
 
-const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+function getWsBase() {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+    const url = new URL(apiUrl);
+    const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${wsProtocol}//${url.host}`;
+}
+const WS_BASE = getWsBase();
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1000;
 

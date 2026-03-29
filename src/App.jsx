@@ -81,6 +81,7 @@ const ProductDetailPage = lazy(() => import('./pages/store/ProductDetailPage'));
 const CartPage = lazy(() => import('./pages/store/CartPage'));
 const OrderConfirmationPage = lazy(() => import('./pages/store/OrderConfirmationPage'));
 const AdminStorePage = lazy(() => import('./pages/admin/AdminStorePage'));
+const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 
 // Profile Pages (NEW)
 const MentorProfilePage = lazy(() => import('./pages/profile/MentorProfilePage'));
@@ -90,6 +91,7 @@ const PendingApprovalPage = lazy(() => import('./pages/profile/PendingApprovalPa
 // Admin Pages
 const AdminKYCPortalPage = lazy(() => import('./pages/admin/AdminKYCPortalPage'));
 const AdminKYCDetailPage = lazy(() => import('./pages/admin/AdminKYCDetailPage'));
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 
 // Shared Pages
 const ComingSoonPage = lazy(() => import('./pages/shared/ComingSoonPage'));
@@ -183,8 +185,10 @@ function App() {
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
 
-                {/* Public Store — accessible without login */}
+                {/* Public Store — accessible without login, no auth required */}
                 <Route path="/store" element={<StorePage />} />
+                <Route path="/store/cart" element={<CartPage />} />
+                <Route path="/store/orders/:id" element={<OrderConfirmationPage />} />
                 <Route path="/store/:slug" element={<ProductDetailPage />} />
 
                 {/* ============================================================= */}
@@ -240,9 +244,6 @@ function App() {
                     <Route path="/eaglet/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
                   </Route>
 
-                  {/* Store — authenticated routes */}
-                  <Route path="/store/cart" element={<CartPage />} />
-                  <Route path="/store/orders/:id" element={<OrderConfirmationPage />} />
 
                   {/* Notifications - accessible to all authenticated roles */}
                   <Route path="/notifications" element={<NotificationsPage />} />
@@ -261,11 +262,12 @@ function App() {
                     <Route path="/admin/kyc" element={<AdminKYCPortalPage />} />
                     <Route path="/admin/kyc/:kycId" element={<AdminKYCDetailPage />} />
                     {/* Admin Coming Soon Pages */}
-                    <Route path="/admin/users" element={<ComingSoonPage title="Users Management" description="View, manage, and moderate all platform users including Eagles and Eaglets." icon="group" />} />
+                    <Route path="/admin/users" element={<AdminUsersPage />} />
                     <Route path="/admin/nests" element={<ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" />} />
                     <Route path="/admin/content" element={<LearningCenterPage />} />
                     <Route path="/admin/content/upload" element={<ContentUploadPage />} />
                     <Route path="/admin/store" element={<AdminStorePage />} />
+                    <Route path="/admin/store/orders" element={<AdminOrdersPage />} />
                     <Route path="/admin/donations" element={<ComingSoonPage title="Donations" description="Track and manage donations, view reports, and handle financial transactions." icon="volunteer_activism" />} />
                     <Route path="/admin/settings" element={<ComingSoonPage title="Platform Settings" description="Configure platform-wide settings, policies, and system preferences." icon="settings" />} />
                   </Route>
