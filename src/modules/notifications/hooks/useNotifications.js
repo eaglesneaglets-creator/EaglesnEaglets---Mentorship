@@ -58,7 +58,7 @@ export const useMarkAllAsRead = () => {
  */
 export const useNotificationSocket = () => {
     const queryClient = useQueryClient();
-    const { user } = useAuthStore();
+    const { user, accessToken } = useAuthStore();
 
     const onMessage = useCallback((data) => {
         // Only handle messages with a notification payload
@@ -89,7 +89,8 @@ export const useNotificationSocket = () => {
     const { status } = useWebSocket({
         path: 'ws/notifications/',
         onMessage,
-        enabled: !!user,
+        token: accessToken,
+        enabled: !!user && !!accessToken,
     });
 
     return { status };

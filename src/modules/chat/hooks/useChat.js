@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import ChatService from '../services/chat-service';
 import { useWebSocket } from '@hooks/useWebSocket';
+import { useAuthStore } from '@store';
 
 export const chatKeys = {
     all: ['chat'],
@@ -89,6 +90,7 @@ export const useMarkRead = () => {
  */
 export const useChatSocket = (conversationId, { enabled = true } = {}) => {
     const queryClient = useQueryClient();
+    const { accessToken } = useAuthStore();
 
     const onMessage = useCallback((data) => {
         if (data.type !== 'chat.message') return;
@@ -141,7 +143,8 @@ export const useChatSocket = (conversationId, { enabled = true } = {}) => {
     const { status, send } = useWebSocket({
         path,
         onMessage,
-        enabled: !!conversationId && enabled,
+        token: accessToken,
+        enabled: !!conversationId && enabled && !!accessToken,
     });
 
     const sendMessage = useCallback((content) => {
