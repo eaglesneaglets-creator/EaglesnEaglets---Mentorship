@@ -45,9 +45,12 @@ export default defineConfig(({ mode }) => {
     build: {
       target: 'es2020',
       outDir: 'dist',
-      sourcemap: mode !== 'production',
+      sourcemap: mode === 'development',
       minify: 'esbuild',     // esbuild is faster than terser, built into Vite
       cssMinify: true,        // explicitly enable CSS minification
+      esbuildOptions: {
+        drop: mode === 'production' ? ['console', 'debugger'] : [],
+      },
       rollupOptions: {
         output: {
           // Code splitting for better caching

@@ -2,7 +2,10 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { getKYCRedirectPath } from '../../../shared/utils/getKYCRedirectPath';
 
-// Routes that should be accessible even when KYC is not approved
+// Routes that should be accessible even when KYC is not approved.
+// SECURITY: Store routes (/store/cart, /store/orders) are NOT exempt —
+// purchasing requires KYC approval. Order creation is also blocked at the
+// backend level; this guard provides defence-in-depth on the frontend.
 const KYC_EXEMPT_ROUTES = [
   '/mentor-profile',
   '/mentee-profile',
@@ -10,8 +13,6 @@ const KYC_EXEMPT_ROUTES = [
   '/pending-approval',
   '/kyc',
   '/kyc/pending',
-  '/store/cart',
-  '/store/orders',
 ];
 
 /**

@@ -20,6 +20,9 @@
         font-variation-settings: 'FILL' 1;
       }
     </style>
+    <!-- Preconnect to Paystack CDN to reduce payment widget load latency -->
+    <link rel="preconnect" href="https://js.paystack.co">
+    <link rel="dns-prefetch" href="https://js.paystack.co">
     <!-- Paystack Inline JS — loaded from CDN, exposes window.PaystackPop -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
   </head>
