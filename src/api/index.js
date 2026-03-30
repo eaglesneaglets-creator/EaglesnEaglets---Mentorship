@@ -72,18 +72,14 @@ export const tokenManager = {
  * Refresh access token using refresh token
  */
 const refreshAccessToken = async () => {
-  const refreshToken = tokenManager.getRefreshToken();
-
-  if (!refreshToken) {
-    throw new ApiError('Please log in to continue', 401, 'no_refresh_token');
-  }
-
+  // With httpOnly cookies, the refresh token is sent automatically by the browser.
+  // We no longer read it from localStorage or send it in the body.
   const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ refresh: refreshToken }),
+    credentials: 'include',  // sends httpOnly refresh_token cookie automatically
   });
 
   if (!response.ok) {
@@ -92,8 +88,8 @@ const refreshAccessToken = async () => {
   }
 
   const data = await response.json();
-  tokenManager.setTokens(data.access, data.refresh);
-  return data.access;
+  // Backend sets new cookies; nothing to store in localStorage
+  return data.access || null;
 };
 
 /**
@@ -144,6 +140,7 @@ export const apiClient = {
           ...fetchOptions,
           headers,
           signal: controller.signal,
+          credentials: 'include',  // sends httpOnly auth cookies on every request
         });
         clearTimeout(timeoutId);
 
@@ -160,6 +157,7 @@ export const apiClient = {
                 ...fetchOptions,
                 headers,
                 signal: retryController.signal,
+                credentials: 'include',
               });
               clearTimeout(retryTimeoutId);
               return await this.handleResponse(retryResponse);
@@ -374,6 +372,7 @@ export const apiClient = {
         method: 'POST',
         headers,
         body: formData,
+        credentials: 'include',  // sends httpOnly auth cookies on every upload
         ...options,
       });
 
