@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuthStore } from '@store';
+import { refreshAccessToken } from '../../../api';
 import { adminService } from '../../../modules/auth/services/auth-service';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, useNotificationSocket } from '../../../modules/notifications/hooks/useNotifications';
 import { useTotalUnread } from '../../../modules/chat/hooks/useChat';
@@ -146,8 +147,20 @@ const DashboardLayout = ({
   const { data: unreadData } = useUnreadCount();
   const markAsReadMutation = useMarkAsRead();
   const markAllAsReadMutation = useMarkAllAsRead();
+  // Rehydrate access token on page refresh so WebSocket hooks can connect.
+  // The httpOnly refresh cookie is sent automatically; we just store the returned access token.
+  const { accessToken, setAccessToken } = useAuthStore();
+  useEffect(() => {
+    if (!accessToken) {
+      refreshAccessToken()
+        .then((token) => { if (token) setAccessToken(token); })
+        .catch(() => { /* session expired — AuthGuard will redirect */ });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Mount WS connection — single instance for the entire dashboard session
-  useNotificationSocket();
+  const { retryCount: wsRetryCount } = useNotificationSocket();
 
   const notifications = notificationsData?.data?.results || notificationsData?.data || [];
   const unreadCount = unreadData?.data?.count ?? unreadData?.data?.unread_count ?? 0;
@@ -529,6 +542,14 @@ const DashboardLayout = ({
               </button>
             </div>
           </header>
+        )}
+
+        {/* WebSocket Reconnecting Banner — only shows after first drop (retryCount > 0) */}
+        {wsRetryCount > 0 && (
+          <div className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-800 text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
+            Reconnecting to real-time updates… (attempt {wsRetryCount})
+          </div>
         )}
 
         {/* Page Content */}

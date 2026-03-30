@@ -28,6 +28,7 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true,
     const reconnectTimerRef = useRef(null);
     const callbacksRef = useRef({ onMessage, onOpen, onClose });
     const [status, setStatus] = useState('closed'); // 'connecting' | 'open' | 'closed'
+    const [retryCount, setRetryCount] = useState(0);
 
     // Keep callbacks fresh without triggering reconnections
     useEffect(() => {
@@ -47,6 +48,7 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true,
 
         ws.onopen = () => {
             retriesRef.current = 0;
+            setRetryCount(0);
             setStatus('open');
             callbacksRef.current.onOpen?.();
         };
@@ -72,6 +74,7 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true,
                         30000
                     );
                     retriesRef.current += 1;
+                    setRetryCount(retriesRef.current);
                     reconnectTimerRef.current = setTimeout(connect, delay);
                 }
             }
@@ -99,5 +102,5 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true,
         }
     }, []);
 
-    return { status, send };
+    return { status, retryCount, send };
 }

@@ -197,6 +197,11 @@ const GradingCenterPage = () => {
 
     const submissions = submissionsData?.data || [];
 
+    const gradedSubmissions = submissions.filter(s => s.status === 'graded');
+    const pointsAvg = gradedSubmissions.length > 0
+        ? Math.round(gradedSubmissions.reduce((sum, s) => sum + (s.assignment?.points_value || 0), 0) / gradedSubmissions.length)
+        : 0;
+
     const handleGrade = async (data) => {
         try {
             await gradeMutation.mutateAsync({
@@ -263,7 +268,7 @@ const GradingCenterPage = () => {
                     <StatCard label="Pending" value={submissions.filter(s => s.status === 'submitted').length} icon="pending_actions" colorClass="bg-amber-50 text-amber-600" />
                     <StatCard label="Completed" value={submissions.filter(s => s.status === 'graded').length} icon="done_all" colorClass="bg-emerald-50 text-emerald-600" />
                     <StatCard label="Eaglets" value={new Set(submissions.map(s => s.user?.id)).size} icon="group" colorClass="bg-blue-50 text-blue-600" />
-                    <StatCard label="Points Avg" value="85" icon="stars" colorClass="bg-purple-50 text-purple-600" />
+                    <StatCard label="Points Avg" value={gradedSubmissions.length > 0 ? pointsAvg : '—'} icon="stars" colorClass="bg-purple-50 text-purple-600" />
                 </div>
 
                 {/* Main Content Area */}
