@@ -80,10 +80,11 @@ export const useAuthStore = create(
             const data = response.data || response;
             const user = data.user || data;
             const accessToken = data.access || null;
+            const refreshToken = data.refresh || null;
 
-            // Store access token in memory for WS use; NOT in localStorage
+            // Store access token and refresh token in local storage as a fallback
             if (accessToken) {
-              tokenManager.setTokens(accessToken, null);
+              tokenManager.setTokens(accessToken, refreshToken);
             }
 
             set({
@@ -152,8 +153,9 @@ export const useAuthStore = create(
          */
         logout: async () => {
           try {
-            // Backend reads refresh token from httpOnly cookie — no body needed
-            await apiClient.post('/auth/logout/', {});
+            // Backend reads refresh token from httpOnly cookie, fallback to body
+            const refreshToken = tokenManager.getRefreshToken();
+            await apiClient.post('/auth/logout/', { refresh: refreshToken });
           } catch (error) {
             // Continue with logout even if API call fails
             console.error('Logout API error:', error);
@@ -357,7 +359,7 @@ export const useAuthStore = create(
          * Set auth state directly (used for OAuth callbacks)
          */
         setAuth: ({ accessToken, refreshToken, user }) => {
-          // Store access token in memory for WS; httpOnly cookie is set by backend
+          // Store tokens in local storage as fallback
           if (accessToken) {
             tokenManager.setTokens(accessToken, refreshToken);
           }
