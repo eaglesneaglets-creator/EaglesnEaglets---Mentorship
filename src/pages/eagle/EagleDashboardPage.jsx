@@ -227,7 +227,7 @@ const EagleDashboardPage = () => {
           {/* Left Column */}
           <div className="lg:col-span-8 flex flex-col gap-4 md:gap-6 lg:gap-8">
             {/* Stats Row */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
               <StatCard
                 icon="group"
                 iconBg="bg-blue-50 text-primary"

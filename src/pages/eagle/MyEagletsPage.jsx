@@ -90,7 +90,7 @@ const StatCard = ({ icon, iconBg, iconColor, label, value, delay = 0 }) => (
       </div>
       <div>
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>
-        <p className="text-3xl font-black text-slate-900 leading-none tracking-tight">{value}</p>
+        <p className="text-2xl sm:text-3xl font-black text-slate-900 leading-none tracking-tight">{value}</p>
       </div>
     </div>
   </div>
@@ -532,7 +532,7 @@ const MyEagletsPage = () => {
         <div className="bg-white/85 backdrop-blur-md rounded-2xl border border-slate-200/70 shadow-sm overflow-hidden">
 
           {/* Toolbar */}
-          <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row gap-3">
+          <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row gap-2 sm:gap-3">
             {/* Search */}
             <div className="relative flex-1">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
@@ -547,11 +547,12 @@ const MyEagletsPage = () => {
               />
             </div>
 
-            {/* Status filter */}
+            {/* Status + Nest filters — side by side on mobile */}
+            <div className="flex gap-2 sm:contents">
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="h-10 px-3 rounded-xl bg-slate-50 border border-slate-200/70 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all duration-300 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMUw2IDdMMTEgMSIgc3Ryb2tlPSIjOTRBM0I4IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9zdmc+')] bg-no-repeat bg-[right_12px_center]"
+              className="flex-1 sm:flex-none h-10 px-3 rounded-xl bg-slate-50 border border-slate-200/70 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all duration-300 cursor-pointer"
             >
               <option value="all">All Statuses</option>
               <option value="active">Active</option>
@@ -559,17 +560,17 @@ const MyEagletsPage = () => {
               <option value="pending">Pending</option>
             </select>
 
-            {/* Nest filter */}
             <select
               value={nestFilter}
               onChange={(e) => { setNestFilter(e.target.value); setPage(1); }}
-              className="h-10 px-3 rounded-xl bg-slate-50 border border-slate-200/70 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all duration-300 cursor-pointer appearance-none pr-8 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMUw2IDdMMTEgMSIgc3Ryb2tlPSIjOTRBM0I4IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9zdmc+')] bg-no-repeat bg-[right_12px_center]"
+              className="flex-1 sm:flex-none h-10 px-3 rounded-xl bg-slate-50 border border-slate-200/70 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all duration-300 cursor-pointer"
             >
               <option value="all">All Nests</option>
               {nestNames.map((n, idx) => (
                 <option key={`${n}-${idx}`} value={n}>{n}</option>
               ))}
             </select>
+            </div>
 
             {/* Result count pill */}
             {!isLoading && (

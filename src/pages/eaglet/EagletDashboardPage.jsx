@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
@@ -60,6 +60,30 @@ const LeaderboardRow = React.memo(({ rank, name, points, avatar, isYou = false }
 
 LeaderboardRow.displayName = 'LeaderboardRow';
 
+const DAILY_VERSES = [
+  { text: "But those who hope in the Lord will renew their strength. They will soar on wings like eagles...", ref: "Isaiah 40:31" },
+  { text: "I can do all this through him who gives me strength.", ref: "Philippians 4:13" },
+  { text: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you.", ref: "Jeremiah 29:11" },
+  { text: "Trust in the Lord with all your heart and lean not on your own understanding.", ref: "Proverbs 3:5" },
+  { text: "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you.", ref: "Joshua 1:9" },
+  { text: "The Lord is my shepherd, I lack nothing.", ref: "Psalm 23:1" },
+  { text: "And we know that in all things God works for the good of those who love him.", ref: "Romans 8:28" },
+  { text: "Do not conform to the pattern of this world, but be transformed by the renewing of your mind.", ref: "Romans 12:2" },
+  { text: "Commit to the Lord whatever you do, and he will establish your plans.", ref: "Proverbs 16:3" },
+  { text: "The steadfast love of the Lord never ceases; his mercies never come to an end.", ref: "Lamentations 3:22" },
+  { text: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7" },
+  { text: "Let your light shine before others, that they may see your good deeds.", ref: "Matthew 5:16" },
+  { text: "No good thing does he withhold from those whose walk is blameless.", ref: "Psalm 84:11" },
+  { text: "He gives strength to the weary and increases the power of the weak.", ref: "Isaiah 40:29" },
+];
+
+function getDailyVerse() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  return DAILY_VERSES[dayOfYear % DAILY_VERSES.length];
+}
+
 /**
  * Eaglet Dashboard Page
  */
@@ -69,6 +93,7 @@ const EagletDashboardPage = () => {
   const { data: dashboardData } = useEagletDashboardStats();
   const { mutate: checkIn, isLoading: isCheckingIn } = useCheckIn();
   const checkInLockRef = useRef(false);
+  const dailyVerse = useMemo(() => getDailyVerse(), []);
 
   const points = dashboardData?.points || 0;
   const modulesCompleted = dashboardData?.modules_completed || 0;
@@ -94,7 +119,7 @@ const EagletDashboardPage = () => {
 
   // Use dynamic or fallback
   const stats = [
-    { icon: 'psychiatry', iconColor: 'text-emerald-500', label: 'Spiritual Points', value: points.toLocaleString(), subValue: 'Keep earning!', progress: Math.min((points % 1000) / 10, 100) },
+    { icon: 'psychiatry', iconColor: 'text-emerald-500', label: 'Growth Points', value: points.toLocaleString(), subValue: 'Keep earning!', progress: Math.min((points % 1000) / 10, 100) },
     { icon: 'school', iconColor: 'text-blue-500', label: 'Modules Completed', value: modulesCompleted.toString(), subValue: 'Total completed', subColor: 'text-slate-400' },
     { icon: 'local_fire_department', iconColor: 'text-orange-500', label: 'Prayer Streak', value: `${streak} Days`, subValue: 'Keep it going!', subColor: 'text-emerald-600' },
     { icon: 'menu_book', iconColor: 'text-purple-500', label: 'Recent Action', value: 'Active', subValue: 'Based on logs' },
@@ -112,7 +137,7 @@ const EagletDashboardPage = () => {
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               Welcome back, {user?.first_name || 'Eaglet'}!
             </h1>
-            <p className="text-slate-500 mt-1 text-sm">Ready to continue your spiritual journey today?</p>
+            <p className="text-slate-500 mt-1 text-sm">Ready to continue your growth journey today?</p>
           </div>
           <button
             onClick={() => navigate('/eaglet/assignments')}
@@ -303,9 +328,9 @@ const EagletDashboardPage = () => {
                   <p className="text-xs font-medium opacity-80 uppercase tracking-widest">Daily Verse</p>
                 </div>
                 <p className="text-sm italic font-medium leading-relaxed mb-4">
-                  "But those who hope in the Lord will renew their strength. They will soar on wings like eagles..."
+                  "{dailyVerse.text}"
                 </p>
-                <p className="text-xs font-bold text-right opacity-90">— Isaiah 40:31</p>
+                <p className="text-xs font-bold text-right opacity-90">— {dailyVerse.ref}</p>
               </div>
 
               {/* Shine Effect */}

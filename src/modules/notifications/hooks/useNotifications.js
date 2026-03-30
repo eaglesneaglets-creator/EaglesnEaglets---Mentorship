@@ -79,6 +79,11 @@ export const useNotificationSocket = () => {
         // Invalidate list so it refetches on next open
         queryClient.invalidateQueries({ queryKey: notificationKeys.list() });
 
+        // Real-time leaderboard update — invalidate when points are awarded
+        if (notification.notification_type === 'points_awarded') {
+            queryClient.invalidateQueries({ queryKey: ['points', 'leaderboard'] });
+        }
+
         // Show toast notification
         toast(notification.title, {
             icon: '🔔',
@@ -86,12 +91,12 @@ export const useNotificationSocket = () => {
         });
     }, [queryClient]);
 
-    const { status } = useWebSocket({
+    const { status, retryCount } = useWebSocket({
         path: 'ws/notifications/',
         onMessage,
         token: accessToken,
         enabled: !!user && !!accessToken,
     });
 
-    return { status };
+    return { status, retryCount };
 };

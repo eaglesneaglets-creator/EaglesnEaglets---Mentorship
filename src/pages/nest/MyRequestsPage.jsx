@@ -157,63 +157,89 @@ const MyRequestsPage = () => {
                                         declined: 'declined',
                                         rejected: 'declined',
                                     };
+                                    const mappedStatus = statusMap[status] || 'pending';
 
                                     return (
                                         <div
                                             key={request.id || idx}
-                                            className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-6 py-4 hover:bg-slate-50/80 transition-colors duration-200 group"
+                                            className="px-4 md:px-6 py-4 hover:bg-slate-50/80 transition-colors duration-200 group"
                                             style={{ animation: `fadeInUp 0.4s ease-out ${idx * 0.05}s both` }}
                                         >
-                                            {/* Nest/Mentor */}
-                                            <div className="md:col-span-4 flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-emerald-50 flex items-center justify-center flex-shrink-0">
-                                                    <span className="material-symbols-outlined text-primary text-lg">diversity_3</span>
+                                            {/* Mobile card layout */}
+                                            <div className="md:hidden flex flex-col gap-2">
+                                                {/* Top row: icon + name + status badge */}
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/10 to-emerald-50 flex items-center justify-center flex-shrink-0">
+                                                        <span className="material-symbols-outlined text-primary text-base">diversity_3</span>
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="text-sm font-semibold text-slate-900 truncate">{nestName}</p>
+                                                        {mentorName && (
+                                                            <p className="text-xs text-slate-500 truncate">by {mentorName}</p>
+                                                        )}
+                                                    </div>
+                                                    <StatusBadge status={mappedStatus} size="sm" />
                                                 </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-sm font-semibold text-slate-900 truncate">{nestName}</p>
-                                                    {mentorName && (
-                                                        <p className="text-xs text-slate-500 truncate">by {mentorName}</p>
+                                                {/* Message */}
+                                                {request.message && (
+                                                    <p className="text-xs text-slate-500 line-clamp-2 pl-12">
+                                                        {request.message}
+                                                    </p>
+                                                )}
+                                                {/* Bottom row: date + action */}
+                                                <div className="flex items-center justify-between pl-12">
+                                                    <p className="text-xs text-slate-400">{formatDate(request.created_at || request.sent_at)}</p>
+                                                    {(status === 'approved' || status === 'accepted') ? (
+                                                        <Link to={`/eaglet/nest/${request.nest_id || request.nest?.id}`} className="text-xs font-semibold text-primary">
+                                                            View Nest →
+                                                        </Link>
+                                                    ) : (
+                                                        <Link to={`/eaglet/mentor/${request.nest_id || request.nest?.id}`} className="text-xs font-semibold text-slate-400 hover:text-primary">
+                                                            View →
+                                                        </Link>
                                                     )}
                                                 </div>
                                             </div>
 
-                                            {/* Message */}
-                                            <div className="md:col-span-3 flex items-center">
-                                                <p className="text-sm text-slate-600 truncate">
-                                                    {request.message || '—'}
-                                                </p>
-                                            </div>
-
-                                            {/* Date */}
-                                            <div className="md:col-span-2 flex items-center">
-                                                <div>
+                                            {/* Desktop table layout */}
+                                            <div className="hidden md:grid grid-cols-12 gap-4 items-center">
+                                                {/* Nest/Mentor */}
+                                                <div className="col-span-4 flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-emerald-50 flex items-center justify-center flex-shrink-0">
+                                                        <span className="material-symbols-outlined text-primary text-lg">diversity_3</span>
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="text-sm font-semibold text-slate-900 truncate">{nestName}</p>
+                                                        {mentorName && (
+                                                            <p className="text-xs text-slate-500 truncate">by {mentorName}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {/* Message */}
+                                                <div className="col-span-3">
+                                                    <p className="text-sm text-slate-600 truncate">{request.message || '—'}</p>
+                                                </div>
+                                                {/* Date */}
+                                                <div className="col-span-2">
                                                     <p className="text-sm text-slate-700 font-medium">{formatDate(request.created_at || request.sent_at)}</p>
                                                     <p className="text-xs text-slate-400">{formatTime(request.created_at || request.sent_at)}</p>
                                                 </div>
-                                            </div>
-
-                                            {/* Status */}
-                                            <div className="md:col-span-2 flex items-center">
-                                                <StatusBadge status={statusMap[status] || 'pending'} size="sm" />
-                                            </div>
-
-                                            {/* Action */}
-                                            <div className="md:col-span-1 flex items-center justify-end">
-                                                {status === 'approved' || status === 'accepted' ? (
-                                                    <Link
-                                                        to={`/eaglet/nest/${request.nest_id || request.nest?.id}`}
-                                                        className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
-                                                    >
-                                                        View Nest
-                                                    </Link>
-                                                ) : (
-                                                    <Link
-                                                        to={`/eaglet/mentor/${request.nest_id || request.nest?.id}`}
-                                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold text-slate-400 hover:text-primary"
-                                                    >
-                                                        View
-                                                    </Link>
-                                                )}
+                                                {/* Status */}
+                                                <div className="col-span-2">
+                                                    <StatusBadge status={mappedStatus} size="sm" />
+                                                </div>
+                                                {/* Action */}
+                                                <div className="col-span-1 flex items-center justify-end">
+                                                    {(status === 'approved' || status === 'accepted') ? (
+                                                        <Link to={`/eaglet/nest/${request.nest_id || request.nest?.id}`} className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors">
+                                                            View Nest
+                                                        </Link>
+                                                    ) : (
+                                                        <Link to={`/eaglet/mentor/${request.nest_id || request.nest?.id}`} className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold text-slate-400 hover:text-primary">
+                                                            View
+                                                        </Link>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     );

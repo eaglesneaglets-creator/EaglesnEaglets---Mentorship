@@ -344,6 +344,11 @@ export const useAuthStore = create(
         },
 
         /**
+         * Rehydrate access token in memory (called on dashboard mount after page refresh)
+         */
+        setAccessToken: (token) => set({ accessToken: token }),
+
+        /**
          * Clear any errors
          */
         clearError: () => set({ error: null }),

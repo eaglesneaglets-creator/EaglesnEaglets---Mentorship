@@ -69,9 +69,10 @@ export const tokenManager = {
 };
 
 /**
- * Refresh access token using refresh token
+ * Refresh access token using refresh token (httpOnly cookie)
+ * Exported so DashboardLayout can rehydrate the WS token on page refresh.
  */
-const refreshAccessToken = async () => {
+export const refreshAccessToken = async () => {
   // With httpOnly cookies, the refresh token is sent automatically by the browser.
   // We no longer read it from localStorage or send it in the body.
   const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {

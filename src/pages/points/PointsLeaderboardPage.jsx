@@ -18,15 +18,15 @@ const StatCard = ({ icon, label, value, accent, delay = 0 }) => (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay }}
-        className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow group"
+        className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow group"
     >
-        <div className="flex items-center gap-3 mb-3">
-            <div className={`w-10 h-10 rounded-xl ${accent} flex items-center justify-center transition-transform group-hover:scale-110`}>
-                <span className="material-symbols-outlined text-xl">{icon}</span>
+        <div className="flex items-center gap-2 mb-2">
+            <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${accent} flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0`}>
+                <span className="material-symbols-outlined text-lg sm:text-xl">{icon}</span>
             </div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</span>
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider leading-tight">{label}</span>
         </div>
-        <p className="text-3xl font-black text-slate-900 tracking-tight">{value}</p>
+        <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{value}</p>
     </motion.div>
 );
 
@@ -89,7 +89,7 @@ const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
             </div>
 
             {/* Name */}
-            <p className={`${c.nameSize} font-bold text-slate-900 text-center leading-tight mb-0.5 ${isCurrentUser ? 'text-primary' : ''}`}>
+            <p className={`${c.nameSize} font-bold text-slate-900 text-center leading-tight mb-0.5 max-w-[80px] truncate ${isCurrentUser ? 'text-primary' : ''}`}>
                 {isCurrentUser ? 'You' : entry.first_name}
             </p>
             <p className={`${c.pointsSize} font-black text-primary`}>
@@ -121,25 +121,25 @@ const RankRow = ({ entry, rank, isCurrentUser, index }) => (
             }
         `}
     >
-        <td className="py-3 px-4 text-center">
+        <td className="py-3 px-3 sm:px-4 text-center">
             <span className={`text-sm font-bold ${rank <= 3 ? 'text-primary' : 'text-slate-400'}`}>
                 {rank}
             </span>
         </td>
-        <td className="py-3 px-4">
-            <div className="flex items-center gap-3">
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-sm ${isCurrentUser ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'}`}>
+        <td className="py-3 px-3 sm:px-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0 ${isCurrentUser ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'}`}>
                     {entry.first_name?.charAt(0)}
                 </div>
-                <div>
-                    <p className={`text-sm font-semibold ${isCurrentUser ? 'text-primary' : 'text-slate-900'}`}>
+                <div className="min-w-0">
+                    <p className={`text-sm font-semibold truncate ${isCurrentUser ? 'text-primary' : 'text-slate-900'}`}>
                         {isCurrentUser ? 'You' : `${entry.first_name} ${entry.last_name}`}
                     </p>
                     <p className="text-xs text-slate-400 capitalize">{entry.role === 'eagle' ? 'Mentor' : 'Mentee'}</p>
                 </div>
             </div>
         </td>
-        <td className="py-3 px-4 text-right">
+        <td className="py-3 px-3 sm:px-4 text-right whitespace-nowrap">
             <span className={`text-sm font-bold ${isCurrentUser ? 'text-primary' : 'text-slate-900'}`}>
                 {entry.total_points?.toLocaleString()}
             </span>
@@ -251,15 +251,15 @@ const PointsLeaderboardPage = () => {
                 {/* Filter Tabs + Table */}
                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
                     {/* Filter Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-slate-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-slate-100">
                         <h3 className="text-base font-bold text-slate-900">Rankings</h3>
-                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg">
+                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg overflow-x-auto">
                             {Object.keys(FILTER_PARAMS).map((filter) => (
                                 <button
                                     key={filter}
                                     onClick={() => setActiveFilter(filter)}
                                     className={`
-                                        px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-200
+                                        px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 whitespace-nowrap
                                         ${activeFilter === filter
                                             ? 'bg-white shadow-sm text-primary'
                                             : 'text-slate-500 hover:text-slate-700'
@@ -285,16 +285,16 @@ const PointsLeaderboardPage = () => {
                             ))}
                         </div>
                     ) : entries.length > 0 ? (
-                        <table className="w-full">
+                        <div className="overflow-x-auto">
+                        <table className="w-full min-w-[300px]">
                             <thead>
                                 <tr className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-50">
-                                    <th className="py-2.5 px-4 text-center w-16">#</th>
-                                    <th className="py-2.5 px-4 text-left">User</th>
-                                    <th className="py-2.5 px-4 text-right">Points</th>
+                                    <th className="py-2.5 px-3 sm:px-4 text-center w-12 sm:w-16">#</th>
+                                    <th className="py-2.5 px-3 sm:px-4 text-left">User</th>
+                                    <th className="py-2.5 px-3 sm:px-4 text-right">Points</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {/* Show all entries (top 3 are already in podium but still in table) */}
                                 {entries.map((entry, index) => (
                                     <RankRow
                                         key={entry.user.id}
@@ -306,6 +306,7 @@ const PointsLeaderboardPage = () => {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     ) : (
                         <div className="text-center py-12">
                             <span className="material-symbols-outlined text-3xl text-slate-300">leaderboard</span>
