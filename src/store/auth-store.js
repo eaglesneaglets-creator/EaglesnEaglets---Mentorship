@@ -12,6 +12,9 @@ const initialState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  // Access token kept in memory only (not localStorage) — used for WebSocket ?token= param.
+  // httpOnly cookie is the primary auth mechanism for HTTP requests.
+  accessToken: null,
 };
 
 /**
@@ -72,18 +75,26 @@ export const useAuthStore = create(
           try {
             const response = await apiClient.post('/auth/login/', { email, password }, { skipAuth: true });
 
-            // Handle both wrapped and unwrapped response formats
+            // Backend sets httpOnly cookies for HTTP auth.
+            // access token is also returned in body for WebSocket ?token= param only.
             const data = response.data || response;
-            tokenManager.setTokens(data.access, data.refresh);
+            const user = data.user || data;
+            const accessToken = data.access || null;
+
+            // Store access token in memory for WS use; NOT in localStorage
+            if (accessToken) {
+              tokenManager.setTokens(accessToken, null);
+            }
 
             set({
-              user: data.user,
+              user,
               isAuthenticated: true,
               isLoading: false,
               error: null,
+              accessToken,
             });
 
-            return data.user;
+            return user;
           } catch (error) {
             // Don't show error if request was aborted (user navigated away)
             if (error.name === 'AbortError') {
@@ -141,16 +152,14 @@ export const useAuthStore = create(
          */
         logout: async () => {
           try {
-            // Call logout endpoint to blacklist tokens
-            await apiClient.post('/auth/logout/', {
-              refresh: tokenManager.getRefreshToken(),
-            });
+            // Backend reads refresh token from httpOnly cookie — no body needed
+            await apiClient.post('/auth/logout/', {});
           } catch (error) {
             // Continue with logout even if API call fails
             console.error('Logout API error:', error);
           }
 
-          // Clear tokens and state
+          // Clear any residual localStorage tokens and reset state
           tokenManager.clearTokens();
           set(initialState);
 
@@ -162,8 +171,11 @@ export const useAuthStore = create(
          * Fetch current user profile
          */
         fetchUser: async () => {
-          if (!tokenManager.isAuthenticated()) {
-            return null;
+          // With httpOnly cookies, we can't check localStorage for a token.
+          // The cookie is sent automatically — just attempt the request.
+          // Only skip if we already have a user loaded in state.
+          if (get().user) {
+            return get().user;
           }
 
           set({ isLoading: true });
@@ -340,12 +352,16 @@ export const useAuthStore = create(
          * Set auth state directly (used for OAuth callbacks)
          */
         setAuth: ({ accessToken, refreshToken, user }) => {
-          tokenManager.setTokens(accessToken, refreshToken);
+          // Store access token in memory for WS; httpOnly cookie is set by backend
+          if (accessToken) {
+            tokenManager.setTokens(accessToken, refreshToken);
+          }
           set({
             user,
             isAuthenticated: true,
             isLoading: false,
             error: null,
+            accessToken: accessToken || null,
           });
         },
 
@@ -377,7 +393,7 @@ export const useAuthStore = create(
       }),
       {
         name: 'auth-storage',
-        // Only persist user and isAuthenticated
+        // Only persist user and isAuthenticated — never persist tokens
         partialize: (state) => ({
           user: state.user,
           isAuthenticated: state.isAuthenticated,

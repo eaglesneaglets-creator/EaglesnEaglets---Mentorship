@@ -22,7 +22,7 @@ const WS_BASE = getWsBase();
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1000;
 
-export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true }) {
+export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true, token }) {
     const wsRef = useRef(null);
     const retriesRef = useRef(0);
     const reconnectTimerRef = useRef(null);
@@ -37,8 +37,9 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
     const connect = useCallback(() => {
         if (!enabled || !path) return;
 
-        const token = tokenManager.getAccessToken();
-        const url = `${WS_BASE}/${path}${token ? `?token=${token}` : ''}`;
+        // Use explicitly passed token, or fall back to tokenManager (localStorage)
+        const wsToken = token || tokenManager.getAccessToken();
+        const url = `${WS_BASE}/${path}${wsToken ? `?token=${wsToken}` : ''}`;
 
         setStatus('connecting');
         const ws = new WebSocket(url);
