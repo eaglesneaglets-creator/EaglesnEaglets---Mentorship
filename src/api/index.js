@@ -73,14 +73,17 @@ export const tokenManager = {
  * Exported so DashboardLayout can rehydrate the WS token on page refresh.
  */
 export const refreshAccessToken = async () => {
-  // With httpOnly cookies, the refresh token is sent automatically by the browser.
-  // We no longer read it from localStorage or send it in the body.
+  const refreshToken = tokenManager.getRefreshToken();
+  // We include the refresh token in the body as fallback, but also include credentials for cookies.
+  const body = refreshToken ? JSON.stringify({ refresh: refreshToken }) : '{}';
+
   const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include',  // sends httpOnly refresh_token cookie automatically
+    credentials: 'include',
+    body,
   });
 
   if (!response.ok) {
@@ -89,8 +92,14 @@ export const refreshAccessToken = async () => {
   }
 
   const data = await response.json();
-  // Backend sets new cookies; nothing to store in localStorage
-  return data.access || null;
+  const newAccess = data.access || null;
+  const newRefresh = data.refresh || refreshToken; // fallback to old if not rotated
+  
+  if (newAccess) {
+    tokenManager.setTokens(newAccess, newRefresh);
+  }
+  
+  return newAccess;
 };
 
 /**
