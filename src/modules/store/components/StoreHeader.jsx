@@ -52,7 +52,7 @@ const StoreHeader = () => {
                 {/* Brand */}
                 <Link to="/" className="flex items-center gap-2 flex-shrink-0">
                     <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                        <span className="material-symbols-outlined text-white text-base">nest</span>
+                        <span className="material-symbols-outlined text-white text-base">storefront</span>
                     </div>
                     <span className="font-bold text-slate-900 hidden sm:block">Eagles &amp; Eaglets</span>
                     <span className="text-slate-300 hidden sm:block">|</span>

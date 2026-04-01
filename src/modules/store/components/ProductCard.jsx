@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-const ProductCard = ({ product }) => {
-    const { name, slug, price, stock_quantity, category_name, primary_image, status } = product;
+const ProductCard = ({ product, onCategoryClick }) => {
+    const { name, slug, price, stock_quantity, category_name, category_slug, primary_image } = product;
     const isOutOfStock = stock_quantity === 0;
     const isLowStock = stock_quantity > 0 && stock_quantity <= 5;
 
@@ -31,9 +31,15 @@ const ProductCard = ({ product }) => {
                 )}
                 {category_name && (
                     <div className="absolute top-2 left-2">
-                        <span className="bg-white/90 backdrop-blur-sm text-primary text-xs font-semibold px-2.5 py-1 rounded-full border border-primary/20">
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onCategoryClick?.(category_slug);
+                            }}
+                            className="bg-white/90 backdrop-blur-sm text-primary text-xs font-semibold px-2.5 py-1 rounded-full border border-primary/20 hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                        >
                             {category_name}
-                        </span>
+                        </button>
                     </div>
                 )}
                 {isLowStock && !isOutOfStock && (
@@ -75,9 +81,10 @@ ProductCard.propTypes = {
         price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         stock_quantity: PropTypes.number,
         category_name: PropTypes.string,
+        category_slug: PropTypes.string,
         primary_image: PropTypes.string,
-        status: PropTypes.string,
     }).isRequired,
+    onCategoryClick: PropTypes.func,
 };
 
 export default ProductCard;
