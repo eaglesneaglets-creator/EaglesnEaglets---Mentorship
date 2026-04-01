@@ -137,27 +137,40 @@ const DashboardLayout = ({
   const [pendingKycCount, setPendingKycCount] = useState(0);
   const notifRef = useRef(null);
 
-  // Real unread chat count for sidebar badge
-  const chatUnread = useTotalUnread();
-  const chatBadge = chatUnread > 0 ? chatUnread : undefined;
-
-
-  // Real notification hooks — work for all roles
-  const { data: notificationsData } = useNotifications();
-  const { data: unreadData } = useUnreadCount();
-  const markAsReadMutation = useMarkAsRead();
-  const markAllAsReadMutation = useMarkAllAsRead();
   // Rehydrate access token on page refresh so WebSocket hooks can connect.
   // The httpOnly refresh cookie is sent automatically; we just store the returned access token.
+  // This MUST run before any authenticated React Query hooks fire.
   const { accessToken, setAccessToken } = useAuthStore();
+  const [tokenReady, setTokenReady] = useState(!!accessToken);
   useEffect(() => {
     if (!accessToken) {
       refreshAccessToken()
-        .then((token) => { if (token) setAccessToken(token); })
-        .catch(() => { /* session expired — AuthGuard will redirect */ });
+        .then((token) => {
+          if (token) {
+            setAccessToken(token);
+          }
+          setTokenReady(true);
+        })
+        .catch(() => {
+          setTokenReady(true); // session expired — AuthGuard will redirect
+        });
+    } else {
+      setTokenReady(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Real unread chat count for sidebar badge
+  // Gate on tokenReady to avoid 401 requests on page refresh
+  const chatUnread = useTotalUnread({ enabled: tokenReady });
+  const chatBadge = chatUnread > 0 ? chatUnread : undefined;
+
+
+  // Real notification hooks — work for all roles, gated on tokenReady
+  const { data: notificationsData } = useNotifications(undefined, { enabled: tokenReady });
+  const { data: unreadData } = useUnreadCount({ enabled: tokenReady });
+  const markAsReadMutation = useMarkAsRead();
+  const markAllAsReadMutation = useMarkAllAsRead();
 
   // Mount WS connection — single instance for the entire dashboard session
   const { retryCount: wsRetryCount } = useNotificationSocket();

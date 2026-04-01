@@ -15,20 +15,21 @@ export const chatKeys = {
 
 // --- REST Hooks ---
 
-export const useConversations = () =>
+export const useConversations = ({ enabled = true } = {}) =>
     useQuery({
         queryKey: chatKeys.conversations(),
         queryFn: () => ChatService.getConversations(),
         select: (data) => data?.data || [],
         staleTime: 30 * 1000,
+        enabled,
     });
 
 /**
  * useTotalUnread — lightweight hook to get total unread message count
  * across all conversations. Used by sidebar badge.
  */
-export const useTotalUnread = () => {
-    const { data: conversations = [] } = useConversations();
+export const useTotalUnread = ({ enabled = true } = {}) => {
+    const { data: conversations = [] } = useConversations({ enabled });
     return conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
 };
 
