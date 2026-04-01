@@ -9,10 +9,6 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
-// Token storage keys
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
-
 // Request queue for token refresh
 let isRefreshing = false;
 let failedQueue = [];
@@ -47,43 +43,58 @@ export class ApiError extends Error {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Token management utilities
+ * In-memory token store.
+ *
+ * Security model:
+ *  - The ACCESS token lives in a module-level variable (in-memory).
+ *    It is never written to localStorage — XSS cannot steal it across
+ *    tab closures.  It survives in-tab navigation because ES module
+ *    singletons persist for the lifetime of the page session.
+ *  - The REFRESH token is NEVER touched by the frontend. It is
+ *    delivered and consumed exclusively via an httpOnly cookie set
+ *    by the backend. The browser attaches it automatically on every
+ *    same-origin (or credentialed cross-origin) request.
+ *
+ * On page refresh the access token is lost (module state is cleared).
+ * DashboardLayout calls refreshAccessToken() on mount which POSTs to
+ * /auth/token/refresh/ — the browser sends the httpOnly cookie and the
+ * backend returns a fresh access token in the JSON body.
  */
-export const tokenManager = {
-  getAccessToken: () => localStorage.getItem(ACCESS_TOKEN_KEY),
-  getRefreshToken: () => localStorage.getItem(REFRESH_TOKEN_KEY),
+let _accessToken = null;
 
-  setTokens: (accessToken, refreshToken) => {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-    if (refreshToken) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+export const tokenManager = {
+  getAccessToken: () => _accessToken,
+
+  // refreshToken is managed exclusively by the httpOnly cookie.
+  // This always returns null — kept so call-sites don't need changes.
+  getRefreshToken: () => null,
+
+  setTokens: (accessToken) => {
+    // Only store the short-lived access token in memory.
+    // Ignore any refreshToken argument — the cookie handles it.
+    if (accessToken) {
+      _accessToken = accessToken;
     }
   },
 
   clearTokens: () => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    _accessToken = null;
   },
 
-  isAuthenticated: () => !!localStorage.getItem(ACCESS_TOKEN_KEY),
+  isAuthenticated: () => !!_accessToken,
 };
 
 /**
- * Refresh access token using refresh token (httpOnly cookie)
- * Exported so DashboardLayout can rehydrate the WS token on page refresh.
+ * Refresh access token using the httpOnly refresh_token cookie.
+ * The cookie is sent automatically by the browser — no token in the body.
+ * Exported so DashboardLayout can rehydrate the WS access token on page refresh.
  */
 export const refreshAccessToken = async () => {
-  const refreshToken = tokenManager.getRefreshToken();
-  // We include the refresh token in the body as fallback, but also include credentials for cookies.
-  const body = refreshToken ? JSON.stringify({ refresh: refreshToken }) : '{}';
-
   const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-    body,
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',  // browser sends httpOnly refresh_token cookie automatically
+    body: '{}',              // empty body — backend reads from cookie
   });
 
   if (!response.ok) {
@@ -93,12 +104,11 @@ export const refreshAccessToken = async () => {
 
   const data = await response.json();
   const newAccess = data.access || null;
-  const newRefresh = data.refresh || refreshToken; // fallback to old if not rotated
-  
+
   if (newAccess) {
-    tokenManager.setTokens(newAccess, newRefresh);
+    tokenManager.setTokens(newAccess);
   }
-  
+
   return newAccess;
 };
 

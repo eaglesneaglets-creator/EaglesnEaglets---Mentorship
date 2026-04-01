@@ -50,22 +50,14 @@ const GoogleCallbackPage = () => {
         const response = await authService.googleCallback(code, state || '');
 
         if (response.success) {
-          const { access, refresh, user } = response.data;
+          const { access, user } = response.data;
 
-          // Store auth data
+          // Store auth data — setAuth puts the access token in memory via tokenManager.
+          // The refresh token arrives as an httpOnly cookie (no action needed here).
           setAuth({
             accessToken: access,
-            refreshToken: refresh,
             user,
           });
-
-          // Store tokens in localStorage (validate fields exist)
-          if (access && typeof access === 'string') {
-            localStorage.setItem('accessToken', access);
-          }
-          if (refresh && typeof refresh === 'string') {
-            localStorage.setItem('refreshToken', refresh);
-          }
 
           // Redirect using shared KYC redirect logic
           const redirectPath = getKYCRedirectPath(user);
