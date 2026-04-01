@@ -43,73 +43,117 @@ export class ApiError extends Error {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * In-memory token store.
+ * Token storage.
  *
  * Security model:
  *  - The ACCESS token lives in a module-level variable (in-memory).
  *    It is never written to localStorage — XSS cannot steal it across
  *    tab closures.  It survives in-tab navigation because ES module
  *    singletons persist for the lifetime of the page session.
- *  - The REFRESH token is NEVER touched by the frontend. It is
- *    delivered and consumed exclusively via an httpOnly cookie set
- *    by the backend. The browser attaches it automatically on every
- *    same-origin (or credentialed cross-origin) request.
+ *  - The REFRESH token is stored in localStorage so it survives page
+ *    refreshes (cross-origin httpOnly cookies are blocked by modern
+ *    browsers as third-party cookies). The backend ALSO sets an
+ *    httpOnly cookie as the primary mechanism for same-origin setups.
+ *
+ * NOTE: For production hardening, configure a reverse proxy (e.g.
+ * Vercel rewrites) so API requests are same-origin and httpOnly
+ * cookies become first-party. This would allow removing localStorage.
  *
  * On page refresh the access token is lost (module state is cleared).
- * DashboardLayout calls refreshAccessToken() on mount which POSTs to
- * /auth/token/refresh/ — the browser sends the httpOnly cookie and the
+ * DashboardLayout calls refreshAccessToken() on mount which POSTs the
+ * refresh token from localStorage to /auth/token/refresh/ and the
  * backend returns a fresh access token in the JSON body.
  */
 let _accessToken = null;
+const REFRESH_TOKEN_KEY = 'ee_refresh_token';
 
 export const tokenManager = {
   getAccessToken: () => _accessToken,
 
-  // refreshToken is managed exclusively by the httpOnly cookie.
-  // This always returns null — kept so call-sites don't need changes.
-  getRefreshToken: () => null,
+  getRefreshToken: () => {
+    try {
+      return localStorage.getItem(REFRESH_TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  },
 
-  setTokens: (accessToken) => {
-    // Only store the short-lived access token in memory.
-    // Ignore any refreshToken argument — the cookie handles it.
+  setTokens: (accessToken, refreshToken) => {
     if (accessToken) {
       _accessToken = accessToken;
+    }
+    if (refreshToken) {
+      try {
+        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      } catch {
+        // localStorage unavailable (private browsing, etc.)
+      }
     }
   },
 
   clearTokens: () => {
     _accessToken = null;
+    try {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+    } catch {
+      // ignore
+    }
   },
 
   isAuthenticated: () => !!_accessToken,
 };
 
 /**
- * Refresh access token using the httpOnly refresh_token cookie.
- * The cookie is sent automatically by the browser — no token in the body.
- * Exported so DashboardLayout can rehydrate the WS access token on page refresh.
+ * Refresh access token.
+ *
+ * Reads the refresh token from localStorage and sends it in the request
+ * body (cross-origin httpOnly cookies are unreliable). The browser also
+ * sends the httpOnly cookie if available — the backend reads from either.
+ *
+ * Uses single-flight concurrency control: if a refresh is already
+ * in-flight, subsequent callers await the same promise. This prevents
+ * race conditions with ROTATE_REFRESH_TOKENS / BLACKLIST_AFTER_ROTATION
+ * where a second concurrent refresh would use the already-blacklisted token.
  */
+let _refreshPromise = null;
+
 export const refreshAccessToken = async () => {
-  const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',  // browser sends httpOnly refresh_token cookie automatically
-    body: '{}',              // empty body — backend reads from cookie
+  // Single-flight: reuse in-progress refresh
+  if (_refreshPromise) return _refreshPromise;
+
+  _refreshPromise = (async () => {
+    const refreshToken = tokenManager.getRefreshToken();
+
+    if (!refreshToken) {
+      throw new ApiError('No refresh token available.', 401, 'no_refresh_token');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',  // also sends httpOnly cookie if browser allows
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+
+    if (!response.ok) {
+      tokenManager.clearTokens();
+      throw new ApiError('Session expired. Please login again.', 401, 'session_expired');
+    }
+
+    const data = await response.json();
+    const newAccess = data.access || null;
+    const newRefresh = data.refresh || null;
+
+    if (newAccess) {
+      tokenManager.setTokens(newAccess, newRefresh);
+    }
+
+    return newAccess;
+  })().finally(() => {
+    _refreshPromise = null;
   });
 
-  if (!response.ok) {
-    tokenManager.clearTokens();
-    throw new ApiError('Session expired. Please login again.', 401, 'session_expired');
-  }
-
-  const data = await response.json();
-  const newAccess = data.access || null;
-
-  if (newAccess) {
-    tokenManager.setTokens(newAccess);
-  }
-
-  return newAccess;
+  return _refreshPromise;
 };
 
 /**

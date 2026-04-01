@@ -137,8 +137,8 @@ const DashboardLayout = ({
   const [pendingKycCount, setPendingKycCount] = useState(0);
   const notifRef = useRef(null);
 
-  // Rehydrate access token on page refresh so WebSocket hooks can connect.
-  // The httpOnly refresh cookie is sent automatically; we just store the returned access token.
+  // Rehydrate access token on page refresh.
+  // The refresh token is read from localStorage and sent in the body.
   // This MUST run before any authenticated React Query hooks fire.
   const { accessToken, setAccessToken } = useAuthStore();
   const [tokenReady, setTokenReady] = useState(!!accessToken);

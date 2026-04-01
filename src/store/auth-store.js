@@ -75,16 +75,16 @@ export const useAuthStore = create(
           try {
             const response = await apiClient.post('/auth/login/', { email, password }, { skipAuth: true });
 
-            // Backend sets httpOnly cookies for HTTP auth.
-            // Access token is returned in body for WebSocket ?token= param only.
+            // Backend also sets httpOnly cookies, but cross-origin
+            // deployments need the body tokens for localStorage fallback.
             const data = response.data || response;
             const user = data.user || data;
             const accessToken = data.access || null;
+            const refreshToken = data.refresh || null;
 
-            // Store access token in memory only (never localStorage).
-            // The refresh token lives exclusively in the httpOnly cookie.
+            // Store access token in memory, refresh token in localStorage.
             if (accessToken) {
-              tokenManager.setTokens(accessToken);
+              tokenManager.setTokens(accessToken, refreshToken);
             }
 
             set({
@@ -153,9 +153,10 @@ export const useAuthStore = create(
          */
         logout: async () => {
           try {
-            // Backend reads refresh token from httpOnly cookie automatically.
-            // No need to send it in the body.
-            await apiClient.post('/auth/logout/', {});
+            // Send refresh token in body so backend can blacklist it.
+            // Backend also reads from httpOnly cookie when available.
+            const refreshToken = tokenManager.getRefreshToken();
+            await apiClient.post('/auth/logout/', refreshToken ? { refresh: refreshToken } : {});
           } catch (error) {
             // Continue with logout even if API call fails
             console.error('Logout API error:', error);
@@ -358,10 +359,10 @@ export const useAuthStore = create(
         /**
          * Set auth state directly (used for OAuth callbacks)
          */
-        setAuth: ({ accessToken, user }) => {
-          // Store access token in memory only — refresh token is in httpOnly cookie.
+        setAuth: ({ accessToken, refreshToken, user }) => {
+          // Store access token in memory, refresh in localStorage.
           if (accessToken) {
-            tokenManager.setTokens(accessToken);
+            tokenManager.setTokens(accessToken, refreshToken || null);
           }
           set({
             user,
