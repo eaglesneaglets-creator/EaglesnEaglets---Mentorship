@@ -11,17 +11,19 @@ export const notificationKeys = {
     unread: () => [...notificationKeys.all, 'unread'],
 };
 
-export const useNotifications = (params) => {
+export const useNotifications = (params, { enabled = true } = {}) => {
     return useQuery({
         queryKey: [...notificationKeys.list(), params],
         queryFn: () => NotificationService.getNotifications(params),
+        enabled,
     });
 };
 
-export const useUnreadCount = () => {
+export const useUnreadCount = ({ enabled = true } = {}) => {
     return useQuery({
         queryKey: notificationKeys.unread(),
         queryFn: () => NotificationService.getUnreadCount(),
+        enabled,
         // Removed refetchInterval: 30000 — WebSocket push replaces polling
     });
 };
