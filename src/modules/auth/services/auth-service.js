@@ -37,18 +37,17 @@ export const authService = {
     apiClient.post('/auth/google/callback/', { code, state }, { skipAuth: true }),
 
   /**
-   * Logout user and blacklist token
-   * @param {string} refreshToken - Refresh token to blacklist
+   * Logout user — backend blacklists refresh token from httpOnly cookie.
    */
-  logout: (refreshToken) =>
-    apiClient.post('/auth/logout/', { refresh: refreshToken }),
+  logout: () =>
+    apiClient.post('/auth/logout/', {}),
 
   /**
-   * Refresh access token
-   * @param {string} refreshToken - Current refresh token
+   * Refresh access token — relies on httpOnly refresh_token cookie.
+   * Prefer importing refreshAccessToken() from api/index.js directly.
    */
-  refreshToken: (refreshToken) =>
-    apiClient.post('/auth/token/refresh/', { refresh: refreshToken }, { skipAuth: true }),
+  refreshToken: () =>
+    apiClient.post('/auth/token/refresh/', {}, { skipAuth: true }),
 
   /**
    * Verify email with token
