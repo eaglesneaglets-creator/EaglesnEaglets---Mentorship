@@ -5,6 +5,20 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCategories } from '../hooks/useStore';
 
+const Field = ({ label, error, children }) => (
+    <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+        {children}
+        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+);
+
+Field.propTypes = {
+    label: PropTypes.string.isRequired,
+    error: PropTypes.string,
+    children: PropTypes.node.isRequired,
+};
+
 const schema = z.object({
     name: z.string().min(2, 'Name is required'),
     description: z.string().optional(),
@@ -27,8 +41,19 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
     // Preview URLs for new files
     const [imagePreviews, setImagePreviews] = useState([]);
     // Existing images from the product being edited
-    const [existingImages, setExistingImages] = useState([]);
+    const [existingImages, setExistingImages] = useState(product?.images ?? []);
     const [imageError, setImageError] = useState('');
+
+    // Track which product instance we've last synced image state for.
+    // Using the "during render" pattern avoids setState inside an effect.
+    const [syncedProduct, setSyncedProduct] = useState(product);
+    if (syncedProduct !== product) {
+        setSyncedProduct(product);
+        setExistingImages(product?.images ?? []);
+        setImageFiles([]);
+        setImagePreviews([]);
+        setImageError('');
+    }
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
@@ -42,6 +67,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
         },
     });
 
+    // react-hook-form reset must stay in an effect — it's an external library call, not React state
     useEffect(() => {
         if (product) {
             reset({
@@ -52,13 +78,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
                 stock_quantity: product.stock_quantity,
                 status: product.status,
             });
-            setExistingImages(product.images ?? []);
-        } else {
-            setExistingImages([]);
         }
-        setImageFiles([]);
-        setImagePreviews([]);
-        setImageError('');
     }, [product, reset]);
 
     // Clean up preview URLs on unmount
@@ -106,19 +126,6 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
         onSubmit({ data, images: imageFiles });
     };
 
-    const Field = ({ label, error, children }) => (
-        <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-            {children}
-            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-        </div>
-    );
-
-    Field.propTypes = {
-        label: PropTypes.string.isRequired,
-        error: PropTypes.string,
-        children: PropTypes.node.isRequired,
-    };
 
     const inputClass = "w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none";
 
