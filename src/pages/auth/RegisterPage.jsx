@@ -87,7 +87,7 @@ const RegisterPage = () => {
   const [registrationFailed, setRegistrationFailed] = useState(false);
   const [failureMessage, setFailureMessage] = useState('');
   const [countdown, setCountdown] = useState(null);
-  const [emailSent, setEmailSent] = useState(true);
+  const [emailSent, setEmailSent] = useState(false); // H20: default false — set to true only after API confirms email_sent
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resendError, setResendError] = useState(null);

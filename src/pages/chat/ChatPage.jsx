@@ -412,10 +412,14 @@ const ChatPage = () => {
     }, [user?.id]);
 
     const { data: conversations = [], isLoading: convsLoading } = useConversations();
-    const { data: messages = [], isLoading: msgsLoading } = useMessages(
-        activeConversation?.id,
-        { enabled: !!activeConversation }
-    );
+    const {
+        data: msgsData,
+        isLoading: msgsLoading,
+        fetchNextPage,
+        isFetchingNextPage,
+    } = useMessages(activeConversation?.id, { enabled: !!activeConversation });
+    const messages = msgsData?.messages ?? [];
+    const hasMoreMessages = msgsData?.hasMore ?? false;
     const { status: wsStatus, sendMessage } = useChatSocket(activeConversation?.id);
     const markReadMutation = useMarkRead();
     const createDMMutation = useCreateDM();
@@ -573,6 +577,21 @@ const ChatPage = () => {
                                     currentUserId={user?.id}
                                 />
                                 <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2 bg-slate-50/30">
+                                    {/* H22: Load older messages */}
+                                    {!msgsLoading && hasMoreMessages && (
+                                        <div className="flex justify-center pb-2">
+                                            <button
+                                                onClick={() => fetchNextPage()}
+                                                disabled={isFetchingNextPage}
+                                                className="text-xs font-medium text-primary hover:underline disabled:opacity-50 flex items-center gap-1"
+                                            >
+                                                {isFetchingNextPage ? (
+                                                    <span className="w-3 h-3 border border-primary border-t-transparent rounded-full animate-spin inline-block" />
+                                                ) : null}
+                                                Load older messages
+                                            </button>
+                                        </div>
+                                    )}
                                     {msgsLoading ? (
                                         <div className="flex justify-center py-8">
                                             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />

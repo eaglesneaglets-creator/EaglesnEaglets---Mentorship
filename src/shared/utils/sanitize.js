@@ -147,15 +147,6 @@ export function sanitizeUrl(url) {
 }
 
 /**
- * React hook for sanitizing HTML
- * Memoizes the result for performance
- */
-export function useSanitizedHtml(dirty, config = DEFAULT_CONFIG) {
-  const sanitized = sanitizeHtml(dirty, config);
-  return sanitized;
-}
-
-/**
  * Create props for dangerouslySetInnerHTML with sanitized content
  * @param {string} dirty - The untrusted HTML string
  * @param {Object} config - Optional DOMPurify configuration
@@ -169,13 +160,3 @@ export function createSafeInnerHTML(dirty, config = DEFAULT_CONFIG) {
   };
 }
 
-export default {
-  sanitizeHtml,
-  sanitizeStrict,
-  sanitizeToText,
-  escapeHtml,
-  sanitizeUrl,
-  stripCloudinarySignature,
-  useSanitizedHtml,
-  createSafeInnerHTML,
-};

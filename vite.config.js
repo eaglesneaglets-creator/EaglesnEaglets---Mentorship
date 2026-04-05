@@ -10,6 +10,11 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss()],
 
+    // Drop console/debugger in production transforms (must be top-level, not under build)
+    esbuild: {
+      drop: mode === 'production' ? ['console', 'debugger'] : [],
+    },
+
     // Path aliases for cleaner imports
     resolve: {
       alias: {
@@ -46,27 +51,45 @@ export default defineConfig(({ mode }) => {
       target: 'es2020',
       outDir: 'dist',
       sourcemap: mode === 'development',
-      minify: 'esbuild',     // esbuild is faster than terser, built into Vite
-      cssMinify: true,        // explicitly enable CSS minification
-      esbuildOptions: {
-        drop: mode === 'production' ? ['console', 'debugger'] : [],
-      },
+      minify: 'esbuild',
+      cssMinify: true,
       rollupOptions: {
         output: {
-          // Code splitting for better caching
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            router: ['react-router-dom'],
-            state: ['zustand', '@tanstack/react-query'],
-            ui: ['framer-motion', 'lucide-react'],
-            charts: ['recharts'],  // isolate heavy chart library
+          // Function form is reliable in Vite 7 — matches on actual module file paths
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+
+            // React core — was producing empty vendor chunk with object form
+            if (id.includes('/react-dom/') || id.includes('/react/') && !id.includes('react-router') && !id.includes('react-hook-form')) {
+              return 'vendor';
+            }
+            if (id.includes('/react-router') || id.includes('/react-router-dom/')) return 'router';
+
+            // Three.js + Vanta (landing page 3D background) — large but isolated
+            if (id.includes('/three/') || id.includes('/vanta/')) return 'three';
+
+            // Emoji picker — emoji-mart "native" entry was producing a 432 kB unnamed chunk
+            if (id.includes('/emoji-mart/') || id.includes('/@emoji-mart/')) return 'emoji';
+
+            // Charts
+            if (id.includes('/recharts/') || id.includes('/d3-') || id.includes('/victory-')) return 'charts';
+
+            // State management
+            if (id.includes('/zustand/') || id.includes('/@tanstack/')) return 'state';
+
+            // UI / animation
+            if (id.includes('/framer-motion/') || id.includes('/lucide-react/')) return 'ui';
+
+            // Validation
+            if (id.includes('/zod/')) return 'zod';
           },
         },
         treeshake: {
-          moduleSideEffects: false,  // tree-shake side-effect-free packages
+          moduleSideEffects: false,
         },
       },
-      chunkSizeWarningLimit: 600,  // tighter limit — flag large chunks early
+      // three.js alone is 725 kB — raise limit to avoid noise on known-large chunks
+      chunkSizeWarningLimit: 800,
     },
 
     // Environment variable prefix

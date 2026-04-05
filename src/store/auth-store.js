@@ -157,9 +157,8 @@ export const useAuthStore = create(
             // Backend also reads from httpOnly cookie when available.
             const refreshToken = tokenManager.getRefreshToken();
             await apiClient.post('/auth/logout/', refreshToken ? { refresh: refreshToken } : {});
-          } catch (error) {
+          } catch {
             // Continue with logout even if API call fails
-            console.error('Logout API error:', error);
           }
 
           // Clear any residual localStorage tokens and reset state

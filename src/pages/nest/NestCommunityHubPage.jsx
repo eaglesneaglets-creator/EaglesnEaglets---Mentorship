@@ -154,6 +154,7 @@ const NestCommunityHubPage = () => {
     const navigate = useNavigate();
 
     const { data: nestData, isLoading, isError } = useNestDetail(nestId);
+    const { data: membersData, isLoading: membersLoading } = useNestMembers(nestId);
 
     const isEagle = user?.role === 'eagle';
 
@@ -175,6 +176,18 @@ const NestCommunityHubPage = () => {
     }
 
     const nest = nestData.data;
+
+    // H17: enforce membership — only the nest's eagle (owner) or confirmed members may view
+    // API returns eagle as nested object under eagle_details (NestDetailSerializer)
+    if (!membersLoading) {
+        const isOwner = nest.eagle_details?.id === user?.id;
+        const isMember = membersData?.data?.some(
+            (m) => m.user_details?.id === user?.id || m.user === user?.id
+        );
+        if (!isOwner && !isMember) {
+            return <Navigate to={isEagle ? '/eagle/dashboard' : '/eaglet/nest'} replace />;
+        }
+    }
 
     return (
         <DashboardLayout variant={isEagle ? 'eagle' : 'eaglet'}>

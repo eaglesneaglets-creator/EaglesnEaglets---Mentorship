@@ -51,10 +51,8 @@ const AuthGuard = () => {
   if (!isKycExemptRoute && user) {
     const kycStatus = user.kyc_status;
 
-    // Only allow through if KYC is approved (or status not requiring redirect)
-    if (!kycStatus || kycStatus === 'draft' || kycStatus === 'submitted' ||
-      kycStatus === 'under_review' || kycStatus === 'requires_changes' ||
-      kycStatus === 'rejected') {
+    // Only allow through if KYC is approved
+    if (kycStatus !== 'approved') {
       const redirectTo = getKYCRedirectPath(user);
       // Avoid redirect loop: only redirect if target is different from current path
       if (redirectTo !== location.pathname) {

@@ -25,8 +25,7 @@ export const useUIStore = create(
         globalLoading: false,
         loadingMessage: '',
 
-        // Toast/Alert messages
-        toasts: [],
+        // Toast/Alert messages — use sonner's toast() directly; this store no longer manages toasts
 
         // Modal state
         activeModal: null,
@@ -57,50 +56,6 @@ export const useUIStore = create(
         // ========== Loading Actions ==========
         setGlobalLoading: (loading, message = '') =>
           set({ globalLoading: loading, loadingMessage: message }),
-
-        // ========== Toast/Alert Actions ==========
-        addToast: (toast) => {
-          const id = Date.now().toString();
-          const newToast = {
-            id,
-            type: 'info',
-            duration: 5000,
-            ...toast,
-          };
-
-          set((state) => ({
-            toasts: [...state.toasts, newToast],
-          }));
-
-          // Auto-remove toast after duration
-          if (newToast.duration > 0) {
-            setTimeout(() => {
-              get().removeToast(id);
-            }, newToast.duration);
-          }
-
-          return id;
-        },
-
-        removeToast: (id) =>
-          set((state) => ({
-            toasts: state.toasts.filter((t) => t.id !== id),
-          })),
-
-        clearToasts: () => set({ toasts: [] }),
-
-        // Convenience toast methods
-        showSuccess: (message, options = {}) =>
-          get().addToast({ type: 'success', message, ...options }),
-
-        showError: (message, options = {}) =>
-          get().addToast({ type: 'error', message, duration: 7000, ...options }),
-
-        showWarning: (message, options = {}) =>
-          get().addToast({ type: 'warning', message, ...options }),
-
-        showInfo: (message, options = {}) =>
-          get().addToast({ type: 'info', message, ...options }),
 
         // ========== Modal Actions ==========
         openModal: (modalId, props = {}) =>

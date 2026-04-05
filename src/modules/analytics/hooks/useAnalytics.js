@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AnalyticsService from '../services/analytics-service';
+import { adminService } from '../../auth/services/auth-service';
 
 export const analyticsKeys = {
     all: ['analytics'],
@@ -29,11 +30,11 @@ export const useEagletDashboardStats = () => {
     });
 };
 
-export const useAdminDashboardStats = () => {
+export const useAdminDashboardStats = (period = 'weekly') => {
     return useQuery({
-        queryKey: analyticsKeys.adminDashboard(),
+        queryKey: [...analyticsKeys.adminDashboard(), period],
         queryFn: async () => {
-            const response = await AnalyticsService.getAdminDashboard();
+            const response = await adminService.getStats({ period });
             return response.data;
         },
     });

@@ -1,9 +1,6 @@
 /**
  * Global State Store
  * Using Zustand for client-side state management
- *
- * Install required packages:
- * npm install zustand --legacy-peer-deps
  */
 
 // Re-export all stores

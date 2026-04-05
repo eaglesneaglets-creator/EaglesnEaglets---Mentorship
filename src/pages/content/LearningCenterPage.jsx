@@ -418,6 +418,25 @@ const LearningCenterPage = () => {
         [tasksResponse]
     );
 
+    // Nearest upcoming assignment with a future due_date, not yet submitted/graded
+    const nextUpcomingAssignment = useMemo(() => {
+        const now = new Date();
+        return allStandaloneAssignments
+            .filter(a => {
+                if (!a.due_date) return false;
+                if (new Date(a.due_date) <= now) return false;
+                return a.my_submission_status !== 'submitted' && a.my_submission_status !== 'graded';
+            })
+            .sort((a, b) => new Date(a.due_date) - new Date(b.due_date))[0] ?? null;
+    }, [allStandaloneAssignments]);
+
+    // Count of assignments not yet submitted or graded
+    const pendingCount = useMemo(() =>
+        allStandaloneAssignments.filter(a =>
+            a.my_submission_status !== 'submitted' && a.my_submission_status !== 'graded'
+        ).length,
+    [allStandaloneAssignments]);
+
     // Apply the same eaglet tab filter to assignments
     const standaloneAssignments = useMemo(() => {
         if (activeEagletTab === 'all') return allStandaloneAssignments;
@@ -588,9 +607,9 @@ const LearningCenterPage = () => {
                             <span className="flex items-center gap-1.5">
                                 <span className="material-symbols-outlined text-base">assignment</span>
                                 Assignments
-                                {standaloneAssignments.length > 0 && (
+                                {pendingCount > 0 && (
                                     <span className="ml-1 min-w-[18px] h-[18px] px-1 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center">
-                                        {standaloneAssignments.length}
+                                        {pendingCount}
                                     </span>
                                 )}
                             </span>
@@ -797,16 +816,30 @@ const LearningCenterPage = () => {
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-white/70">Upcoming</h3>
                                 <span className="material-symbols-outlined text-white/40">event</span>
                             </div>
-                            <div className="bg-white/15 backdrop-blur-sm p-3 rounded-xl flex items-center gap-3">
-                                <div className="bg-white text-primary rounded-lg h-10 w-10 flex flex-col items-center justify-center shrink-0">
-                                    <span className="text-[9px] font-bold uppercase leading-none">Mar</span>
-                                    <span className="text-sm font-bold leading-none">15</span>
+                            {nextUpcomingAssignment ? (() => {
+                                const dueDate = new Date(nextUpcomingAssignment.due_date);
+                                const month = dueDate.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+                                const day = dueDate.getDate();
+                                return (
+                                    <div className="bg-white/15 backdrop-blur-sm p-3 rounded-xl flex items-center gap-3">
+                                        <div className="bg-white text-primary rounded-lg h-10 w-10 flex flex-col items-center justify-center shrink-0">
+                                            <span className="text-[9px] font-bold uppercase leading-none">{month}</span>
+                                            <span className="text-sm font-bold leading-none">{day}</span>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-bold truncate">{nextUpcomingAssignment.title}</p>
+                                            <p className="text-xs text-white/60">
+                                                {pendingCount > 1 ? `+${pendingCount - 1} more pending` : 'Next assignment due'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })() : (
+                                <div className="bg-white/15 backdrop-blur-sm p-3 rounded-xl flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-white/60 text-2xl">event_available</span>
+                                    <p className="text-sm text-white/70 font-medium">No upcoming due dates</p>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-bold">Next Assignment Due</p>
-                                    <p className="text-xs text-white/60">Check your modules</p>
-                                </div>
-                            </div>
+                            )}
                         </motion.div>
 
                         {/* Items Completed */}
