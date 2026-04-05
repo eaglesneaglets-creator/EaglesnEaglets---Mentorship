@@ -103,13 +103,25 @@ const StorePage = () => {
                     <div className="text-center py-16">
                         <span className="material-symbols-outlined text-6xl text-slate-300">search_off</span>
                         <p className="text-slate-500 font-medium mt-3">No products found</p>
-                        {search && (
-                            <button
-                                onClick={() => setSearch('')}
-                                className="mt-3 text-primary text-sm hover:underline"
-                            >
-                                Clear search
-                            </button>
+                        {(search || selectedCategory) && (
+                            <div className="flex gap-3 justify-center mt-3">
+                                {search && (
+                                    <button
+                                        onClick={() => setSearch('')}
+                                        className="text-primary text-sm hover:underline"
+                                    >
+                                        Clear search
+                                    </button>
+                                )}
+                                {selectedCategory && (
+                                    <button
+                                        onClick={() => setSelectedCategory(null)}
+                                        className="text-primary text-sm hover:underline"
+                                    >
+                                        Clear filter
+                                    </button>
+                                )}
+                            </div>
                         )}
                     </div>
                 )}

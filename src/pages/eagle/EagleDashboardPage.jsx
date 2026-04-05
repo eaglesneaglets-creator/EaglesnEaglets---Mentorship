@@ -131,7 +131,7 @@ const SessionCard = ({ title, date, link, isUpcoming = false }) => {
 const EagleDashboardPage = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { data: dashboardData, isLoading } = useEagleDashboardStats();
+  const { data: dashboardData, isLoading, isError } = useEagleDashboardStats();
 
   const [awardModal, setAwardModal] = useState({ open: false, eagletId: null, nestId: null });
   const openAwardModal = ({ eagletId, nestId }) => setAwardModal({ open: true, eagletId, nestId });
@@ -194,6 +194,25 @@ const EagleDashboardPage = () => {
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
             <p className="text-slate-500 font-medium">Loading your dashboard...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardLayout variant="eagle">
+        <div className="flex h-64 items-center justify-center">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <span className="material-symbols-outlined text-5xl text-slate-300">cloud_off</span>
+            <p className="text-slate-500 font-medium">Failed to load dashboard data</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm text-primary hover:underline"
+            >
+              Try again
+            </button>
           </div>
         </div>
       </DashboardLayout>

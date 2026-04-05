@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useAssignmentDetail, useSubmitAssignment } from '../../modules/content/hooks/useContent';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { stripCloudinarySignature } from '../../shared/utils/sanitize';
 
 /* ─── Status Configs ─── */
@@ -78,6 +78,8 @@ const AssignmentDetailPage = () => {
     const [notes, setNotes] = useState('');
     const [isDragging, setIsDragging] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Submission state
     const latestSubmission = assignment.submissions?.[0] || assignment.latest_submission;
@@ -107,7 +109,15 @@ const AssignmentDetailPage = () => {
         if (notes.trim()) payload.append('notes', notes.trim());
 
         submitMutation.mutate(payload, {
-            onSuccess: () => { setFile(null); setNotes(''); setShowSuccess(true); }
+            onSuccess: () => { setFile(null); setNotes(''); setShowSuccess(true); },
+            onError: (err) => {
+                const msg = err?.response?.data?.error?.message
+                    || err?.response?.data?.message
+                    || err?.message
+                    || 'Something went wrong. Please try again.';
+                setErrorMessage(msg);
+                setShowError(true);
+            },
         });
     };
 
@@ -440,6 +450,43 @@ const AssignmentDetailPage = () => {
                                 Back to Assignments
                             </button>
                         </div>
+                    </motion.div>
+                </motion.div>
+            )}
+
+            {/* ─── Fail Modal ─── */}
+            {showError && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+                    onClick={() => setShowError(false)}
+                >
+                    <motion.div
+                        initial={{ scale: 0.85, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.9, opacity: 0, y: 10 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center"
+                    >
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.1, type: 'spring', stiffness: 400, damping: 20 }}
+                            className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-5"
+                        >
+                            <span className="material-symbols-outlined text-red-500 text-4xl">error</span>
+                        </motion.div>
+                        <h2 className="text-xl font-bold text-slate-900 mb-2">Submission Failed</h2>
+                        <p className="text-sm text-slate-500 leading-relaxed mb-6">{errorMessage}</p>
+                        <button
+                            onClick={() => setShowError(false)}
+                            className="w-full py-3 bg-red-500 text-white font-bold text-sm rounded-xl hover:bg-red-600 transition-colors"
+                        >
+                            Try Again
+                        </button>
                     </motion.div>
                 </motion.div>
             )}

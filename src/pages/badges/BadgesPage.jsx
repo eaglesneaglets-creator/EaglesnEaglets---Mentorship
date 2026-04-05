@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
-import { useAllBadges } from '../../modules/points/hooks/usePoints';
+import { useBadges } from '../../modules/points/hooks/usePoints';
 
 const CATEGORY_META = {
     courses_completed:       { label: 'Learning Journey',   colour: 'text-emerald-600', bg: 'bg-emerald-50',  ring: 'ring-emerald-200' },
@@ -137,7 +137,7 @@ const BadgeCard = ({ badge, onClick }) => {
 export default function BadgesPage() {
     const [activeTab, setActiveTab] = useState('all');
     const [selectedBadge, setSelectedBadge] = useState(null);
-    const { data, isLoading, isError } = useAllBadges();
+    const { data, isLoading, isError } = useBadges({ staleTime: 5 * 60 * 1000 });
 
     const badges = useMemo(() => data?.data ?? [], [data]);
     const earnedCount = badges.filter(b => b.earned).length;

@@ -29,9 +29,6 @@ const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 const GoogleCallbackPage = lazy(() => import('./pages/auth/GoogleCallbackPage'));
-// Legacy KYC pages - kept for reference but routes now redirect to new profile pages
-// const KYCWizardPage = lazy(() => import('./pages/kyc/KYCWizardPage'));
-// const KYCPendingPage = lazy(() => import('./pages/kyc/KYCPendingPage'));
 const EagletOnboardingPage = lazy(() => import('./pages/eaglet/EagletOnboardingPage'));
 const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
 

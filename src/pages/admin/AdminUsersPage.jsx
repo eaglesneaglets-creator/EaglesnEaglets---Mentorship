@@ -10,9 +10,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import StatCard from '../../shared/components/ui/StatCard';
+import { ConfirmModal } from '../../shared/components/ui/ConfirmModal';
 import { adminService } from '../../modules/auth/services/auth-service';
 import { formatRelativeTime } from '../../shared/utils';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner'; // H19: standardise on sonner (was react-hot-toast)
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -737,6 +738,7 @@ const AdminUsersPage = () => {
 
   const [filters, setFilters] = useState({ role: 'all', status: 'all', search: '', ordering: '-created_at', page: 1, per_page: 15 });
   const [suspendTarget, setSuspendTarget] = useState(null);
+  const [confirmConfig, setConfirmConfig] = useState(null); // C5: replace window.confirm
   const [searchDebounced, setSearchDebounced] = useState('');
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [detailUser, setDetailUser] = useState(null);
@@ -833,9 +835,13 @@ const AdminUsersPage = () => {
   }, [suspendTarget, suspendMutation]);
 
   const handleReactivate = useCallback((user) => {
-    if (window.confirm(`Reactivate ${user.full_name}?`)) {
-      reactivateMutation.mutate(user.id);
-    }
+    setConfirmConfig({
+      title: 'Reactivate account?',
+      message: `${user.full_name}'s account will be restored to active status.`,
+      confirmLabel: 'Reactivate',
+      variant: 'primary',
+      onConfirm: () => reactivateMutation.mutate(user.id),
+    });
   }, [reactivateMutation]);
 
   const handleSort = useCallback((ordering) => {
@@ -845,14 +851,19 @@ const AdminUsersPage = () => {
   const handleBulkSuspend = useCallback(() => {
     const selectedUsers = users.filter(u => selectedIds.has(u.id));
     const names = selectedUsers.map(u => u.full_name).join(', ');
-    if (window.confirm(`Suspend ${selectedIds.size} users?\n\n${names}`)) {
-      setSuspendTarget(selectedUsers[0]);
-    }
+    setConfirmConfig({
+      title: `Suspend ${selectedIds.size} user${selectedIds.size !== 1 ? 's' : ''}?`,
+      message: names,
+      confirmLabel: 'Suspend',
+      variant: 'danger',
+      onConfirm: () => setSuspendTarget(selectedUsers[0]),
+    });
   }, [selectedIds, users]);
 
   return (
-    <DashboardLayout variant="admin">
-      <div className="flex flex-col gap-5 sm:gap-6">
+    <>
+      <DashboardLayout variant="admin">
+        <div className="flex flex-col gap-5 sm:gap-6">
 
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
@@ -1093,6 +1104,9 @@ const AdminUsersPage = () => {
         )}
       </AnimatePresence>
     </DashboardLayout>
+
+    <ConfirmModal config={confirmConfig} onClose={() => setConfirmConfig(null)} />
+    </>
   );
 };
 

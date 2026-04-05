@@ -1,9 +1,8 @@
 import { useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import ChatService from '../services/chat-service';
 import { useWebSocket } from '@hooks/useWebSocket';
-import { useAuthStore } from '@store';
 
 export const chatKeys = {
     all: ['chat'],
@@ -42,10 +41,20 @@ export const useContacts = () =>
     });
 
 export const useMessages = (conversationId, { enabled = true } = {}) =>
-    useQuery({
+    useInfiniteQuery({
         queryKey: chatKeys.messages(conversationId),
-        queryFn: () => ChatService.getMessages(conversationId),
-        select: (data) => data?.data || [],
+        queryFn: ({ pageParam }) => ChatService.getMessages(conversationId, pageParam),
+        initialPageParam: null,
+        // Cursor = oldest message ID in the last fetched page; undefined stops loading
+        getNextPageParam: (lastPage) => {
+            const msgs = lastPage?.data ?? [];
+            return msgs.length >= 50 ? (msgs[0]?.id ?? undefined) : undefined;
+        },
+        select: (data) => ({
+            // Reverse so oldest page renders first (chronological order)
+            messages: data.pages.slice().reverse().flatMap((p) => p?.data ?? []),
+            hasMore: (data.pages.at(-1)?.data?.length ?? 0) >= 50,
+        }),
         enabled: !!conversationId && enabled,
         staleTime: 0, // always fresh — WS keeps it updated
     });
@@ -91,20 +100,17 @@ export const useMarkRead = () => {
  */
 export const useChatSocket = (conversationId, { enabled = true } = {}) => {
     const queryClient = useQueryClient();
-    const { accessToken } = useAuthStore();
 
     const onMessage = useCallback((data) => {
         if (data.type !== 'chat.message') return;
 
         queryClient.setQueryData(chatKeys.messages(conversationId), (old) => {
-            // Cache holds the raw API envelope { data: [...] } because useMessages
-            // uses a `select` function. We must preserve that shape here so `select`
-            // can unwrap it on the next render. Writing a bare array would cause
-            // select to return [] (array?.data === undefined).
-            const messages = old?.data ?? (Array.isArray(old) ? old : []);
-            // Deduplicate by id
-            const exists = messages.some((m) => m.id === data.id);
-            if (exists) return old;
+            // useInfiniteQuery cache shape: { pages: [...], pageParams: [...] }
+            // New messages append to pages[0] (the most recent page).
+            if (!old?.pages?.length) return old;
+            const latestPage = old.pages[0];
+            const existing = latestPage?.data ?? [];
+            if (existing.some((m) => m.id === data.id)) return old;
             const newMsg = {
                 id: data.id,
                 conversation: data.conversation,
@@ -114,7 +120,8 @@ export const useChatSocket = (conversationId, { enabled = true } = {}) => {
                 is_deleted: false,
                 created_at: data.created_at,
             };
-            return { ...(old || {}), data: [...messages, newMsg] };
+            const updatedPage = { ...latestPage, data: [...existing, newMsg] };
+            return { ...old, pages: [updatedPage, ...old.pages.slice(1)] };
         });
 
         // Also update last_message in conversations list.
@@ -144,8 +151,7 @@ export const useChatSocket = (conversationId, { enabled = true } = {}) => {
     const { status, send } = useWebSocket({
         path,
         onMessage,
-        token: accessToken,
-        enabled: !!conversationId && enabled && !!accessToken,
+        enabled: !!conversationId && enabled,
     });
 
     const sendMessage = useCallback((content) => {

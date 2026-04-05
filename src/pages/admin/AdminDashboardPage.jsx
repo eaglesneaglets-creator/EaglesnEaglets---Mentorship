@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ResponsiveContainer,
@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
-import { adminService } from '../../modules/auth/services/auth-service';
+import { useAdminDashboardStats } from '../../modules/analytics/hooks/useAnalytics';
 import { formatRelativeTime } from '../../shared/utils';
 import StatCard from '../../shared/components/ui/StatCard';
 
@@ -42,40 +42,15 @@ const ActivityItem = ({ icon, icon_bg, iconBg, title, description, time, timesta
 // ═══════════════════════════════════════════════════════════════════════════════
 const AdminDashboardPage = () => {
   const { user } = useAuthStore();
-  const [stats, setStats] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [chartPeriod, setChartPeriod] = useState('weekly');
-  const [chartLoading, setChartLoading] = useState(false);
   const [chartType, setChartType] = useState('bar');
 
-  const fetchStats = useCallback(async (period = 'weekly') => {
-    try {
-      const response = await adminService.getStats({ period });
-      if (response.success) {
-        setStats(response.data);
-      }
-    } catch {
-      // Silently fail — UI will show "0" for empty data
-    }
-  }, []);
+  const { data: stats, isLoading, isError, isFetching } = useAdminDashboardStats(chartPeriod);
+  const chartLoading = isFetching && !isLoading;
 
-  // Initial load
-  useEffect(() => {
-    const load = async () => {
-      await fetchStats(chartPeriod);
-      setIsLoading(false);
-    };
-    load();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Refetch when chart period changes
-  const handlePeriodChange = useCallback(async (newPeriod) => {
-    if (newPeriod === chartPeriod) return;
-    setChartPeriod(newPeriod);
-    setChartLoading(true);
-    await fetchStats(newPeriod);
-    setChartLoading(false);
-  }, [chartPeriod, fetchStats]);
+  const handlePeriodChange = (newPeriod) => {
+    if (newPeriod !== chartPeriod) setChartPeriod(newPeriod);
+  };
 
   // Helper: format date as YYYY-MM-DD using local timezone (matches backend TruncDate)
   const toLocalDateStr = (date) => {
@@ -161,6 +136,25 @@ const AdminDashboardPage = () => {
   const totalEaglets = stats?.users?.eaglets || 0;
   const pendingKYC = stats?.kyc?.total_pending || 0;
   const recentActivity = stats?.recent_activity || [];
+
+  if (isError) {
+    return (
+      <DashboardLayout variant="admin">
+        <div className="flex h-64 items-center justify-center">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <span className="material-symbols-outlined text-5xl text-slate-300">cloud_off</span>
+            <p className="text-slate-500 font-medium">Failed to load dashboard data</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm text-primary hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout variant="admin">

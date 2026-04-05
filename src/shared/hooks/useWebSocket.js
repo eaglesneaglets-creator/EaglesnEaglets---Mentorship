@@ -3,14 +3,13 @@
  *
  * Features:
  * - Single WS instance per hook mount (via useRef)
- * - JWT token appended as ?token= from tokenManager
+ * - Authentication via httpOnly cookie (sent automatically by browser on Upgrade handshake)
  * - Exponential backoff reconnection (max 5 retries, cap 30s)
  * - Auto-cleanup on unmount
  * - onMessage, onOpen, onClose callbacks via ref (stable — no stale closures)
  */
 
 import { useRef, useEffect, useCallback, useState } from 'react';
-import { tokenManager } from '@api';
 
 function getWsBase() {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -22,7 +21,7 @@ const WS_BASE = getWsBase();
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1000;
 
-export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true, token }) {
+export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true }) {
     const wsRef = useRef(null);
     const retriesRef = useRef(0);
     const reconnectTimerRef = useRef(null);
@@ -38,9 +37,9 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true,
     const connect = useCallback(() => {
         if (!enabled || !path) return;
 
-        // Use explicitly passed token, or fall back to tokenManager (localStorage)
-        const wsToken = token || tokenManager.getAccessToken();
-        const url = `${WS_BASE}/${path}${wsToken ? `?token=${wsToken}` : ''}`;
+        // Browser sends the httpOnly access_token cookie automatically on the
+        // WebSocket Upgrade handshake — no token needed in the URL.
+        const url = `${WS_BASE}/${path}`;
 
         setStatus('connecting');
         const ws = new WebSocket(url);

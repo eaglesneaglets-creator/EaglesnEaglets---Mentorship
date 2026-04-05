@@ -34,18 +34,11 @@ export const useLeaderboard = (params) => {
     });
 };
 
-export const useBadges = () => {
+export const useBadges = ({ staleTime } = {}) => {
     return useQuery({
         queryKey: pointsKeys.badges(),
         queryFn: () => PointsService.getBadges(),
-    });
-};
-
-export const useAllBadges = () => {
-    return useQuery({
-        queryKey: pointsKeys.badges(),
-        queryFn: () => PointsService.getBadges(),
-        staleTime: 5 * 60 * 1000, // badges list rarely changes
+        ...(staleTime != null && { staleTime }),
     });
 };
 

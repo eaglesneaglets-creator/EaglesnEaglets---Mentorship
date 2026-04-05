@@ -21,6 +21,9 @@ const RoleGuard = ({ allowedRoles }) => {
   // Check if user's role is in the allowed roles
   if (!user || !allowedRoles.includes(user.role)) {
     // Redirect to appropriate page based on role
+    if (user?.role === 'eagle') {
+      return <Navigate to="/eagle/dashboard" replace />;
+    }
     if (user?.role === 'eaglet') {
       return <Navigate to="/dashboard" replace />;
     }

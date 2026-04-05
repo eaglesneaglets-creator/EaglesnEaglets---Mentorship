@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -51,7 +51,10 @@ const MentorProfilePage = () => {
     },
   });
 
-  // Watch all form values for completion calculation
+  const DRAFT_KEY = 'mentor-profile-draft';
+
+  // Persist draft to sessionStorage on every change (survives refresh, clears on tab close)
+  const isRestoringRef = useRef(false);
   const watchedValues = watch();
   const selectedMentorshipTypes = watchedValues.mentorship_types || [];
   const profileDescription = watchedValues.profile_description || '';
@@ -74,6 +77,14 @@ const MentorProfilePage = () => {
     return Math.round((filledCount / requiredFields.length) * 100);
   }, [watchedValues, pictureUrl, cvUploaded, profileData?.cv]);
 
+  // Auto-save draft to sessionStorage on every change (skip during API-driven resets)
+  useEffect(() => {
+    if (isRestoringRef.current) return;
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(watchedValues));
+    } catch { /* ignore quota errors */ }
+  }, [watchedValues]);
+
   // Load existing profile data
   useEffect(() => {
     const loadProfile = async () => {
@@ -85,6 +96,7 @@ const MentorProfilePage = () => {
           setPictureUrl(data.display_picture);
           if (data.cv) setCvUploaded(true);
 
+          isRestoringRef.current = true;
           // Reset form with existing data
           reset({
             location: data.location || '',
@@ -96,10 +108,21 @@ const MentorProfilePage = () => {
             linkedin_url: data.linkedin_url || '',
             mentorship_types: data.mentorship_types || [],
           });
+          // Clear draft — API data is the source of truth once loaded
+          sessionStorage.removeItem(DRAFT_KEY);
+          isRestoringRef.current = false;
         }
       } catch {
-        // Profile might not exist yet for new users
+        // New user — restore draft if available
         logger.debug('No existing profile data');
+        try {
+          const saved = sessionStorage.getItem(DRAFT_KEY);
+          if (saved) {
+            isRestoringRef.current = true;
+            reset(JSON.parse(saved));
+            isRestoringRef.current = false;
+          }
+        } catch { /* ignore */ }
       } finally {
         setIsLoading(false);
       }
@@ -175,6 +198,7 @@ const MentorProfilePage = () => {
     const response = await profileService.updateMentorProfile(cleanedData);
     if (response.success) {
       setProfileData(response.data);
+      sessionStorage.removeItem(DRAFT_KEY);
       return true;
     }
     throw new Error(response.error?.message || 'Failed to save profile');
