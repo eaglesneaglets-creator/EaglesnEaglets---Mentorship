@@ -26,6 +26,7 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
     const retriesRef = useRef(0);
     const reconnectTimerRef = useRef(null);
     const callbacksRef = useRef({ onMessage, onOpen, onClose });
+    const connectRef = useRef(null); // ref to latest connect — avoids self-reference in useCallback
     const [status, setStatus] = useState('closed'); // 'connecting' | 'open' | 'closed'
     const [retryCount, setRetryCount] = useState(0);
 
@@ -74,7 +75,7 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
                     );
                     retriesRef.current += 1;
                     setRetryCount(retriesRef.current);
-                    reconnectTimerRef.current = setTimeout(connect, delay);
+                    reconnectTimerRef.current = setTimeout(() => connectRef.current?.(), delay);
                 }
             }
         };
@@ -83,6 +84,9 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
             // onclose fires after onerror — let it handle reconnection
         };
     }, [path, enabled]);
+
+    // Keep ref in sync so the onclose handler always calls the latest version
+    connectRef.current = connect;
 
     useEffect(() => {
         connect();

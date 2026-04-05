@@ -5,6 +5,20 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCategories } from '../hooks/useStore';
 
+const Field = ({ label, error, children }) => (
+    <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+        {children}
+        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+);
+
+Field.propTypes = {
+    label: PropTypes.string.isRequired,
+    error: PropTypes.string,
+    children: PropTypes.node.isRequired,
+};
+
 const schema = z.object({
     name: z.string().min(2, 'Name is required'),
     description: z.string().optional(),
@@ -106,19 +120,6 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
         onSubmit({ data, images: imageFiles });
     };
 
-    const Field = ({ label, error, children }) => (
-        <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-            {children}
-            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-        </div>
-    );
-
-    Field.propTypes = {
-        label: PropTypes.string.isRequired,
-        error: PropTypes.string,
-        children: PropTypes.node.isRequired,
-    };
 
     const inputClass = "w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none";
 

@@ -54,7 +54,7 @@ const StatCard = ({ icon, iconBg, gradient, label, value, change, pulse, delay =
 /**
  * KYC Mobile Card — shown on small screens instead of table row
  */
-const KYCApplicationCard = ({ app, onReview, formatDate, formatTimeAgo, getStatusConfig }) => {
+const KYCApplicationCard = ({ app, onReview, formatDate, getStatusConfig }) => {
   const statusConfig = getStatusConfig(app.status);
   const appRole = app.role || (app.kyc_type === 'mentee' ? 'mentee' : 'mentor');
   const isEagle = appRole === 'mentor' || appRole === 'eagle';

@@ -151,23 +151,23 @@ const SuspendModal = ({ user, onClose, onConfirm, isLoading }) => {
 
 // ─── User Detail Slide-over Panel ────────────────────────────────────────────
 
+const DetailRow = ({ label, value, icon, mono = false }) => (
+  <div className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
+    <span className="material-symbols-outlined text-base mt-0.5 shrink-0 text-slate-400">{icon}</span>
+    <div className="min-w-0 flex-1">
+      <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-0.5">{label}</p>
+      <p className={`text-sm text-slate-700 truncate ${mono ? 'font-mono' : ''}`}>
+        {value || '—'}
+      </p>
+    </div>
+  </div>
+);
+
 const UserDetailPanel = ({ user, onClose, onSuspend, onReactivate }) => {
   if (!user) return null;
   const role = ROLE_CONFIG[user.role] || ROLE_CONFIG.eaglet;
   const st = STATUS_CONFIG[user.status] || STATUS_CONFIG.inactive;
   const kyc = KYC_CONFIG[user.kyc_status] || KYC_CONFIG.draft;
-
-  const DetailRow = ({ label, value, icon, mono = false }) => (
-    <div className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
-      <span className="material-symbols-outlined text-base mt-0.5 shrink-0 text-slate-400">{icon}</span>
-      <div className="min-w-0 flex-1">
-        <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-0.5">{label}</p>
-        <p className={`text-sm text-slate-700 truncate ${mono ? 'font-mono' : ''}`}>
-          {value || '—'}
-        </p>
-      </div>
-    </div>
-  );
 
   return (
     <motion.div
@@ -655,6 +655,20 @@ const FilterBar = ({ filters, onChange, total, loading }) => {
 
 // ─── Pagination ───────────────────────────────────────────────────────────────
 
+const PaginationBtn = ({ p, activePage, onChange, children, disabled }) => (
+  <button
+    onClick={() => !disabled && onChange(p)}
+    disabled={disabled}
+    className={`w-9 h-9 sm:w-8 sm:h-8 rounded-lg text-xs font-semibold transition-all disabled:opacity-30 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 ${
+      p === activePage
+        ? 'bg-primary/10 text-primary border border-primary/30'
+        : 'bg-slate-50 text-slate-500 border border-transparent hover:bg-slate-100'
+    }`}
+  >
+    {children ?? p}
+  </button>
+);
+
 const Pagination = ({ page, totalPages, onChange }) => {
   if (totalPages <= 1) return null;
   const pages = Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
@@ -664,25 +678,11 @@ const Pagination = ({ page, totalPages, onChange }) => {
     return page - 3 + i;
   });
 
-  const Btn = ({ p, children, disabled }) => (
-    <button
-      onClick={() => !disabled && onChange(p)}
-      disabled={disabled}
-      className={`w-9 h-9 sm:w-8 sm:h-8 rounded-lg text-xs font-semibold transition-all disabled:opacity-30 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 ${
-        p === page
-          ? 'bg-primary/10 text-primary border border-primary/30'
-          : 'bg-slate-50 text-slate-500 border border-transparent hover:bg-slate-100'
-      }`}
-    >
-      {children ?? p}
-    </button>
-  );
-
   return (
     <div className="flex items-center justify-center gap-1 pt-4">
-      <Btn p={page - 1} disabled={page === 1}><span className="material-symbols-outlined text-base">chevron_left</span></Btn>
-      {pages.map(p => <Btn key={p} p={p}>{p}</Btn>)}
-      <Btn p={page + 1} disabled={page === totalPages}><span className="material-symbols-outlined text-base">chevron_right</span></Btn>
+      <PaginationBtn p={page - 1} activePage={page} onChange={onChange} disabled={page === 1}><span className="material-symbols-outlined text-base">chevron_left</span></PaginationBtn>
+      {pages.map(p => <PaginationBtn key={p} p={p} activePage={page} onChange={onChange}>{p}</PaginationBtn>)}
+      <PaginationBtn p={page + 1} activePage={page} onChange={onChange} disabled={page === totalPages}><span className="material-symbols-outlined text-base">chevron_right</span></PaginationBtn>
     </div>
   );
 };
@@ -773,7 +773,8 @@ const AdminUsersPage = () => {
   const pagination = usersData?.data?.data?.pagination ?? usersData?.data?.pagination ?? {};
   const stats = statsData?.data?.data ?? statsData?.data ?? {};
 
-  // Clear selection when filters/page change
+  // Clear selection when filters/page change — setState in effect is intentional here
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setSelectedIds(new Set());
   }, [filters.role, filters.status, filters.page, searchDebounced]);

@@ -235,7 +235,7 @@ const OrderDetailModal = ({ orderId, onClose }) => {
                                     {/* Vertical line */}
                                     <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-slate-200" />
                                     <div className="space-y-4">
-                                        {order.status_history.map((entry, i) => (
+                                        {order.status_history.map((entry) => (
                                             <div key={entry.id} className="flex items-start gap-4 relative">
                                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 border-white ${STATUS_BADGE[entry.to_status] || 'bg-slate-100'}`}>
                                                     <span className="material-symbols-outlined text-sm">
