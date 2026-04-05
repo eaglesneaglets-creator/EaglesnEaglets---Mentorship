@@ -41,8 +41,19 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
     // Preview URLs for new files
     const [imagePreviews, setImagePreviews] = useState([]);
     // Existing images from the product being edited
-    const [existingImages, setExistingImages] = useState([]);
+    const [existingImages, setExistingImages] = useState(product?.images ?? []);
     const [imageError, setImageError] = useState('');
+
+    // Track which product instance we've last synced image state for.
+    // Using the "during render" pattern avoids setState inside an effect.
+    const [syncedProduct, setSyncedProduct] = useState(product);
+    if (syncedProduct !== product) {
+        setSyncedProduct(product);
+        setExistingImages(product?.images ?? []);
+        setImageFiles([]);
+        setImagePreviews([]);
+        setImageError('');
+    }
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(schema),
@@ -56,6 +67,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
         },
     });
 
+    // react-hook-form reset must stay in an effect — it's an external library call, not React state
     useEffect(() => {
         if (product) {
             reset({
@@ -66,13 +78,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
                 stock_quantity: product.stock_quantity,
                 status: product.status,
             });
-            setExistingImages(product.images ?? []);
-        } else {
-            setExistingImages([]);
         }
-        setImageFiles([]);
-        setImagePreviews([]);
-        setImageError('');
     }, [product, reset]);
 
     // Clean up preview URLs on unmount

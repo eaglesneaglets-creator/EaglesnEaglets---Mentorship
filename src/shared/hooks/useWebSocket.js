@@ -85,8 +85,10 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
         };
     }, [path, enabled]);
 
-    // Keep ref in sync so the onclose handler always calls the latest version
-    connectRef.current = connect;
+    // Keep ref in sync after render so the onclose handler always calls the latest version
+    useEffect(() => {
+        connectRef.current = connect;
+    }, [connect]);
 
     useEffect(() => {
         connect();

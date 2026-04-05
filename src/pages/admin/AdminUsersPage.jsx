@@ -773,11 +773,13 @@ const AdminUsersPage = () => {
   const pagination = usersData?.data?.data?.pagination ?? usersData?.data?.pagination ?? {};
   const stats = statsData?.data?.data ?? statsData?.data ?? {};
 
-  // Clear selection when filters/page change — setState in effect is intentional here
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
+  // Clear selection when filters/page change — during-render pattern avoids setState-in-effect
+  const filtersKey = `${filters.role}|${filters.status}|${filters.page}|${searchDebounced}`;
+  const [prevFiltersKey, setPrevFiltersKey] = useState(filtersKey);
+  if (prevFiltersKey !== filtersKey) {
+    setPrevFiltersKey(filtersKey);
     setSelectedIds(new Set());
-  }, [filters.role, filters.status, filters.page, searchDebounced]);
+  }
 
   // Selection handlers
   const toggleSelect = useCallback((id) => {

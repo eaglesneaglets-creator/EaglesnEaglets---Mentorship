@@ -13,11 +13,12 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Close menu on route change — setState in effect is intentional here
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    useEffect(() => {
+    // Close menu on route change — during-render pattern avoids setState-in-effect
+    const [prevPath, setPrevPath] = useState(location.pathname);
+    if (prevPath !== location.pathname) {
+        setPrevPath(location.pathname);
         setIsMobileMenuOpen(false);
-    }, [location.pathname]);
+    }
 
     const navLinks = [
         { name: 'Home', path: '/' },
