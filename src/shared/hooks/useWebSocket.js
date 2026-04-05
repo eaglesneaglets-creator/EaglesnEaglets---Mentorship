@@ -27,7 +27,9 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
     const reconnectTimerRef = useRef(null);
     const callbacksRef = useRef({ onMessage, onOpen, onClose });
     const connectRef = useRef(null); // ref to latest connect — avoids self-reference in useCallback
-    const [status, setStatus] = useState('closed'); // 'connecting' | 'open' | 'closed'
+    // Lazy initializer: start as 'connecting' immediately if we have a path — avoids
+    // calling setStatus inside the effect body (which triggers react-hooks/set-state-in-effect).
+    const [status, setStatus] = useState(() => (enabled && path) ? 'connecting' : 'closed');
     const [retryCount, setRetryCount] = useState(0);
 
     // Keep callbacks fresh without triggering reconnections
@@ -42,7 +44,6 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
         // WebSocket Upgrade handshake — no token needed in the URL.
         const url = `${WS_BASE}/${path}`;
 
-        setStatus('connecting');
         const ws = new WebSocket(url);
         wsRef.current = ws;
 
@@ -75,6 +76,7 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
                     );
                     retriesRef.current += 1;
                     setRetryCount(retriesRef.current);
+                    setStatus('connecting'); // async callback — linter-safe
                     reconnectTimerRef.current = setTimeout(() => connectRef.current?.(), delay);
                 }
             }
