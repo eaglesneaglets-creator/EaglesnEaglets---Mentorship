@@ -172,8 +172,8 @@ const DashboardLayout = ({
   const markAsReadMutation = useMarkAsRead();
   const markAllAsReadMutation = useMarkAllAsRead();
 
-  // Mount WS connection — single instance for the entire dashboard session
-  const { retryCount: wsRetryCount } = useNotificationSocket();
+  // Mount WS connection — gated on tokenReady so the cookie is fresh before connecting
+  const { retryCount: wsRetryCount } = useNotificationSocket({ enabled: tokenReady });
 
   const notifications = notificationsData?.data?.results || notificationsData?.data || [];
   const unreadCount = unreadData?.data?.count ?? unreadData?.data?.unread_count ?? 0;

@@ -58,7 +58,7 @@ export const useMarkAllAsRead = () => {
  *
  * Mount this ONCE in DashboardLayout.
  */
-export const useNotificationSocket = () => {
+export const useNotificationSocket = ({ enabled: externalEnabled = true } = {}) => {
     const queryClient = useQueryClient();
     const { user, accessToken } = useAuthStore();
 
@@ -97,7 +97,7 @@ export const useNotificationSocket = () => {
         path: 'ws/notifications/',
         onMessage,
         token: accessToken,
-        enabled: !!user && !!accessToken,
+        enabled: externalEnabled && !!user && !!accessToken,
     });
 
     return { status, retryCount };

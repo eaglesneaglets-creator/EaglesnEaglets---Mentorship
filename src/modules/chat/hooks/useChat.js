@@ -3,6 +3,7 @@ import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tansta
 import { toast } from 'sonner';
 import ChatService from '../services/chat-service';
 import { useWebSocket } from '@hooks/useWebSocket';
+import { useAuthStore } from '@store';
 
 export const chatKeys = {
     all: ['chat'],
@@ -100,6 +101,7 @@ export const useMarkRead = () => {
  */
 export const useChatSocket = (conversationId, { enabled = true } = {}) => {
     const queryClient = useQueryClient();
+    const { accessToken } = useAuthStore();
 
     const onMessage = useCallback((data) => {
         if (data.type !== 'chat.message') return;
@@ -151,6 +153,7 @@ export const useChatSocket = (conversationId, { enabled = true } = {}) => {
     const { status, send } = useWebSocket({
         path,
         onMessage,
+        token: accessToken,
         enabled: !!conversationId && enabled,
     });
 

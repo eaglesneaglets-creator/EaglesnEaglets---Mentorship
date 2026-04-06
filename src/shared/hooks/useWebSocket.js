@@ -21,7 +21,7 @@ const WS_BASE = getWsBase();
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1000;
 
-export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true }) {
+export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true, token = null }) {
     const wsRef = useRef(null);
     const retriesRef = useRef(0);
     const reconnectTimerRef = useRef(null);
@@ -40,9 +40,10 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
     const connect = useCallback(() => {
         if (!enabled || !path) return;
 
-        // Browser sends the httpOnly access_token cookie automatically on the
-        // WebSocket Upgrade handshake — no token needed in the URL.
-        const url = `${WS_BASE}/${path}`;
+        // Token is appended as a query param for cross-origin WebSocket auth.
+        // Browsers block cross-site cookies on WS upgrades (Chrome PSL behaviour),
+        // so the store token is the only reliable channel.
+        const url = token ? `${WS_BASE}/${path}?token=${token}` : `${WS_BASE}/${path}`;
 
         const ws = new WebSocket(url);
         wsRef.current = ws;
@@ -85,7 +86,7 @@ export function useWebSocket({ path, onMessage, onOpen, onClose, enabled = true 
         ws.onerror = () => {
             // onclose fires after onerror — let it handle reconnection
         };
-    }, [path, enabled]);
+    }, [path, enabled, token]);
 
     // Keep ref in sync after render so the onclose handler always calls the latest version
     useEffect(() => {
