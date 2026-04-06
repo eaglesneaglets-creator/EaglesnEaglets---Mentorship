@@ -6,9 +6,10 @@ export const orderKeys = {
     detail: (id) => ['store', 'orders', id],
 };
 
-export const useOrders = () => useQuery({
+export const useOrders = ({ enabled = true } = {}) => useQuery({
     queryKey: orderKeys.all,
     queryFn: () => StoreService.getOrders(),
+    enabled,
 });
 
 export const useOrderDetail = (id) => useQuery({
