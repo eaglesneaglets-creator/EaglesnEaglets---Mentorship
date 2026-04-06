@@ -81,11 +81,11 @@ const StoreService = {
     // Payment (MM-20)
     // Initialize a Paystack transaction — returns { authorization_url, reference }
     initializePayment: (orderId) =>
-        apiClient.post(`/store/orders/${orderId}/initialize-payment/`, {}, { skipAuth: true }),
+        apiClient.post(`/store/orders/${orderId}/initialize-payment/`, {}),
 
-    // Verify order payment status after Paystack redirect — skipAuth for guest orders
+    // Verify order payment status after Paystack redirect
     verifyPayment: (orderId) =>
-        apiClient.post(`/store/orders/${orderId}/verify/`, {}, { skipAuth: true }),
+        apiClient.post(`/store/orders/${orderId}/verify/`, {}),
 };
 
 export default StoreService;
