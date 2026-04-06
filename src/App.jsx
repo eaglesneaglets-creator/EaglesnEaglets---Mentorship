@@ -77,6 +77,7 @@ const StorePage = lazy(() => import('./pages/store/StorePage'));
 const ProductDetailPage = lazy(() => import('./pages/store/ProductDetailPage'));
 const CartPage = lazy(() => import('./pages/store/CartPage'));
 const OrderConfirmationPage = lazy(() => import('./pages/store/OrderConfirmationPage'));
+const OrdersPage = lazy(() => import('./pages/store/OrdersPage'));
 const AdminStorePage = lazy(() => import('./pages/admin/AdminStorePage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 
@@ -185,6 +186,7 @@ function App() {
                 {/* Public Store — accessible without login, no auth required */}
                 <Route path="/store" element={<StorePage />} />
                 <Route path="/store/cart" element={<CartPage />} />
+                <Route path="/store/orders" element={<OrdersPage />} />
                 <Route path="/store/orders/:id" element={<OrderConfirmationPage />} />
                 <Route path="/store/:slug" element={<ProductDetailPage />} />
 

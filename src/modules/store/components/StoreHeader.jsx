@@ -61,6 +61,15 @@ const StoreHeader = () => {
 
                 {/* Right actions */}
                 <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Orders icon — all users */}
+                    <Link
+                        to="/store/orders"
+                        className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
+                        aria-label="My orders"
+                    >
+                        <span className="material-symbols-outlined text-slate-700">receipt_long</span>
+                    </Link>
+
                     {/* Cart icon */}
                     <Link
                         to="/store/cart"
@@ -129,6 +138,14 @@ const StoreHeader = () => {
                                     >
                                         <span className="material-symbols-outlined text-base text-primary">dashboard</span>
                                         Back to Dashboard
+                                    </Link>
+                                    <Link
+                                        to="/store/orders"
+                                        onClick={() => setDropdownOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-base text-slate-500">receipt_long</span>
+                                        My Orders
                                     </Link>
                                     <Link
                                         to="/store/cart"

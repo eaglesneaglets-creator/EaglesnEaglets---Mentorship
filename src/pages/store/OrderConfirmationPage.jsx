@@ -265,7 +265,7 @@ const OrderConfirmationPage = () => {
                 Continue Shopping
               </Link>
               {isAuthenticated && (
-                <Link to="/dashboard" className="flex-1 py-3 bg-primary text-white font-semibold rounded-2xl text-center hover:bg-primary/90 transition-colors text-sm">
+                <Link to="/store/orders" className="flex-1 py-3 bg-primary text-white font-semibold rounded-2xl text-center hover:bg-primary/90 transition-colors text-sm">
                   View All Orders
                 </Link>
               )}
