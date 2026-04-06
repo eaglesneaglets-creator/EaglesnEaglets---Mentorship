@@ -36,7 +36,7 @@ export function usePayment(order) {
 
             const popup = window.PaystackPop.setup({
                 key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-                email: order.user_email ?? order.guest_email ?? '',
+                email: order.customer_email ?? order.guest_email ?? '',
                 // Amount in pesewas (GHS minor unit) — must be integer
                 amount: Math.round(Number(order.total_amount) * 100),
                 ref: reference,
