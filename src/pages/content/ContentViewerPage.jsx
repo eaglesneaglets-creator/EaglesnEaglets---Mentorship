@@ -6,6 +6,7 @@ import { useAuthStore } from '@store';
 import { useModuleDetail, useModuleItems, useUpdateProgress } from '../../modules/content/hooks/useContent';
 import toast from 'react-hot-toast';
 import DocumentViewer from '../../shared/components/visual/DocumentViewer';
+import { sanitizeUrl } from '../../shared/utils/sanitize';
 
 const TYPE_CONFIG = {
     video: { icon: 'play_circle', color: 'emerald', label: 'Video' },
@@ -229,7 +230,7 @@ const ContentViewerPage = () => {
                                                     />
                                                 ) : (
                                                     <DocumentViewer
-                                                        url={activeItem.file_url}
+                                                        url={sanitizeUrl(activeItem.file_url)}
                                                         type={activeItem.content_type}
                                                         title={activeItem.title}
                                                     />

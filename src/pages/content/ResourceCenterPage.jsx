@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useModules, useMyProgress } from '../../modules/content/hooks/useContent';
+import { validateRedirectUrl } from '../../shared/utils/sanitize';
 
 /* ─── Soft animated background ─── */
 const AnimatedBg = () => (
@@ -253,7 +254,11 @@ const ResourceCenterPage = () => {
         if (item._isModule) {
             navigate(`${contentBase}/${moduleId}`);
         } else if (item.content_type === 'reading' && item.file_url) {
-            window.open(item.file_url, '_blank');
+            // Security: validate URL to prevent open redirect attacks
+            const safeUrl = validateRedirectUrl(item.file_url);
+            if (safeUrl) {
+                window.open(safeUrl, '_blank');
+            }
         } else {
             navigate(`${contentBase}/${moduleId}`);
         }

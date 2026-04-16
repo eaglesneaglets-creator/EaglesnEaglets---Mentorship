@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCreateItem } from '../hooks/useContent';
+import { sanitizeImageUrl } from '../../../shared/utils/sanitize';
 
 const ContentItemUploadModal = ({ isOpen, onClose, moduleId }) => {
     const createItemMutation = useCreateItem(moduleId);
@@ -187,7 +188,7 @@ const ContentItemUploadModal = ({ isOpen, onClose, moduleId }) => {
                         <div className="flex items-center gap-4">
                             <div className="w-20 h-20 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
                                 {fileOptions.thumbnailPreview ? (
-                                    <img src={fileOptions.thumbnailPreview} alt="Preview" className="w-full h-full object-cover" />
+                                    <img src={sanitizeImageUrl(fileOptions.thumbnailPreview)} alt="Preview" className="w-full h-full object-cover" />
                                 ) : (
                                     <span className="material-symbols-outlined text-slate-300 text-2xl">image</span>
                                 )}

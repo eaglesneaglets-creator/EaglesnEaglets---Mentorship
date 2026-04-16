@@ -160,3 +160,96 @@ export function createSafeInnerHTML(dirty, config = DEFAULT_CONFIG) {
   };
 }
 
+/**
+ * Validate and sanitize an image URL for use in <img src>
+ * Blocks data: URLs, javascript:, and other dangerous protocols
+ * @param {string} url - The potentially untrusted image URL
+ * @returns {string} Safe URL or empty string if unsafe
+ */
+export function sanitizeImageUrl(url) {
+  if (!url || typeof url !== 'string') {
+    return '';
+  }
+
+  const trimmedUrl = url.trim().toLowerCase();
+
+  // Block all dangerous protocols including data:
+  const dangerousProtocols = [
+    'javascript:',
+    'data:',
+    'vbscript:',
+    'file:',
+    'blob:',
+  ];
+
+  for (const protocol of dangerousProtocols) {
+    if (trimmedUrl.startsWith(protocol)) {
+      return '';
+    }
+  }
+
+  // Only allow http, https, and relative URLs
+  const isRelative = !trimmedUrl.includes(':');
+  const isHttpHttps = trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://');
+
+  if (isRelative || isHttpHttps) {
+    return url;
+  }
+
+  return '';
+}
+
+/**
+ * Validate redirect URL to prevent open redirect attacks
+ * Only allows relative paths or same-origin absolute paths
+ * @param {string} redirectUrl - The potentially untrusted redirect URL
+ * @param {string} fallback - Safe fallback URL if redirect is invalid
+ * @returns {string} Valid redirect URL or fallback
+ */
+export function validateRedirectUrl(redirectUrl, fallback = '/') {
+  if (!redirectUrl || typeof redirectUrl !== 'string') {
+    return fallback;
+  }
+
+  const trimmed = redirectUrl.trim();
+
+  // Block dangerous patterns
+  const dangerousPatterns = [
+    'javascript:',
+    'data:',
+    'vbscript:',
+  ];
+
+  for (const pattern of dangerousPatterns) {
+    if (trimmed.toLowerCase().includes(pattern)) {
+      return fallback;
+    }
+  }
+
+  // Allow relative paths (starting with / or #)
+  if (trimmed.startsWith('/') || trimmed.startsWith('#')) {
+    // Block paths that go above root (e.g., /../)
+    if (trimmed.includes('..')) {
+      return fallback;
+    }
+    return trimmed;
+  }
+
+  // Allow same-origin absolute paths (but block external URLs)
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    // Only allow same origin
+    try {
+      const url = new URL(trimmed);
+      // Allow if same origin as current page
+      if (url.origin === window.location.origin) {
+        return trimmed;
+      }
+    } catch {
+      // Invalid URL
+      return fallback;
+    }
+  }
+
+  return fallback;
+}
+

@@ -1,5 +1,6 @@
 /**
  * ConfirmModal — reusable destructive-action confirmation dialog.
+ * Built on top of the generic Modal component.
  *
  * Usage:
  *   const [confirm, setConfirm] = useState(null);
@@ -8,6 +9,7 @@
  */
 
 import PropTypes from 'prop-types';
+import Modal from './Modal';
 
 export function ConfirmModal({ config, onClose }) {
   if (!config) return null;
@@ -24,26 +26,26 @@ export function ConfirmModal({ config, onClose }) {
     : 'bg-primary hover:bg-primary/90 text-white';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        {message && <p className="text-sm text-gray-600">{message}</p>}
-        <div className="flex gap-3 justify-end pt-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirm}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${btnClass}`}
-          >
-            {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+    <Modal isOpen={!!config} onClose={onClose} size="sm">
+      <Modal.Header onClose={onClose}>{title}</Modal.Header>
+      <Modal.Body>
+        {message && <p className="text-sm text-slate-600">{message}</p>}
+      </Modal.Body>
+      <Modal.Footer>
+        <button
+          onClick={onClose}
+          className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleConfirm}
+          className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${btnClass}`}
+        >
+          {confirmLabel}
+        </button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 

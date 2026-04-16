@@ -418,7 +418,7 @@ const ChatPage = () => {
         fetchNextPage,
         isFetchingNextPage,
     } = useMessages(activeConversation?.id, { enabled: !!activeConversation });
-    const messages = msgsData?.messages ?? [];
+    const messages = useMemo(() => msgsData?.messages ?? [], [msgsData?.messages]);
     const hasMoreMessages = msgsData?.hasMore ?? false;
     const { status: wsStatus, sendMessage } = useChatSocket(activeConversation?.id);
     const markReadMutation = useMarkRead();
@@ -434,7 +434,7 @@ const ChatPage = () => {
         if (activeConversation?.id) {
             markReadMutation.mutate(activeConversation.id);
         }
-    }, [activeConversation?.id]);
+    }, [activeConversation?.id, markReadMutation]);
 
     const filteredConversations = useMemo(() => {
         if (!searchQuery.trim()) return conversations;

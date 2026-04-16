@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { useAuthStore } from '@store';
-import logoImg from '../../assets/EaglesnEagletsLogo.jpeg';
+import { motion, useInView } from 'framer-motion';
 import aboutIllustration from '../../assets/about-illustration.png';
+import PublicNavbar from '@shared/components/layout/PublicNavbar';
+import PublicFooter from '@shared/components/layout/PublicFooter';
 
 // 4K community teaching & learning hero — diverse group in a learning/mentorship setting
 const heroBg = 'https://images.unsplash.com/photo-1529390079861-591de354faf5?q=90&w=3840&auto=format&fit=crop';
@@ -36,258 +36,6 @@ const FadeIn = ({ children, delay = 0, direction = 'up', className = '' }) => {
         >
             {children}
         </motion.div>
-    );
-};
-
-/* ═══════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════ */
-const getDashboardPath = (user) => {
-    if (!user) return '/dashboard';
-    if (user.role === 'admin' || user.is_staff || user.is_superuser) return '/admin/dashboard';
-    if (user.role === 'eagle') return '/eagle/dashboard';
-    return '/eaglet/dashboard';
-};
-
-const getInitials = (user) => {
-    if (!user) return '?';
-    const f = user.first_name?.charAt(0) || '';
-    const l = user.last_name?.charAt(0) || '';
-    return (f + l).toUpperCase() || user.email?.charAt(0).toUpperCase() || '?';
-};
-
-/* ═══════════════════════════════════════════════
-   FLOATING NAVBAR
-   ═══════════════════════════════════════════════ */
-const Navbar = () => {
-    const [scrolled, setScrolled] = useState(false);
-    const [mobileOpen, setMobileOpen] = useState(false);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
-    const navigate = useNavigate();
-    const { isAuthenticated, user, logout } = useAuthStore();
-
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 40);
-        window.addEventListener('scroll', onScroll);
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
-
-    // Close dropdown on outside click
-    useEffect(() => {
-        const handler = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setDropdownOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
-
-    const navLinks = [
-        { label: 'Home', href: '#hero' },
-        { label: 'About', href: '#about' },
-        { label: 'Store', href: '/store', external: true },
-        { label: 'Donate', href: '#donate' },
-    ];
-
-    const scrollTo = (href) => {
-        setMobileOpen(false);
-        const el = document.querySelector(href);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    const handleLogout = async () => {
-        setDropdownOpen(false);
-        setMobileOpen(false);
-        await logout();
-        navigate('/login');
-    };
-
-    const linkClass = `px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${scrolled ? 'text-slate-600 hover:text-primary hover:bg-primary/5' : 'text-white/90 hover:text-white hover:bg-white/15'}`;
-
-    return (
-        <motion.nav
-            initial={{ y: -40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${scrolled ? 'top-3' : 'top-5'}`}
-        >
-            {/* Desktop */}
-            <div className={`hidden md:flex items-center gap-1 px-2 py-2 rounded-full border transition-all duration-500 ${scrolled
-                ? 'bg-white/90 backdrop-blur-xl border-slate-200/60 shadow-lg shadow-slate-200/30'
-                : 'bg-white/20 backdrop-blur-md border-white/30 shadow-md shadow-black/10'
-                }`}>
-                <Link to="/" className="flex items-center gap-2 pl-3 pr-4">
-                    <img src={logoImg} alt="Eagles & Eaglets" className="w-8 h-8 rounded-full object-cover ring-2 ring-white/50" />
-                    <span className={`font-extrabold text-sm tracking-tight whitespace-nowrap transition-colors duration-500 ${scrolled ? 'text-slate-900' : 'text-white'}`}>Eagles & Eaglets</span>
-                </Link>
-                <div className={`w-px h-6 mx-1 transition-colors duration-500 ${scrolled ? 'bg-slate-200/50' : 'bg-white/30'}`} />
-                {navLinks.map((link) => (
-                    link.external ? (
-                        <Link key={link.label} to={link.href} className={linkClass}>{link.label}</Link>
-                    ) : (
-                        <button key={link.label} onClick={() => scrollTo(link.href)} className={linkClass}>{link.label}</button>
-                    )
-                ))}
-                <div className={`w-px h-6 mx-1 transition-colors duration-500 ${scrolled ? 'bg-slate-200/50' : 'bg-white/30'}`} />
-
-                {isAuthenticated && user ? (
-                    /* Profile avatar + dropdown */
-                    <div className="relative" ref={dropdownRef}>
-                        <button
-                            onClick={() => setDropdownOpen((o) => !o)}
-                            className="flex items-center gap-2 px-2 py-1.5 rounded-full hover:bg-white/15 transition-colors focus:outline-none"
-                        >
-                            {user.avatar ? (
-                                <img src={user.avatar} alt={user.first_name} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30" />
-                            ) : (
-                                <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-bold flex items-center justify-center ring-2 ring-primary/30">
-                                    {getInitials(user)}
-                                </div>
-                            )}
-                            <span className={`text-sm font-semibold max-w-[90px] truncate transition-colors duration-500 ${scrolled ? 'text-slate-700' : 'text-white'}`}>
-                                {user.first_name || user.email}
-                            </span>
-                            <span className={`material-symbols-outlined text-base transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''} ${scrolled ? 'text-slate-400' : 'text-white/70'}`}>
-                                expand_more
-                            </span>
-                        </button>
-
-                        {/* Dropdown */}
-                        <div className={`absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden
-                            transition-all duration-200 origin-top-right
-                            ${dropdownOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2 pointer-events-none'}`}
-                        >
-                            <div className="px-4 py-3 border-b border-slate-100">
-                                <p className="text-sm font-semibold text-slate-900 truncate">{user.first_name} {user.last_name}</p>
-                                <p className="text-xs text-slate-500 truncate">{user.email}</p>
-                                <span className="mt-1 inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary capitalize">
-                                    {user.role}
-                                </span>
-                            </div>
-                            <div className="py-1">
-                                <Link
-                                    to={getDashboardPath(user)}
-                                    onClick={() => setDropdownOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                                >
-                                    <span className="material-symbols-outlined text-base text-primary">dashboard</span>
-                                    Go to Dashboard
-                                </Link>
-                                <Link
-                                    to="/store"
-                                    onClick={() => setDropdownOpen(false)}
-                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                                >
-                                    <span className="material-symbols-outlined text-base text-slate-500">storefront</span>
-                                    Store
-                                </Link>
-                            </div>
-                            <div className="border-t border-slate-100 py-1">
-                                <button
-                                    onClick={handleLogout}
-                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
-                                >
-                                    <span className="material-symbols-outlined text-base">logout</span>
-                                    Sign Out
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        <Link to="/login" className={linkClass}>Login</Link>
-                        <Link to="/register" className="px-5 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary/25">
-                            Join the Nest
-                        </Link>
-                    </>
-                )}
-            </div>
-
-            {/* Mobile */}
-            <div className={`md:hidden flex items-center gap-3 px-4 py-2.5 rounded-full border transition-all duration-500 ${scrolled ? 'bg-white/90 backdrop-blur-xl border-slate-200/60 shadow-lg' : 'bg-white/20 backdrop-blur-md border-white/30 shadow-md'
-                }`}>
-                <Link to="/" className="flex items-center gap-2">
-                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover" />
-                    <span className={`font-extrabold text-sm transition-colors duration-500 ${scrolled ? 'text-slate-900' : 'text-white'}`}>Eagles & Eaglets</span>
-                </Link>
-                {isAuthenticated && user ? (
-                    <div className="ml-auto flex items-center gap-2">
-                        {user.avatar ? (
-                            <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30" />
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                                {getInitials(user)}
-                            </div>
-                        )}
-                        <button onClick={() => setMobileOpen(!mobileOpen)} className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                            <span className={`material-symbols-outlined text-xl ${scrolled ? 'text-slate-700' : 'text-white'}`}>{mobileOpen ? 'close' : 'menu'}</span>
-                        </button>
-                    </div>
-                ) : (
-                    <button onClick={() => setMobileOpen(!mobileOpen)} className="ml-auto w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                        <span className={`material-symbols-outlined text-xl ${scrolled ? 'text-slate-700' : 'text-white'}`}>{mobileOpen ? 'close' : 'menu'}</span>
-                    </button>
-                )}
-            </div>
-
-            <AnimatePresence>
-                {mobileOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                        transition={{ duration: 0.2 }}
-                        className="md:hidden mt-2 bg-white/95 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl p-3 mx-4"
-                    >
-                        {navLinks.map((link) => (
-                            link.external ? (
-                                <Link key={link.label} to={link.href} onClick={() => setMobileOpen(false)}
-                                    className="block w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
-                                    {link.label}
-                                </Link>
-                            ) : (
-                                <button key={link.label} onClick={() => scrollTo(link.href)}
-                                    className="w-full text-left px-4 py-3 text-sm font-semibold text-slate-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
-                                    {link.label}
-                                </button>
-                            )
-                        ))}
-                        <div className="border-t border-slate-100 mt-2 pt-2">
-                            {isAuthenticated && user ? (
-                                <div className="space-y-1">
-                                    <div className="px-4 py-2">
-                                        <p className="text-sm font-semibold text-slate-900">{user.first_name} {user.last_name}</p>
-                                        <p className="text-xs text-slate-500">{user.email}</p>
-                                    </div>
-                                    <Link
-                                        to={getDashboardPath(user)}
-                                        onClick={() => setMobileOpen(false)}
-                                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
-                                    >
-                                        <span className="material-symbols-outlined text-base text-primary">dashboard</span>
-                                        Go to Dashboard
-                                    </Link>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                    >
-                                        <span className="material-symbols-outlined text-base">logout</span>
-                                        Sign Out
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="flex gap-2">
-                                    <Link to="/login" className="flex-1 text-center py-2.5 text-sm font-semibold text-slate-600 rounded-xl border border-slate-200 hover:border-primary/30">Login</Link>
-                                    <Link to="/register" className="flex-1 text-center py-2.5 text-sm font-bold text-white bg-primary rounded-xl shadow-md hover:bg-primary-dark">Join</Link>
-                                </div>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </motion.nav>
     );
 };
 
@@ -737,7 +485,7 @@ const DonateSection = () => {
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.97 }}
-                                onClick={() => navigate('/register')}
+                                onClick={() => navigate('/donations')}
                                 className="min-h-[44px] px-8 py-3.5 bg-primary text-white font-bold text-sm rounded-xl shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all duration-300"
                             >
                                 Donate Now
@@ -776,116 +524,6 @@ const DonateSection = () => {
 /* ═══════════════════════════════════════════════
    FOOTER — 4-column, light background
    ═══════════════════════════════════════════════ */
-const Footer = () => {
-    const [email, setEmail] = useState('');
-    const [subscribed, setSubscribed] = useState(false);
-
-    const handleSubscribe = (e) => {
-        e.preventDefault();
-        if (email.trim()) { setSubscribed(true); setEmail(''); }
-    };
-
-    return (
-        <footer id="footer" className="bg-white border-t border-slate-200/70 pt-16 pb-8 px-6">
-            <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
-
-                    {/* Brand */}
-                    <div className="col-span-2 md:col-span-1">
-                        <div className="flex items-center gap-2.5 mb-4">
-                            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-md shadow-primary/20">
-                                <img src={logoImg} alt="" className="w-7 h-7 rounded-md object-cover" />
-                            </div>
-                            <span className="font-extrabold text-slate-900 text-sm tracking-tight">Eagles & Eaglets</span>
-                        </div>
-                        <p className="text-xs text-slate-400 leading-relaxed mb-5">
-                            Empowering creators and leaders to make a lasting impact through mentorship and community.
-                        </p>
-                        <div className="flex gap-2.5">
-                            <a href="#" className="w-8 h-8 rounded-full bg-slate-100 hover:bg-primary flex items-center justify-center transition-all group">
-                                <span className="material-symbols-outlined text-sm text-slate-500 group-hover:text-white">public</span>
-                            </a>
-                            <a href="mailto:hello@eaglesneaglets.org" className="w-8 h-8 rounded-full bg-slate-100 hover:bg-primary flex items-center justify-center transition-all group">
-                                <span className="material-symbols-outlined text-sm text-slate-500 group-hover:text-white">alternate_email</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Quick Links */}
-                    <div>
-                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-5">Quick Links</h4>
-                        <ul className="space-y-3">
-                            {['Our Mission', 'Mentorship Programs', 'The Shop', 'Success Stories'].map((link) => (
-                                <li key={link}>
-                                    <a href="#" className="text-sm text-slate-600 hover:text-primary transition-colors font-medium">{link}</a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Contact */}
-                    <div>
-                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-5">Contact</h4>
-                        <ul className="space-y-3">
-                            <li className="flex items-start gap-2 text-sm text-slate-600">
-                                <span className="material-symbols-outlined text-sm text-primary mt-0.5">location_on</span>
-                                <span className="leading-relaxed">123 Visionary Way, Suite 100<br />Creative Park, CA 90210</span>
-                            </li>
-                            <li className="flex items-center gap-2 text-sm text-slate-600">
-                                <span className="material-symbols-outlined text-sm text-primary">alternate_email</span>
-                                hello@eaglesneaglets.org
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Newsletter */}
-                    <div>
-                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-5">Newsletter</h4>
-                        <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                            Join our mailing list for weekly inspiration and community updates.
-                        </p>
-                        {subscribed ? (
-                            <div className="flex items-center gap-2 text-primary text-sm font-semibold">
-                                <span className="material-symbols-outlined text-lg">check_circle</span>
-                                You're subscribed!
-                            </div>
-                        ) : (
-                            <form onSubmit={handleSubscribe} className="space-y-2">
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="Your email address"
-                                    required
-                                    className="w-full px-4 py-2.5 text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all placeholder:text-slate-400"
-                                />
-                                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                                    type="submit"
-                                    className="w-full py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark transition-all shadow-md shadow-primary/20">
-                                    Subscribe
-                                </motion.button>
-                            </form>
-                        )}
-                    </div>
-                </div>
-
-                {/* Bottom bar */}
-                <div className="border-t border-slate-200/70 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-                    <p className="text-xs text-slate-400">© 2024 Eagles & Eaglets Community Platform. All rights reserved.</p>
-                    <div className="flex gap-5">
-                        <a href="#" className="text-xs text-slate-400 hover:text-primary transition-colors">Privacy Policy</a>
-                        <a href="#" className="text-xs text-slate-400 hover:text-primary transition-colors">Terms of Service</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    );
-};
-
-/* ═══════════════════════════════════════════════
-   MAIN HOMEPAGE
-   Order: Hero → About → Features → Store → Testimonials → Donate → ReadyToJoin → Footer
-   ═══════════════════════════════════════════════ */
 const HomePage = () => {
     useEffect(() => {
         document.documentElement.style.scrollBehavior = 'smooth';
@@ -894,14 +532,14 @@ const HomePage = () => {
 
     return (
         <div className="relative bg-white min-h-screen overflow-x-hidden">
-            <Navbar />
+            <PublicNavbar />
             <HeroSection />
             <AboutSection />
             <FeaturesSection />
             <StoreSection />
             <TestimonialsSection />
             <DonateSection />
-            <Footer />
+            <PublicFooter />
         </div>
     );
 };

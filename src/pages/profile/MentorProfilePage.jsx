@@ -6,6 +6,9 @@ import { useAuthStore } from '@store';
 import { profileService, MENTORSHIP_TYPES, MARITAL_STATUS_OPTIONS, EMPLOYMENT_STATUS_OPTIONS } from '../../modules/profile/services/profile-service';
 import { mentorProfileSchema } from '../../modules/profile/schemas/mentor-profile-schema';
 import ProfilePictureUpload from '../../modules/profile/components/ProfilePictureUpload';
+import SkillsTagEditor from '../../modules/profile/components/SkillsTagEditor';
+import AvailabilityCalendar from '../../modules/profile/components/AvailabilityCalendar';
+import PortfolioSection from '../../modules/profile/components/PortfolioSection';
 import { Button, Input, Select, Textarea, Alert, Checkbox } from '@components/ui';
 import FileUpload from '@components/ui/FileUpload';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
@@ -28,6 +31,9 @@ const MentorProfilePage = () => {
   const [cvFile, setCvFile] = useState(null);
   const [cvUploaded, setCvUploaded] = useState(false);
   const [pictureUrl, setPictureUrl] = useState(null);
+  const [skills, setSkills] = useState([]);
+  const [availabilitySlots, setAvailabilitySlots] = useState([]);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
   const {
     register,
@@ -95,6 +101,13 @@ const MentorProfilePage = () => {
           setProfileData(data);
           setPictureUrl(data.display_picture);
           if (data.cv) setCvUploaded(true);
+          // Populate skills from area_of_expertise
+          if (data.area_of_expertise) {
+            const parsed = Array.isArray(data.area_of_expertise)
+              ? data.area_of_expertise
+              : data.area_of_expertise.split(',').map(s => s.trim()).filter(Boolean);
+            setSkills(parsed);
+          }
 
           isRestoringRef.current = true;
           // Reset form with existing data
@@ -130,6 +143,40 @@ const MentorProfilePage = () => {
 
     loadProfile();
   }, [reset]);
+
+  // Load availability slots
+  useEffect(() => {
+    const fetchSlots = async () => {
+      try {
+        setAvailabilityLoading(true);
+        const response = await profileService.getAvailability?.();
+        if (response?.success) setAvailabilitySlots(response.data || []);
+      } catch { /* availability not critical */ }
+      finally { setAvailabilityLoading(false); }
+    };
+    fetchSlots();
+  }, []);
+
+  const handleAddSlot = async (slot) => {
+    try {
+      const response = await profileService.addAvailabilitySlot?.(slot);
+      if (response?.success) setAvailabilitySlots(prev => [...prev, response.data]);
+    } catch { setError('Failed to add availability slot'); }
+  };
+
+  const handleRemoveSlot = async (slotId) => {
+    try {
+      await profileService.removeAvailabilitySlot?.(slotId);
+      setAvailabilitySlots(prev => prev.filter(s => s.id !== slotId));
+    } catch { setError('Failed to remove availability slot'); }
+  };
+
+  const handleSkillsChange = async (newSkills) => {
+    setSkills(newSkills);
+    try {
+      await profileService.updateMentorProfile({ area_of_expertise: newSkills.join(', ') });
+    } catch { /* non-blocking */ }
+  };
 
   const toggleMentorshipType = (value) => {
     const current = selectedMentorshipTypes || [];
@@ -578,6 +625,48 @@ const MentorProfilePage = () => {
               <p className="mt-2 text-sm text-error">{errors.mentorship_types.message}</p>
             )}
           </div>
+
+          {/* Areas of Expertise (Skills) */}
+          <div className="bg-white rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-text-primary mb-2">Areas of Expertise</h2>
+            <p className="text-sm text-text-muted mb-4">Add skills or topics you can mentor (press Enter or comma to add)</p>
+            <SkillsTagEditor
+              value={skills}
+              onChange={handleSkillsChange}
+              placeholder="e.g. Product Design, React, Leadership..."
+              disabled={isLocked}
+            />
+          </div>
+
+          {/* Availability */}
+          <div className="bg-white rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-text-primary mb-2">Weekly Availability</h2>
+            <p className="text-sm text-text-muted mb-4">Click time slots to mark when you&apos;re available for mentoring sessions</p>
+            <AvailabilityCalendar
+              slots={availabilitySlots}
+              onAdd={handleAddSlot}
+              onRemove={handleRemoveSlot}
+              readOnly={isLocked}
+              isLoading={availabilityLoading}
+            />
+          </div>
+
+          {/* Portfolio Preview */}
+          {profileData && (
+            <div className="bg-white rounded-xl border border-border p-6">
+              <h2 className="text-lg font-semibold text-text-primary mb-4">Portfolio Preview</h2>
+              <PortfolioSection
+                data={{ ...profileData, area_of_expertise: skills }}
+                editMode={canEdit}
+                onSave={async (field, value) => {
+                  try {
+                    await profileService.updateMentorProfile({ [field]: value });
+                    setProfileData(prev => ({ ...prev, [field]: value }));
+                  } catch { setError('Failed to save field'); }
+                }}
+              />
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">

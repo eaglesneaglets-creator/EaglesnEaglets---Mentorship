@@ -23,7 +23,7 @@ const StorePage = () => {
             <StoreHeader />
 
             {/* Hero Banner */}
-            <div className="bg-gradient-to-br from-primary to-emerald-600 text-white py-14 px-4">
+            <div className="bg-gradient-to-br from-primary to-emerald-600 text-white pt-28 pb-14 px-4">
                 <div className="max-w-5xl mx-auto text-center">
                     <h1 className="text-3xl md:text-4xl font-bold mb-3">Eagles &amp; Eaglets Store</h1>
                     <p className="text-emerald-100 text-lg mb-6">Gear up for your mentorship journey</p>
@@ -42,7 +42,7 @@ const StorePage = () => {
             </div>
 
             {/* Category Pill Tabs */}
-            <div className="bg-white border-b border-slate-100 sticky top-16 z-30">
+            <div className="bg-white border-b border-slate-100 sticky top-0 z-30">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex gap-2 overflow-x-auto py-2 px-4 scrollbar-hide">
                         <button
