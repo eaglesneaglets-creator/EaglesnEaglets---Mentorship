@@ -13,6 +13,7 @@ import AnimatedCounter from '../../shared/components/ui/AnimatedCounter';
 import AvatarGroup from '../../shared/components/ui/AvatarGroup';
 import StatusBadge from '../../shared/components/ui/StatusBadge';
 import MentorshipRequestModal from '../../modules/nest/components/MentorshipRequestModal';
+import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
 const TABS = [
     { value: 'about', label: 'About', icon: 'person' },
@@ -90,7 +91,7 @@ const MentorPublicProfilePage = () => {
                         <div className="relative flex-shrink-0">
                             {mentor.profile_picture ? (
                                 <img
-                                    src={mentor.profile_picture}
+                                    src={sanitizeImageUrl(mentor.profile_picture)}
                                     alt={mentorName}
                                     className="w-24 h-24 rounded-2xl object-cover ring-4 ring-white/20 shadow-2xl"
                                 />

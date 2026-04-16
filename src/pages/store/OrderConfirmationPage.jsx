@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import StoreService from '../../modules/store/services/store-service';
 import StoreHeader from '../../modules/store/components/StoreHeader';
 import PaystackCheckout from '../../modules/store/components/PaystackCheckout';
+import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
 const STATUS_CONFIG = {
   pending: {
@@ -150,9 +151,9 @@ const OrderConfirmationPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <StoreHeader />
+      <StoreHeader forceScrolled />
 
-      <div className="max-w-2xl mx-auto px-4 py-10">
+      <div className="max-w-2xl mx-auto px-4 pt-28 pb-10">
         {isLoading ? (
           <div className="animate-pulse space-y-4">
             <div className="h-24 bg-slate-200 rounded-2xl" />
@@ -231,12 +232,12 @@ const OrderConfirmationPage = () => {
             {/* Order Items */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6">
               <h3 className="text-sm font-semibold text-slate-700 mb-4">Order Items</h3>
-              <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-slate-100">
                 {order.items?.map((item) => (
                   <div key={item.id} className="flex items-center gap-3 py-3">
                     <div className="w-12 h-12 rounded-xl bg-slate-100 flex-shrink-0 overflow-hidden">
                       {item.product?.primary_image ? (
-                        <img src={item.product.primary_image} alt={item.product?.name} className="w-full h-full object-cover" />
+                        <img src={sanitizeImageUrl(item.product.primary_image)} alt={item.product?.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <span className="material-symbols-outlined text-slate-300 text-base">shopping_bag</span>

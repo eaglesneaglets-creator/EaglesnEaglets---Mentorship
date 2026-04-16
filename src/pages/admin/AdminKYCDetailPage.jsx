@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { adminService } from '../../modules/auth/services/auth-service';
-import { sanitizeToText, stripCloudinarySignature } from '../../shared/utils/sanitize';
+import { sanitizeToText, stripCloudinarySignature, sanitizeImageUrl, sanitizeUrl } from '../../shared/utils/sanitize';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const BACKEND_URL = API_BASE_URL.replace('/api/v1', '');
@@ -205,6 +205,14 @@ const AdminKYCDetailPage = () => {
 
   const isMentor = roleParam === 'mentor' || roleParam === 'eagle';
 
+  // Helper to safely open document viewer with sanitized URL
+  const openDocumentViewer = (url, title) => {
+    const safeUrl = sanitizeUrl(url);
+    if (safeUrl) {
+      setDocumentViewer({ isOpen: true, url: safeUrl, title });
+    }
+  };
+
   // ─── Data Fetching ───────────────────────────────────────────────────────
   const fetchKYC = useCallback(async () => {
     setIsLoading(true);
@@ -396,7 +404,7 @@ const AdminKYCDetailPage = () => {
         <InfoField label="LinkedIn" value={kyc.linkedin_url} isLink />
         <div className="sm:col-span-2">
           <InfoField label="CV / Resume" value={cvFullUrl} isDocument
-            onDocClick={() => setDocumentViewer({ isOpen: true, url: cvFullUrl, title: 'Curriculum Vitae' })} />
+            onDocClick={() => openDocumentViewer(cvFullUrl, 'Curriculum Vitae')} />
         </div>
       </div>
     );
@@ -415,7 +423,7 @@ const AdminKYCDetailPage = () => {
       {(kyc.display_picture_url || kyc.display_picture) && (
         <div>
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Display Picture</span>
-          <button onClick={() => setDocumentViewer({ isOpen: true, url: kyc.display_picture_url || kyc.display_picture, title: 'Display Picture' })}
+          <button onClick={() => openDocumentViewer(kyc.display_picture_url || kyc.display_picture, 'Display Picture')}
             className="mt-2 block">
             <img
               src={(() => { const url = kyc.display_picture_url || kyc.display_picture; return url?.startsWith('http') ? url : `${BACKEND_URL}${url}`; })()}
@@ -506,9 +514,9 @@ const AdminKYCDetailPage = () => {
             {/* Avatar */}
             <div className="relative flex-shrink-0">
               {fullAvatarUrl ? (
-                <img src={fullAvatarUrl} alt={fullName}
+                <img src={sanitizeImageUrl(fullAvatarUrl)} alt={fullName}
                   className="w-20 h-20 rounded-2xl object-cover ring-4 ring-white shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => setDocumentViewer({ isOpen: true, url: avatarUrl, title: 'Profile Picture' })}
+                  onClick={() => openDocumentViewer(avatarUrl, 'Profile Picture')}
                   onError={(e) => {
                     // Image failed (404 from ephemeral disk) — show initials fallback
                     e.target.style.display = 'none';

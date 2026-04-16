@@ -69,6 +69,22 @@ export const profileService = {
     formData.append('file', file);
     return apiClient.upload('/auth/upload/cv/', formData);
   },
+
+  // =========================================================================
+  // MENTOR AVAILABILITY
+  // =========================================================================
+
+  /** Get current mentor's availability slots */
+  getAvailability: () =>
+    apiClient.get('/auth/me/availability/'),
+
+  /** Add a new availability slot — { day_of_week, start_time, end_time } */
+  addAvailabilitySlot: (slot) =>
+    apiClient.post('/auth/me/availability/', slot),
+
+  /** Delete an availability slot by id */
+  removeAvailabilitySlot: (slotId) =>
+    apiClient.delete(`/auth/me/availability/${slotId}/`),
 };
 
 // =========================================================================

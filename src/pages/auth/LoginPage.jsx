@@ -6,6 +6,7 @@ import { authService } from '../../modules/auth/services/auth-service';
 import { logger } from '../../shared/utils/logger';
 import { loginSchema } from '../../modules/auth/schemas/register-schema';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+import { validateRedirectUrl } from '../../shared/utils/sanitize';
 
 const Feather = ({ delay, duration, left, size = 24 }) => (
   <svg
@@ -157,8 +158,10 @@ const LoginPage = () => {
       const user = await login(formData.email, formData.password);
 
       // If there's a ?next= or state.from redirect target, go there first
+      // Security: validate redirect URL to prevent open redirect attacks
       if (redirectAfterLogin) {
-        navigate(redirectAfterLogin, { replace: true });
+        const safeUrl = validateRedirectUrl(redirectAfterLogin, '/dashboard');
+        navigate(safeUrl, { replace: true });
         return;
       }
 

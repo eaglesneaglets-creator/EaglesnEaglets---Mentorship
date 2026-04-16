@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  ResponsiveContainer,
+  AreaChart, Area,
+  BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip,
+} from 'recharts';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useEagleDashboardStats } from '../../modules/analytics/hooks/useAnalytics';
 import StatCard from '../../shared/components/ui/StatCard';
-import AnimatedNestCard from '../../shared/components/ui/AnimatedNestCard';
 import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
+import { SkeletonCard } from '../../shared/components/ui/LoadingSkeleton';
 
 /**
  * Eaglet Performance Row
@@ -140,7 +146,6 @@ const EagleDashboardPage = () => {
   const totalEaglets = dashboardData?.total_eaglets || 0;
   const pendingRequests = dashboardData?.pending_requests || 0;
   const pointsAwarded = dashboardData?.points_awarded || 0;
-  const nests = dashboardData?.nests || [];
   const eaglets = dashboardData?.eaglets || [];
   const sessions = dashboardData?.upcoming_sessions || [];
 
@@ -273,39 +278,65 @@ const EagleDashboardPage = () => {
               />
             </div>
 
-            {/* My Nests Section */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900">My Nests</h2>
-                <Link to="/eagle/nests" className="text-primary text-sm font-medium hover:underline flex items-center gap-1 group">
-                  View All
-                  <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:translate-x-1">
-                    arrow_forward
-                  </span>
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {nests.length > 0 ? (
-                  nests.map((nest, index) => (
-                    <AnimatedNestCard
-                      key={nest.id || index}
-                      title={nest.name}
-                      description={nest.description || "Active community of eaglets learning to soar."}
-                      image={nest.banner_image}
-                      icon="diversity_3"
-                      iconColor="text-primary"
-                      memberCount={nest.member_count || 0}
-                      additionalInfo="Active"
-                      linkTo={`/eagle/nests/${nest.id}`}
-                      delay={index * 100}
-                    />
-                  ))
-                ) : (<div className="col-span-1 border border-dashed border-slate-200 rounded-xl p-6 text-center">
-                  <span className="material-symbols-outlined text-slate-400 mb-2">inbox</span>
-                  <p className="text-slate-500 text-sm">No active nests yet.</p>
+            {/* Analytics Charts */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              {/* Points Awarded Over Time */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="material-symbols-outlined text-base text-emerald-500">military_tech</span>
+                  <h3 className="font-bold text-slate-800 text-sm">Points Awarded</h3>
                 </div>
+                <p className="text-xs text-slate-400 mb-4">Last 8 weeks across all nests</p>
+                {isLoading ? (
+                  <SkeletonCard className="h-36" />
+                ) : (
+                  <ResponsiveContainer width="100%" height={140}>
+                    <BarChart data={dashboardData?.points_by_week ?? []} barSize={16}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={28} />
+                      <Tooltip
+                        contentStyle={{ background: '#0f172a', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }}
+                        cursor={{ fill: '#f0fdf4' }}
+                      />
+                      <Bar dataKey="points" fill="#22c55e" radius={[4, 4, 0, 0]} name="Points" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 )}
               </div>
+
+              {/* Eaglet Progress Overview */}
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="material-symbols-outlined text-base text-blue-500">trending_up</span>
+                  <h3 className="font-bold text-slate-800 text-sm">Eaglet Progress</h3>
+                </div>
+                <p className="text-xs text-slate-400 mb-4">Avg completion % over time</p>
+                {isLoading ? (
+                  <SkeletonCard className="h-36" />
+                ) : (
+                  <ResponsiveContainer width="100%" height={140}>
+                    <AreaChart data={dashboardData?.completion_by_week ?? []}>
+                      <defs>
+                        <linearGradient id="eagleGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#22c55e" stopOpacity={0.15} />
+                          <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={28} domain={[0, 100]} unit="%" />
+                      <Tooltip
+                        contentStyle={{ background: '#0f172a', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }}
+                        formatter={(v) => [`${v}%`, 'Avg Completion']}
+                      />
+                      <Area type="monotone" dataKey="completion" stroke="#22c55e" strokeWidth={2} fill="url(#eagleGrad)" dot={false} name="Completion" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+
             </div>
 
             {/* Eaglet Performance Table */}

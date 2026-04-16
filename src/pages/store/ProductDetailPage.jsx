@@ -6,6 +6,7 @@ import { useGuestCart } from '../../modules/store/hooks/useGuestCart';
 import { useAuthStore } from '@store';
 import ProductCard from '../../modules/store/components/ProductCard';
 import StoreHeader from '../../modules/store/components/StoreHeader';
+import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
 const ProductDetailPage = () => {
     const { slug } = useParams();
@@ -125,12 +126,12 @@ const ProductDetailPage = () => {
                     </nav>
 
                     {/* 2-column layout */}
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 lg:gap-12">
                         {/* Image gallery — 3/5 */}
                         <div className="md:col-span-3">
                             <div className="rounded-2xl overflow-hidden bg-slate-100 aspect-square">
                                 <img
-                                    src={images[activeImage]?.image_url}
+                                    src={sanitizeImageUrl(images[activeImage]?.image_url)}
                                     alt={product.name}
                                     className="w-full h-full object-cover"
                                 />

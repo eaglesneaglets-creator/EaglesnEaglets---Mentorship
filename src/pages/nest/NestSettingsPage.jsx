@@ -6,6 +6,7 @@ import { useAuthStore } from '@store';
 import { useNestDetail, useNestRequests, useRespondToRequest, useUpdateNest } from '../../modules/nest/hooks/useNests';
 import { toast } from 'sonner';
 import { apiClient } from '@api';
+import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
 /* ─── Soft animated background ─── */
 const AnimatedBg = () => (
@@ -238,7 +239,7 @@ const NestSettingsPage = () => {
                                 {(bannerPreview || formData.banner_image) && (
                                     <div className="relative mb-3 rounded-xl overflow-hidden border border-slate-200 h-32">
                                         <img
-                                            src={bannerPreview || formData.banner_image}
+                                            src={sanitizeImageUrl(bannerPreview || formData.banner_image)}
                                             alt="Banner preview"
                                             className="w-full h-full object-cover"
                                         />

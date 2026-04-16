@@ -7,6 +7,7 @@ import { useAuthStore } from '@store';
 import StoreService from '../../modules/store/services/store-service';
 import toast from 'react-hot-toast';
 import StoreHeader from '../../modules/store/components/StoreHeader';
+import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
 const CartPage = () => {
     const navigate = useNavigate();
@@ -102,9 +103,9 @@ const CartPage = () => {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <StoreHeader />
+            <StoreHeader forceScrolled />
 
-            <div className="max-w-6xl mx-auto px-4 py-8">
+            <div className="max-w-6xl mx-auto px-4 pt-28 pb-8">
                 <h1 className="text-2xl font-bold text-slate-900 mb-6">
                     Shopping Cart ({items.length} item{items.length !== 1 ? 's' : ''})
                 </h1>
@@ -134,7 +135,7 @@ const CartPage = () => {
                                     <div className="flex gap-4">
                                         <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
                                             {item.primary_image ? (
-                                                <img src={item.primary_image} alt={item.product_name} className="w-full h-full object-cover" />
+                                                <img src={sanitizeImageUrl(item.primary_image)} alt={item.product_name} className="w-full h-full object-cover" />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center">
                                                     <span className="material-symbols-outlined text-slate-300 text-2xl">shopping_bag</span>

@@ -30,13 +30,36 @@ class ErrorBoundary extends Component {
       console.error('Error caught by ErrorBoundary:', error, errorInfo);
     }
 
-    // Send to error tracking service (e.g., Sentry)
+    // Send to Sentry error tracking service
+    this._captureError(error, errorInfo);
+
+    // Call custom onError handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
+  }
 
-    // In production, you would send this to an error tracking service
-    // Example: Sentry.captureException(error, { extra: errorInfo });
+  _captureError(error, errorInfo) {
+    // Only send to Sentry in production
+    if (import.meta.env.PROD) {
+      try {
+        // Dynamic import to avoid loading Sentry in dev
+        import('@sentry/react').then((Sentry) => {
+          Sentry.captureException(error, {
+            extra: {
+              componentStack: errorInfo?.componentStack,
+              // Add context for debugging
+              errorBoundary: this.props.name || 'AnonymousBoundary',
+            },
+          });
+        }).catch(() => {
+          // Sentry not configured, fail silently
+          console.error('Failed to send error to Sentry');
+        });
+      } catch {
+        // Fail silently if Sentry import fails
+      }
+    }
   }
 
   handleRetry = () => {

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Suspense, lazy } from 'react';
 import ErrorBoundary from '@components/ErrorBoundary';
+import { Toaster } from '@shared/components/ui/Toast';
 
 // Route-level error fallback — shown when a lazy chunk fails to load
 const RouteErrorFallback = ({ retry }) => (
@@ -94,6 +95,11 @@ const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 // Shared Pages
 const ComingSoonPage = lazy(() => import('./pages/shared/ComingSoonPage'));
 
+// Donation Pages
+const DonationsPage = lazy(() => import('./pages/donations/DonationsPage'));
+const MyDonationsPage = lazy(() => import('./pages/donations/MyDonationsPage'));
+const AdminDonationsPage = lazy(() => import('./pages/donations/AdminDonationsPage'));
+
 // Auth Guards
 import AuthGuard from './shared/components/guards/AuthGuard';
 import RoleGuard from './shared/components/guards/RoleGuard';
@@ -166,6 +172,7 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
+          <Toaster />
           <InactivityManager>
             <Suspense fallback={<PageLoader />}>
               <Routes>
@@ -182,6 +189,9 @@ function App() {
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+
+                {/* Public Donations — accessible without login */}
+                <Route path="/donations" element={<DonationsPage />} />
 
                 {/* Public Store — accessible without login, no auth required */}
                 <Route path="/store" element={<StorePage />} />
@@ -244,6 +254,9 @@ function App() {
                   </Route>
 
 
+                  {/* Donations — authenticated history */}
+                  <Route path="/donations/my-donations" element={<MyDonationsPage />} />
+
                   {/* Notifications - accessible to all authenticated roles */}
                   <Route path="/notifications" element={<NotificationsPage />} />
 
@@ -267,7 +280,7 @@ function App() {
                     <Route path="/admin/content/upload" element={<ContentUploadPage />} />
                     <Route path="/admin/store" element={<AdminStorePage />} />
                     <Route path="/admin/store/orders" element={<AdminOrdersPage />} />
-                    <Route path="/admin/donations" element={<ComingSoonPage title="Donations" description="Track and manage donations, view reports, and handle financial transactions." icon="volunteer_activism" />} />
+                    <Route path="/admin/donations" element={<AdminDonationsPage />} />
                     <Route path="/admin/settings" element={<ComingSoonPage title="Platform Settings" description="Configure platform-wide settings, policies, and system preferences." icon="settings" />} />
                   </Route>
                 </Route>

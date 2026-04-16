@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUpdateModule } from '../hooks/useContent';
+import { sanitizeImageUrl } from '../../../shared/utils/sanitize';
 
 const ContentEditModal = ({ isOpen, onClose, module }) => {
     const [formData, setFormData] = useState({
@@ -122,12 +123,12 @@ const ContentEditModal = ({ isOpen, onClose, module }) => {
                             </div>
                         </div>
 
-                        <div>
+                            <div>
                             <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Cover Image (Optional)</label>
                             <div className="flex items-center gap-4">
                                 <div className="w-24 h-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
                                     {(formData.thumbnailPreview || module.thumbnail_url) ? (
-                                        <img src={formData.thumbnailPreview || module.thumbnail_url} alt="Preview" className="w-full h-full object-cover" />
+                                        <img src={sanitizeImageUrl(formData.thumbnailPreview || module.thumbnail_url)} alt="Preview" className="w-full h-full object-cover" />
                                     ) : (
                                         <span className="material-symbols-outlined text-slate-300 text-3xl">image</span>
                                     )}
