@@ -5,7 +5,7 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useAssignmentDetail, useSubmitAssignment } from '../../modules/content/hooks/useContent';
 import { toast } from 'sonner';
-import { stripCloudinarySignature, sanitizeImageUrl, sanitizeUrl } from '../../shared/utils/sanitize';
+import { stripCloudinarySignature, sanitizeUrl } from '../../shared/utils/sanitize';
 
 /* ─── Status Configs ─── */
 const STATUS_MAP = {

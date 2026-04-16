@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
-import logoImg from '../../assets/EaglesnEagletsLogo.jpeg';
 import aboutIllustration from '../../assets/about-illustration.png';
 import PublicNavbar from '@shared/components/layout/PublicNavbar';
 import PublicFooter from '@shared/components/layout/PublicFooter';

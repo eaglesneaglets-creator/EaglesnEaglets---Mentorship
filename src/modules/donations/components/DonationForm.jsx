@@ -39,7 +39,6 @@ export default function DonationForm({ campaignId }) {
 
   // OTP state
   const [otpCode, setOtpCode] = useState('');
-  const [otpToken, setOtpToken] = useState('');
   const [otpSending, setOtpSending] = useState(false);
   const [otpVerifying, setOtpVerifying] = useState(false);
 
@@ -91,8 +90,6 @@ export default function DonationForm({ campaignId }) {
     setOtpVerifying(true);
     try {
       const result = await donationService.verifyOtp(phone.trim(), otpCode.trim());
-      setOtpToken(result.data.otp_token);
-      // Proceed straight to payment
       await submitDonation(result.data.otp_token);
     } catch (err) {
       setError(
@@ -315,7 +312,7 @@ export default function DonationForm({ campaignId }) {
           </p>
         </div>
         <button
-          onClick={() => { setStep(STEP_FORM); setCustomAmount(''); setPhone(''); setFirstName(''); setOtpCode(''); setOtpToken(''); }}
+          onClick={() => { setStep(STEP_FORM); setCustomAmount(''); setPhone(''); setFirstName(''); setOtpCode(''); }}
           className="text-xs text-emerald-600 font-semibold hover:underline"
         >
           Donate Again

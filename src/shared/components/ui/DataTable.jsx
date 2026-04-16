@@ -71,26 +71,6 @@ const DataTable = ({
     URL.revokeObjectURL(url);
   };
 
-  const SortIcon = ({ colKey }) => {
-    if (sortKey !== colKey)
-      return (
-        <svg className="w-3.5 h-3.5 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
-        </svg>
-      );
-    return sortDir === 'asc' ? (
-      <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-      </svg>
-    ) : (
-      <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-      </svg>
-    );
-  };
-
-  SortIcon.propTypes = { colKey: PropTypes.string.isRequired };
-
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
       {/* Export button */}
@@ -129,7 +109,7 @@ const DataTable = ({
                   >
                     <span className="inline-flex items-center gap-1">
                       {col.header}
-                      {col.sortable && <SortIcon colKey={col.key} />}
+                      {col.sortable && <SortIcon colKey={col.key} sortKey={sortKey} sortDir={sortDir} />}
                     </span>
                   </th>
                 ))}
@@ -197,5 +177,25 @@ DataTable.propTypes = {
   emptyMessage: PropTypes.string,
   className: PropTypes.string,
 };
+
+const SortIcon = ({ colKey, sortKey, sortDir }) => {
+  if (sortKey !== colKey)
+    return (
+      <svg className="w-3.5 h-3.5 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+      </svg>
+    );
+  return sortDir === 'asc' ? (
+    <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+    </svg>
+  ) : (
+    <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  );
+};
+
+SortIcon.propTypes = { colKey: PropTypes.string.isRequired, sortKey: PropTypes.string, sortDir: PropTypes.string };
 
 export default DataTable;

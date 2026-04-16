@@ -47,11 +47,6 @@ const DatePicker = ({
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Sync view month when value changes externally
-  useEffect(() => {
-    if (value) setViewMonth(value);
-  }, [value]);
-
   const calDays = eachDayOfInterval({
     start: startOfWeek(startOfMonth(viewMonth)),
     end: endOfWeek(endOfMonth(viewMonth)),

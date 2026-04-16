@@ -4,7 +4,7 @@
  * Query key factory + typed hooks for campaigns, donations, and admin stats.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import donationService from '../services/donation-service';
 
 // ---------------------------------------------------------------------------
