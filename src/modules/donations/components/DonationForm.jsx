@@ -5,7 +5,7 @@
  * Framer Motion animations. Matches the Eagles & Eaglets design language.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInitiateDonation, useDonationStatus } from '../hooks/useDonations';
@@ -18,6 +18,15 @@ const AMOUNT_PRESETS = [
   { value: 100, tier: 'Leader' },
   { value: 200, tier: 'Champion' },
 ];
+
+const NETWORKS = [
+  { value: '',            label: 'Auto-detect' },
+  { value: 'mtn-gh',      label: 'MTN' },
+  { value: 'vodafone-gh', label: 'Telecel' },
+  { value: 'airtel-gh',   label: 'AirtelTigo' },
+];
+
+const PAYMENT_TIMEOUT_MS = 4 * 60 * 1000;
 
 const STEP_FORM    = 'form';
 const STEP_OTP     = 'otp';
@@ -35,7 +44,8 @@ export default function DonationForm({ campaignId }) {
   const [firstName, setFirstName] = useState('');
   const [phone, setPhone] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
-  const [frequency, setFrequency] = useState('once');
+  const [network, setNetwork] = useState('');
+  const frequency = 'once';
 
   // OTP state
   const [otpCode, setOtpCode] = useState('');
@@ -46,16 +56,78 @@ export default function DonationForm({ campaignId }) {
   const [step, setStep] = useState(STEP_FORM);
   const [donationId, setDonationId] = useState(null);
   const [error, setError] = useState('');
+  const [waitingStartedAt, setWaitingStartedAt] = useState(null);
+  const [waitingNotice, setWaitingNotice] = useState('');
+  const [receipt, setReceipt] = useState(null);
+  const [otpRequiredNotice, setOtpRequiredNotice] = useState('');
+  const [copiedRef, setCopiedRef] = useState(false);
 
   const initiate = useInitiateDonation();
 
-  const { data: statusData } = useDonationStatus(donationId, {
+  const {
+    data: statusData,
+    refetch: refetchStatus,
+    isFetching: isCheckingStatus,
+  } = useDonationStatus(donationId, {
     enabled: step === STEP_WAITING,
   });
 
   const polledStatus = statusData?.data?.status;
-  if (step === STEP_WAITING && polledStatus === 'success') setStep(STEP_SUCCESS);
+  if (step === STEP_WAITING && polledStatus === 'success') {
+    setReceipt({
+      reference: statusData?.data?.reference || receipt?.reference || '',
+      amount: statusData?.data?.amount || finalAmount,
+      campaignTitle: statusData?.data?.campaign_title || '',
+    });
+    setStep(STEP_SUCCESS);
+  }
   if (step === STEP_WAITING && polledStatus === 'failed') setStep(STEP_FAILED);
+
+  // Payment timeout: auto-fail after 4 minutes of waiting
+  useEffect(() => {
+    if (step !== STEP_WAITING) return undefined;
+    const timer = setTimeout(() => {
+      setError('Payment timed out. The mobile money prompt may have expired.');
+      setStep(STEP_FAILED);
+    }, PAYMENT_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [step]);
+
+  // Track when waiting started (for countdown display)
+  useEffect(() => {
+    if (step === STEP_WAITING) {
+      setWaitingStartedAt(Date.now());
+      setWaitingNotice('');
+    } else {
+      setWaitingStartedAt(null);
+    }
+  }, [step]);
+
+  async function handleCheckPayment() {
+    setWaitingNotice('');
+    try {
+      const result = await refetchStatus();
+      const s = result?.data?.data?.status;
+      if (s === 'success') {
+        setReceipt({
+          reference: result?.data?.data?.reference || receipt?.reference || '',
+          amount: result?.data?.data?.amount || finalAmount,
+          campaignTitle: result?.data?.data?.campaign_title || '',
+        });
+        setStep(STEP_SUCCESS);
+      } else if (s === 'failed') {
+        setStep(STEP_FAILED);
+      } else {
+        setWaitingNotice(
+          'Payment not yet received. Please approve the prompt on your phone.'
+        );
+      }
+    } catch (err) {
+      setWaitingNotice(
+        err?.message || 'Could not check payment status. Please try again.'
+      );
+    }
+  }
 
   const finalAmount = isCustom ? parseFloat(customAmount) || 0 : selectedAmount;
 
@@ -69,6 +141,7 @@ export default function DonationForm({ campaignId }) {
     setOtpSending(true);
     try {
       await donationService.sendOtp(phone.trim());
+      setOtpRequiredNotice('');
       setStep(STEP_OTP);
     } catch (err) {
       setError(
@@ -113,21 +186,34 @@ export default function DonationForm({ campaignId }) {
       is_anonymous: isAnonymous,
       message: '',
     };
+    if (network) payload.network = network;
     if (!isAuthenticated && resolvedToken) {
       payload.otp_token = resolvedToken;
     }
     try {
       const result = await initiate.mutateAsync(payload);
       setDonationId(result.data.donation_id);
+      setReceipt({
+        reference: result.data.reference || '',
+        amount: finalAmount,
+        campaignTitle: '',
+      });
       setStep(STEP_WAITING);
     } catch (err) {
-      setError(
-        err?.details?.payment ||
-        err?.details?.otp_token ||
-        err?.message ||
-        'Something went wrong. Please try again.'
-      );
-      setStep(STEP_FORM);
+      const tokenErr = err?.details?.otp_token;
+      const paymentErr = err?.details?.payment;
+      const fallback = err?.message || 'Something went wrong. Please try again.';
+      if (!isAuthenticated && tokenErr) {
+        // OTP token expired/consumed — force re-verification
+        setOtpRequiredNotice(
+          'Your phone verification expired. Please verify your number again.'
+        );
+        setError('');
+        setStep(STEP_FORM);
+      } else {
+        setError(paymentErr || tokenErr || fallback);
+        setStep(STEP_FORM);
+      }
     }
   }
 
@@ -274,8 +360,44 @@ export default function DonationForm({ campaignId }) {
             animate={{ scale: [1, 1.4, 1] }}
             transition={{ duration: 1, repeat: Infinity }}
           />
-          Waiting for approval…
+          <CountdownLabel startedAt={waitingStartedAt} totalMs={PAYMENT_TIMEOUT_MS} />
         </div>
+
+        <AnimatePresence>
+          {waitingNotice && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-2xl px-4 py-3 text-left"
+            >
+              <span className="material-symbols-outlined text-base shrink-0">info</span>
+              {waitingNotice}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.button
+          type="button"
+          onClick={handleCheckPayment}
+          disabled={isCheckingStatus}
+          whileHover={{ scale: isCheckingStatus ? 1 : 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 text-white font-black text-sm py-3.5 rounded-2xl transition-all duration-200 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
+        >
+          {isCheckingStatus ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              Checking…
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-lg">task_alt</span>
+              I&apos;ve Completed Payment
+            </>
+          )}
+        </motion.button>
+
         <button
           className="text-xs text-slate-400 hover:text-slate-600 transition-colors underline"
           onClick={() => { setStep(STEP_FORM); setDonationId(null); }}
@@ -286,38 +408,43 @@ export default function DonationForm({ campaignId }) {
     );
   }
 
+  function resetForNewDonation() {
+    setStep(STEP_FORM);
+    setCustomAmount('');
+    setPhone('');
+    setFirstName('');
+    setOtpCode('');
+    setDonationId(null);
+    setReceipt(null);
+    setError('');
+    setWaitingNotice('');
+  }
+
+  function closeSuccessModal() {
+    resetForNewDonation();
+  }
+
+  async function handleCopyReference() {
+    if (!receipt?.reference) return;
+    try {
+      await navigator.clipboard.writeText(receipt.reference);
+      setCopiedRef(true);
+      setTimeout(() => setCopiedRef(false), 2000);
+    } catch {
+      setCopiedRef(false);
+    }
+  }
+
   if (step === STEP_SUCCESS) {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-3xl border border-emerald-200 p-10 text-center shadow-sm space-y-5"
-      >
-        <div className="flex justify-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 12 }}
-            className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30"
-          >
-            <span className="material-symbols-outlined text-white text-3xl">check_circle</span>
-          </motion.div>
-        </div>
-        <div>
-          <h3 className="text-xl font-black text-slate-900 mb-1">Thank You! 🎉</h3>
-          <p className="text-slate-500 text-sm">
-            Your donation of{' '}
-            <span className="font-bold text-emerald-600">GHS {finalAmount}</span> has been received.
-            You&apos;re making a real difference!
-          </p>
-        </div>
-        <button
-          onClick={() => { setStep(STEP_FORM); setCustomAmount(''); setPhone(''); setFirstName(''); setOtpCode(''); }}
-          className="text-xs text-emerald-600 font-semibold hover:underline"
-        >
-          Donate Again
-        </button>
-      </motion.div>
+      <ThankYouModal
+        receipt={receipt}
+        fallbackAmount={finalAmount}
+        copiedRef={copiedRef}
+        onCopy={handleCopyReference}
+        onDonateAgain={resetForNewDonation}
+        onClose={closeSuccessModal}
+      />
     );
   }
 
@@ -430,35 +557,6 @@ export default function DonationForm({ campaignId }) {
         )}
       </AnimatePresence>
 
-      {/* Frequency */}
-      <div>
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
-          Giving Frequency
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { value: 'once', label: 'One-time', icon: 'payments' },
-            { value: 'monthly', label: 'Monthly', icon: 'autorenew' },
-          ].map((f) => (
-            <motion.button
-              key={f.value}
-              type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setFrequency(f.value)}
-              className={`flex items-center justify-center gap-2 py-3 rounded-2xl border-2 text-sm font-bold transition-all duration-200 ${
-                frequency === f.value
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20'
-                  : 'border-slate-200 text-slate-600 hover:border-slate-400'
-              }`}
-            >
-              <span className="material-symbols-outlined text-base">{f.icon}</span>
-              {f.label}
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
       {/* Personal info */}
       <div>
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
@@ -496,6 +594,37 @@ export default function DonationForm({ campaignId }) {
         </p>
       </div>
 
+      {/* Mobile Network */}
+      <div>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
+          Mobile Network
+        </p>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base pointer-events-none">
+            signal_cellular_alt
+          </span>
+          <select
+            value={network}
+            onChange={(e) => setNetwork(e.target.value)}
+            className="w-full appearance-none border-2 border-slate-200 rounded-2xl pl-9 pr-9 py-3 text-sm bg-white focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer"
+          >
+            {NETWORKS.map((n) => (
+              <option key={n.value || 'auto'} value={n.value}>
+                {n.label}
+              </option>
+            ))}
+          </select>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-base pointer-events-none">
+            expand_more
+          </span>
+        </div>
+        <p className="text-[11px] text-slate-400 mt-1.5">
+          Leave as Auto-detect unless your number is ported to a different network.
+        </p>
+      </div>
+
+
+
       {/* Anonymous toggle */}
       <label className="flex items-center gap-3 cursor-pointer select-none group">
         <div
@@ -515,6 +644,21 @@ export default function DonationForm({ campaignId }) {
           Donate anonymously
         </span>
       </label>
+
+      {/* OTP re-verify notice */}
+      <AnimatePresence>
+        {otpRequiredNotice && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-2xl px-4 py-3"
+          >
+            <span className="material-symbols-outlined text-base shrink-0">lock_clock</span>
+            {otpRequiredNotice}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Error */}
       <AnimatePresence>
@@ -580,4 +724,190 @@ export default function DonationForm({ campaignId }) {
 
 DonationForm.propTypes = {
   campaignId: PropTypes.string.isRequired,
+};
+
+function CountdownLabel({ startedAt, totalMs }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!startedAt) return undefined;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [startedAt]);
+  if (!startedAt) return <>Waiting for approval…</>;
+  const remainingMs = Math.max(0, totalMs - (now - startedAt));
+  const mm = Math.floor(remainingMs / 60000);
+  const ss = Math.floor((remainingMs % 60000) / 1000).toString().padStart(2, '0');
+  return <>Waiting for approval… expires in {mm}:{ss}</>;
+}
+
+CountdownLabel.propTypes = {
+  startedAt: PropTypes.number,
+  totalMs: PropTypes.number.isRequired,
+};
+
+const CONFETTI_COUNT = 18;
+const CONFETTI_COLORS = ['bg-emerald-400', 'bg-amber-400', 'bg-sky-400', 'bg-rose-400'];
+
+function ThankYouModal({ receipt, fallbackAmount, copiedRef, onCopy, onDonateAgain, onClose }) {
+  const [confetti] = useState(() =>
+    Array.from({ length: CONFETTI_COUNT }).map((_, i) => {
+      const angle = (i / CONFETTI_COUNT) * Math.PI * 2;
+      return {
+        angle,
+        distance: 110 + Math.random() * 60,
+        rotate: Math.random() * 360,
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+      };
+    })
+  );
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose]);
+
+  const amount = receipt?.amount || fallbackAmount || 0;
+  const reference = receipt?.reference || '';
+  const campaignTitle = receipt?.campaignTitle || '';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <motion.div
+        initial={{ scale: 0.85, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 text-center overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Confetti burst */}
+        <div className="pointer-events-none absolute inset-0 flex items-start justify-center">
+          <div className="relative w-0 h-0 mt-24">
+            {confetti.map((c, i) => (
+              <motion.span
+                key={i}
+                initial={{ x: 0, y: 0, opacity: 1, scale: 0.6 }}
+                animate={{
+                  x: Math.cos(c.angle) * c.distance,
+                  y: Math.sin(c.angle) * c.distance,
+                  opacity: 0,
+                  scale: 1,
+                  rotate: c.rotate,
+                }}
+                transition={{ duration: 1.4, ease: 'easeOut' }}
+                className={`absolute w-2 h-2 rounded-sm ${c.color}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 w-9 h-9 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors z-10"
+          aria-label="Close"
+        >
+          <span className="material-symbols-outlined text-slate-500">close</span>
+        </button>
+
+        {/* Check icon */}
+        <div className="relative flex justify-center mb-4">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 12, delay: 0.1 }}
+            className="w-20 h-20 rounded-3xl bg-emerald-500 flex items-center justify-center shadow-xl shadow-emerald-500/40"
+          >
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: 'spring', stiffness: 260 }}
+              className="material-symbols-outlined text-white text-4xl"
+            >
+              check_circle
+            </motion.span>
+          </motion.div>
+        </div>
+
+        <h2 className="text-2xl font-black text-slate-900 mb-2">Thank You! 🎉</h2>
+        <p className="text-slate-500 text-sm leading-relaxed mb-5">
+          Your donation of{' '}
+          <span className="font-bold text-emerald-600">
+            GHS {Number(amount).toLocaleString()}
+          </span>
+          {campaignTitle && (
+            <>
+              {' '}to <span className="font-semibold text-slate-700">{campaignTitle}</span>
+            </>
+          )}
+          {' '}has been received. You&apos;re making a real difference!
+        </p>
+
+        {/* Receipt strip */}
+        {reference && (
+          <div className="bg-slate-50 rounded-2xl p-4 mb-5 border border-slate-100">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-1.5">
+              Receipt Reference
+            </p>
+            <div className="flex items-center justify-between gap-2">
+              <code className="font-mono text-sm text-slate-700 truncate">{reference}</code>
+              <button
+                onClick={onCopy}
+                className="shrink-0 flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm">
+                  {copiedRef ? 'check' : 'content_copy'}
+                </span>
+                {copiedRef ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={onDonateAgain}
+            className="flex-1 py-3 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-2xl transition-colors"
+          >
+            Donate Again
+          </button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onClose}
+            className="flex-1 py-3 text-sm font-black text-white bg-emerald-500 hover:bg-emerald-600 rounded-2xl shadow-lg shadow-emerald-500/25 transition-colors"
+          >
+            Close
+          </motion.button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+ThankYouModal.propTypes = {
+  receipt: PropTypes.shape({
+    reference: PropTypes.string,
+    amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    campaignTitle: PropTypes.string,
+  }),
+  fallbackAmount: PropTypes.number,
+  copiedRef: PropTypes.bool,
+  onCopy: PropTypes.func.isRequired,
+  onDonateAgain: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
