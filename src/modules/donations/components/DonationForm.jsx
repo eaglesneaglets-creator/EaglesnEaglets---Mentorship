@@ -106,8 +106,20 @@ export default function DonationForm({ campaignId }) {
   async function handleCheckPayment() {
     setWaitingNotice('');
     try {
-      const result = await refetchStatus();
-      const s = result?.data?.data?.status;
+      let result = await refetchStatus();
+      let s = result?.data?.data?.status;
+
+      // If database shows pending, check Hubtel directly as fallback
+      if (s === 'pending' || s === 'processing') {
+        try {
+          const hubtelResult = await donationService.checkDonationStatus(donationId);
+          s = hubtelResult?.data?.data?.status;
+        } catch (hubtelErr) {
+          // Hubtel check failed, continue with database status
+          console.warn('Hubtel status check failed:', hubtelErr);
+        }
+      }
+
       if (s === 'success') {
         setReceipt({
           reference: result?.data?.data?.reference || receipt?.reference || '',
