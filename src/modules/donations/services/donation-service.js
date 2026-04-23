@@ -32,12 +32,11 @@ const donationService = {
 
   /**
    * Initiate a mobile money donation.
-   * skipAuth = true so anonymous donors can donate without a token.
+   * Authenticated users: request includes session/token automatically.
+   * Anonymous donors: must first call verifyOtp then include otp_token in data.
    * Hubtel sends a prompt to the donor's phone — no redirect needed.
-   * Anonymous donors: include otp_token (from verifyOtp) in data.
    */
-  initiateDonation: (data) =>
-    apiClient.post('/donations/initiate/', data, { skipAuth: true }),
+  initiateDonation: (data) => apiClient.post('/donations/initiate/', data),
 
   /**
    * Poll this after initiateDonation to detect when Hubtel callback
@@ -45,6 +44,13 @@ const donationService = {
    */
   getDonationStatus: (donationId) =>
     apiClient.get(`/donations/status/${donationId}/`, { skipAuth: true }),
+
+  /**
+   * Manually check Hubtel for transaction status.
+   * Used as fallback when webhook callback is not received.
+   */
+  checkDonationStatus: (donationId) =>
+    apiClient.post(`/donations/status/check/${donationId}/`, {}, { skipAuth: true }),
 
   /** Authenticated user's donation history */
   getMyDonations: () => apiClient.get('/donations/my-donations/'),
