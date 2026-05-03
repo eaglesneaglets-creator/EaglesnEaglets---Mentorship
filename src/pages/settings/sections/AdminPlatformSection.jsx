@@ -62,13 +62,6 @@ export default function AdminPlatformSection() {
                 </div>
               ))}
             </div>
-
-            <p className="text-[11px] text-slate-400">
-              Discovery artifact:{' '}
-              <code className="px-1 py-0.5 bg-slate-100 rounded">
-                .paul/phases/10-multi-tenant-architecture/
-              </code>
-            </p>
           </div>
         </div>
       </div>
