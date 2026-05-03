@@ -108,6 +108,29 @@ export const authService = {
    */
   updateProfile: (data) =>
     apiClient.patch('/auth/me/', data),
+
+  /**
+   * Request email change. Verification link sent to NEW email; notice to OLD.
+   */
+  requestEmailChange: (newEmail, currentPassword) =>
+    apiClient.post('/auth/email/change/request/', {
+      new_email: newEmail,
+      current_password: currentPassword,
+    }),
+
+  /**
+   * Confirm email change via tokenized link. Public — does not require auth.
+   */
+  confirmEmailChange: (token) =>
+    apiClient.get(`/auth/email/change/confirm/${token}/`, { skipAuth: true }),
+
+  /**
+   * Soft-delete the authenticated user's account.
+   */
+  deleteAccount: (currentPassword) =>
+    apiClient.post('/auth/account/delete/', {
+      current_password: currentPassword,
+    }),
 };
 
 export const kycService = {

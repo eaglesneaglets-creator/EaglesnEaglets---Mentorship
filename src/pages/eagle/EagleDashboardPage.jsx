@@ -12,18 +12,13 @@ import { useEagleDashboardStats } from '../../modules/analytics/hooks/useAnalyti
 import StatCard from '../../shared/components/ui/StatCard';
 import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
 import { SkeletonCard } from '../../shared/components/ui/LoadingSkeleton';
+import { getEagletStatus } from '../../shared/utils/eagletStatus';
 
 /**
  * Eaglet Performance Row
  */
 const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
-  const statusConfig = {
-    active: { bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Active' },
-    behind: { bg: 'bg-amber-50', text: 'text-amber-600', label: 'Behind' },
-    review: { bg: 'bg-blue-50', text: 'text-blue-600', label: 'Review' },
-    completed: { bg: 'bg-slate-50', text: 'text-slate-600', label: 'Completed' },
-  };
-  const config = statusConfig[eaglet.status] || statusConfig.active;
+  const config = getEagletStatus(eaglet.status);
 
   return (
     <tr
@@ -77,7 +72,79 @@ const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
     </tr>
   );
 };
-/** * Eaglet Mobile Card - shown on small screens instead of table */const EagletMobileCard = ({ eaglet, delay = 0, onAwardPoints }) => {  const statusConfig = {    active: { bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Active' },    behind: { bg: 'bg-amber-50', text: 'text-amber-600', label: 'Behind' },    review: { bg: 'bg-blue-50', text: 'text-blue-600', label: 'Review' },    completed: { bg: 'bg-slate-50', text: 'text-slate-600', label: 'Completed' },  };  const config = statusConfig[eaglet.status] || statusConfig.active;  return (    <div className="bg-white rounded-xl border border-slate-100 p-4 flex flex-col gap-3" style={{ animationDelay: `${delay}ms` }}>      <div className="flex items-center justify-between">        <div className="flex items-center gap-3">          {eaglet.avatar ? (            <img src={eaglet.avatar} alt={eaglet.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm" loading="lazy" />          ) : (            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400/80 to-emerald-600/80 flex items-center justify-center text-white font-bold text-sm shadow-sm">              {eaglet.name?.charAt(0) || '?'}            </div>          )}          <div>            <p className="font-semibold text-sm text-slate-900">{eaglet.name}</p>            <p className="text-xs text-slate-500">{eaglet.nest_name || 'No Nest'}</p>          </div>        </div>        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${config.bg} ${config.text}`}>          {config.label}        </span>      </div>      <div className="flex items-center gap-3">        <p className="text-xs text-slate-500 flex-shrink-0">Module:</p>        <p className="text-sm text-slate-900 font-medium truncate">{eaglet.module || 'In progress'}</p>      </div>      <div>        <div className="flex items-center justify-between mb-1">          <p className="text-xs text-slate-500">Progress</p>          <p className="text-xs font-bold text-slate-700">{eaglet.progress}%</p>        </div>        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">          <div            className={`h-2 rounded-full transition-all duration-1000 ${eaglet.progress >= 75 ? 'bg-primary/80' : eaglet.progress >= 50 ? 'bg-amber-400' : 'bg-emerald-400'}`}            style={{ width: `${eaglet.progress}%` }}          />        </div>      </div>      <button        onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}        className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 active:bg-emerald-200 transition-all"      >        <span className="material-symbols-outlined text-sm">military_tech</span>        Award Points      </button>    </div>  );};
+/**
+ * Eaglet Mobile Card - shown on small screens instead of table
+ */
+const EagletMobileCard = ({ eaglet, delay = 0, onAwardPoints }) => {
+  const config = getEagletStatus(eaglet.status);
+
+  return (
+    <div
+      className="bg-white rounded-xl border border-slate-100 p-4 flex flex-col gap-3"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {eaglet.avatar ? (
+            <img
+              src={eaglet.avatar}
+              alt={eaglet.name}
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400/80 to-emerald-600/80 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+              {eaglet.name?.charAt(0) || '?'}
+            </div>
+          )}
+          <div>
+            <p className="font-semibold text-sm text-slate-900">{eaglet.name}</p>
+            <p className="text-xs text-slate-500">{eaglet.nest_name || 'No Nest'}</p>
+          </div>
+        </div>
+        <span
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${config.bg} ${config.text}`}
+        >
+          {config.label}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <p className="text-xs text-slate-500 flex-shrink-0">Module:</p>
+        <p className="text-sm text-slate-900 font-medium truncate">
+          {eaglet.module || 'In progress'}
+        </p>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-xs text-slate-500">Progress</p>
+          <p className="text-xs font-bold text-slate-700">{eaglet.progress}%</p>
+        </div>
+        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+          <div
+            className={`h-2 rounded-full transition-all duration-1000 ${
+              eaglet.progress >= 75
+                ? 'bg-primary/80'
+                : eaglet.progress >= 50
+                ? 'bg-amber-400'
+                : 'bg-emerald-400'
+            }`}
+            style={{ width: `${eaglet.progress}%` }}
+          />
+        </div>
+      </div>
+
+      <button
+        onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}
+        className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 active:bg-emerald-200 transition-all"
+      >
+        <span className="material-symbols-outlined text-sm">military_tech</span>
+        Award Points
+      </button>
+    </div>
+  );
+};
 
 /**
  * Calendar Day Component
@@ -344,11 +411,19 @@ const EagleDashboardPage = () => {
               <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
                 <h2 className="text-xl font-bold text-slate-900">Eaglet Performance</h2>
                 <div className="flex gap-2">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+                  <button
+                    disabled
+                    title="Coming soon"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg opacity-60 cursor-not-allowed"
+                  >
                     <span className="material-symbols-outlined text-sm">sort</span>
                     Sort by
                   </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+                  <button
+                    disabled
+                    title="Coming soon"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg opacity-60 cursor-not-allowed"
+                  >
                     <span className="material-symbols-outlined text-sm">filter_list</span>
                     Filter
                   </button>

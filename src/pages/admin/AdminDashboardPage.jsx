@@ -168,13 +168,13 @@ const AdminDashboardPage = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all duration-300 flex items-center gap-2 hover:shadow-md">
+            <button
+              disabled
+              title="Coming soon"
+              className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 opacity-60 cursor-not-allowed flex items-center gap-2"
+            >
               <span className="material-symbols-outlined text-lg">download</span>
               <span className="hidden sm:inline">Export</span>
-            </button>
-            <button className="px-3 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary/25">
-              <span className="material-symbols-outlined text-lg">add</span>
-              <span className="hidden sm:inline">Add User</span>
             </button>
           </div>
         </div>

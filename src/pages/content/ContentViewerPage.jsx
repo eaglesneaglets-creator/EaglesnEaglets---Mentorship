@@ -176,12 +176,20 @@ const ContentViewerPage = () => {
                             </div>
                         </div>
 
-                        {/* Actions */}
+                        {/* Actions (Coming soon) */}
                         <div className="flex items-center gap-3">
-                            <button className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors border border-slate-100">
+                            <button
+                                disabled
+                                title="Coming soon"
+                                className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 opacity-60 cursor-not-allowed border border-slate-100"
+                            >
                                 <span className="material-symbols-outlined text-[20px]">settings</span>
                             </button>
-                            <button className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-colors border border-slate-100">
+                            <button
+                                disabled
+                                title="Coming soon"
+                                className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 opacity-60 cursor-not-allowed border border-slate-100"
+                            >
                                 <span className="material-symbols-outlined text-[20px]">share</span>
                             </button>
                         </div>
@@ -243,7 +251,11 @@ const ContentViewerPage = () => {
                                                     <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight tracking-tight">
                                                         {activeItem.title}
                                                     </h2>
-                                                    <button className="shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-slate-50 transition-all">
+                                                    <button
+                                                        disabled
+                                                        title="Coming soon"
+                                                        className="shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl border border-slate-200 text-slate-500 font-bold text-sm opacity-60 cursor-not-allowed"
+                                                    >
                                                         <span className="material-symbols-outlined text-[20px]">download</span>
                                                         Resources
                                                     </button>

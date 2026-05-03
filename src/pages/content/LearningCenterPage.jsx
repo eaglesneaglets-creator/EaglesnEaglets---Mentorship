@@ -649,8 +649,12 @@ const LearningCenterPage = () => {
                             ))}
                         </select>
 
-                        {/* Date range button (decorative, matching UI) */}
-                        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 hover:border-primary/30 transition-all shadow-sm">
+                        {/* Date range button (Coming soon) */}
+                        <button
+                            disabled
+                            title="Coming soon"
+                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 opacity-60 cursor-not-allowed shadow-sm"
+                        >
                             Date Range
                             <span className="material-symbols-outlined text-base">calendar_today</span>
                         </button>

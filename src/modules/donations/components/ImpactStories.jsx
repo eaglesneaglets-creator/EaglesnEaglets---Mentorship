@@ -63,7 +63,11 @@ export default function ImpactStories() {
               <div className="p-5 space-y-2">
                 <h3 className="font-bold text-gray-900 text-sm">{story.title}</h3>
                 <p className="text-gray-500 text-xs leading-relaxed">{story.body}</p>
-                <button className="text-green-600 text-xs font-semibold hover:underline">
+                <button
+                  disabled
+                  title="Coming soon"
+                  className="text-green-600 text-xs font-semibold opacity-60 cursor-not-allowed"
+                >
                   Read More →
                 </button>
               </div>
