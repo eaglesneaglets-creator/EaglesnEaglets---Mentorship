@@ -80,7 +80,13 @@ const EventsCard = ({ nestId }) => {
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/70">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-sm font-bold text-slate-900">Upcoming Events</h3>
-                <button className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors">View All</button>
+                <button
+                    disabled
+                    title="Coming soon"
+                    className="text-xs font-semibold text-primary opacity-60 cursor-not-allowed"
+                >
+                    View All
+                </button>
             </div>
             <div className="space-y-3">
                 {events.slice(0, 3).map((event, i) => {
@@ -139,7 +145,11 @@ const MembersPreview = ({ nestId, memberCount }) => {
             </div>
 
             {members.length > 8 && (
-                <button className="w-full text-center text-xs font-medium text-primary hover:underline mt-3 pt-3 border-t border-slate-100">
+                <button
+                    disabled
+                    title="Coming soon"
+                    className="w-full text-center text-xs font-medium text-primary mt-3 pt-3 border-t border-slate-100 opacity-60 cursor-not-allowed"
+                >
                     View all {memberCount} members
                 </button>
             )}

@@ -4,34 +4,15 @@ import { Suspense, lazy } from 'react';
 import ErrorBoundary from '@components/ErrorBoundary';
 import { Toaster } from '@shared/components/ui/Toast';
 
-// Route-level error fallback — shown when a lazy chunk fails to load
-const RouteErrorFallback = ({ retry }) => (
-  <div className="min-h-screen flex items-center justify-center p-8 bg-slate-50">
-    <div className="text-center max-w-md">
-      <span className="material-symbols-outlined text-5xl text-slate-300 block mb-4">error</span>
-      <h2 className="text-xl font-bold text-slate-800 mb-2">Page failed to load</h2>
-      <p className="text-sm text-slate-500 mb-6">
-        This section could not be loaded. Check your connection and try again.
-      </p>
-      <button
-        onClick={retry}
-        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
-      >
-        Try Again
-      </button>
-    </div>
-  </div>
-);
-
 // Lazy load pages for code splitting
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const VerifyEmailPage = lazy(() => import('./pages/auth/VerifyEmailPage'));
+const EmailChangeConfirmPage = lazy(() => import('./pages/auth/EmailChangeConfirmPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 const GoogleCallbackPage = lazy(() => import('./pages/auth/GoogleCallbackPage'));
 const EagletOnboardingPage = lazy(() => import('./pages/eaglet/EagletOnboardingPage'));
-const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
 
 // Role-specific Dashboard Pages
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
@@ -40,7 +21,6 @@ const EagletDashboardPage = lazy(() => import('./pages/eaglet/EagletDashboardPag
 
 // Nest Pages
 const NestCommunityHubPage = lazy(() => import('./pages/nest/NestCommunityHubPage'));
-const NestBrowsePage = lazy(() => import('./pages/nest/NestBrowsePage'));
 const NestSettingsPage = lazy(() => import('./pages/nest/NestSettingsPage'));
 const GradingCenterPage = lazy(() => import('./pages/eagle/GradingCenterPage'));
 const MyEagletsPage = lazy(() => import('./pages/eagle/MyEagletsPage'));
@@ -58,7 +38,6 @@ const AssignmentDetailPage = lazy(() => import('./pages/content/AssignmentDetail
 const ContentUploadPage = lazy(() => import('./pages/content/ContentUploadPage'));
 const ResourceCenterPage = lazy(() => import('./pages/content/ResourceCenterPage'));
 const ModuleQuizPage = lazy(() => import('./modules/content/components/ModuleQuizPage'));
-const LandingPage = lazy(() => import('./pages/public/LandingPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
 
 // Points & Leaderboard Pages
@@ -99,6 +78,15 @@ const ComingSoonPage = lazy(() => import('./pages/shared/ComingSoonPage'));
 const DonationsPage = lazy(() => import('./pages/donations/DonationsPage'));
 const MyDonationsPage = lazy(() => import('./pages/donations/MyDonationsPage'));
 const AdminDonationsPage = lazy(() => import('./pages/donations/AdminDonationsPage'));
+
+// Settings Pages (Phase 11)
+const SettingsLayout = lazy(() => import('./pages/settings/SettingsLayout'));
+const SettingsHomePage = lazy(() => import('./pages/settings/SettingsHomePage'));
+const AccountSection = lazy(() => import('./pages/settings/sections/AccountSection'));
+const NotificationsSection = lazy(() => import('./pages/settings/sections/NotificationsSection'));
+const PrivacySection = lazy(() => import('./pages/settings/sections/PrivacySection'));
+const AdminPointsConfigSection = lazy(() => import('./pages/settings/sections/AdminPointsConfigSection'));
+const AdminPlatformSection = lazy(() => import('./pages/settings/sections/AdminPlatformSection'));
 
 // Auth Guards
 import AuthGuard from './shared/components/guards/AuthGuard';
@@ -189,6 +177,7 @@ function App() {
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+                <Route path="/auth/email-change/confirm/:token" element={<EmailChangeConfirmPage />} />
 
                 {/* Public Donations — accessible without login */}
                 <Route path="/donations" element={<DonationsPage />} />
@@ -225,7 +214,7 @@ function App() {
                     <Route path="/eagle/eaglets" element={<MyEagletsPage />} />
                     <Route path="/eagle/messages" element={<ChatPage />} />
                     <Route path="/eagle/resources" element={<ResourceCenterPage />} />
-                    <Route path="/eagle/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
+                    <Route path="/eagle/settings" element={<Navigate to="/settings" replace />} />
                   </Route>
 
                   {/* Eaglet (Mentee) Only Routes */}
@@ -250,7 +239,7 @@ function App() {
                     <Route path="/eaglet/badges" element={<BadgesPage />} />
                     <Route path="/eaglet/messages" element={<ChatPage />} />
                     <Route path="/eaglet/resources" element={<ResourceCenterPage />} />
-                    <Route path="/eaglet/settings" element={<ComingSoonPage title="Settings" description="Customize your profile, notification preferences, and account settings." icon="settings" />} />
+                    <Route path="/eaglet/settings" element={<Navigate to="/settings" replace />} />
                   </Route>
 
 
@@ -267,6 +256,18 @@ function App() {
                   {/* Dashboard redirect - directs to role-specific dashboard */}
                   <Route path="/dashboard" element={<DashboardRedirect />} />
 
+                  {/* Settings Hub (Phase 11) - role-aware via SettingsLayout */}
+                  <Route path="/settings" element={<SettingsLayout />}>
+                    <Route index element={<SettingsHomePage />} />
+                    <Route path="account" element={<AccountSection />} />
+                    <Route path="notifications" element={<NotificationsSection />} />
+                    <Route path="privacy" element={<PrivacySection />} />
+                    <Route element={<AdminGuard />}>
+                      <Route path="admin/points" element={<AdminPointsConfigSection />} />
+                      <Route path="admin/platform" element={<AdminPlatformSection />} />
+                    </Route>
+                  </Route>
+
                   {/* Admin Only Routes */}
                   <Route element={<AdminGuard />}>
                     <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
@@ -281,7 +282,7 @@ function App() {
                     <Route path="/admin/store" element={<AdminStorePage />} />
                     <Route path="/admin/store/orders" element={<AdminOrdersPage />} />
                     <Route path="/admin/donations" element={<AdminDonationsPage />} />
-                    <Route path="/admin/settings" element={<ComingSoonPage title="Platform Settings" description="Configure platform-wide settings, policies, and system preferences." icon="settings" />} />
+                    <Route path="/admin/settings" element={<Navigate to="/settings" replace />} />
                   </Route>
                 </Route>
 

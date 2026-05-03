@@ -454,10 +454,18 @@ export default function DonationAnalytics() {
             Showing {recentDonations.length} of {stats.total_donations ?? 0} donations
           </span>
           <div className="flex gap-1">
-            <button className="w-7 h-7 rounded-lg border-2 border-slate-200 text-slate-400 text-xs hover:bg-slate-50 flex items-center justify-center transition-colors">
+            <button
+              disabled
+              title="Coming soon"
+              className="w-7 h-7 rounded-lg border-2 border-slate-200 text-slate-400 text-xs opacity-60 cursor-not-allowed flex items-center justify-center"
+            >
               <span className="material-symbols-outlined text-sm">chevron_left</span>
             </button>
-            <button className="w-7 h-7 rounded-lg border-2 border-slate-200 text-slate-400 text-xs hover:bg-slate-50 flex items-center justify-center transition-colors">
+            <button
+              disabled
+              title="Coming soon"
+              className="w-7 h-7 rounded-lg border-2 border-slate-200 text-slate-400 text-xs opacity-60 cursor-not-allowed flex items-center justify-center"
+            >
               <span className="material-symbols-outlined text-sm">chevron_right</span>
             </button>
           </div>

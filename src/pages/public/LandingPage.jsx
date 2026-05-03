@@ -94,7 +94,11 @@ const LandingPage = () => {
                         >
                             Get Started Now
                         </Link>
-                        <button className="w-full sm:w-auto px-10 py-5 rounded-2xl font-bold text-lg text-slate-600 hover:bg-slate-50 transition-colors">
+                        <button
+                            disabled
+                            title="Coming soon"
+                            className="w-full sm:w-auto px-10 py-5 rounded-2xl font-bold text-lg text-slate-600 opacity-60 cursor-not-allowed"
+                        >
                             Explore Community
                         </button>
                     </div>

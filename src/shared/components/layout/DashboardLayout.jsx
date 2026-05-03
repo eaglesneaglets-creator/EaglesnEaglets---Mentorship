@@ -273,7 +273,7 @@ const DashboardLayout = ({
         { to: '/admin/store/orders', icon: 'receipt_long', label: 'Orders' },
         { to: '/admin/content', icon: 'library_books', label: 'Content' },
         { to: '/admin/donations', icon: 'volunteer_activism', label: 'Donations' },
-        { to: '/admin/settings', icon: 'settings', label: 'Settings' },
+        { to: '/settings', icon: 'settings', label: 'Settings' },
       ];
     }
 
@@ -287,7 +287,7 @@ const DashboardLayout = ({
         { to: '/eagle/content', icon: 'upload_file', label: 'Content' },
         { to: '/eagle/messages', icon: 'chat', label: 'Messages', badge: chatBadge },
         { to: '/eagle/resources', icon: 'library_books', label: 'Resources' },
-        { to: '/eagle/settings', icon: 'settings', label: 'Settings' },
+        { to: '/settings', icon: 'settings', label: 'Settings' },
       ];
     }
 
@@ -301,7 +301,7 @@ const DashboardLayout = ({
       { to: '/eaglet/messages', icon: 'chat', label: 'Messages', badge: chatBadge },
       { to: '/eaglet/leaderboard', icon: 'leaderboard', label: 'Leaderboard' },
       { to: '/eaglet/resources', icon: 'library_books', label: 'Resources' },
-      { to: '/eaglet/settings', icon: 'settings', label: 'Settings' },
+      { to: '/settings', icon: 'settings', label: 'Settings' },
     ];
   };
 
