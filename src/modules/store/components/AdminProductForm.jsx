@@ -139,7 +139,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
                 <textarea {...register('description')} rows={3} className={`${inputClass} resize-none`} placeholder="Product description..." />
             </Field>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Price (₵) *" error={errors.price?.message}>
                     <input {...register('price')} type="number" step="0.01" min="0.01" className={inputClass} placeholder="0.00" />
                 </Field>
@@ -148,7 +148,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
                 </Field>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Category" error={errors.category_id?.message}>
                     <select {...register('category_id')} className={`${inputClass} bg-white`}>
                         <option value="">No category</option>

@@ -38,9 +38,11 @@ export const NestService = {
     // Requests
     // ------------------------------------------------------------------
 
+    // Plan 14.5 follow-up: legacy /nests/my-requests/ returned MentorshipRequest
+    // rows; new ProgramEnrollment flow lives under /program-enrollments/my-requests/
     getMyRequests: (params = {}) => {
         const query = Object.keys(params).length ? `?${new URLSearchParams(params)}` : '';
-        return apiClient.get(`/nests/my-requests/${query}`);
+        return apiClient.get(`/program-enrollments/my-requests/${query}`);
     },
 
     getRequests: (nestId, params = {}) => {
@@ -50,6 +52,13 @@ export const NestService = {
 
     requestToJoin: (nestId, message) =>
         apiClient.post(`/nests/${nestId}/requests/`, { message }),
+
+    // Plan 14.5-02: new ProgramEnrollment-aware join. Replaces requestToJoin
+    // for mentees joining via the Nest discovery flow. Hits the
+    // /enroll/ endpoint added in Phase 14-02 which creates a pending
+    // ProgramEnrollment instead of a legacy MentorshipRequest.
+    enrollInNest: (nestId, message) =>
+        apiClient.post(`/nests/${nestId}/enroll/`, { message }),
 
     updateRequestStatus: (nestId, requestId, status) =>
         apiClient.patch(`/nests/${nestId}/requests/${requestId}/`, { action: status }),

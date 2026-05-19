@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
-import { useNestDetail, useNestMembers, useJoinNest } from '../../modules/nest/hooks/useNests';
+import { useNestDetail, useNestMembers, useEnrollNest } from '../../modules/nest/hooks/useNests';
 import AnimatedCounter from '../../shared/components/ui/AnimatedCounter';
 import AvatarGroup from '../../shared/components/ui/AvatarGroup';
 import StatusBadge from '../../shared/components/ui/StatusBadge';
@@ -27,7 +27,7 @@ const NestJoinDetailPage = () => {
     const { nestId } = useParams();
     const { data: nestResponse, isLoading } = useNestDetail(nestId);
     const { data: membersResponse } = useNestMembers(nestId);
-    const joinMutation = useJoinNest(nestId);
+    const joinMutation = useEnrollNest(nestId);
 
     const [message, setMessage] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);

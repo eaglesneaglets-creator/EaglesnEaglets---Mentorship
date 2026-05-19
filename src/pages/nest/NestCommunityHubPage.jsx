@@ -3,7 +3,15 @@ import { motion } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useNestDetail, useNestMembers, useNestEvents } from '../../modules/nest/hooks/useNests';
+import { usePrograms } from '../../modules/program/hooks/usePrograms';
+import { useEnrollments } from '../../modules/program/hooks/useEnrollments';
 import PostFeed from '../../modules/nest/components/PostFeed';
+
+const PROGRAM_STATUS_BADGE = {
+    draft: 'bg-slate-100 text-slate-600',
+    active: 'bg-emerald-100 text-emerald-700',
+    archived: 'bg-amber-100 text-amber-700',
+};
 
 /* ─── Soft animated background ─── */
 const AnimatedBg = () => (
@@ -167,6 +175,17 @@ const NestCommunityHubPage = () => {
     const { data: membersData, isLoading: membersLoading } = useNestMembers(nestId);
 
     const isEagle = user?.role === 'eagle';
+    const isOwner = isEagle && nestData?.data?.eagle_details?.id === user?.id;
+
+    const { data: programsData } = usePrograms(isOwner ? nestId : null);
+    const programs = programsData?.data || programsData?.results || programsData || [];
+    const program = Array.isArray(programs) ? programs[0] : programs;
+
+    const { data: pendingData } = useEnrollments(
+        isOwner ? { nest_id: nestId, status: 'pending' } : null
+    );
+    const pendingList = pendingData?.data || pendingData?.results || pendingData || [];
+    const pendingCount = Array.isArray(pendingList) ? pendingList.length : 0;
 
     if (isLoading) {
         return (
@@ -227,16 +246,35 @@ const NestCommunityHubPage = () => {
                         </div>
 
                         {/* Eagle actions */}
-                        {isEagle && (
+                        {isOwner && (
                             <div className="flex items-center gap-2">
                                 <motion.button
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.97 }}
-                                    onClick={() => navigate(`/eagle/nests/${nestId}/requests`)}
+                                    onClick={() => navigate(`/eagle/nests/${nestId}/program`)}
                                     className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:border-primary/30 hover:text-primary transition-all shadow-sm"
                                 >
-                                    <span className="material-symbols-outlined text-base">inbox</span>
-                                    Requests
+                                    <span className="material-symbols-outlined text-base">workspaces</span>
+                                    Manage Program
+                                    {program?.status && (
+                                        <span className={`ml-1 px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wide ${PROGRAM_STATUS_BADGE[program.status] || ''}`}>
+                                            {program.status}
+                                        </span>
+                                    )}
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.97 }}
+                                    onClick={() => navigate(`/eagle/nests/${nestId}/enrollments`)}
+                                    className="relative flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:border-primary/30 hover:text-primary transition-all shadow-sm"
+                                >
+                                    <span className="material-symbols-outlined text-base">how_to_reg</span>
+                                    Enrollments
+                                    {pendingCount > 0 && (
+                                        <span className="ml-1 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center text-[10px] font-bold rounded-full bg-red-500 text-white">
+                                            {pendingCount > 99 ? '99+' : pendingCount}
+                                        </span>
+                                    )}
                                 </motion.button>
                                 <motion.button
                                     whileHover={{ scale: 1.02 }}

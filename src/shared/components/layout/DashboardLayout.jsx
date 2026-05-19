@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { useAuthStore } from '@store';
+import { useAuthStore, useLockedFeatures } from '@store';
+import { LockedFeatureModal } from '@shared/components/feature-lock/LockedFeatureModal';
 import { refreshAccessToken } from '../../../api';
 import { adminService } from '../../../modules/auth/services/auth-service';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, useNotificationSocket } from '../../../modules/notifications/hooks/useNotifications';
@@ -9,6 +10,8 @@ import { useTotalUnread } from '../../../modules/chat/hooks/useChat';
 import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
 
 import { formatRelativeTime } from '../../../shared/utils';
+
+const EMPTY_LOCKED_FEATURES = [];
 
 /**
  * Animated Background Component
@@ -67,17 +70,28 @@ AnimatedBackground.propTypes = {
 /**
  * Navigation Item Component
  */
-const NavItem = React.memo(({ to, icon, label, isActive, badge, isCollapsed, onClick }) => (
+const NavItem = React.memo(({ to, icon, label, isActive, badge, isCollapsed, onClick, isLocked }) => {
+  const handleClick = (e) => {
+    if (isLocked) {
+      e.preventDefault();
+    }
+    onClick?.(e);
+  };
+
+  return (
   <Link
-    to={to}
-    onClick={onClick}
+    to={isLocked ? '#' : to}
+    onClick={handleClick}
     title={isCollapsed ? label : undefined}
+    aria-disabled={isLocked || undefined}
     className={`
       group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative
       ${isCollapsed ? 'justify-center' : ''}
       ${isActive
         ? 'bg-primary text-white shadow-lg shadow-primary/25'
-        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        : isLocked
+          ? 'text-slate-400 hover:bg-slate-50'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
       }
     `}
   >
@@ -87,7 +101,12 @@ const NavItem = React.memo(({ to, icon, label, isActive, badge, isCollapsed, onC
     {!isCollapsed && (
       <>
         <span className="text-sm font-medium flex-1 whitespace-nowrap overflow-hidden">{label}</span>
-        {badge && (
+        {isLocked && (
+          <span className="material-symbols-outlined text-base text-slate-400" aria-label="Locked">
+            lock
+          </span>
+        )}
+        {badge && !isLocked && (
           <span className={`
             px-2 py-0.5 text-xs font-bold rounded-full transition-all duration-300
             ${isActive ? 'bg-white/20 text-white' : 'bg-emerald-500 text-white'}
@@ -97,13 +116,19 @@ const NavItem = React.memo(({ to, icon, label, isActive, badge, isCollapsed, onC
         )}
       </>
     )}
-    {isCollapsed && badge && (
+    {isCollapsed && isLocked && (
+      <span className="absolute -top-1 -right-1 w-4 h-4 bg-slate-300 rounded-full flex items-center justify-center">
+        <span className="material-symbols-outlined text-[10px] text-white">lock</span>
+      </span>
+    )}
+    {isCollapsed && badge && !isLocked && (
       <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
         {badge}
       </span>
     )}
   </Link>
-));
+  );
+});
 
 NavItem.displayName = 'NavItem';
 
@@ -115,6 +140,7 @@ NavItem.propTypes = {
   badge: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   isCollapsed: PropTypes.bool,
   onClick: PropTypes.func,
+  isLocked: PropTypes.bool,
 };
 
 /**
@@ -160,9 +186,30 @@ const DashboardLayout = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Real unread chat count for sidebar badge
-  // Gate on tokenReady to avoid 401 requests on page refresh
-  const chatUnread = useTotalUnread({ enabled: tokenReady });
+  // Refresh access_status on mount + window focus so sidebar lock visuals
+  // reflect mentor approvals + KYC state changes without requiring a logout.
+  const refreshAccessStatus = useAuthStore((s) => s.refreshAccessStatus);
+  useEffect(() => {
+    if (!tokenReady || !refreshAccessStatus) return;
+    refreshAccessStatus();
+    const onFocus = () => refreshAccessStatus();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [tokenReady, refreshAccessStatus]);
+
+  // Real unread chat count for sidebar badge.
+  // Gate on tokenReady (no 401 on refresh) AND on chat being unlocked
+  // (eaglets without active program get 403 NoActiveProgramDenied on chat APIs).
+  const accessStatusForChat = useAuthStore((s) => s.accessStatus);
+  const lockedFeaturesEarly = useAuthStore(
+    (s) => s.accessStatus?.locked_features ?? EMPTY_LOCKED_FEATURES
+  );
+  const accessStatusLoaded = accessStatusForChat !== null && accessStatusForChat !== undefined;
+  const chatUnlocked =
+    !user ||
+    user.role !== 'eaglet' ||
+    (accessStatusLoaded && !lockedFeaturesEarly.includes('messages'));
+  const chatUnread = useTotalUnread({ enabled: tokenReady && chatUnlocked });
   const chatBadge = chatUnread > 0 ? chatUnread : undefined;
 
 
@@ -291,21 +338,29 @@ const DashboardLayout = ({
       ];
     }
 
-    // Eaglet (mentee)
+    // Eaglet (mentee). My Requests dropped — moved into Nest page Requests tab (plan 14-05).
+    // featureKey marks items gated by access_status.locked_features.
     return [
       { to: '/', icon: 'home', label: 'Home' },
       { to: '/eaglet/dashboard', icon: 'dashboard', label: 'Dashboard' },
       { to: '/eaglet/nest', icon: 'nest_eco_leaf', label: 'Nest' },
-      { to: '/eaglet/my-requests', icon: 'mail', label: 'My Requests' },
-      { to: '/eaglet/assignments', icon: 'assignment', label: 'Assignments' },
-      { to: '/eaglet/messages', icon: 'chat', label: 'Messages', badge: chatBadge },
-      { to: '/eaglet/leaderboard', icon: 'leaderboard', label: 'Leaderboard' },
-      { to: '/eaglet/resources', icon: 'library_books', label: 'Resources' },
+      { to: '/eaglet/assignments', icon: 'assignment', label: 'Assignments', featureKey: 'assignments' },
+      { to: '/eaglet/messages', icon: 'chat', label: 'Messages', badge: chatBadge, featureKey: 'messages' },
+      { to: '/eaglet/leaderboard', icon: 'leaderboard', label: 'Leaderboard', featureKey: 'leaderboard' },
+      { to: '/eaglet/resources', icon: 'library_books', label: 'Resources', featureKey: 'resources' },
       { to: '/settings', icon: 'settings', label: 'Settings' },
     ];
   };
 
   const navItems = getNavItems();
+
+  // Plan 14-05: compute per-item lock state from access_status. Eagles + admins
+  // never see locks. Clicking a locked item opens the modal instead of routing.
+  const lockedFeatures = useLockedFeatures();
+  const isEagletRole = user?.role === 'eaglet';
+  const [lockModalKey, setLockModalKey] = useState(null);
+  const closeLockModal = () => setLockModalKey(null);
+
   const roleDisplay = {
     admin: 'Administrator',
     eagle: 'Eagle (Mentor)',
@@ -409,15 +464,29 @@ const DashboardLayout = ({
 
         {/* Navigation */}
         <nav className={`flex-1 overflow-y-auto py-4 space-y-1 ${isSidebarOpen ? 'px-3' : 'px-2'}`}>
-          {navItems.map((item) => (
-            <NavItem
-              key={item.to}
-              {...item}
-              isCollapsed={!isSidebarOpen}
-              isActive={location.pathname === item.to || (!item.exact && location.pathname.startsWith(item.to + '/'))}
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-          ))}
+          {navItems.map((item) => {
+            const itemLocked =
+              isEagletRole && item.featureKey && lockedFeatures.includes(item.featureKey);
+            return (
+              <NavItem
+                key={item.to}
+                {...item}
+                isCollapsed={!isSidebarOpen}
+                isActive={
+                  location.pathname === item.to ||
+                  (!item.exact && location.pathname.startsWith(item.to + '/'))
+                }
+                isLocked={itemLocked}
+                onClick={() => {
+                  if (itemLocked) {
+                    setLockModalKey(item.featureKey);
+                    return;
+                  }
+                  setIsMobileMenuOpen(false);
+                }}
+              />
+            );
+          })}
         </nav>
 
         {/* Bottom Actions */}
@@ -617,6 +686,15 @@ const DashboardLayout = ({
         }
         .animate-dot-grid { animation: drift-grid 12s linear infinite; }
       `}</style>
+
+      {/* Plan 14-05: locked sidebar item modal */}
+      {lockModalKey && (
+        <LockedFeatureModal
+          open={!!lockModalKey}
+          featureKey={lockModalKey}
+          onClose={closeLockModal}
+        />
+      )}
     </div>
   );
 };

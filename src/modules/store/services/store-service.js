@@ -60,10 +60,6 @@ const StoreService = {
     updateCartItem: (id, data) => apiClient.patch(`/store/cart/items/${id}/`, data),
     removeFromCart: (id) => apiClient.delete(`/store/cart/items/${id}/`),
 
-    // Guest checkout (no auth required)
-    guestCheckout: (data) => apiClient.post('/store/guest-checkout/', data, { skipAuth: true }),
-    getGuestOrderDetail: (id) => apiClient.get(`/store/guest-orders/${id}/`, { skipAuth: true }),
-
     // Orders
     getOrders: () => apiClient.get('/store/orders/'),
     getOrderDetail: (id) => apiClient.get(`/store/orders/${id}/`),

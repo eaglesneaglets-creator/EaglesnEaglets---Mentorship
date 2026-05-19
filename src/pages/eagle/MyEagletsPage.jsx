@@ -117,7 +117,7 @@ const ProgressBar = ({ value = 0 }) => {
       : 'bg-gradient-to-r from-rose-400 to-pink-400';
 
   return (
-    <div className="flex items-center gap-2 min-w-[120px]">
+    <div className="flex items-center gap-2 min-w-0 w-full sm:min-w-[120px]">
       <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full ${color} transition-all duration-[1400ms] ease-out`}
@@ -248,7 +248,7 @@ const EagletRow = ({ member, nestName, onViewProfile, onMessage, onManage, delay
       {/* Current module + progress */}
       <td className="py-4 px-3">
         <div className="flex flex-col gap-1.5">
-          <p className="text-sm text-slate-700 font-medium leading-tight max-w-[140px] truncate">
+          <p className="text-sm text-slate-700 font-medium leading-tight max-w-[180px] sm:max-w-[220px] truncate">
             {currentModule}
           </p>
           <ProgressBar value={progress} />

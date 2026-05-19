@@ -509,7 +509,7 @@ export default function DonationForm({ campaignId }) {
       </div>
 
       {/* Amount presets */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {AMOUNT_PRESETS.map((preset) => (
           <motion.button
             key={preset.value}
@@ -574,7 +574,7 @@ export default function DonationForm({ campaignId }) {
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
           Personal Information
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base">
               person

@@ -153,8 +153,8 @@ const OrderDetailModal = ({ orderId, onClose }) => {
                         {/* Section 2: Order Items */}
                         <div className="px-6 py-5">
                             <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Items Ordered</h3>
-                            <div className="rounded-xl border border-slate-200 overflow-hidden">
-                                <table className="w-full text-sm">
+                            <div className="rounded-xl border border-slate-200 overflow-x-auto">
+                                <table className="w-full text-sm min-w-[480px]">
                                     <thead className="bg-slate-50">
                                         <tr>
                                             <th className="text-left px-4 py-2.5 font-semibold text-slate-600">Product</th>

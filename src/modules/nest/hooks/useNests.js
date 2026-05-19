@@ -118,6 +118,20 @@ export const useJoinNest = (id) => {
     });
 };
 
+// Plan 14.5-02: program-enrollment-aware join. Use this instead of
+// useJoinNest for mentee → Nest discovery flow.
+export const useEnrollNest = (id) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (message) => NestService.enrollInNest(id, message),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: nestKeys.my() });
+            queryClient.invalidateQueries({ queryKey: nestKeys.detail(id) });
+            queryClient.invalidateQueries({ queryKey: ['program-enrollments'] });
+        },
+    });
+};
+
 export const useRespondToRequest = (nestId) => {
     const queryClient = useQueryClient();
     return useMutation({

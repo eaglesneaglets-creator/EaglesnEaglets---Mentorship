@@ -114,7 +114,7 @@ const StandaloneAssignmentModal = ({ isOpen, onClose, nestId }) => {
                         </div>
 
                         {/* Due date + Points */}
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label className="block text-xs font-bold text-slate-600 mb-1.5">Due Date</label>
                                 <input type="datetime-local" value={dueDate} onChange={(e) => setDueDate(e.target.value)}

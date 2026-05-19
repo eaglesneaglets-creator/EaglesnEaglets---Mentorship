@@ -29,7 +29,7 @@ export default function NotificationsSection() {
       )}
 
       {isError && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 flex items-center justify-between">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 flex flex-wrap items-center justify-between gap-3">
           <span>Could not load preferences.</span>
           <button
             type="button"

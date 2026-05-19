@@ -202,7 +202,7 @@ const EagletOnboardingPage = () => {
               <p className="text-sm text-error mb-3">{errors.interests.message}</p>
             )}
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
               {MENTORSHIP_INTERESTS.map(interest => (
                 <label
                   key={interest.value}
@@ -239,7 +239,7 @@ const EagletOnboardingPage = () => {
               <p className="text-sm text-error mb-3">{errors.goals.message}</p>
             )}
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
               {MENTORSHIP_GOALS.map(goal => (
                 <label
                   key={goal.value}
@@ -272,7 +272,7 @@ const EagletOnboardingPage = () => {
               What kind of mentor are you looking for?
             </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
               {MENTOR_EXPERTISE.map(expertise => (
                 <label
                   key={expertise.value}

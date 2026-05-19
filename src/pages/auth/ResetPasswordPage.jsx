@@ -231,7 +231,7 @@ const ResetPasswordPage = () => {
                   {formData.new_password && (
                     <div className="mt-3 space-y-2 animate-fade-in">
                       <p className="text-xs font-medium text-text-secondary">Password must contain:</p>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <StrengthItem met={passwordStrength.hasMinLength} text="10+ characters" />
                         <StrengthItem met={passwordStrength.hasUppercase} text="Uppercase letter" />
                         <StrengthItem met={passwordStrength.hasLowercase} text="Lowercase letter" />

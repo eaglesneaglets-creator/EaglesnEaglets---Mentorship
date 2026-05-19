@@ -56,8 +56,7 @@ PaystackCheckout.propTypes = {
     order: PropTypes.shape({
         id: PropTypes.string.isRequired,
         total_amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-        guest_email: PropTypes.string,
-        user_email: PropTypes.string,
+        customer_email: PropTypes.string,
     }).isRequired,
 };
 
