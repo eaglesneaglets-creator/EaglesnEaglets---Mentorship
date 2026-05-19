@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useProductBySlug, useProducts } from '../../modules/store/hooks/useStore';
 import { useAddToCart } from '../../modules/store/hooks/useCart';
-import { useGuestCart } from '../../modules/store/hooks/useGuestCart';
 import { useAuthStore } from '@store';
 import ProductCard from '../../modules/store/components/ProductCard';
 import StoreHeader from '../../modules/store/components/StoreHeader';
@@ -10,6 +9,8 @@ import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
 const ProductDetailPage = () => {
     const { slug } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { isAuthenticated } = useAuthStore();
     const [activeImage, setActiveImage] = useState(0);
     const [qty, setQty] = useState(1);
@@ -18,7 +19,6 @@ const ProductDetailPage = () => {
     const { data: productData, isLoading } = useProductBySlug(slug);
     const { data: productsData } = useProducts();
     const addToCartMutation = useAddToCart();
-    const guestCart = useGuestCart();
 
     const product = productData?.data;
     const products = productsData?.data?.results ?? productsData?.data ?? [];
@@ -49,10 +49,7 @@ const ProductDetailPage = () => {
     const handleAddToCart = () => {
         if (!product || isOutOfStock) return;
         if (!isAuthenticated) {
-            // Guest: add to localStorage cart directly, no login required
-            guestCart.addItem(product, qty);
-            setAddedFeedback(true);
-            setTimeout(() => setAddedFeedback(false), 2000);
+            navigate('/login', { state: { from: location.pathname } });
             return;
         }
         addToCartMutation.mutate(
@@ -257,13 +254,15 @@ const ProductDetailPage = () => {
                                     </>
                                 ) : isOutOfStock ? (
                                     'Out of Stock'
+                                ) : !isAuthenticated ? (
+                                    'Login to Add to Cart'
                                 ) : (
                                     'Add to Cart'
                                 )}
                             </button>
 
                             {/* Trust badges */}
-                            <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-4 mt-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 border-t border-slate-100 pt-4 mt-2">
                                 {[
                                     { icon: 'lock', label: 'Secure Checkout' },
                                     { icon: 'replay', label: 'Easy Returns' },

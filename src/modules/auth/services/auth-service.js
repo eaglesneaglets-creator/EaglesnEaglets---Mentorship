@@ -26,7 +26,10 @@ export const authService = {
    * @param {string} role - User role (eagle/eaglet)
    */
   getGoogleAuthUrl: (role) =>
-    apiClient.get(`/auth/google/login/?role=${role}`, { skipAuth: true }),
+    apiClient.get(
+      role ? `/auth/google/login/?role=${role}` : '/auth/google/login/',
+      { skipAuth: true },
+    ),
 
   /**
    * Handle Google OAuth callback

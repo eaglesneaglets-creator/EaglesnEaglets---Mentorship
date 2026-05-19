@@ -15,6 +15,9 @@ const initialState = {
   // Access token kept in memory only (not localStorage) — used for WebSocket ?token= param.
   // httpOnly cookie is the primary auth mechanism for HTTP requests.
   accessToken: null,
+  // Program access status from /auth/me/ (plan 14-02 BE / 14-05 FE).
+  // Drives sidebar lock badges, route gating, and dashboard widgets.
+  accessStatus: null,
 };
 
 /**
@@ -172,11 +175,12 @@ export const useAuthStore = create(
         /**
          * Fetch current user profile
          */
-        fetchUser: async () => {
+        fetchUser: async ({ force = false } = {}) => {
           // With httpOnly cookies, we can't check localStorage for a token.
           // The cookie is sent automatically — just attempt the request.
-          // Only skip if we already have a user loaded in state.
-          if (get().user) {
+          // Skip if we already have a user AND access_status loaded; otherwise
+          // refetch so /auth/me/ delivers the program access_status payload.
+          if (!force && get().user && get().accessStatus !== null) {
             return get().user;
           }
 
@@ -185,11 +189,13 @@ export const useAuthStore = create(
           try {
             const response = await apiClient.get('/auth/me/');
             const user = response.data || response;
+            const accessStatus = user?.access_status ?? null;
 
             set({
               user,
               isAuthenticated: true,
               isLoading: false,
+              accessStatus,
             });
 
             return user;
@@ -214,10 +220,12 @@ export const useAuthStore = create(
           try {
             const response = await apiClient.patch('/auth/me/', data);
             const user = response.data || response;
+            const accessStatus = user?.access_status ?? get().accessStatus;
 
             set({
               user,
               isLoading: false,
+              accessStatus,
             });
 
             return user;
@@ -351,6 +359,28 @@ export const useAuthStore = create(
         setAccessToken: (token) => set({ accessToken: token }),
 
         /**
+         * Set program access_status directly. Use after enrollment lifecycle
+         * mutations (apply / approve / opt-out) to keep gating in sync without
+         * a full /auth/me/ refetch.
+         */
+        setAccessStatus: (accessStatus) => set({ accessStatus }),
+
+        /**
+         * Force-refetch /auth/me/ to refresh access_status (e.g. after the
+         * mentee submits a join request or the BE approves an enrollment).
+         */
+        refreshAccessStatus: async () => {
+          try {
+            const response = await apiClient.get('/auth/me/');
+            const user = response.data || response;
+            set({ user, accessStatus: user?.access_status ?? null });
+            return user?.access_status ?? null;
+          } catch {
+            return get().accessStatus;
+          }
+        },
+
+        /**
          * Clear any errors
          */
         clearError: () => set({ error: null }),
@@ -410,6 +440,35 @@ export const useAuthStore = create(
     { name: 'AuthStore' }
   )
 );
+
+// ---------------------------------------------------------------------------
+// Selector hooks (plan 14-05)
+// Each selector subscribes to a single slice so consumers don't re-render on
+// unrelated store changes.
+// ---------------------------------------------------------------------------
+
+export const useAccessStatus = () =>
+  useAuthStore((s) => s.accessStatus);
+
+export const useHasActiveProgram = () =>
+  useAuthStore((s) => Boolean(s.accessStatus?.has_active_program));
+
+export const useActiveProgram = () =>
+  useAuthStore((s) => s.accessStatus?.active_program ?? null);
+
+export const usePendingProgramRequest = () =>
+  useAuthStore((s) => s.accessStatus?.pending_program_request ?? null);
+
+export const useMenteeLevel = () =>
+  useAuthStore((s) => s.accessStatus?.mentee_level ?? null);
+
+const EMPTY_ARRAY = [];
+
+export const useLockedFeatures = () =>
+  useAuthStore((s) => s.accessStatus?.locked_features ?? EMPTY_ARRAY);
+
+export const useMentorEligibility = () =>
+  useAuthStore((s) => Boolean(s.accessStatus?.mentor_eligibility));
 
 // Listen for logout events from other parts of the app
 if (typeof window !== 'undefined') {

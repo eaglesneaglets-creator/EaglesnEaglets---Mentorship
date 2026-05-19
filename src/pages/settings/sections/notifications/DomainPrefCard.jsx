@@ -57,7 +57,7 @@ export default function DomainPrefCard({ domain, onUpdate, isUpdating }) {
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white">
-      <div className="flex items-center justify-between p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
@@ -103,7 +103,7 @@ export default function DomainPrefCard({ domain, onUpdate, isUpdating }) {
       {open && (
         <div className="border-t border-slate-100 divide-y divide-slate-100">
           {domain.events.map((evt) => (
-            <div key={evt.event_type} className="flex items-center justify-between px-6 py-3">
+            <div key={evt.event_type} className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3">
               <span className="text-sm text-slate-700">{evt.label}</span>
               <div className="flex items-center gap-6">
                 <ToggleSwitch

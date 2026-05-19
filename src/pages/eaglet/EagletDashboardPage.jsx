@@ -6,8 +6,9 @@ import { useEagletDashboardStats, useCheckIn } from '../../modules/analytics/hoo
 import toast from 'react-hot-toast';
 import StatCard from '../../shared/components/ui/StatCard';
 import AnimatedContentItem from '../../shared/components/ui/AnimatedContentItem';
-import AnimatedNestCard from '../../shared/components/ui/AnimatedNestCard';
 import BadgeShelf from '../../shared/components/ui/BadgeShelf';
+import ActiveProgramCard from '../../shared/components/dashboard/ActiveProgramCard';
+import MenteeLevelCard from '../../shared/components/dashboard/MenteeLevelCard';
 
 /**
  * Quick Action Button
@@ -166,47 +167,7 @@ const EagletDashboardPage = () => {
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
           <div className="lg:col-span-2 flex flex-col gap-4 md:gap-6">
-            {dashboardData?.nests && dashboardData.nests.length > 0 ? (
-              dashboardData.nests.map((nest, index) => (
-                <AnimatedNestCard
-                  key={nest.id}
-                  title={nest.name}
-                  description={`Learn to fly with our amazing community in ${nest.name}.`}
-                  memberCount="Active"
-                  additionalInfo={`Mentor: ${nest.eagle_name}`}
-                  linkTo="/eaglet/nest"
-                  delay={index * 100}
-                />
-              ))
-            ) : dashboardData?.pending_requests > 0 ? (
-              <div className="bg-amber-50/80 border border-amber-200/50 rounded-2xl p-6 shadow-sm flex items-center justify-between">
-                <div>
-                  <h3 className="text-amber-800 font-bold text-lg mb-1 flex items-center gap-2">
-                    <span className="material-symbols-outlined">hourglass_empty</span>
-                    Request Pending Review
-                  </h3>
-                  <p className="text-amber-700/80 text-sm">
-                    You have requested to join a Nest. Your Eagle mentor will review this soon!
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-blue-50/80 border border-blue-200/50 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-slate-900 font-bold text-lg mb-1 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">diversity_3</span>
-                    Join a Community
-                  </h3>
-                  <p className="text-slate-500 text-sm">
-                    You haven't joined a Nest yet. Browse available Eagles and request a mentor.
-                  </p>
-                </div>
-                <Link to="/eaglet/nest" className="whitespace-nowrap inline-flex items-center gap-2 px-5 py-3 min-h-[44px] bg-primary text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-0.5">
-                  <span className="material-symbols-outlined text-base">diversity_3</span>
-                  Browse Nests
-                </Link>
-              </div>
-            )}
+            <ActiveProgramCard />
 
             {/* Recent Content Section */}
             <div className="flex flex-col gap-4">
@@ -264,6 +225,8 @@ const EagletDashboardPage = () => {
 
           {/* Sidebar Section */}
           <div className="flex flex-col gap-6">
+            <MenteeLevelCard />
+
             {/* Streak Widget */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-4">

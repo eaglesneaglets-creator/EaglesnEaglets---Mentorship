@@ -162,7 +162,7 @@ const ModuleQuizModal = ({ isOpen, onClose, moduleId, moduleName }) => {
                                 placeholder="Quiz title..."
                                 className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/30"
                             />
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 block mb-1">Pass Score %</label>
                                     <input type="number" min="1" max="100" value={passScore}

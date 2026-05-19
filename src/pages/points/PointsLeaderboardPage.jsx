@@ -89,7 +89,7 @@ const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
             </div>
 
             {/* Name */}
-            <p className={`${c.nameSize} font-bold text-slate-900 text-center leading-tight mb-0.5 max-w-[80px] truncate ${isCurrentUser ? 'text-primary' : ''}`}>
+            <p className={`${c.nameSize} font-bold text-slate-900 text-center leading-tight mb-0.5 max-w-[96px] sm:max-w-[120px] truncate ${isCurrentUser ? 'text-primary' : ''}`}>
                 {isCurrentUser ? 'You' : entry.first_name}
             </p>
             <p className={`${c.pointsSize} font-black text-primary`}>

@@ -30,6 +30,8 @@ const MentorPublicProfilePage = lazy(() => import('./pages/nest/MentorPublicProf
 const MyRequestsPage = lazy(() => import('./pages/nest/MyRequestsPage'));
 const NestJoinDetailPage = lazy(() => import('./pages/nest/NestJoinDetailPage'));
 const MentorshipRequestsPage = lazy(() => import('./pages/nest/MentorshipRequestsPage'));
+const ProgramEditorPage = lazy(() => import('./pages/eagle/ProgramEditorPage'));
+const EnrollmentQueuePage = lazy(() => import('./pages/eagle/EnrollmentQueuePage'));
 
 // Content Pages
 const LearningCenterPage = lazy(() => import('./pages/content/LearningCenterPage'));
@@ -62,8 +64,8 @@ const AdminStorePage = lazy(() => import('./pages/admin/AdminStorePage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 
 // Profile Pages (NEW)
-const MentorProfilePage = lazy(() => import('./pages/profile/MentorProfilePage'));
-const MenteeProfilePage = lazy(() => import('./pages/profile/MenteeProfilePage'));
+const MentorProfilePage = lazy(() => import('./pages/profile/MentorKycPage'));
+const MenteeProfilePage = lazy(() => import('./pages/profile/MenteeKycPage'));
 const PendingApprovalPage = lazy(() => import('./pages/profile/PendingApprovalPage'));
 
 // Admin Pages
@@ -93,6 +95,7 @@ import AuthGuard from './shared/components/guards/AuthGuard';
 import RoleGuard from './shared/components/guards/RoleGuard';
 import GuestGuard from './shared/components/guards/GuestGuard';
 import AdminGuard from './shared/components/guards/AdminGuard';
+import { FeatureLockGuard } from './shared/components/guards/FeatureLockGuard';
 
 // Session Management
 import InactivityManager from './shared/components/InactivityManager';
@@ -207,6 +210,8 @@ function App() {
                     <Route path="/eagle/nests/:nestId" element={<NestCommunityHubPage />} />
                     <Route path="/eagle/nests/:nestId/settings" element={<NestSettingsPage />} />
                     <Route path="/eagle/nests/:nestId/requests" element={<MentorshipRequestsPage />} />
+                    <Route path="/eagle/nests/:nestId/program" element={<ProgramEditorPage />} />
+                    <Route path="/eagle/nests/:nestId/enrollments" element={<EnrollmentQueuePage />} />
                     <Route path="/eagle/content" element={<LearningCenterPage />} />
                     <Route path="/eagle/content/upload" element={<ContentUploadPage />} />
                     <Route path="/eagle/content/:moduleId" element={<ContentViewerPage />} />
@@ -229,16 +234,16 @@ function App() {
                     <Route path="/eaglet/mentor/:nestId" element={<MentorPublicProfilePage />} />
                     <Route path="/eaglet/mentor/:nestId/join" element={<NestJoinDetailPage />} />
                     <Route path="/eaglet/my-requests" element={<MyRequestsPage />} />
-                    <Route path="/eaglet/assignments" element={<LearningCenterPage />} />
+                    <Route path="/eaglet/assignments" element={<FeatureLockGuard featureKey="assignments"><LearningCenterPage /></FeatureLockGuard>} />
                     {/* standalone/:itemId must come before :moduleId/:itemId so the literal "standalone" wins */}
-                    <Route path="/eaglet/assignments/standalone/:itemId" element={<AssignmentDetailPage />} />
-                    <Route path="/eaglet/assignments/:moduleId" element={<ContentViewerPage />} />
-                    <Route path="/eaglet/assignments/:moduleId/:itemId" element={<AssignmentDetailPage />} />
-                    <Route path="/eaglet/modules/:moduleId/quiz" element={<ModuleQuizPage />} />
-                    <Route path="/eaglet/leaderboard" element={<PointsLeaderboardPage />} />
+                    <Route path="/eaglet/assignments/standalone/:itemId" element={<FeatureLockGuard featureKey="assignments"><AssignmentDetailPage /></FeatureLockGuard>} />
+                    <Route path="/eaglet/assignments/:moduleId" element={<FeatureLockGuard featureKey="assignments"><ContentViewerPage /></FeatureLockGuard>} />
+                    <Route path="/eaglet/assignments/:moduleId/:itemId" element={<FeatureLockGuard featureKey="assignments"><AssignmentDetailPage /></FeatureLockGuard>} />
+                    <Route path="/eaglet/modules/:moduleId/quiz" element={<FeatureLockGuard featureKey="assignments"><ModuleQuizPage /></FeatureLockGuard>} />
+                    <Route path="/eaglet/leaderboard" element={<FeatureLockGuard featureKey="leaderboard"><PointsLeaderboardPage /></FeatureLockGuard>} />
                     <Route path="/eaglet/badges" element={<BadgesPage />} />
-                    <Route path="/eaglet/messages" element={<ChatPage />} />
-                    <Route path="/eaglet/resources" element={<ResourceCenterPage />} />
+                    <Route path="/eaglet/messages" element={<FeatureLockGuard featureKey="messages"><ChatPage /></FeatureLockGuard>} />
+                    <Route path="/eaglet/resources" element={<FeatureLockGuard featureKey="resources"><ResourceCenterPage /></FeatureLockGuard>} />
                     <Route path="/eaglet/settings" element={<Navigate to="/settings" replace />} />
                   </Route>
 

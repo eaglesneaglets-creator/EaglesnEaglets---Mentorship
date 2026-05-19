@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { useParams, Link, useLocation, useSearchParams } from 'react-router-dom';
+import { useParams, Link, useLocation, useSearchParams, Navigate } from 'react-router-dom';
 import { useOrderDetail } from '../../modules/store/hooks/useOrders';
 import { useAuthStore } from '@store';
-import { useQuery } from '@tanstack/react-query';
 import StoreService from '../../modules/store/services/store-service';
 import StoreHeader from '../../modules/store/components/StoreHeader';
 import PaystackCheckout from '../../modules/store/components/PaystackCheckout';
@@ -101,32 +100,15 @@ const OrderConfirmationPage = () => {
   const { isAuthenticated } = useAuthStore();
   const shouldVerify = searchParams.get('verify') === '1';
 
-  // Guest order passed via navigation state (avoids extra API call)
-  const guestOrderFromState = location.state?.guestOrder;
-
-  // Auth users: fetch from the authenticated order endpoint
-  const { data: authOrderData, isLoading: authLoading } = useOrderDetail(id);
-
-  // Guest users without state: fetch from the public guest order endpoint
-  const { data: guestOrderData, isLoading: guestLoading } = useQuery({
-    queryKey: ['store', 'guest-orders', id],
-    queryFn: () => StoreService.getGuestOrderDetail(id),
-    enabled: !isAuthenticated && !guestOrderFromState && !!id,
-  });
-
-  const isLoading = isAuthenticated ? authLoading : (!guestOrderFromState && guestLoading);
-  const order = isAuthenticated
-    ? (authOrderData?.data ?? authOrderData)
-    : (guestOrderFromState ?? guestOrderData?.data ?? guestOrderData);
+  const { data: orderResponse, isLoading } = useOrderDetail(id);
+  const order = orderResponse?.data ?? orderResponse;
   const config = STATUS_CONFIG[order?.status] ?? STATUS_CONFIG.pending;
 
-  // Poll /verify/ every 3s (max 10 attempts) when ?verify=1 is present.
-  // When order becomes 'paid', reload the page cleanly to show the paid state.
   const pollRef = useRef(null);
   const pollCountRef = useRef(0);
 
   useEffect(() => {
-    if (!shouldVerify || !id || order?.status === 'paid') return;
+    if (!isAuthenticated || !shouldVerify || !id || order?.status === 'paid') return;
 
     pollRef.current = setInterval(async () => {
       pollCountRef.current += 1;
@@ -135,7 +117,6 @@ const OrderConfirmationPage = () => {
         const updated = res?.data ?? res;
         if (updated?.status === 'paid') {
           clearInterval(pollRef.current);
-          // Hard navigate to strip ?verify=1 and reload with fresh order data
           window.location.replace(`/store/orders/${id}`);
         }
       } catch {
@@ -147,7 +128,11 @@ const OrderConfirmationPage = () => {
     }, 3000);
 
     return () => clearInterval(pollRef.current);
-  }, [shouldVerify, id, order?.status]);
+  }, [isAuthenticated, shouldVerify, id, order?.status]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -265,11 +250,9 @@ const OrderConfirmationPage = () => {
               <Link to="/store" className="flex-1 py-3 border border-slate-300 text-slate-700 font-semibold rounded-2xl text-center hover:bg-slate-50 transition-colors text-sm">
                 Continue Shopping
               </Link>
-              {isAuthenticated && (
-                <Link to="/store/orders" className="flex-1 py-3 bg-primary text-white font-semibold rounded-2xl text-center hover:bg-primary/90 transition-colors text-sm">
-                  View All Orders
-                </Link>
-              )}
+              <Link to="/store/orders" className="flex-1 py-3 bg-primary text-white font-semibold rounded-2xl text-center hover:bg-primary/90 transition-colors text-sm">
+                View All Orders
+              </Link>
             </div>
           </>
         )}

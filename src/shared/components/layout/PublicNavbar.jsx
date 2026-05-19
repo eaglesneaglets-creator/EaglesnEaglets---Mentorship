@@ -185,10 +185,10 @@ const PublicNavbar = () => {
                     </div>
                 ) : (
                     <>
-                        <Link to="/login" className={linkClass}>Login</Link>
+                        <Link to="/login" className={`${linkClass} whitespace-nowrap`}>Login</Link>
                         <Link
                             to="/register"
-                            className="px-5 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary/25"
+                            className="px-4 lg:px-5 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary/25 whitespace-nowrap flex-shrink-0"
                         >
                             Join the Nest
                         </Link>
@@ -202,12 +202,13 @@ const PublicNavbar = () => {
                     ? 'bg-white/90 backdrop-blur-xl border-slate-200/60 shadow-lg'
                     : 'bg-white/20 backdrop-blur-md border-white/30 shadow-md'
             }`}>
-                <Link to="/" className="flex items-center gap-2">
-                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover" />
-                    <span className={`font-extrabold text-sm transition-colors duration-500 ${
+                <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink">
+                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                    <span className={`font-extrabold text-sm whitespace-nowrap transition-colors duration-500 ${
                         scrolled ? 'text-slate-900' : 'text-white'
                     }`}>
-                        Eagles & Eaglets
+                        <span className="hidden min-[480px]:inline">Eagles &amp; Eaglets</span>
+                        <span className="min-[480px]:hidden">E&amp;E</span>
                     </span>
                 </Link>
                 {isAuthenticated && user ? (

@@ -5,7 +5,7 @@
  */
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useJoinNest } from '../hooks/useNests';
+import { useEnrollNest } from '../hooks/useNests';
 import RequestSentSuccess from './RequestSentSuccess';
 
 const SUGGESTED_PROMPTS = [
@@ -20,7 +20,7 @@ const MAX_CHARS = 500;
 const MentorshipRequestModal = ({ nestId, nestName, mentorName, onClose }) => {
     const [message, setMessage] = useState('');
     const [showSuccess, setShowSuccess] = useState(false);
-    const joinMutation = useJoinNest(nestId);
+    const joinMutation = useEnrollNest(nestId);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

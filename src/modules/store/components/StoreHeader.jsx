@@ -10,7 +10,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@store';
 import { useCartCount } from '../hooks/useCart';
-import { useGuestCart } from '../hooks/useGuestCart';
 import logoImg from '../../../assets/EaglesnEagletsLogo.jpeg';
 
 const getDashboardPath = (user) => {
@@ -37,8 +36,7 @@ const StoreHeader = ({ forceScrolled = false }) => {
     const dropdownRef = useRef(null);
 
     const authCartCount = useCartCount();
-    const { itemCount: guestCartCount } = useGuestCart();
-    const cartCount = isAuthenticated ? authCartCount : guestCartCount;
+    const cartCount = isAuthenticated ? authCartCount : 0;
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 40);
@@ -103,18 +101,29 @@ const StoreHeader = ({ forceScrolled = false }) => {
                 <div className={`w-px h-6 mx-1 transition-colors duration-500 ${scrolled ? 'bg-slate-200/50' : 'bg-white/30'}`} />
 
                 {/* Nav links */}
-                <Link to="/" className={linkClass}>Home</Link>
-                <Link to="/store" className={linkClass}>Store</Link>
-                <Link to="/donations" className={linkClass}>Donate</Link>
+                <Link to="/" className={`${linkClass} whitespace-nowrap`}>Home</Link>
+                <Link to="/about" className={`${linkClass} whitespace-nowrap`}>About</Link>
+                <Link to="/store" className={`${linkClass} whitespace-nowrap`}>Store</Link>
+                <Link to="/donations" className={`${linkClass} whitespace-nowrap`}>Donate</Link>
 
                 <div className={`w-px h-6 mx-1 transition-colors duration-500 ${scrolled ? 'bg-slate-200/50' : 'bg-white/30'}`} />
 
-                {/* Store-specific icons */}
-                <Link to="/store/orders" className={iconBtnClass} aria-label="My orders">
+                {/* Store-specific icons (native title tooltip) */}
+                <Link
+                    to="/store/orders"
+                    className={iconBtnClass}
+                    aria-label="My orders"
+                    title="My Orders"
+                >
                     <span className="material-symbols-outlined text-xl">receipt_long</span>
                 </Link>
 
-                <Link to="/store/cart" className={`${iconBtnClass} flex items-center`} aria-label="View cart">
+                <Link
+                    to="/store/cart"
+                    className={`${iconBtnClass} flex items-center`}
+                    aria-label="View cart"
+                    title="Cart"
+                >
                     <span className="material-symbols-outlined text-xl">shopping_cart</span>
                     {cartCount > 0 && (
                         <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-primary rounded-full text-white text-[10px] font-bold flex items-center justify-center px-0.5">
@@ -206,10 +215,10 @@ const StoreHeader = ({ forceScrolled = false }) => {
                     </div>
                 ) : (
                     <>
-                        <Link to="/login" className={linkClass}>Login</Link>
+                        <Link to="/login" className={`${linkClass} whitespace-nowrap`}>Login</Link>
                         <Link
                             to="/register"
-                            className="px-5 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary/25"
+                            className="px-4 lg:px-5 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary/25 whitespace-nowrap flex-shrink-0"
                         >
                             Join the Nest
                         </Link>
@@ -218,21 +227,37 @@ const StoreHeader = ({ forceScrolled = false }) => {
             </div>
 
             {/* Mobile bar */}
-            <div className={`md:hidden flex items-center gap-3 px-4 py-2.5 rounded-full border transition-all duration-500 ${
+            <div className={`md:hidden flex items-center gap-2 px-3 py-2.5 rounded-full border transition-all duration-500 ${
                 scrolled
                     ? 'bg-white/90 backdrop-blur-xl border-slate-200/60 shadow-lg'
                     : 'bg-white/20 backdrop-blur-md border-white/30 shadow-md'
             }`}>
-                <Link to="/" className="flex items-center gap-2">
-                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover" />
-                    <span className={`font-extrabold text-sm transition-colors duration-500 ${scrolled ? 'text-slate-900' : 'text-white'}`}>
-                        Eagles & Eaglets
+                <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink">
+                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                    <span className={`font-extrabold text-sm whitespace-nowrap transition-colors duration-500 ${scrolled ? 'text-slate-900' : 'text-white'}`}>
+                        <span className="hidden min-[480px]:inline">Eagles &amp; Eaglets</span>
+                        <span className="min-[480px]:hidden">E&amp;E</span>
                     </span>
                 </Link>
 
                 <div className="ml-auto flex items-center gap-1">
-                    {/* Cart icon always visible on mobile */}
-                    <Link to="/store/cart" className={`${iconBtnClass}`} aria-label="Cart">
+                    {/* Orders icon — mobile */}
+                    <Link
+                        to="/store/orders"
+                        className={iconBtnClass}
+                        aria-label="My orders"
+                        title="My Orders"
+                    >
+                        <span className="material-symbols-outlined text-xl">receipt_long</span>
+                    </Link>
+
+                    {/* Cart icon — mobile */}
+                    <Link
+                        to="/store/cart"
+                        className={iconBtnClass}
+                        aria-label="Cart"
+                        title="Cart"
+                    >
                         <span className="material-symbols-outlined text-xl">shopping_cart</span>
                         {cartCount > 0 && (
                             <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-primary rounded-full text-white text-[9px] font-bold flex items-center justify-center">
@@ -274,6 +299,7 @@ const StoreHeader = ({ forceScrolled = false }) => {
                     >
                         {[
                             { label: 'Home', path: '/' },
+                            { label: 'About', path: '/about' },
                             { label: 'Store', path: '/store' },
                             { label: 'Donate', path: '/donations' },
                             { label: 'My Orders', path: '/store/orders' },

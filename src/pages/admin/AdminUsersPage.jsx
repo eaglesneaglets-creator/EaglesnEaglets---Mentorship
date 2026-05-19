@@ -244,7 +244,7 @@ const UserDetailPanel = ({ user, onClose, onSuspend, onReactivate }) => {
           <p className="text-[10px] uppercase tracking-wider mb-3 font-bold text-slate-400">
             {user.role === 'eagle' ? 'Mentor Activity' : 'Learner Progress'}
           </p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {(user.role === 'eagle' ? [
               { label: 'Eaglets', value: user.eaglets_count ?? 0, icon: 'school', color: 'text-blue-600' },
               { label: 'Nests', value: user.nests_count ?? 0, icon: 'groups', color: 'text-emerald-600' },
@@ -499,7 +499,7 @@ const UserMobileCard = ({ user, index, onSuspend, onReactivate, selected, onSele
       </div>
 
       {/* Metadata grid */}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-2 pl-[56px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 sm:pl-[56px]">
         <div className="flex items-center gap-2">
           <span className="text-[10px] uppercase tracking-wider text-slate-400">Status</span>
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold ${st.bg} ${st.text}`}>

@@ -31,7 +31,7 @@ export default function AdminPlatformSection() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
         <div className="flex items-start gap-4">
           <span className="material-symbols-outlined text-3xl text-primary flex-shrink-0">
             schedule

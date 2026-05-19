@@ -112,9 +112,10 @@ const LoginPage = () => {
   const handleGoogleAuth = async () => {
     setIsGoogleLoading(true);
     try {
-      // For login, we don't need to specify role - backend will use existing user's role
-      // or default to eaglet for new users
-      const response = await authService.getGoogleAuthUrl('eaglet');
+      // Login flow: pass empty role so BE infers from existing user.
+      // New users (no match) should register first — BE rejects with a clear
+      // error instead of silently creating an eaglet account.
+      const response = await authService.getGoogleAuthUrl('');
       if (response.success && response.data.auth_url) {
         // Security: validate redirect URL to prevent open redirect attacks
         const authUrl = response.data.auth_url;

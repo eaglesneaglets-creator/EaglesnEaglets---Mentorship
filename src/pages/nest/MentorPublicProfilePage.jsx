@@ -7,18 +7,19 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
-import { useNestDetail, useNestMembers } from '../../modules/nest/hooks/useNests';
+import { useNestDetail } from '../../modules/nest/hooks/useNests';
 import TabBar from '../../shared/components/ui/TabBar';
 import AnimatedCounter from '../../shared/components/ui/AnimatedCounter';
-import AvatarGroup from '../../shared/components/ui/AvatarGroup';
 import StatusBadge from '../../shared/components/ui/StatusBadge';
 import MentorshipRequestModal from '../../modules/nest/components/MentorshipRequestModal';
+import MentorProgramTab from '../../modules/nest/components/MentorProgramTab';
 import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
 const TABS = [
     { value: 'about', label: 'About', icon: 'person' },
     { value: 'expertise', label: 'Expertise', icon: 'school' },
     { value: 'style', label: 'Mentorship Style', icon: 'psychology' },
+    { value: 'program', label: 'Program', icon: 'flag' },
 ];
 
 const StatCard = ({ icon, value, label, color = 'text-primary' }) => (
@@ -38,20 +39,27 @@ const StatCard = ({ icon, value, label, color = 'text-primary' }) => (
 const MentorPublicProfilePage = () => {
     const { nestId } = useParams();
     const { data: nestResponse, isLoading } = useNestDetail(nestId);
-    const { data: membersResponse } = useNestMembers(nestId);
+    // No members fetch — non-members get 403 on /nests/{id}/members/.
+    // Public profile uses member_count from NestDetailSerializer only.
 
     const [activeTab, setActiveTab] = useState('about');
     const [showRequestModal, setShowRequestModal] = useState(false);
 
     const nest = nestResponse?.data || nestResponse || {};
     const mentor = nest.mentor_details || nest.mentor || {};
-    const members = membersResponse?.data || membersResponse?.results || [];
     const mentorName = mentor.first_name ? `${mentor.first_name} ${mentor.last_name || ''}` : nest.name || 'Mentor';
     const initials = mentorName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     const focusArea = nest.industry_focus || nest.focus_area || 'General Mentorship';
-    const memberCount = nest.member_count || nest.members_count || members.length || 0;
+    const memberCount = nest.member_count || nest.members_count || 0;
     const maxMembers = nest.max_members || 20;
     const isFull = memberCount >= maxMembers;
+    // Plan 14.5-02: gate join action on program existence.
+    const currentProgram = nest.current_program || null;
+    const hasProgram = !!currentProgram;
+    const joinDisabled = isFull || !hasProgram;
+    const joinDisabledReason = !hasProgram
+        ? "Mentor hasn't published a program yet"
+        : (isFull ? 'Nest is full' : '');
 
     if (isLoading) {
         return (
@@ -126,18 +134,19 @@ const MentorPublicProfilePage = () => {
                         <div className="flex-shrink-0">
                             <button
                                 onClick={() => setShowRequestModal(true)}
-                                disabled={isFull}
+                                disabled={joinDisabled}
+                                title={joinDisabledReason || undefined}
                                 className={`
                                     inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm shadow-lg
                                     transition-all duration-300 active:scale-95
-                                    ${isFull
+                                    ${joinDisabled
                                         ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
                                         : 'bg-primary text-white hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5'
                                     }
                                 `}
                             >
                                 <span className="material-symbols-outlined text-lg">send</span>
-                                {isFull ? 'Nest Full' : 'Request to Join'}
+                                {isFull ? 'Nest Full' : (!hasProgram ? 'No Program Yet' : 'Request to Join')}
                             </button>
                         </div>
                     </div>
@@ -212,6 +221,10 @@ const MentorPublicProfilePage = () => {
                                 </div>
                             )}
 
+                            {activeTab === 'program' && (
+                                <MentorProgramTab program={currentProgram} />
+                            )}
+
                             {activeTab === 'style' && (
                                 <div className="space-y-6 animate-fade-in">
                                     <div>
@@ -255,13 +268,10 @@ const MentorPublicProfilePage = () => {
                         {/* Members preview */}
                         <div className="bg-white rounded-2xl border border-slate-200/60 p-5">
                             <h3 className="font-bold text-slate-900 text-sm mb-4">Members</h3>
-                            {members.length > 0 ? (
-                                <>
-                                    <AvatarGroup users={members} max={6} size="md" className="mb-3" />
-                                    <p className="text-xs text-slate-500">
-                                        {memberCount} member{memberCount !== 1 ? 's' : ''} &bull; {maxMembers - memberCount} spot{maxMembers - memberCount !== 1 ? 's' : ''} left
-                                    </p>
-                                </>
+                            {memberCount > 0 ? (
+                                <p className="text-xs text-slate-500">
+                                    {memberCount} member{memberCount !== 1 ? 's' : ''} &bull; {Math.max(maxMembers - memberCount, 0)} spot{maxMembers - memberCount !== 1 ? 's' : ''} left
+                                </p>
                             ) : (
                                 <p className="text-xs text-slate-500">Be the first to join this nest!</p>
                             )}
@@ -279,9 +289,15 @@ const MentorPublicProfilePage = () => {
                             {!isFull && (
                                 <button
                                     onClick={() => setShowRequestModal(true)}
-                                    className="w-full py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-primary/20 active:scale-[0.98]"
+                                    disabled={!hasProgram}
+                                    title={joinDisabledReason || undefined}
+                                    className={`w-full py-2.5 text-sm font-bold rounded-xl transition-all duration-300 shadow-sm active:scale-[0.98] ${
+                                        hasProgram
+                                            ? 'bg-primary text-white hover:bg-primary-dark hover:shadow-md hover:shadow-primary/20'
+                                            : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                                    }`}
                                 >
-                                    Request to Join
+                                    {hasProgram ? 'Request to Join' : 'No Program Yet'}
                                 </button>
                             )}
                         </div>
