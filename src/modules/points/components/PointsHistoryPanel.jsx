@@ -30,12 +30,12 @@ const PointsHistoryPanel = () => {
 
     if (isLoading) {
         return (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-3 animate-pulse">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 space-y-3 animate-pulse">
                 {[...Array(5)].map((_, i) => (
                     <div key={i} className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-100" />
+                        <div className="w-8 h-8 rounded-full bg-slate-100 flex-shrink-0" />
                         <div className="flex-1 h-4 bg-slate-100 rounded" />
-                        <div className="w-16 h-4 bg-slate-100 rounded" />
+                        <div className="w-16 h-4 bg-slate-100 rounded flex-shrink-0" />
                     </div>
                 ))}
             </div>
@@ -45,8 +45,8 @@ const PointsHistoryPanel = () => {
     return (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="p-5 border-b border-slate-100 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
                     <span className="material-symbols-outlined text-amber-600 text-lg">history</span>
                 </div>
                 <h3 className="text-base font-bold text-slate-900">Points History</h3>

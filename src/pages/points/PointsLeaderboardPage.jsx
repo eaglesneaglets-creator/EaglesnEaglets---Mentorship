@@ -34,42 +34,42 @@ const StatCard = ({ icon, label, value, accent, delay = 0 }) => (
 const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
     const config = {
         1: {
-            height: 'h-32',
-            size: 'w-20 h-20',
-            ring: 'ring-4 ring-yellow-400',
+            height: 'h-24 sm:h-32',
+            size: 'w-16 h-16 sm:w-20 sm:h-20',
+            ring: 'ring-2 sm:ring-4 ring-yellow-400',
             medal: '🥇',
             medalBg: 'bg-gradient-to-br from-yellow-400 to-amber-500',
             order: 'order-2',
-            nameSize: 'text-base',
-            pointsSize: 'text-lg',
+            nameSize: 'text-sm sm:text-base',
+            pointsSize: 'text-base sm:text-lg',
             delay: 0.2,
         },
         2: {
-            height: 'h-24',
-            size: 'w-16 h-16',
-            ring: 'ring-4 ring-slate-300',
+            height: 'h-20 sm:h-24',
+            size: 'w-14 h-14 sm:w-16 sm:h-16',
+            ring: 'ring-2 sm:ring-4 ring-slate-300',
             medal: '🥈',
             medalBg: 'bg-gradient-to-br from-slate-300 to-slate-400',
             order: 'order-1',
-            nameSize: 'text-sm',
-            pointsSize: 'text-base',
+            nameSize: 'text-xs sm:text-sm',
+            pointsSize: 'text-sm sm:text-base',
             delay: 0.3,
         },
         3: {
-            height: 'h-20',
-            size: 'w-16 h-16',
-            ring: 'ring-4 ring-amber-600/50',
+            height: 'h-16 sm:h-20',
+            size: 'w-14 h-14 sm:w-16 sm:h-16',
+            ring: 'ring-2 sm:ring-4 ring-amber-600/50',
             medal: '🥉',
             medalBg: 'bg-gradient-to-br from-amber-600 to-amber-700',
             order: 'order-3',
-            nameSize: 'text-sm',
-            pointsSize: 'text-base',
+            nameSize: 'text-xs sm:text-sm',
+            pointsSize: 'text-sm sm:text-base',
             delay: 0.4,
         },
     };
 
     const c = config[rank];
-    if (!entry) return <div className={`flex-1 ${c.order}`} />;
+    if (!entry) return <div className={`flex-1 ${c.order}`} aria-hidden="true" />;
 
     const initials = `${entry.first_name?.charAt(0) || ''}${entry.last_name?.charAt(0) || ''}`.toUpperCase();
 
@@ -82,14 +82,14 @@ const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
         >
             {/* Avatar */}
             <div className="relative mb-2">
-                <div className={`${c.size} rounded-full ${c.ring} bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-lg shadow-lg ${isCurrentUser ? 'ring-primary' : ''}`}>
+                <div className={`${c.size} rounded-full ${c.ring} bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-lg ${isCurrentUser ? 'ring-primary' : ''}`}>
                     {initials}
                 </div>
-                <div className="absolute -bottom-1 -right-1 text-xl">{c.medal}</div>
+                <div className="absolute -bottom-1 -right-1 text-lg sm:text-xl">{c.medal}</div>
             </div>
 
             {/* Name */}
-            <p className={`${c.nameSize} font-bold text-slate-900 text-center leading-tight mb-0.5 max-w-[96px] sm:max-w-[120px] truncate ${isCurrentUser ? 'text-primary' : ''}`}>
+            <p className={`${c.nameSize} font-bold text-slate-900 text-center leading-tight mb-0.5 max-w-[72px] sm:max-w-[120px] truncate ${isCurrentUser ? 'text-primary' : ''}`}>
                 {isCurrentUser ? 'You' : entry.first_name}
             </p>
             <p className={`${c.pointsSize} font-black text-primary`}>
@@ -172,24 +172,24 @@ const PointsLeaderboardPage = () => {
 
     return (
         <DashboardLayout variant={variant}>
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-0">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                                <span className="material-symbols-outlined text-white text-2xl">emoji_events</span>
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20 flex-shrink-0">
+                                <span className="material-symbols-outlined text-white text-xl sm:text-2xl">emoji_events</span>
                             </div>
-                            <div>
-                                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Leaderboard</h1>
-                                <p className="text-sm text-slate-500">Compete, earn points, and rise through the ranks</p>
+                            <div className="min-w-0">
+                                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Leaderboard</h1>
+                                <p className="text-xs sm:text-sm text-slate-500">Compete, earn points, and rise through the ranks</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Stats Row */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 sm:mb-8">
                     <StatCard
                         icon="stars"
                         label="Your Points"
@@ -225,17 +225,17 @@ const PointsLeaderboardPage = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3 }}
-                    className="bg-gradient-to-b from-slate-50 to-white rounded-2xl border border-slate-100 p-6 pb-0 mb-8 overflow-hidden"
+                    className="bg-gradient-to-b from-slate-50 to-white rounded-2xl border border-slate-100 p-4 sm:p-6 pb-0 mb-6 sm:mb-8 overflow-hidden"
                 >
-                    <div className="text-center mb-6">
-                        <h2 className="text-lg font-bold text-slate-900">Top Champions</h2>
-                        <p className="text-xs text-slate-400">Leading the mentorship journey</p>
+                    <div className="text-center mb-4 sm:mb-6">
+                        <h2 className="text-base sm:text-lg font-bold text-slate-900">Top Champions</h2>
+                        <p className="text-[11px] sm:text-xs text-slate-400">Leading the mentorship journey</p>
                     </div>
 
                     {leaderboardLoading ? (
                         <div className="text-center py-16 text-slate-400">Loading champions...</div>
                     ) : top3.length > 0 ? (
-                        <div className="flex items-end justify-center gap-4 max-w-md mx-auto px-4">
+                        <div className="flex items-end justify-center gap-2 sm:gap-4 max-w-md mx-auto px-2 sm:px-4">
                             <PodiumSpot entry={top3[1]} rank={2} isCurrentUser={top3[1]?.user.id === user?.id} />
                             <PodiumSpot entry={top3[0]} rank={1} isCurrentUser={top3[0]?.user.id === user?.id} />
                             <PodiumSpot entry={top3[2]} rank={3} isCurrentUser={top3[2]?.user.id === user?.id} />
@@ -249,11 +249,11 @@ const PointsLeaderboardPage = () => {
                 </motion.div>
 
                 {/* Filter Tabs + Table */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-6 sm:mb-8">
                     {/* Filter Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-slate-100">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 border-b border-slate-100">
                         <h3 className="text-base font-bold text-slate-900">Rankings</h3>
-                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg overflow-x-auto">
+                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg overflow-x-auto self-start sm:self-auto max-w-full">
                             {Object.keys(FILTER_PARAMS).map((filter) => (
                                 <button
                                     key={filter}
@@ -316,7 +316,7 @@ const PointsLeaderboardPage = () => {
                 </div>
 
                 {/* Badges Section */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-8">
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 mb-6 sm:mb-8">
                     <BadgeGrid badges={badges} isLoading={myBadgesLoading} />
                 </div>
 
