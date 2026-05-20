@@ -31,24 +31,36 @@ const DocumentViewer = ({ url, title, type }) => {
             className="w-full h-full bg-white rounded-xl overflow-hidden shadow-2xl shadow-black/5 border border-slate-200"
         >
             {isPDF ? (
-                <div className="w-full h-full flex flex-col items-center justify-center p-12 text-center">
-                    <div className="w-20 h-20 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
-                        <span className="material-symbols-outlined text-4xl text-red-400">picture_as_pdf</span>
+                <>
+                    {/* Phone fallback — iframes are unreliable for PDFs on mobile Safari/Chrome */}
+                    <div className="md:hidden w-full h-full flex flex-col items-center justify-center p-12 text-center">
+                        <div className="w-20 h-20 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
+                            <span className="material-symbols-outlined text-4xl text-red-400">picture_as_pdf</span>
+                        </div>
+                        <h4 className="text-lg font-bold text-slate-900 mb-1">{title || 'Document'}</h4>
+                        <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">
+                            Open this document in a new tab to view its full content.
+                        </p>
+                        <a
+                            href={safeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+                        >
+                            <span className="material-symbols-outlined text-base">open_in_new</span>
+                            Open PDF
+                        </a>
                     </div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-1">{title || 'Document'}</h4>
-                    <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">
-                        Open this document in a new tab to view its full content.
-                    </p>
-                    <a
-                        href={safeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-                    >
-                        <span className="material-symbols-outlined text-base">open_in_new</span>
-                        Open PDF
-                    </a>
-                </div>
+                    {/* Tablet/desktop inline embed — #toolbar=0&navpanes=0 are no-ops in Firefox/Safari, hides toolbar in Chrome/Edge */}
+                    <div className="hidden md:block w-full h-full">
+                        <iframe
+                            src={`${safeUrl}#toolbar=0&navpanes=0`}
+                            title={title || 'Document'}
+                            className="w-full h-full border-0"
+                            loading="lazy"
+                        />
+                    </div>
+                </>
             ) : isImage ? (
                 <div className="w-full h-full flex items-center justify-center p-8 overflow-auto">
                     <img

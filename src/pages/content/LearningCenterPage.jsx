@@ -72,7 +72,7 @@ const ContentCard = ({ module, onClick, onAddItem, onEdit, onDelete, onAddQuiz, 
             {/* Thumbnail area */}
             <div className="relative h-44 bg-slate-50 overflow-hidden">
                 {module.thumbnail_url ? (
-                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
                         <span className={`material-symbols-outlined text-5xl text-slate-300`}>{typeMeta.icon}</span>
@@ -185,7 +185,7 @@ const AssignmentCard = ({ module, onClick, onTakeQuiz, delay = 0 }) => {
             {/* Thumbnail area for Assignment */}
             <div className="relative h-40 bg-slate-50 overflow-hidden">
                 {module.thumbnail_url ? (
-                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-emerald-50/10">
                         <span className="material-symbols-outlined text-4xl text-primary/20">assignment</span>
@@ -521,16 +521,16 @@ const LearningCenterPage = () => {
         <DashboardLayout variant={variant}>
             <AnimatedBg />
 
-            <div className="flex-1 w-full max-w-[1440px] mx-auto py-6 md:py-8">
+            <div className="flex-1 w-full max-w-[1440px] mx-auto py-6 md:py-8 px-4 sm:px-6 lg:px-0">
                 {/* ─── Header ─── */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <div>
-                        <div className="flex items-center gap-3">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-3 flex-wrap">
                             <h1 className="text-2xl md:text-[28px] font-black text-slate-900 tracking-tight">
                                 {pageTitle}
                             </h1>
                             {isEagleOrAdmin && (
-                                <span className="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
+                                <span className="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200 flex-shrink-0">
                                     {modules.length} Item{modules.length !== 1 ? 's' : ''}
                                 </span>
                             )}
@@ -540,48 +540,49 @@ const LearningCenterPage = () => {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {/* Search */}
-                        <div className="relative">
+                        <div className="relative flex-1 sm:flex-none">
                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">search</span>
                             <input
                                 type="text"
                                 placeholder={isEagleOrAdmin ? "Search content..." : "Search tasks..."}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2.5 w-full sm:w-52 rounded-xl bg-white text-slate-700 text-sm placeholder:text-slate-400 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all shadow-sm"
+                                className="pl-10 pr-4 py-2.5 w-full sm:w-48 md:w-52 rounded-xl bg-white text-slate-700 text-sm placeholder:text-slate-400 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all shadow-sm"
                             />
                         </div>
 
                         {/* Eagle: Send Assignment + Upload Content buttons */}
                         {isEagleOrAdmin && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                                 {user?.role === 'eagle' && nestId && (
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.97 }}
                                         onClick={() => setShowStandaloneModal(true)}
-                                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold text-sm rounded-xl shadow-sm hover:border-primary/40 hover:text-primary transition-all"
+                                        className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold text-sm rounded-xl shadow-sm hover:border-primary/40 hover:text-primary transition-all"
                                     >
                                         <span className="material-symbols-outlined text-lg">assignment_add</span>
-                                        Send Assignment
+                                        <span className="hidden sm:inline">Send Assignment</span>
                                     </motion.button>
                                 )}
                                 <motion.button
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.97 }}
                                     onClick={() => navigate(uploadPath)}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                                    className="flex items-center gap-2 px-3 sm:px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
                                 >
                                     <span className="material-symbols-outlined text-lg">add_circle</span>
-                                    Upload New Content
+                                    <span className="hidden sm:inline">Upload New Content</span>
+                                    <span className="sm:hidden">Upload</span>
                                 </motion.button>
                             </div>
                         )}
 
                         {/* Notification bell (Eaglet) */}
                         {!isEagleOrAdmin && (
-                            <button className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm">
+                            <button className="w-10 h-10 flex-shrink-0 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm">
                                 <span className="material-symbols-outlined text-xl">notifications</span>
                             </button>
                         )}
@@ -590,19 +591,19 @@ const LearningCenterPage = () => {
 
                 {/* ─── Eaglet Section Switcher ─── */}
                 {!isEagleOrAdmin && (
-                    <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl self-start mb-6 w-fit">
+                    <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl self-start mb-6 w-fit max-w-full overflow-x-auto">
                         <button
                             onClick={() => setActiveSection('modules')}
-                            className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${activeSection === 'modules' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 whitespace-nowrap ${activeSection === 'modules' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             <span className="flex items-center gap-1.5">
                                 <span className="material-symbols-outlined text-base">school</span>
-                                Learning Modules
+                                <span className="hidden xs:inline">Learning </span>Modules
                             </span>
                         </button>
                         <button
                             onClick={() => setActiveSection('tasks')}
-                            className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${activeSection === 'tasks' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 whitespace-nowrap ${activeSection === 'tasks' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             <span className="flex items-center gap-1.5">
                                 <span className="material-symbols-outlined text-base">assignment</span>
@@ -620,13 +621,13 @@ const LearningCenterPage = () => {
                 {/* ─── Filter Bar ─── */}
                 {isEagleOrAdmin ? (
                     /* Eagle/Admin: Type + Status filters */
-                    <div className="flex flex-wrap items-center gap-3 mb-8">
-                        <div className="flex bg-white rounded-xl border border-slate-200 p-1 gap-0.5 shadow-sm">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+                        <div className="flex bg-white rounded-xl border border-slate-200 p-1 gap-0.5 shadow-sm overflow-x-auto flex-shrink-0">
                             {TYPE_FILTERS.map((f) => (
                                 <button
                                     key={f.key}
                                     onClick={() => setActiveTypeFilter(f.key)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTypeFilter === f.key
+                                    className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap ${activeTypeFilter === f.key
                                         ? 'bg-slate-900 text-white shadow-sm'
                                         : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                                         }`}
@@ -636,13 +637,13 @@ const LearningCenterPage = () => {
                             ))}
                         </div>
 
-                        <div className="w-px h-8 bg-slate-200 hidden sm:block" />
+                        <div className="w-px h-8 bg-slate-200 hidden sm:block flex-shrink-0" />
 
-                        {/* Status dropdown-style */}
+                        {/* Status dropdown */}
                         <select
                             value={activeStatusFilter}
                             onChange={(e) => setActiveStatusFilter(e.target.value)}
-                            className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 focus:ring-2 focus:ring-primary/30 focus:border-primary/30 shadow-sm cursor-pointer"
+                            className="px-3 sm:px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm font-semibold text-slate-600 focus:ring-2 focus:ring-primary/30 focus:border-primary/30 shadow-sm cursor-pointer"
                         >
                             {STATUS_FILTERS.map(f => (
                                 <option key={f.key} value={f.key}>{f.key === 'all' ? 'Status: All' : `Status: ${f.label}`}</option>
@@ -653,7 +654,7 @@ const LearningCenterPage = () => {
                         <button
                             disabled
                             title="Coming soon"
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 opacity-60 cursor-not-allowed shadow-sm"
+                            className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 opacity-60 cursor-not-allowed shadow-sm"
                         >
                             Date Range
                             <span className="material-symbols-outlined text-base">calendar_today</span>
@@ -661,12 +662,12 @@ const LearningCenterPage = () => {
                     </div>
                 ) : (
                     /* Eaglet: Tab-style filters (All / In Progress / Completed / Overdue) */
-                    <div className="flex gap-1 border-b border-slate-200 mb-8">
+                    <div className="flex gap-0 sm:gap-1 border-b border-slate-200 mb-6 sm:mb-8 overflow-x-auto">
                         {EAGLET_TABS.map((tab) => (
                             <button
                                 key={tab.key}
                                 onClick={() => setActiveEagletTab(tab.key)}
-                                className={`relative px-5 py-3 text-sm font-semibold transition-all ${activeEagletTab === tab.key
+                                className={`relative px-3 sm:px-5 py-3 text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${activeEagletTab === tab.key
                                     ? 'text-primary'
                                     : 'text-slate-400 hover:text-slate-600'
                                     }`}
@@ -686,10 +687,10 @@ const LearningCenterPage = () => {
 
                 {/* ─── Content Grid ─── */}
                 {isLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                         {[...Array(6)].map((_, i) => (
                             <div key={i} className="animate-pulse bg-white rounded-2xl border border-slate-100 overflow-hidden">
-                                <div className="h-44 bg-slate-100" />
+                                <div className="h-40 sm:h-44 bg-slate-100" />
                                 <div className="p-4 space-y-3">
                                     <div className="h-3 w-20 bg-slate-100 rounded" />
                                     <div className="h-4 w-3/4 bg-slate-100 rounded" />
@@ -702,7 +703,7 @@ const LearningCenterPage = () => {
                     <>
                         {/* Eagle/Admin: content grid with upload card */}
                         {isEagleOrAdmin ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                                 <AnimatePresence>
                                     {filteredModules.map((module, i) => (
                                         <ContentCard
@@ -724,7 +725,7 @@ const LearningCenterPage = () => {
                         ) : activeSection === 'tasks' ? (
                             /* Eaglet: standalone assignments from mentors */
                             tasksLoading ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                                     {[...Array(3)].map((_, i) => (
                                         <div key={i} className="animate-pulse bg-white rounded-2xl border border-slate-100 p-5 space-y-3">
                                             <div className="h-3 w-24 bg-slate-100 rounded" />
@@ -746,7 +747,7 @@ const LearningCenterPage = () => {
                                     </p>
                                 </motion.div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                                     <AnimatePresence>
                                         {standaloneAssignments.map((assignment, i) => (
                                             <StandaloneTaskCard key={assignment.id} assignment={assignment} index={i} />
@@ -771,7 +772,7 @@ const LearningCenterPage = () => {
                                     </p>
                                 </motion.div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                                     <AnimatePresence>
                                         {filteredModules.map((module, i) => (
                                             <AssignmentCard
@@ -791,7 +792,7 @@ const LearningCenterPage = () => {
 
                 {/* ─── Eaglet Bottom Summary Cards ─── */}
                 {user?.role === 'eaglet' && modules.length > 0 && (
-                    <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="mt-8 md:mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
                         {/* Overall Progress */}
                         <motion.div
                             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}

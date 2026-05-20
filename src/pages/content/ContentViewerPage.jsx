@@ -24,7 +24,7 @@ const ContentViewerPage = () => {
     const { mutate: updateProgress } = useUpdateProgress();
 
     const [activeItemId, setActiveItemId] = useState(null);
-    const [sidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const [, setProgressPercentage] = useState(0);
     const [lastSyncTime, setLastSyncTime] = useState(0);
     const [isSaving, setIsSaving] = useState(false);
@@ -135,31 +135,29 @@ const ContentViewerPage = () => {
 
 
                 {/* 1. Header Area: LMS Style */}
-                <header className="shrink-0 h-20 bg-white/90 backdrop-blur-xl border-b border-slate-200 z-30 px-6">
+                <header className="shrink-0 h-16 md:h-20 bg-white/90 backdrop-blur-xl border-b border-slate-200 z-30 px-3 sm:px-6">
 
-                    <div className="h-full max-w-[2000px] mx-auto flex items-center justify-between gap-8">
+                    <div className="h-full max-w-[2000px] mx-auto flex items-center justify-between gap-3 sm:gap-8">
                         {/* Title Info */}
-                        <div className="flex items-center gap-4 min-w-0">
+                        <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                             <Link
                                 to={user?.role === 'eagle' ? '/eagle/content' : '/eaglet/assignments'}
-                                className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-500 hover:text-white transition-all duration-300 border border-slate-100"
+                                className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-500 hover:text-white transition-all duration-300 border border-slate-100"
                             >
-                                <span className="material-symbols-outlined text-[22px]">close</span>
+                                <span className="material-symbols-outlined text-[20px] sm:text-[22px]">close</span>
                             </Link>
-                            <div className="min-w-0">
-                                <h1 className="text-lg font-black text-slate-900 truncate tracking-tight">
-
+                            <div className="min-w-0 flex-1">
+                                <h1 className="text-sm sm:text-base md:text-lg font-black text-slate-900 truncate tracking-tight">
                                     {moduleData.title || 'Loading Module...'}
                                 </h1>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest truncate">
                                     {moduleData.nest_name || 'Personal Growth'} · Chapter {activeIndex + 1}
                                 </p>
-
                             </div>
                         </div>
 
-                        {/* Global Progress */}
-                        <div className="hidden md:flex flex-1 max-w-md items-center gap-6">
+                        {/* Global Progress — hidden on small screens */}
+                        <div className="hidden md:flex flex-1 max-w-xs lg:max-w-md items-center gap-6">
                             <div className="flex-1">
                                 <div className="flex items-center justify-between mb-1.5 px-1">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Course Progress</span>
@@ -172,23 +170,35 @@ const ContentViewerPage = () => {
                                         className="h-full bg-emerald-500 rounded-full"
                                     />
                                 </div>
-
                             </div>
                         </div>
 
-                        {/* Actions (Coming soon) */}
-                        <div className="flex items-center gap-3">
+                        {/* Actions */}
+                        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+                            {/* Sidebar toggle — shown on all screens */}
+                            <button
+                                onClick={() => setSidebarOpen(!sidebarOpen)}
+                                title={sidebarOpen ? 'Hide course content' : 'Show course content'}
+                                aria-label={sidebarOpen ? 'Hide course content' : 'Show course content'}
+                                aria-expanded={sidebarOpen}
+                                aria-controls="course-content-sidebar"
+                                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">
+                                    {sidebarOpen ? 'menu_open' : 'menu'}
+                                </span>
+                            </button>
                             <button
                                 disabled
                                 title="Coming soon"
-                                className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 opacity-60 cursor-not-allowed border border-slate-100"
+                                className="hidden sm:flex w-10 h-10 rounded-xl bg-slate-50 items-center justify-center text-slate-400 opacity-60 cursor-not-allowed border border-slate-100"
                             >
                                 <span className="material-symbols-outlined text-[20px]">settings</span>
                             </button>
                             <button
                                 disabled
                                 title="Coming soon"
-                                className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 opacity-60 cursor-not-allowed border border-slate-100"
+                                className="hidden sm:flex w-10 h-10 rounded-xl bg-slate-50 items-center justify-center text-slate-400 opacity-60 cursor-not-allowed border border-slate-100"
                             >
                                 <span className="material-symbols-outlined text-[20px]">share</span>
                             </button>
@@ -200,7 +210,7 @@ const ContentViewerPage = () => {
                 <div className="flex-1 flex overflow-hidden">
                     {/* 2. Main content area */}
                     <main className="flex-1 flex flex-col relative overflow-hidden">
-                        <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 custom-scrollbar">
                             <div className="max-w-[1200px] mx-auto h-full flex flex-col">
 
                                 <AnimatePresence mode="wait">
@@ -222,7 +232,7 @@ const ContentViewerPage = () => {
                                             className="flex-1 flex flex-col"
                                         >
                                             {/* Viewer Container */}
-                                            <div className="relative aspect-video w-full rounded-3xl overflow-hidden bg-slate-50 shadow-2xl shadow-emerald-500/5 mb-10 border border-slate-200">
+                                            <div className="relative aspect-video w-full rounded-2xl md:rounded-3xl overflow-hidden bg-slate-50 shadow-2xl shadow-emerald-500/5 mb-6 md:mb-10 border border-slate-200">
 
                                                 {activeItem.content_type === 'video' ? (
                                                     <video
@@ -235,6 +245,7 @@ const ContentViewerPage = () => {
                                                         onEnded={handleVideoEnded}
                                                         controlsList="nodownload"
                                                         playsInline
+                                                        preload="metadata"
                                                     />
                                                 ) : (
                                                     <DocumentViewer
@@ -246,40 +257,39 @@ const ContentViewerPage = () => {
                                             </div>
 
                                             {/* Lesson Description */}
-                                            <div className="mb-12">
-                                                <div className="flex items-center justify-between gap-6 mb-6">
-                                                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight tracking-tight">
+                                            <div className="mb-8 md:mb-12">
+                                                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-6 mb-4 md:mb-6">
+                                                    <h2 className="text-xl sm:text-3xl md:text-5xl font-black text-slate-900 leading-tight tracking-tight">
                                                         {activeItem.title}
                                                     </h2>
                                                     <button
                                                         disabled
                                                         title="Coming soon"
-                                                        className="shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl border border-slate-200 text-slate-500 font-bold text-sm opacity-60 cursor-not-allowed"
+                                                        className="self-start shrink-0 flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border border-slate-200 text-slate-500 font-bold text-sm opacity-60 cursor-not-allowed"
                                                     >
                                                         <span className="material-symbols-outlined text-[20px]">download</span>
                                                         Resources
                                                     </button>
                                                 </div>
-                                                <p className="text-xl text-slate-500 leading-relaxed max-w-4xl">
-
+                                                <p className="text-sm sm:text-base md:text-xl text-slate-500 leading-relaxed max-w-4xl">
                                                     {moduleData.description || "Master the concepts of this lesson through a combination of guided materials and practical exercises."}
                                                 </p>
                                             </div>
 
                                             {/* Instructor Info */}
-                                            <div className="flex items-center gap-12 py-10 border-t border-slate-100">
+                                            <div className="flex flex-wrap items-center gap-6 sm:gap-12 py-6 md:py-10 border-t border-slate-100">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-sm border border-emerald-100">
+                                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-sm border border-emerald-100">
                                                         {moduleData.created_by?.full_name?.charAt(0) || 'E'}
                                                     </div>
                                                     <div>
                                                         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Instructor</p>
-                                                        <p className="text-base font-bold text-slate-900 leading-none">{moduleData.created_by?.full_name || 'Elite Mentor'}</p>
+                                                        <p className="text-sm sm:text-base font-bold text-slate-900 leading-none">{moduleData.created_by?.full_name || 'Elite Mentor'}</p>
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Difficulty</p>
-                                                    <p className="text-base font-bold text-emerald-600 leading-none capitalize">{moduleData.difficulty || 'Advanced'}</p>
+                                                    <p className="text-sm sm:text-base font-bold text-emerald-600 leading-none capitalize">{moduleData.difficulty || 'Advanced'}</p>
                                                 </div>
                                             </div>
 
@@ -299,43 +309,43 @@ const ContentViewerPage = () => {
                         </div>
 
                         {/* 3. Sticky Footer Navigation */}
-                        <footer className="shrink-0 h-24 bg-white/95 backdrop-blur-xl border-t border-slate-200 z-30 px-8">
-                            <div className="h-full max-w-[2000px] mx-auto flex items-center justify-between">
+                        <footer className="shrink-0 h-20 md:h-24 bg-white/95 backdrop-blur-xl border-t border-slate-200 z-30 px-3 sm:px-6 md:px-8">
+                            <div className="h-full max-w-[2000px] mx-auto flex items-center justify-between gap-2">
                                 <button
                                     onClick={() => goToItem('prev')}
                                     disabled={!hasPrev}
-                                    className="flex items-center gap-3 px-6 py-3.5 rounded-2xl border border-slate-200 text-slate-500 font-bold transition-all hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none"
+                                    className="flex items-center gap-1.5 sm:gap-3 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-slate-200 text-slate-500 font-bold transition-all hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none text-sm sm:text-base"
                                 >
-                                    <span className="material-symbols-outlined">arrow_back</span>
+                                    <span className="material-symbols-outlined text-lg sm:text-2xl">arrow_back</span>
                                     <span className="hidden sm:inline">Previous</span>
                                 </button>
-
 
                                 <button
                                     onClick={handleMarkComplete}
                                     disabled={isSaving || isCompleted(effectiveItemId)}
-                                    className={`flex items-center gap-3 px-10 py-4 rounded-2xl font-black transition-all shadow-xl ${isCompleted(effectiveItemId)
+                                    className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-8 md:px-10 py-2.5 sm:py-3.5 md:py-4 rounded-xl sm:rounded-2xl font-black transition-all shadow-xl text-xs sm:text-sm md:text-base ${isCompleted(effectiveItemId)
                                         ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-none'
                                         : isSaving
                                             ? 'bg-slate-100 text-slate-400 cursor-wait'
                                             : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98]'
                                         }`}
                                 >
-
                                     {isCompleted(effectiveItemId) ? (
                                         <>
-                                            <span className="material-symbols-outlined">check_circle</span>
-                                            Mark as Complete
+                                            <span className="material-symbols-outlined text-lg sm:text-xl">check_circle</span>
+                                            <span className="hidden xs:inline">Mark as Complete</span>
+                                            <span className="xs:hidden">Done</span>
                                         </>
                                     ) : isSaving ? (
                                         <>
-                                            <span className="material-symbols-outlined animate-spin">refresh</span>
+                                            <span className="material-symbols-outlined animate-spin text-lg sm:text-xl">refresh</span>
                                             Saving...
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined">check_circle</span>
-                                            Mark as Complete
+                                            <span className="material-symbols-outlined text-lg sm:text-xl">check_circle</span>
+                                            <span className="hidden sm:inline">Mark as Complete</span>
+                                            <span className="sm:hidden">Complete</span>
                                         </>
                                     )}
                                 </button>
@@ -343,18 +353,18 @@ const ContentViewerPage = () => {
                                 <button
                                     onClick={() => goToItem('next')}
                                     disabled={!hasNext}
-                                    className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-slate-900 text-white font-black transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-30 shadow-xl shadow-slate-900/20"
+                                    className="flex items-center gap-1.5 sm:gap-3 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-900 text-white font-black transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-30 shadow-xl shadow-slate-900/20 text-sm sm:text-base"
                                 >
                                     <span className="hidden sm:inline">Next</span>
-                                    <span className="material-symbols-outlined">arrow_forward</span>
+                                    <span className="material-symbols-outlined text-lg sm:text-2xl">arrow_forward</span>
                                 </button>
 
                             </div>
                         </footer>
                     </main>
 
-                    {/* 4. Right Sidebar: Course Content */}
-                    <aside className={`shrink-0 border-l border-slate-200 bg-slate-50/30 flex flex-col overflow-hidden transition-all duration-300 ${sidebarOpen ? 'w-[400px]' : 'w-0'}`}>
+                    {/* 4. Right Sidebar: Course Content — slides in/out on all screen sizes */}
+                    <aside id="course-content-sidebar" className={`shrink-0 border-l border-slate-200 bg-slate-50/30 flex flex-col overflow-hidden transition-all duration-300 ${sidebarOpen ? 'w-[280px] sm:w-[340px] lg:w-[400px]' : 'w-0'}`}>
                         <div className="shrink-0 p-6 flex items-center justify-between border-b border-slate-200 bg-white">
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-emerald-500">list_alt</span>

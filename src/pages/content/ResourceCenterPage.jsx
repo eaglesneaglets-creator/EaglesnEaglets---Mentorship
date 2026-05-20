@@ -48,7 +48,7 @@ const FeaturedCard = ({ item, module, onClick, delay = 0 }) => {
             {/* Thumbnail */}
             <div className="relative h-48 bg-slate-100 overflow-hidden">
                 {module?.thumbnail_url ? (
-                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                         <span className="material-symbols-outlined text-5xl text-slate-300">{config.icon}</span>
@@ -277,12 +277,12 @@ const ResourceCenterPage = () => {
     if (isLoading) {
         return (
             <DashboardLayout variant={layoutVariant}>
-                <div className="max-w-[1200px] mx-auto py-8 px-4">
-                    <div className="h-8 w-48 bg-slate-100 rounded-lg animate-pulse mb-8" />
-                    <div className="h-24 bg-slate-50 rounded-2xl animate-pulse mb-8" />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="max-w-[1200px] mx-auto py-8 px-4 sm:px-6">
+                    <div className="h-8 w-48 bg-slate-100 rounded-lg animate-pulse mb-6" />
+                    <div className="h-20 md:h-24 bg-slate-50 rounded-2xl animate-pulse mb-6" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                         {[...Array(3)].map((_, i) => (
-                            <div key={i} className="bg-slate-50 rounded-2xl h-72 animate-pulse" />
+                            <div key={i} className="bg-slate-50 rounded-2xl h-64 md:h-72 animate-pulse" />
                         ))}
                     </div>
                 </div>
@@ -294,30 +294,30 @@ const ResourceCenterPage = () => {
         <DashboardLayout variant={layoutVariant}>
             <AnimatedBg />
 
-            <div className="flex-1 w-full max-w-[1200px] mx-auto py-6 md:py-8 px-4">
+            <div className="flex-1 w-full max-w-[1200px] mx-auto py-6 md:py-8 px-4 sm:px-6">
                 {/* ─── Page Header with Search ─── */}
                 <motion.div
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between gap-4 mb-6"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6"
                 >
                     <h1 className="text-2xl md:text-[28px] font-black text-slate-900 tracking-tight">
                         Resource Center
                     </h1>
-                    <div className="flex items-center gap-3">
-                        <div className="relative">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="relative flex-1 sm:flex-none">
                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">search</span>
                             <input
                                 type="text"
                                 placeholder="Search resources..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 pr-4 py-2.5 w-52 md:w-64 rounded-xl bg-white text-slate-700 text-sm placeholder:text-slate-400 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all shadow-sm"
+                                className="pl-10 pr-4 py-2.5 w-full sm:w-48 md:w-64 rounded-xl bg-white text-slate-700 text-sm placeholder:text-slate-400 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all shadow-sm"
                             />
                         </div>
                         <button
                             onClick={() => navigate('/notifications')}
-                            className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm relative"
+                            className="w-10 h-10 flex-shrink-0 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm relative"
                         >
                             <span className="material-symbols-outlined text-xl">notifications</span>
                         </button>
@@ -329,9 +329,9 @@ const ResourceCenterPage = () => {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.05 }}
-                    className="bg-white rounded-2xl border border-slate-200/70 p-6 md:p-8 mb-8 shadow-sm"
+                    className="bg-white rounded-2xl border border-slate-200/70 p-5 md:p-8 mb-8 shadow-sm"
                 >
-                    <h2 className="text-xl md:text-2xl font-black text-slate-900 mb-2">
+                    <h2 className="text-lg md:text-2xl font-black text-slate-900 mb-2">
                         Grow your knowledge
                     </h2>
                     <p className="text-sm text-slate-400 leading-relaxed max-w-2xl">
@@ -340,9 +340,9 @@ const ResourceCenterPage = () => {
                 </motion.div>
 
                 {/* ─── Main Content (two columns on large screens) ─── */}
-                <div className="flex flex-col lg:flex-row gap-8">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                     {/* Left Column — Main Content */}
-                    <div className="flex-1 min-w-0 space-y-10">
+                    <div className="flex-1 min-w-0 space-y-8 lg:space-y-10">
 
                         {/* ═══ Featured Resources ═══ */}
                         <section>
@@ -371,7 +371,7 @@ const ResourceCenterPage = () => {
                                     </p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
                                     <AnimatePresence>
                                         {featured.map((item, i) => (
                                             <FeaturedCard
@@ -398,7 +398,7 @@ const ResourceCenterPage = () => {
                                     <span className="material-symbols-outlined text-primary">play_circle</span>
                                     Videos
                                 </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {videos.slice(0, 4).map((item, i) => (
                                         <CompactItem
                                             key={item.id}
@@ -423,7 +423,7 @@ const ResourceCenterPage = () => {
                                     <span className="material-symbols-outlined text-emerald-600">description</span>
                                     Documents
                                 </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {documents.slice(0, 4).map((item, i) => (
                                         <CompactItem
                                             key={item.id}
@@ -463,7 +463,7 @@ const ResourceCenterPage = () => {
                     </div>
 
                     {/* ─── Right Sidebar ─── */}
-                    <div className="w-full lg:w-80 flex-shrink-0 space-y-6">
+                    <div className="w-full lg:w-80 flex-shrink-0 space-y-4 lg:space-y-6">
                         {/* Recent Content Card */}
                         <motion.div
                             initial={{ opacity: 0, x: 16 }}
