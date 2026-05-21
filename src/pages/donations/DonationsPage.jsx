@@ -82,11 +82,11 @@ export default function DonationsPage() {
   const campaign = campaigns[selectedIdx] ?? campaigns[0];
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen bg-slate-50 font-sans overflow-x-hidden">
       <PublicNavbar />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative pt-20 sm:pt-24 lg:pt-28 pb-14 sm:pb-16 lg:pb-20 px-4 sm:px-6 overflow-hidden">
+      <section className="relative pt-24 sm:pt-28 lg:pt-32 pb-12 sm:pb-16 lg:pb-20 px-4 sm:px-6 overflow-hidden">
         {/* Base gradient — matches AboutPage's MentorshipWorks + platform primary */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-emerald-600 to-emerald-700" />
 
@@ -104,9 +104,9 @@ export default function DonationsPage() {
           }}
         />
 
-        {/* Floating blobs */}
-        <div className="absolute top-0 right-0 w-72 sm:w-80 h-72 sm:h-80 bg-emerald-300/25 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-56 sm:w-64 h-56 sm:h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Floating blobs — kept inside hero by overflow-hidden on the section */}
+        <div className="absolute top-0 right-0 w-48 sm:w-72 lg:w-80 h-48 sm:h-72 lg:h-80 bg-emerald-300/25 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-40 sm:w-56 lg:w-64 h-40 sm:h-56 lg:h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Bottom edge gloss — thin highlight band that gives the section a "polished" rim */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
@@ -129,7 +129,7 @@ export default function DonationsPage() {
             initial="hidden"
             animate="visible"
             custom={0.1}
-            className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-3 sm:mb-4 leading-tight drop-shadow-[0_2px_8px_rgba(6,78,59,0.25)]"
+            className="text-[26px] sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-3 sm:mb-4 leading-[1.1] drop-shadow-[0_2px_8px_rgba(6,78,59,0.25)]"
           >
             Every Gift Shapes a{' '}
             <span className="text-white/95 underline decoration-white/40 decoration-4 underline-offset-4">Leader</span>
@@ -140,19 +140,21 @@ export default function DonationsPage() {
             initial="hidden"
             animate="visible"
             custom={0.2}
-            className="text-white/85 text-sm sm:text-base md:text-lg max-w-xl mx-auto mb-6 sm:mb-8 leading-relaxed"
+            className="text-white/85 text-[13px] sm:text-base md:text-lg max-w-xl mx-auto mb-5 sm:mb-8 leading-relaxed px-1"
           >
             Every contribution helps us provide more resources, mentoring sessions, and safe
             environments for our eaglets to soar. Together, we can make a lasting impact.
           </motion.p>
 
-          {/* Impact icons — wraps on small screens instead of cramming */}
+          {/* Impact icons — grid on tiny phones, flex-wrap row from sm up.
+              Grid prevents the row from over-shrinking and crashing into itself
+              on 320–375px screens. */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="visible"
             custom={0.3}
-            className="flex flex-wrap items-start justify-center gap-x-4 sm:gap-x-8 gap-y-4"
+            className="grid grid-cols-4 sm:flex sm:flex-wrap items-start justify-center gap-x-2 sm:gap-x-8 gap-y-3 sm:gap-y-4 max-w-md sm:max-w-none mx-auto"
           >
             {IMPACT_STATS.map((item, i) => (
               <motion.div
@@ -160,14 +162,14 @@ export default function DonationsPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 + i * 0.08 }}
-                className="flex flex-col items-center gap-1.5 group min-w-[64px]"
+                className="flex flex-col items-center gap-1.5 group min-w-0"
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-lg shadow-emerald-900/10 group-hover:shadow-xl group-hover:scale-110 group-hover:bg-white/25 transition-all duration-300">
                   <span className="material-symbols-outlined text-white text-lg sm:text-xl">
                     {item.icon}
                   </span>
                 </div>
-                <span className="text-[10px] sm:text-xs text-white/85 font-medium">{item.label}</span>
+                <span className="text-[10px] sm:text-xs text-white/85 font-medium text-center leading-tight">{item.label}</span>
               </motion.div>
             ))}
           </motion.div>
@@ -175,7 +177,7 @@ export default function DonationsPage() {
       </section>
 
       {/* ── Main content ──────────────────────────────────────────────────── */}
-      <section id="donate" className="max-w-6xl mx-auto px-4 sm:px-6 -mt-6 sm:-mt-8 pb-14 sm:pb-20 relative z-10">
+      <section id="donate" className="max-w-6xl mx-auto px-3 sm:px-6 -mt-6 sm:-mt-8 pb-12 sm:pb-20 relative z-10">
         {isLoading && (
           <div className="flex justify-center py-20">
             <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />

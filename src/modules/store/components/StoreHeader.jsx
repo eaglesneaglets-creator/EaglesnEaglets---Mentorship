@@ -226,32 +226,26 @@ const StoreHeader = ({ forceScrolled = false }) => {
                 )}
             </div>
 
-            {/* Mobile bar */}
-            <div className={`md:hidden flex items-center gap-2 px-3 py-2.5 rounded-full border transition-all duration-500 ${
+            {/* Mobile bar — minimal: Brand + Cart + Menu.
+                Orders and the user avatar live inside the drawer menu to keep the pill
+                from overflowing on narrow phones (≤375px), where 5 controls collide
+                with the brand wordmark. The brand uses flex-shrink with a gap so the
+                cart and menu always have breathing room and never sit on top of "E&E". */}
+            <div className={`md:hidden flex items-center gap-3 pl-3 pr-2 py-2 rounded-full border transition-all duration-500 ${
                 scrolled
                     ? 'bg-white/90 backdrop-blur-xl border-slate-200/60 shadow-lg'
                     : 'bg-white/20 backdrop-blur-md border-white/30 shadow-md'
             }`}>
-                <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink">
-                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
-                    <span className={`font-extrabold text-sm whitespace-nowrap transition-colors duration-500 ${scrolled ? 'text-slate-900' : 'text-white'}`}>
-                        <span className="hidden min-[480px]:inline">Eagles &amp; Eaglets</span>
-                        <span className="min-[480px]:hidden">E&amp;E</span>
+                <Link to="/" className="flex items-center gap-2 min-w-0 flex-1 mr-1">
+                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-2 ring-white/50" />
+                    <span className={`font-extrabold text-sm whitespace-nowrap truncate transition-colors duration-500 ${scrolled ? 'text-slate-900' : 'text-white'}`}>
+                        <span className="hidden min-[420px]:inline">Eagles &amp; Eaglets</span>
+                        <span className="min-[420px]:hidden">E&amp;E</span>
                     </span>
                 </Link>
 
-                <div className="ml-auto flex items-center gap-1">
-                    {/* Orders icon — mobile */}
-                    <Link
-                        to="/store/orders"
-                        className={iconBtnClass}
-                        aria-label="My orders"
-                        title="My Orders"
-                    >
-                        <span className="material-symbols-outlined text-xl">receipt_long</span>
-                    </Link>
-
-                    {/* Cart icon — mobile */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                    {/* Cart icon — kept inline because it's the store's primary action */}
                     <Link
                         to="/store/cart"
                         className={iconBtnClass}
@@ -266,19 +260,10 @@ const StoreHeader = ({ forceScrolled = false }) => {
                         )}
                     </Link>
 
-                    {isAuthenticated && user && (
-                        user.avatar ? (
-                            <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30" />
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
-                                {getInitials(user)}
-                            </div>
-                        )
-                    )}
-
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+                        className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${scrolled ? 'bg-slate-100' : 'bg-white/20'}`}
+                        aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
                     >
                         <span className={`material-symbols-outlined text-xl ${scrolled ? 'text-slate-700' : 'text-white'}`}>
                             {mobileOpen ? 'close' : 'menu'}

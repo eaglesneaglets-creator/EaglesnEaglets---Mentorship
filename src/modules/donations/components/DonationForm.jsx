@@ -495,15 +495,15 @@ export default function DonationForm({ campaignId }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm space-y-5 sm:space-y-6"
+      className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm space-y-5 sm:space-y-6 max-w-full"
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-black text-slate-900">Choose Your Gift</h2>
-          <p className="text-xs text-slate-400 mt-0.5">All amounts in Ghana Cedis (GHS)</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base sm:text-lg font-black text-slate-900">Choose Your Gift</h2>
+          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">All amounts in Ghana Cedis (GHS)</p>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
           <span className="material-symbols-outlined text-emerald-600 text-xl">volunteer_activism</span>
         </div>
       </div>
@@ -517,7 +517,7 @@ export default function DonationForm({ campaignId }) {
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             onClick={() => { setSelectedAmount(preset.value); setIsCustom(false); }}
-            className={`flex flex-col items-center justify-center rounded-2xl border-2 py-3 px-2 transition-all duration-200 ${
+            className={`flex flex-col items-center justify-center rounded-2xl border-2 py-3 px-2 min-w-0 transition-all duration-200 ${
               !isCustom && selectedAmount === preset.value
                 ? 'border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-500/10'
                 : 'border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
@@ -526,7 +526,7 @@ export default function DonationForm({ campaignId }) {
             <span className={`text-lg font-black ${!isCustom && selectedAmount === preset.value ? 'text-emerald-600' : 'text-slate-800'}`}>
               {preset.value}
             </span>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wide mt-0.5">
+            <span className="text-[10px] text-slate-400 uppercase tracking-wide mt-0.5 truncate max-w-full">
               {preset.tier}
             </span>
           </motion.button>
@@ -570,13 +570,13 @@ export default function DonationForm({ campaignId }) {
       </AnimatePresence>
 
       {/* Personal info */}
-      <div>
+      <div className="min-w-0">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
           Personal Information
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base">
+          <div className="relative min-w-0">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base pointer-events-none">
               person
             </span>
             <input
@@ -584,11 +584,11 @@ export default function DonationForm({ campaignId }) {
               placeholder="Your name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="w-full border-2 border-slate-200 rounded-2xl pl-9 pr-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full border-2 border-slate-200 rounded-2xl pl-9 pr-3 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base">
+          <div className="relative min-w-0">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base pointer-events-none">
               smartphone
             </span>
             <input
@@ -596,13 +596,13 @@ export default function DonationForm({ campaignId }) {
               placeholder="024XXXXXXX"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full border-2 border-slate-200 rounded-2xl pl-9 pr-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full border-2 border-slate-200 rounded-2xl pl-9 pr-3 py-3 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
         </div>
-        <p className="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1">
-          <span className="material-symbols-outlined text-xs">info</span>
-          Ghana number — prompt will be sent to this phone (MTN/Vodafone/AirtelTigo)
+        <p className="text-[11px] text-slate-400 mt-1.5 flex items-start gap-1 leading-snug">
+          <span className="material-symbols-outlined text-xs mt-0.5 flex-shrink-0">info</span>
+          <span>Ghana number — prompt will be sent to this phone (MTN/Vodafone/AirtelTigo)</span>
         </p>
       </div>
 
@@ -694,21 +694,23 @@ export default function DonationForm({ campaignId }) {
         disabled={initiate.isPending || otpSending}
         whileHover={{ scale: (initiate.isPending || otpSending) ? 1 : 1.02, y: (initiate.isPending || otpSending) ? 0 : -1 }}
         whileTap={{ scale: 0.98 }}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 text-white font-black text-base py-4 rounded-2xl transition-all duration-200 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
+        className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-300 text-white font-black text-sm sm:text-base py-3.5 sm:py-4 rounded-2xl transition-all duration-200 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 px-3"
       >
         {(initiate.isPending || otpSending) ? (
           <>
-            <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-            {otpSending ? 'Sending code…' : 'Processing…'}
+            <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin flex-shrink-0" />
+            <span className="truncate">{otpSending ? 'Sending code…' : 'Processing…'}</span>
           </>
         ) : (
           <>
-            <span className="material-symbols-outlined text-lg">
+            <span className="material-symbols-outlined text-lg flex-shrink-0">
               {isAuthenticated ? 'favorite' : 'verified'}
             </span>
-            {isAuthenticated
-              ? `Donate GHS ${finalAmount > 0 ? finalAmount.toLocaleString() : '—'}`
-              : `Verify & Donate GHS ${finalAmount > 0 ? finalAmount.toLocaleString() : '—'}`}
+            <span className="truncate">
+              {isAuthenticated
+                ? `Donate GHS ${finalAmount > 0 ? finalAmount.toLocaleString() : '—'}`
+                : `Verify & Donate GHS ${finalAmount > 0 ? finalAmount.toLocaleString() : '—'}`}
+            </span>
           </>
         )}
       </motion.button>

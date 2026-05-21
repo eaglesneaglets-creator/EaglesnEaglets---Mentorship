@@ -78,12 +78,24 @@ html {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent stray translated/decorative elements (hero blobs, off-canvas drawers)
+     from triggering page-wide horizontal scroll on narrow phones. */
+  overflow-x: hidden;
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
   line-height: 1.5;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+#root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
 }
 
 /* =============================================================================
