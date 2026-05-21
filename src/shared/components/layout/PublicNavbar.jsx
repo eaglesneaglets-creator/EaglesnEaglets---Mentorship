@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@store';
 import logoImg from '../../../assets/EaglesnEagletsLogo.jpeg';
@@ -34,7 +34,15 @@ const PublicNavbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+    const location = useLocation();
     const { isAuthenticated, user, logout } = useAuthStore();
+
+    // The "not-scrolled" navbar styling assumes a dark hero behind it (white text + translucent
+    // background). That works on the home page, but on any other public route — e.g. /about,
+    // which has a white hero — the white text becomes invisible against the white background.
+    // Treat every non-home route as if already scrolled so the dark-text styling kicks in immediately.
+    const isHome = location.pathname === '/';
+    const useDarkText = scrolled || !isHome;
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 40);
@@ -54,7 +62,7 @@ const PublicNavbar = () => {
 
     const navLinks = [
         { label: 'Home', path: '/' },
-        { label: 'About', path: '/#about' },
+        { label: 'About', path: '/about' },
         { label: 'Store', path: '/store' },
         { label: 'Donate', path: '/donations' },
     ];
@@ -67,7 +75,7 @@ const PublicNavbar = () => {
     };
 
     const linkClass = `px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${
-        scrolled
+        useDarkText
             ? 'text-slate-600 hover:text-primary hover:bg-primary/5'
             : 'text-white/90 hover:text-white hover:bg-white/15'
     }`;
@@ -78,26 +86,26 @@ const PublicNavbar = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
             className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${
-                scrolled ? 'top-3' : 'top-5'
+                useDarkText ? 'top-3' : 'top-5'
             }`}
         >
             {/* Desktop */}
             <div className={`hidden md:flex items-center gap-1 px-2 py-2 rounded-full border transition-all duration-500 ${
-                scrolled
+                useDarkText
                     ? 'bg-white/90 backdrop-blur-xl border-slate-200/60 shadow-lg shadow-slate-200/30'
                     : 'bg-white/20 backdrop-blur-md border-white/30 shadow-md shadow-black/10'
             }`}>
-                <Link to="/" className="flex items-center gap-2 pl-3 pr-4">
+                <Link to="/" className="flex items-center gap-2 pl-3 pr-6 lg:pr-8">
                     <img src={logoImg} alt="Eagles & Eaglets" className="w-8 h-8 rounded-full object-cover ring-2 ring-white/50" />
                     <span className={`font-extrabold text-sm tracking-tight whitespace-nowrap transition-colors duration-500 ${
-                        scrolled ? 'text-slate-900' : 'text-white'
+                        useDarkText ? 'text-slate-900' : 'text-white'
                     }`}>
                         Eagles & Eaglets
                     </span>
                 </Link>
 
-                <div className={`w-px h-6 mx-1 transition-colors duration-500 ${
-                    scrolled ? 'bg-slate-200/50' : 'bg-white/30'
+                <div className={`w-px h-6 mx-3 lg:mx-4 transition-colors duration-500 ${
+                    useDarkText ? 'bg-slate-200/50' : 'bg-white/30'
                 }`} />
 
                 {navLinks.map((link) => (
@@ -106,8 +114,8 @@ const PublicNavbar = () => {
                     </Link>
                 ))}
 
-                <div className={`w-px h-6 mx-1 transition-colors duration-500 ${
-                    scrolled ? 'bg-slate-200/50' : 'bg-white/30'
+                <div className={`w-px h-6 mx-3 lg:mx-4 transition-colors duration-500 ${
+                    useDarkText ? 'bg-slate-200/50' : 'bg-white/30'
                 }`} />
 
                 {isAuthenticated && user ? (
@@ -124,13 +132,13 @@ const PublicNavbar = () => {
                                 </div>
                             )}
                             <span className={`text-sm font-semibold max-w-[90px] truncate transition-colors duration-500 ${
-                                scrolled ? 'text-slate-700' : 'text-white'
+                                useDarkText ? 'text-slate-700' : 'text-white'
                             }`}>
                                 {user.first_name || user.email}
                             </span>
                             <span className={`material-symbols-outlined text-base transition-transform duration-200 ${
                                 dropdownOpen ? 'rotate-180' : ''
-                            } ${scrolled ? 'text-slate-400' : 'text-white/70'}`}>
+                            } ${useDarkText ? 'text-slate-400' : 'text-white/70'}`}>
                                 expand_more
                             </span>
                         </button>
@@ -198,14 +206,14 @@ const PublicNavbar = () => {
 
             {/* Mobile */}
             <div className={`md:hidden flex items-center gap-3 px-4 py-2.5 rounded-full border transition-all duration-500 ${
-                scrolled
+                useDarkText
                     ? 'bg-white/90 backdrop-blur-xl border-slate-200/60 shadow-lg'
                     : 'bg-white/20 backdrop-blur-md border-white/30 shadow-md'
             }`}>
                 <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink">
                     <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
                     <span className={`font-extrabold text-sm whitespace-nowrap transition-colors duration-500 ${
-                        scrolled ? 'text-slate-900' : 'text-white'
+                        useDarkText ? 'text-slate-900' : 'text-white'
                     }`}>
                         <span className="hidden min-[480px]:inline">Eagles &amp; Eaglets</span>
                         <span className="min-[480px]:hidden">E&amp;E</span>
@@ -224,7 +232,7 @@ const PublicNavbar = () => {
                             onClick={() => setMobileOpen(!mobileOpen)}
                             className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
                         >
-                            <span className={`material-symbols-outlined text-xl ${scrolled ? 'text-slate-700' : 'text-white'}`}>
+                            <span className={`material-symbols-outlined text-xl ${useDarkText ? 'text-slate-700' : 'text-white'}`}>
                                 {mobileOpen ? 'close' : 'menu'}
                             </span>
                         </button>
@@ -234,7 +242,7 @@ const PublicNavbar = () => {
                         onClick={() => setMobileOpen(!mobileOpen)}
                         className="ml-auto w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
                     >
-                        <span className={`material-symbols-outlined text-xl ${scrolled ? 'text-slate-700' : 'text-white'}`}>
+                        <span className={`material-symbols-outlined text-xl ${useDarkText ? 'text-slate-700' : 'text-white'}`}>
                             {mobileOpen ? 'close' : 'menu'}
                         </span>
                     </button>
