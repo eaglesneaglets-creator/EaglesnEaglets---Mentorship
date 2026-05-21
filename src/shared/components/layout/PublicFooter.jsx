@@ -68,19 +68,19 @@ const PublicFooter = () => {
     };
 
     return (
-        <footer id="footer" className="bg-white border-t border-slate-200/70 pt-16 pb-8 px-6">
+        <footer id="footer" className="bg-white border-t border-slate-200/70 pt-10 sm:pt-14 lg:pt-16 pb-6 sm:pb-8 px-4 sm:px-6">
             <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-8 sm:mb-12">
 
                     {/* Brand */}
-                    <div className="col-span-2 md:col-span-1">
-                        <div className="flex items-center gap-2.5 mb-4">
-                            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-md shadow-primary/20">
+                    <div className="sm:col-span-2 md:col-span-1">
+                        <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
+                            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-md shadow-primary/20 flex-shrink-0">
                                 <img src={logoImg} alt="" className="w-7 h-7 rounded-md object-cover" />
                             </div>
                             <span className="font-extrabold text-slate-900 text-sm tracking-tight">Eagles & Eaglets</span>
                         </div>
-                        <p className="text-xs text-slate-400 leading-relaxed mb-5">
+                        <p className="text-xs text-slate-400 leading-relaxed mb-4 sm:mb-5 max-w-sm">
                             Empowering creators and leaders to make a lasting impact through mentorship and community.
                         </p>
                         <div className="flex gap-2.5">
@@ -91,7 +91,7 @@ const PublicFooter = () => {
                                     aria-label={label}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-primary flex items-center justify-center transition-all group"
+                                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-primary flex items-center justify-center transition-all group flex-shrink-0"
                                 >
                                     <Icon className="w-4 h-4 text-slate-500 group-hover:text-white transition-colors" />
                                 </a>
@@ -101,8 +101,8 @@ const PublicFooter = () => {
 
                     {/* Quick Links */}
                     <div>
-                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-5">Quick Links</h4>
-                        <ul className="space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-3 sm:mb-5">Quick Links</h4>
+                        <ul className="space-y-2.5 sm:space-y-3">
                             {QUICK_LINKS.map((link) => (
                                 <li key={link.label}>
                                     <a href={link.href} className="text-sm text-slate-600 hover:text-primary transition-colors font-medium">{link.label}</a>
@@ -113,23 +113,23 @@ const PublicFooter = () => {
 
                     {/* Contact */}
                     <div>
-                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-5">Contact</h4>
-                        <ul className="space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-3 sm:mb-5">Contact</h4>
+                        <ul className="space-y-2.5 sm:space-y-3">
                             <li className="flex items-start gap-2 text-sm text-slate-600">
-                                <span className="material-symbols-outlined text-sm text-primary mt-0.5">location_on</span>
+                                <span className="material-symbols-outlined text-sm text-primary mt-0.5 flex-shrink-0">location_on</span>
                                 <span className="leading-relaxed">123 Visionary Way, Suite 100<br />Creative Park, CA 90210</span>
                             </li>
-                            <li className="flex items-center gap-2 text-sm text-slate-600">
-                                <span className="material-symbols-outlined text-sm text-primary">alternate_email</span>
-                                hello@eaglesneaglets.org
+                            <li className="flex items-center gap-2 text-sm text-slate-600 min-w-0">
+                                <span className="material-symbols-outlined text-sm text-primary flex-shrink-0">alternate_email</span>
+                                <span className="truncate">hello@eaglesneaglets.org</span>
                             </li>
                         </ul>
                     </div>
 
                     {/* Newsletter */}
                     <div>
-                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-5">Newsletter</h4>
-                        <p className="text-xs text-slate-400 leading-relaxed mb-4">
+                        <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-3 sm:mb-5">Newsletter</h4>
+                        <p className="text-xs text-slate-400 leading-relaxed mb-3 sm:mb-4">
                             Join our mailing list for weekly inspiration and community updates.
                         </p>
                         {subscribed ? (
@@ -160,12 +160,12 @@ const PublicFooter = () => {
                     </div>
                 </div>
 
-                {/* Bottom bar */}
-                <div className="border-t border-slate-200/70 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-                    <p className="text-xs text-slate-400">© {currentYear} Eagles & Eaglets Community Platform. All rights reserved.</p>
-                    <div className="flex gap-5">
-                        <a href="#" className="text-xs text-slate-400 hover:text-primary transition-colors">Privacy Policy</a>
-                        <a href="#" className="text-xs text-slate-400 hover:text-primary transition-colors">Terms of Service</a>
+                {/* Bottom bar — stacks on phone, wraps cleanly on small screens */}
+                <div className="border-t border-slate-200/70 pt-5 sm:pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
+                    <p className="text-[11px] sm:text-xs text-slate-400">© {currentYear} Eagles & Eaglets Community Platform. All rights reserved.</p>
+                    <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
+                        <a href="#" className="text-[11px] sm:text-xs text-slate-400 hover:text-primary transition-colors">Privacy Policy</a>
+                        <a href="#" className="text-[11px] sm:text-xs text-slate-400 hover:text-primary transition-colors">Terms of Service</a>
                     </div>
                 </div>
             </div>

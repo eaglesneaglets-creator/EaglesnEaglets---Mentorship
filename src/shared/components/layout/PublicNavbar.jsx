@@ -204,23 +204,25 @@ const PublicNavbar = () => {
                 )}
             </div>
 
-            {/* Mobile */}
-            <div className={`md:hidden flex items-center gap-3 px-4 py-2.5 rounded-full border transition-all duration-500 ${
+            {/* Mobile — brand on the left, optional avatar + menu on the right.
+                Brand uses min-w-0 + truncate + flex-1 so its text never crashes
+                into the right-side controls on narrow phones (≤375px). */}
+            <div className={`md:hidden flex items-center gap-3 pl-3 pr-2 py-2 rounded-full border transition-all duration-500 ${
                 useDarkText
                     ? 'bg-white/90 backdrop-blur-xl border-slate-200/60 shadow-lg'
                     : 'bg-white/20 backdrop-blur-md border-white/30 shadow-md'
             }`}>
-                <Link to="/" className="flex items-center gap-2 min-w-0 flex-shrink">
-                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
-                    <span className={`font-extrabold text-sm whitespace-nowrap transition-colors duration-500 ${
+                <Link to="/" className="flex items-center gap-2 min-w-0 flex-1 mr-1">
+                    <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-2 ring-white/50" />
+                    <span className={`font-extrabold text-sm whitespace-nowrap truncate transition-colors duration-500 ${
                         useDarkText ? 'text-slate-900' : 'text-white'
                     }`}>
-                        <span className="hidden min-[480px]:inline">Eagles &amp; Eaglets</span>
-                        <span className="min-[480px]:hidden">E&amp;E</span>
+                        <span className="hidden min-[420px]:inline">Eagles &amp; Eaglets</span>
+                        <span className="min-[420px]:hidden">E&amp;E</span>
                     </span>
                 </Link>
                 {isAuthenticated && user ? (
-                    <div className="ml-auto flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                         {user.avatar ? (
                             <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30" />
                         ) : (
@@ -230,7 +232,8 @@ const PublicNavbar = () => {
                         )}
                         <button
                             onClick={() => setMobileOpen(!mobileOpen)}
-                            className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+                            className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${useDarkText ? 'bg-slate-100' : 'bg-white/20'}`}
+                            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
                         >
                             <span className={`material-symbols-outlined text-xl ${useDarkText ? 'text-slate-700' : 'text-white'}`}>
                                 {mobileOpen ? 'close' : 'menu'}
@@ -240,7 +243,8 @@ const PublicNavbar = () => {
                 ) : (
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="ml-auto w-9 h-9 rounded-full bg-white/20 flex items-center justify-center"
+                        className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${useDarkText ? 'bg-slate-100' : 'bg-white/20'}`}
+                        aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
                     >
                         <span className={`material-symbols-outlined text-xl ${useDarkText ? 'text-slate-700' : 'text-white'}`}>
                             {mobileOpen ? 'close' : 'menu'}
