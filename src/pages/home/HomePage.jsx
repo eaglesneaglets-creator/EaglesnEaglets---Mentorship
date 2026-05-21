@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
 import aboutIllustration from '../../assets/about-illustration.png';
 import PublicNavbar from '@shared/components/layout/PublicNavbar';
 import PublicFooter from '@shared/components/layout/PublicFooter';
+import { useProducts } from '../../modules/store/hooks/useStore';
 
 // 4K community teaching & learning hero — diverse group in a learning/mentorship setting
 const heroBg = 'https://images.unsplash.com/photo-1529390079861-591de354faf5?q=90&w=3840&auto=format&fit=crop';
@@ -37,6 +38,30 @@ const FadeIn = ({ children, delay = 0, direction = 'up', className = '' }) => {
             {children}
         </motion.div>
     );
+};
+
+/* ═══════════════════════════════════════════════
+   ROLLING NUMBER — animates 0 → target on mount
+   ═══════════════════════════════════════════════ */
+const RollingNumber = ({ target, suffix = '', duration = 1.6, delay = 0 }) => {
+    const count = useMotionValue(0);
+    const rounded = useTransform(count, (v) => Math.floor(v));
+    const [display, setDisplay] = useState(0);
+
+    useEffect(() => {
+        const unsubscribe = rounded.on('change', setDisplay);
+        const controls = animate(count, target, {
+            duration,
+            delay,
+            ease: [0.22, 1, 0.36, 1],
+        });
+        return () => {
+            controls.stop();
+            unsubscribe();
+        };
+    }, [count, rounded, target, duration, delay]);
+
+    return <span>{display}{suffix}</span>;
 };
 
 /* ═══════════════════════════════════════════════
@@ -107,28 +132,27 @@ const HeroSection = () => {
                                 Watch Story
                             </motion.button>
                         </motion.div>
-                    </div>
 
-                    {/* Stats */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.75, delay: 0.56, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute bottom-10 left-6 right-6"
-                    >
-                        <div className="flex gap-8 md:gap-12">
+                        {/* Stats — aligned with content, animated roll-up on load */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.75, delay: 0.56, ease: [0.22, 1, 0.36, 1] }}
+                            className="flex gap-10 sm:gap-14 md:gap-16 mt-12 md:mt-14"
+                        >
                             {[
-                                { value: '500+', label: 'Youth Mentored' },
-                                { value: '60+', label: 'Community Eagles' },
-                                { value: '12', label: 'Programs Running' },
-                            ].map((stat) => (
+                                { value: 100, suffix: '+', label: 'Mentors' },
+                                { value: 500, suffix: '+', label: 'Mentees' },
+                            ].map((stat, i) => (
                                 <div key={stat.label}>
-                                    <p className="text-2xl md:text-3xl font-black text-white">{stat.value}</p>
+                                    <p className="text-2xl md:text-3xl font-black text-white">
+                                        <RollingNumber target={stat.value} suffix={stat.suffix} delay={0.7 + i * 0.15} />
+                                    </p>
                                     <p className="text-xs text-white/60 font-medium mt-0.5">{stat.label}</p>
                                 </div>
                             ))}
-                        </div>
-                    </motion.div>
+                        </motion.div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -139,6 +163,7 @@ const HeroSection = () => {
    ABOUT SECTION — 2-column: text left, illustration right
    ═══════════════════════════════════════════════ */
 const AboutSection = () => {
+    const navigate = useNavigate();
     return (
         <section id="about" className="py-24 px-6 bg-white">
             <div className="max-w-7xl mx-auto">
@@ -171,7 +196,7 @@ const AboutSection = () => {
                             <motion.button
                                 whileHover={{ scale: 1.04 }}
                                 whileTap={{ scale: 0.97 }}
-                                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                                onClick={() => navigate('/about')}
                                 className="min-h-[44px] px-7 py-3.5 bg-primary text-white font-bold text-sm rounded-xl shadow-lg shadow-primary/25 hover:bg-primary-dark transition-all duration-300"
                             >
                                 Learn More
@@ -213,103 +238,12 @@ const AboutSection = () => {
 };
 
 /* ═══════════════════════════════════════════════
-   CORE ECOSYSTEM — 3 feature cards
-   ═══════════════════════════════════════════════ */
-const FeaturesSection = () => {
-    const features = [
-        {
-            icon: 'school',
-            title: 'Mentorship',
-            description: 'Personalized 1-on-1 sessions with industry leaders tailored to each young person\'s unique trajectory.',
-            color: 'text-primary',
-            iconBg: 'bg-primary/10',
-        },
-        {
-            icon: 'hub',
-            title: 'Community Hub',
-            description: 'A digital town square to trade ideas, share resources, and collaborate on meaningful projects.',
-            color: 'text-blue-600',
-            iconBg: 'bg-blue-50',
-        },
-        {
-            icon: 'trending_up',
-            title: 'Impact Tracking',
-            description: 'Advanced tools that measure progress and demonstrate the reach of community contributions.',
-            color: 'text-amber-600',
-            iconBg: 'bg-amber-50',
-        },
-    ];
-
-    return (
-        <section id="features" className="py-24 px-6 bg-slate-50/50">
-            <div className="max-w-7xl mx-auto">
-                <FadeIn>
-                    <div className="text-center mb-16">
-                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-3 block">Platform</span>
-                        <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-4">Core Ecosystem</h2>
-                        <p className="text-sm md:text-base text-slate-400 max-w-xl mx-auto leading-relaxed">
-                            Everything you need to grow professionally and personally within our community.
-                        </p>
-                    </div>
-                </FadeIn>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {features.map((feat, i) => (
-                        <FadeIn key={feat.title} delay={i * 0.12} direction="up">
-                            <motion.div
-                                whileHover={{ y: -6, scale: 1.01 }}
-                                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                                className="bg-white rounded-2xl border border-slate-200/80 p-8 hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-300 group"
-                            >
-                                <div className={`w-14 h-14 rounded-2xl ${feat.iconBg} ${feat.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                                    <span className="material-symbols-outlined text-2xl">{feat.icon}</span>
-                                </div>
-                                <h3 className="text-lg font-black text-slate-900 mb-3">{feat.title}</h3>
-                                <p className="text-sm text-slate-400 leading-relaxed">{feat.description}</p>
-                            </motion.div>
-                        </FadeIn>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-/* ═══════════════════════════════════════════════
-   STORE / MINISTRY SHOP
+   STORE / MINISTRY SHOP — real products from API
    ═══════════════════════════════════════════════ */
 const StoreSection = () => {
-    const products = [
-        {
-            name: 'The Eagle Tee',
-            desc: 'Premium Cotton',
-            price: '$31.00',
-            badge: 'BESTSELLER',
-            // White crew-neck tee lifestyle flat lay
-            image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop',
-        },
-        {
-            name: 'Leadership Journal',
-            desc: 'High-Quality Leather',
-            price: '$28.00',
-            // Person writing in a leather journal — warm, candid
-            image: 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=800&auto=format&fit=crop',
-        },
-        {
-            name: 'Hydra Flask Pro',
-            desc: 'Insulated, 32oz',
-            price: '$45.00',
-            // Insulated stainless steel water bottle — clean product shot
-            image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?q=80&w=800&auto=format&fit=crop',
-        },
-        {
-            name: 'Visionary Shades',
-            desc: 'UV Protection',
-            price: '$120.00',
-            // Stylish sunglasses on a neutral background
-            image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=800&auto=format&fit=crop',
-        },
-    ];
+    const { data: productsData, isLoading } = useProducts();
+    const allProducts = productsData?.data ?? [];
+    const products = allProducts.slice(0, 4);
 
     return (
         <section id="store" className="py-24 px-6 bg-white">
@@ -317,7 +251,6 @@ const StoreSection = () => {
                 <FadeIn>
                     <div className="flex items-end justify-between mb-10">
                         <div>
-                            <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary mb-2 block">Official Store</span>
                             <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Ministry Shop</h2>
                             <p className="text-sm text-slate-400 mt-2">Exclusive apparel and resources for the community.</p>
                         </div>
@@ -328,35 +261,58 @@ const StoreSection = () => {
                     </div>
                 </FadeIn>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {products.map((prod, i) => (
-                        <FadeIn key={prod.name} delay={i * 0.1} direction="up">
-                            <Link to="/store">
-                            <motion.div whileHover={{ y: -6 }} className="group cursor-pointer">
-                                <div className="relative aspect-square rounded-2xl border border-slate-200/50 overflow-hidden mb-4 group-hover:shadow-lg transition-all duration-300 bg-slate-100">
-                                    <img
-                                        src={prod.image}
-                                        alt={prod.name}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                        loading="lazy"
-                                    />
-                                    {prod.badge && (
-                                        <span className="absolute top-3 left-3 px-2 py-0.5 bg-primary text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
-                                            {prod.badge}
-                                        </span>
+                {isLoading ? (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="animate-pulse">
+                                <div className="aspect-square rounded-2xl bg-slate-100 mb-4" />
+                                <div className="h-3 bg-slate-100 rounded w-3/4 mb-2" />
+                                <div className="h-3 bg-slate-100 rounded w-1/3" />
+                            </div>
+                        ))}
+                    </div>
+                ) : products.length === 0 ? (
+                    <div className="text-center py-16 border border-dashed border-slate-200 rounded-2xl">
+                        <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">storefront</span>
+                        <p className="text-sm text-slate-400">New products coming soon. Check back later.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        {products.map((prod, i) => (
+                            <FadeIn key={prod.id} delay={i * 0.1} direction="up">
+                                <Link to={`/store/${prod.slug}`}>
+                                <motion.div whileHover={{ y: -6 }} className="group cursor-pointer">
+                                    <div className="relative aspect-square rounded-2xl border border-slate-200/50 overflow-hidden mb-4 group-hover:shadow-lg transition-all duration-300 bg-slate-100">
+                                        {prod.primary_image ? (
+                                            <img
+                                                src={prod.primary_image}
+                                                alt={prod.name}
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-5xl text-slate-300">shopping_bag</span>
+                                            </div>
+                                        )}
+                                        {prod.category_name && (
+                                            <span className="absolute top-3 left-3 px-2 py-0.5 bg-primary text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                                {prod.category_name}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors line-clamp-1">{prod.name}</h3>
+                                    {prod.short_description && (
+                                        <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{prod.short_description}</p>
                                     )}
-                                    <button className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 hover:bg-primary hover:text-white text-slate-700">
-                                        <span className="material-symbols-outlined text-sm">add_shopping_cart</span>
-                                    </button>
-                                </div>
-                                <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{prod.name}</h3>
-                                <p className="text-xs text-slate-400 mt-0.5">{prod.desc}</p>
-                                <p className="text-sm font-bold text-slate-900 mt-2">{prod.price}</p>
-                            </motion.div>
-                            </Link>
-                        </FadeIn>
-                    ))}
-                </div>
+                                    <p className="text-sm font-bold text-slate-900 mt-2">₵{Number(prod.price).toLocaleString()}</p>
+                                </motion.div>
+                                </Link>
+                            </FadeIn>
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     );
@@ -449,18 +405,9 @@ const TestimonialsSection = () => {
 
 /* ═══════════════════════════════════════════════
    DONATE SECTION — Centered green card
-   Matching inspiration: rounded card, centered text,
-   2 buttons, 4 icons row
    ═══════════════════════════════════════════════ */
 const DonateSection = () => {
     const navigate = useNavigate();
-
-    const icons = [
-        { icon: 'volunteer_activism', label: 'Giving' },
-        { icon: 'groups', label: 'Community' },
-        { icon: 'cottage', label: 'Safe Space' },
-        { icon: 'handshake', label: 'Partnership' },
-    ];
 
     return (
         <section id="donate" className="py-24 px-6 bg-white">
@@ -480,8 +427,8 @@ const DonateSection = () => {
                             Every contribution helps us provide more resources, mentoring sessions, and safe environments for our eaglets to soar. Together, we can make a lasting impact.
                         </p>
 
-                        {/* CTA Buttons */}
-                        <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
+                        {/* CTA — centered single button */}
+                        <div className="flex justify-center">
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.97 }}
@@ -490,29 +437,6 @@ const DonateSection = () => {
                             >
                                 Donate Now
                             </motion.button>
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.97 }}
-                                onClick={() => navigate('/register')}
-                                className="min-h-[44px] px-8 py-3.5 bg-white text-slate-700 font-bold text-sm rounded-xl border border-slate-200 hover:border-primary/40 hover:text-primary transition-all duration-300 shadow-sm"
-                            >
-                                Become a Partner
-                            </motion.button>
-                        </div>
-
-                        {/* Icons row */}
-                        <div className="flex items-center justify-center gap-4 sm:gap-8">
-                            {icons.map((item, i) => (
-                                <motion.div
-                                    key={item.label}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 * i + 0.3, duration: 0.4 }}
-                                    className="flex flex-col items-center gap-1.5"
-                                >
-                                    <span className="material-symbols-outlined text-3xl text-slate-500">{item.icon}</span>
-                                </motion.div>
-                            ))}
                         </div>
                     </div>
                 </FadeIn>
@@ -535,7 +459,6 @@ const HomePage = () => {
             <PublicNavbar />
             <HeroSection />
             <AboutSection />
-            <FeaturesSection />
             <StoreSection />
             <TestimonialsSection />
             <DonateSection />

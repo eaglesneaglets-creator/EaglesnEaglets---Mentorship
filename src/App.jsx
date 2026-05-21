@@ -41,6 +41,7 @@ const ContentUploadPage = lazy(() => import('./pages/content/ContentUploadPage')
 const ResourceCenterPage = lazy(() => import('./pages/content/ResourceCenterPage'));
 const ModuleQuizPage = lazy(() => import('./modules/content/components/ModuleQuizPage'));
 const HomePage = lazy(() => import('./pages/home/HomePage'));
+const AboutPage = lazy(() => import('./pages/about/AboutPage'));
 
 // Points & Leaderboard Pages
 const PointsLeaderboardPage = lazy(() => import('./pages/points/PointsLeaderboardPage'));
@@ -296,6 +297,7 @@ function App() {
                 {/* ============================================================= */}
                 {/* Home/Landing */}
                 <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
 
                 {/* 404 - Catch all */}
                 <Route path="*" element={<Navigate to="/login" replace />} />
