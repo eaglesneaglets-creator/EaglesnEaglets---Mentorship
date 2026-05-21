@@ -252,7 +252,7 @@ export default function DonationForm({ campaignId }) {
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6"
+        className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-sm space-y-6"
       >
         <div className="flex items-center gap-3">
           <button
@@ -345,7 +345,7 @@ export default function DonationForm({ campaignId }) {
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-3xl border border-slate-200 p-10 text-center shadow-sm space-y-5"
+        className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-6 sm:p-10 text-center shadow-sm space-y-5"
       >
         <div className="flex justify-center">
           <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-inner">
@@ -465,7 +465,7 @@ export default function DonationForm({ campaignId }) {
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-3xl border border-red-200 p-10 text-center shadow-sm space-y-5"
+        className="bg-white rounded-2xl sm:rounded-3xl border border-red-200 p-6 sm:p-10 text-center shadow-sm space-y-5"
       >
         <div className="flex justify-center">
           <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
@@ -495,7 +495,7 @@ export default function DonationForm({ campaignId }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-6"
+      className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm space-y-5 sm:space-y-6"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -714,15 +714,10 @@ export default function DonationForm({ campaignId }) {
       </motion.button>
 
       {/* Trust row */}
-      <div className="flex items-center justify-center gap-5 text-xs text-slate-400">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs text-slate-400">
         <span className="flex items-center gap-1">
           <span className="material-symbols-outlined text-sm text-slate-300">lock</span>
           Secure Payment
-        </span>
-        <span className="w-px h-4 bg-slate-200" />
-        <span className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-sm text-slate-300">verified</span>
-          Tax Deductible
         </span>
         <span className="w-px h-4 bg-slate-200" />
         <span className="flex items-center gap-1">
