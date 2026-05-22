@@ -231,6 +231,7 @@ const AdminKYCPortalPage = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [showAllMobileApplications, setShowAllMobileApplications] = useState(false);
 
   // Debounce search
   useEffect(() => {
@@ -274,6 +275,10 @@ const AdminKYCPortalPage = () => {
     fetchApplications();
   }, [statusFilter, roleFilter, debouncedSearch, pagination.page, pagination.per_page]);
 
+  useEffect(() => {
+    setShowAllMobileApplications(false);
+  }, [statusFilter, roleFilter, debouncedSearch, pagination.page]);
+
   const handleReview = useCallback((kycId, role = 'mentor') => {
     navigate(`/admin/kyc/${kycId}?role=${role}`);
   }, [navigate]);
@@ -311,6 +316,8 @@ const AdminKYCPortalPage = () => {
     { label: 'Approved', value: summary.approved, gradient: 'bg-gradient-to-br from-emerald-500 to-green-600', icon: 'check_circle', iconBg: 'bg-white/20 text-white', change: 12 },
     { label: 'Rejected', value: summary.rejected, gradient: 'bg-gradient-to-br from-rose-500 to-red-600', icon: 'cancel', iconBg: 'bg-white/20 text-white' },
   ];
+  const mobileApplications = showAllMobileApplications ? applications : applications.slice(0, 3);
+  const hasMoreMobileApplications = applications.length > 3;
 
   return (
     <DashboardLayout variant="admin">
@@ -344,7 +351,7 @@ const AdminKYCPortalPage = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {summaryCards.map((card, index) => (
             <StatCard key={card.label} {...card} delay={index * 100} />
           ))}
@@ -458,7 +465,7 @@ const AdminKYCPortalPage = () => {
             <>
               {/* Mobile card list — no horizontal scroll */}
               <div className="md:hidden divide-y divide-slate-100">
-                {applications.map((app) => (
+                {mobileApplications.map((app) => (
                   <KYCApplicationCard
                     key={app.id}
                     app={app}
@@ -468,6 +475,16 @@ const AdminKYCPortalPage = () => {
                     getStatusConfig={getStatusConfig}
                   />
                 ))}
+                {hasMoreMobileApplications && (
+                  <div className="p-4 border-t border-slate-100 bg-slate-50/70">
+                    <button
+                      onClick={() => setShowAllMobileApplications((prev) => !prev)}
+                      className="w-full py-2.5 rounded-xl text-sm font-semibold text-primary bg-white border border-slate-200 hover:border-primary/30 hover:bg-primary/5 transition-all"
+                    >
+                      {showAllMobileApplications ? 'Show less' : `See more applications (${applications.length - 3} more)`}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Desktop table */}

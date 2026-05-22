@@ -381,7 +381,7 @@ const ContentUploadPage = () => {
                                         placeholder="What will mentees learn in this module?" />
                                 </FormField>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <FormField label="Difficulty">
                                         <select name="difficulty" value={moduleForm.difficulty} onChange={handleModuleChange} className={inputClass}>
                                             <option value="beginner">Beginner</option>

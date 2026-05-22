@@ -78,16 +78,14 @@ export const useAuthStore = create(
           try {
             const response = await apiClient.post('/auth/login/', { email, password }, { skipAuth: true });
 
-            // Backend also sets httpOnly cookies, but cross-origin
-            // deployments need the body tokens for localStorage fallback.
+            // Refresh token lives only in the httpOnly cookie the backend
+            // sets on this response. Access token stays in memory.
             const data = response.data || response;
             const user = data.user || data;
             const accessToken = data.access || null;
-            const refreshToken = data.refresh || null;
 
-            // Store access token in memory, refresh token in localStorage.
             if (accessToken) {
-              tokenManager.setTokens(accessToken, refreshToken);
+              tokenManager.setTokens(accessToken);
             }
 
             set({
@@ -156,15 +154,13 @@ export const useAuthStore = create(
          */
         logout: async () => {
           try {
-            // Send refresh token in body so backend can blacklist it.
-            // Backend also reads from httpOnly cookie when available.
-            const refreshToken = tokenManager.getRefreshToken();
-            await apiClient.post('/auth/logout/', refreshToken ? { refresh: refreshToken } : {});
+            // Backend reads the refresh token from the httpOnly cookie and
+            // blacklists it, then deletes both cookies in the response.
+            await apiClient.post('/auth/logout/', {});
           } catch {
             // Continue with logout even if API call fails
           }
 
-          // Clear any residual localStorage tokens and reset state
           tokenManager.clearTokens();
           set(initialState);
 
@@ -366,18 +362,37 @@ export const useAuthStore = create(
         setAccessStatus: (accessStatus) => set({ accessStatus }),
 
         /**
-         * Force-refetch /auth/me/ to refresh access_status (e.g. after the
-         * mentee submits a join request or the BE approves an enrollment).
+         * Force-refetch /auth/me/ to refresh access_status.
+         *
+         * Dedupe + throttle: this is wired to window-focus in two places
+         * (DashboardLayout + EagletNestPage). Without guards a single focus
+         * event can fire two /auth/me/ calls back-to-back, and rapid alt-tab
+         * sequences in production blew through the 1000/hr user throttle.
+         *
+         * - In-flight dedupe: concurrent callers reuse the same promise.
+         * - 5-second min interval: ignore repeat calls in tight windows.
          */
         refreshAccessStatus: async () => {
-          try {
-            const response = await apiClient.get('/auth/me/');
-            const user = response.data || response;
-            set({ user, accessStatus: user?.access_status ?? null });
-            return user?.access_status ?? null;
-          } catch {
-            return get().accessStatus;
+          const now = Date.now();
+          const state = get();
+          if (state._authMeInflight) return state._authMeInflight;
+          if (state._authMeLastAt && now - state._authMeLastAt < 5000) {
+            return state.accessStatus;
           }
+          const promise = (async () => {
+            try {
+              const response = await apiClient.get('/auth/me/');
+              const user = response.data || response;
+              set({ user, accessStatus: user?.access_status ?? null });
+              return user?.access_status ?? null;
+            } catch {
+              return get().accessStatus;
+            } finally {
+              set({ _authMeInflight: null, _authMeLastAt: Date.now() });
+            }
+          })();
+          set({ _authMeInflight: promise });
+          return promise;
         },
 
         /**
@@ -388,10 +403,11 @@ export const useAuthStore = create(
         /**
          * Set auth state directly (used for OAuth callbacks)
          */
-        setAuth: ({ accessToken, refreshToken, user }) => {
-          // Store access token in memory, refresh in localStorage.
+        setAuth: ({ accessToken, user }) => {
+          // Refresh token arrives as an httpOnly cookie on the OAuth callback
+          // response — never touched by JS. Only the access token stays in memory.
           if (accessToken) {
-            tokenManager.setTokens(accessToken, refreshToken || null);
+            tokenManager.setTokens(accessToken);
           }
           set({
             user,

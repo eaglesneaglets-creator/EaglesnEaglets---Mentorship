@@ -22,45 +22,6 @@ const QuickAction = ({ icon, iconColor, label }) => (
   </button>
 );
 
-/**
- * Leaderboard Row
- */
-const LeaderboardRow = React.memo(({ rank, name, points, avatar, isYou = false }) => {
-  const rankColors = {
-    1: 'bg-amber-100 text-amber-600',
-    2: 'bg-slate-100 text-slate-600',
-    3: 'bg-orange-100 text-orange-600',
-  };
-  const rankColor = rankColors[rank] || 'bg-blue-50 text-blue-600';
-
-  return (
-    <div className={`flex items-center gap-3 p-3 transition-colors duration-300 ${isYou ? 'bg-blue-50/80 rounded-xl' : 'hover:bg-slate-50 border-b border-slate-100 last:border-0'
-      }`}>
-      <span className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${rankColor}`}>
-        {rank}
-      </span>
-      {avatar ? (
-        <img
-          src={avatar}
-          alt={name}
-          loading="lazy"
-          className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
-        />
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-xs">
-          {name?.charAt(0) || '?'}
-        </div>
-      )}
-      <p className={`flex-1 text-sm ${isYou ? 'font-bold text-primary' : 'font-medium text-slate-900'}`}>
-        {isYou ? 'You' : name}
-      </p>
-      <p className="text-xs font-bold text-emerald-600">{points?.toLocaleString()} pts</p>
-    </div>
-  );
-});
-
-LeaderboardRow.displayName = 'LeaderboardRow';
-
 const DAILY_VERSES = [
   { text: "But those who hope in the Lord will renew their strength. They will soar on wings like eagles...", ref: "Isaiah 40:31" },
   { text: "I can do all this through him who gives me strength.", ref: "Philippians 4:13" },
@@ -127,7 +88,7 @@ const EagletDashboardPage = () => {
   ];
 
   const recentContent = dashboardData?.recent_content || [];
-  const leaderboard = dashboardData?.leaderboard_preview || [];
+  const recentContentPreview = recentContent.slice(0, 3);
 
   return (
     <DashboardLayout variant="eaglet">
@@ -185,8 +146,8 @@ const EagletDashboardPage = () => {
               </div>
 
               <div className="flex flex-col gap-3">
-                {recentContent.length > 0 ? (
-                  recentContent.map((item, index) => {
+                {recentContentPreview.length > 0 ? (
+                  recentContentPreview.map((item, index) => {
                     const iconMap = {
                       link: 'link',
                       document: 'description',
@@ -253,29 +214,6 @@ const EagletDashboardPage = () => {
                     </div>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Leaderboard Preview */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-500">
-              <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
-                <h3 className="text-base font-bold text-slate-900">Leaderboard</h3>
-                <span className="text-xs font-medium text-slate-500">Weekly Top</span>
-              </div>
-
-              <div className="flex flex-col">
-                {leaderboard.map((item, index) => (
-                  <LeaderboardRow key={item.id || index} rank={index + 1} {...item} />
-                ))}
-              </div>
-
-              <div className="p-3 text-center border-t border-slate-100">
-                <Link
-                  to="/eaglet/leaderboard"
-                  className="text-xs font-bold text-slate-500 hover:text-primary transition-colors"
-                >
-                  View Full Leaderboard
-                </Link>
               </div>
             </div>
 

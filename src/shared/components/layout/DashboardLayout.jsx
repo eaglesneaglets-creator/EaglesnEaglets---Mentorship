@@ -372,7 +372,7 @@ const DashboardLayout = ({
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="h-screen flex overflow-hidden">
       {/* Animated Background */}
       <AnimatedBackground variant={variant} />
 
@@ -387,7 +387,7 @@ const DashboardLayout = ({
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:sticky top-0 left-0 h-screen z-50
+          fixed lg:static inset-y-0 left-0 h-full z-50
           bg-white/90 backdrop-blur-xl border-r border-slate-200/50
           flex flex-col transition-all duration-300 ease-out
           ${isSidebarOpen ? 'w-[85vw] sm:w-72 lg:w-72' : 'w-[85vw] sm:w-72 lg:w-[72px]'}
@@ -505,10 +505,10 @@ const DashboardLayout = ({
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? 'lg:ml-0' : 'lg:ml-0'}`}>
+      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden transition-all duration-300">
         {/* Top Header */}
         {!hideHeader && (
-          <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 lg:px-8 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
+          <header className="flex-shrink-0 z-30 h-16 flex items-center justify-between px-4 lg:px-8 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
@@ -634,9 +634,9 @@ const DashboardLayout = ({
           </div>
         )}
 
-        {/* Page Content */}
-        <main className={`flex-1 ${noPadding ? '' : 'p-3 sm:p-4 lg:p-8'}`}>
-          <div className={`${fullWidth ? 'max-w-none w-full' : 'max-w-7xl mx-auto'} animate-fade-in-up h-full`}>
+        {/* Page Content — sole scroll container so sidebar/header stay fixed */}
+        <main className={`flex-1 overflow-y-auto overflow-x-hidden ${noPadding ? '' : 'p-3 sm:p-4 lg:p-8'}`}>
+          <div className={`${fullWidth ? 'max-w-none w-full' : 'max-w-7xl mx-auto'} animate-fade-in-up h-full min-w-0`}>
             {children}
           </div>
         </main>

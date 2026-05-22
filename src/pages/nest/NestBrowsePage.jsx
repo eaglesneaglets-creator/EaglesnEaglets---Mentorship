@@ -30,7 +30,7 @@ const NestBrowsePage = () => {
 
     return (
         <DashboardLayout variant={user?.role === 'eagle' ? 'eagle' : 'eaglet'}>
-            <div className="max-w-7xl mx-auto p-6 md:p-8 flex flex-col gap-8 min-h-[calc(100vh-120px)] animate-fade-in">
+            <div className="flex flex-col gap-8 min-h-full animate-fade-in">
 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200/60 transition-all duration-500">

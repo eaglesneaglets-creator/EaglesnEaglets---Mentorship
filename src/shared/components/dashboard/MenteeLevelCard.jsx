@@ -11,9 +11,11 @@ export default function MenteeLevelCard() {
     if (!level) return null;
 
     const current = level.current_level ?? 0;
-    const next = level.next_threshold;
+    // Accept both BE-canonical and FE-alias field names for forward compat.
+    const next = level.next_threshold ?? null;
     const progress = level.progress_pct ?? 0;
-    const points = level.points ?? 0;
+    const points = level.points ?? level.points_total ?? 0;
+    const requiresEnrollment = level.requires_enrollment === true;
 
     return (
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
@@ -29,18 +31,28 @@ export default function MenteeLevelCard() {
                 </div>
             </div>
 
-            <div className="mb-2 flex items-center justify-between text-xs text-slate-500">
-                <span>{points.toLocaleString()} pts</span>
-                {next != null && current < 5 && (
-                    <span>Next: {next.toLocaleString()} pts</span>
-                )}
-            </div>
-            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div
-                    className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 transition-all duration-500"
-                    style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-                />
-            </div>
+            {requiresEnrollment ? (
+                <p className="text-xs text-slate-500 leading-relaxed">
+                    Levels are earned through program participation. Join a community
+                    to start earning level points — your Growth Points are tracked
+                    separately.
+                </p>
+            ) : (
+              <>
+                <div className="mb-2 flex items-center justify-between text-xs text-slate-500">
+                    <span>{points.toLocaleString()} pts</span>
+                    {next != null && current < 5 && (
+                        <span>Next: {next.toLocaleString()} pts</span>
+                    )}
+                </div>
+                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                        className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 transition-all duration-500"
+                        style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+                    />
+                </div>
+              </>
+            )}
 
             {eligible && (
                 <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2">

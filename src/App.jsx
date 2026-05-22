@@ -143,15 +143,32 @@ const PageLoader = () => (
   </div>
 );
 
-// Create React Query client
+// Create React Query client.
+//
+// Throttle-safety: 429 responses MUST NOT trigger retries. The whole point of
+// 429 is "stop". Retrying compounds the bucket overflow and chains into 2566s
+// cool-off windows observed in production. Use the Retry-After response header
+// as the delay when present so retries land after the limit expires.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retry: (failureCount, error) => {
+        const status = error?.response?.status ?? error?.status;
+        if (status === 429 || status === 401 || status === 403) return false;
+        return failureCount < 1;
+      },
+      retryDelay: (attemptIndex, error) => {
+        const retryAfter = Number(error?.response?.headers?.['retry-after']);
+        if (Number.isFinite(retryAfter) && retryAfter > 0) {
+          // Cap at 60s — anything longer, surface the error instead.
+          return Math.min(retryAfter * 1000, 60_000);
+        }
+        return Math.min(1000 * 2 ** attemptIndex, 30000);
+      },
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000,   // 5 minutes — data considered fresh
-      gcTime: 10 * 60 * 1000,     // 10 minutes — keep in cache after stale
+      // Default 5 min stale window. Per-hook overrides allowed for hot data.
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
     },
     mutations: {
       retry: 0, // Never auto-retry mutations (form submits, payments, etc.)

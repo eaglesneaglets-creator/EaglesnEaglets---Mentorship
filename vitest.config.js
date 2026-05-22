@@ -13,10 +13,13 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.js'],
     globals: true,
     css: false,
+    // Playwright E2E specs live in tests/e2e/ and use @playwright/test — they
+    // throw "test.describe() not expected here" when vitest tries to load them.
+    exclude: ['node_modules/', 'dist/', 'tests/e2e/**', '**/*.e2e.*'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      exclude: ['node_modules/', 'src/test/', '**/*.config.*', 'dist/'],
+      exclude: ['node_modules/', 'src/test/', '**/*.config.*', 'dist/', 'tests/e2e/**'],
     },
   },
   resolve: {

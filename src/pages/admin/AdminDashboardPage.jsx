@@ -136,6 +136,7 @@ const AdminDashboardPage = () => {
   const totalEaglets = stats?.users?.eaglets || 0;
   const pendingKYC = stats?.kyc?.total_pending || 0;
   const recentActivity = stats?.recent_activity || [];
+  const recentActivityPreview = recentActivity.slice(0, 3);
 
   if (isError) {
     return (
@@ -363,8 +364,8 @@ const AdminDashboardPage = () => {
                   <span className="material-symbols-outlined text-3xl animate-spin mb-2">progress_activity</span>
                   <p className="text-sm">Loading activity...</p>
                 </div>
-              ) : recentActivity.length > 0 ? (
-                recentActivity.map((activity, index) => (
+              ) : recentActivityPreview.length > 0 ? (
+                recentActivityPreview.map((activity, index) => (
                   <ActivityItem key={index} {...activity} />
                 ))
               ) : (
@@ -374,6 +375,17 @@ const AdminDashboardPage = () => {
                 </div>
               )}
             </div>
+            {!isLoading && recentActivity.length > 3 && (
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/60 text-right">
+                <Link
+                  to="/admin/users"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                >
+                  See more activity
+                  <span className="material-symbols-outlined text-base">arrow_forward</span>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Quick Actions */}

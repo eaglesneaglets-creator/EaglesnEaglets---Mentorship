@@ -131,7 +131,7 @@ const ContentViewerPage = () => {
             fullWidth
             noPadding
         >
-            <div className="flex flex-col h-screen overflow-hidden bg-white">
+            <div className="flex flex-col h-full overflow-hidden bg-white">
 
 
                 {/* 1. Header Area: LMS Style */}
@@ -207,7 +207,7 @@ const ContentViewerPage = () => {
                     </div>
                 </header>
 
-                <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 flex overflow-hidden relative">
                     {/* 2. Main content area */}
                     <main className="flex-1 flex flex-col relative overflow-hidden">
                         <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 custom-scrollbar">
@@ -364,7 +364,7 @@ const ContentViewerPage = () => {
                     </main>
 
                     {/* 4. Right Sidebar: Course Content — slides in/out on all screen sizes */}
-                    <aside id="course-content-sidebar" className={`shrink-0 border-l border-slate-200 bg-slate-50/30 flex flex-col overflow-hidden transition-all duration-300 ${sidebarOpen ? 'w-[280px] sm:w-[340px] lg:w-[400px]' : 'w-0'}`}>
+                    <aside id="course-content-sidebar" className={`shrink-0 border-l border-slate-200 bg-slate-50/30 flex flex-col overflow-hidden transition-all duration-300 absolute lg:static inset-y-0 right-0 z-30 shadow-2xl lg:shadow-none ${sidebarOpen ? 'w-[85vw] sm:w-[340px] lg:w-[400px]' : 'w-0'}`}>
                         <div className="shrink-0 p-6 flex items-center justify-between border-b border-slate-200 bg-white">
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-emerald-500">list_alt</span>

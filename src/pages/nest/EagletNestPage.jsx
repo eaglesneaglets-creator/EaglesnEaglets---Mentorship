@@ -57,7 +57,7 @@ const EagletNestPage = () => {
 
     return (
         <DashboardLayout variant="eaglet">
-            <div className="flex flex-col gap-6 min-h-[calc(100vh-120px)]">
+            <div className="flex flex-col gap-6 min-h-full">
                 <div>
                     <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">My Nest</h1>
                     <p className="text-slate-500 text-sm mt-1">

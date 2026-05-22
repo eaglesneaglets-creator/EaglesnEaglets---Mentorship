@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://REPLACE-ME-RAILWAY-BACKEND.up.railway.app/api/:path*"
+    }
+  ]
+}

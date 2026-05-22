@@ -93,7 +93,7 @@ export default function SettingsLayout() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
           {/* Desktop section nav */}
-          <nav className="hidden lg:flex flex-col gap-1 bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/70 p-3 h-fit sticky top-20">
+          <nav className="hidden lg:flex flex-col gap-1 bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/70 p-3 h-fit sticky top-0">
             {sections.map((section) => (
               <NavLink
                 key={section.id}

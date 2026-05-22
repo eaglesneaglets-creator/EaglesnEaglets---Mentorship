@@ -182,7 +182,7 @@ const NestJoinDetailPage = () => {
                     {/* Right — Join form + Community */}
                     <div className="space-y-6">
                         {/* Join form */}
-                        <div className="bg-white rounded-2xl border border-slate-200/60 p-6 sticky top-6">
+                        <div className="bg-white rounded-2xl border border-slate-200/60 p-6 sticky top-0">
                             <h2 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary text-lg">send</span>
                                 Request to Join

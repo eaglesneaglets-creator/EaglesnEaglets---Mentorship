@@ -102,7 +102,7 @@ const ChatPage = () => {
 
     return (
         <DashboardLayout variant={variant}>
-            <div className="h-[calc(100vh-7rem)] flex flex-col">
+            <div className="h-full min-h-0 flex flex-col">
                 {/* Page Header */}
                 <div className="flex items-center justify-between mb-4 flex-shrink-0">
                     <div className="flex items-center gap-3">

@@ -7,7 +7,10 @@
  * - Comprehensive error handling
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+// Relative base — dev: vite.config.js proxies /api -> backend; prod: vercel.json rewrites /api/* -> Railway.
+// Both routes make FE+BE same-origin so the httpOnly refresh cookie is first-party (not blocked by browsers).
+// VITE_API_URL still honored as escape hatch for non-proxied deployments (e.g. mobile webview, Storybook).
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
 // Request queue for token refresh
 let isRefreshing = false;
@@ -43,58 +46,60 @@ export class ApiError extends Error {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Token storage.
+ * Token storage — cookie-only model (Phase 07-01 hardening).
  *
- * Security model:
- *  - The ACCESS token lives in a module-level variable (in-memory).
- *    It is never written to localStorage — XSS cannot steal it across
- *    tab closures.  It survives in-tab navigation because ES module
- *    singletons persist for the lifetime of the page session.
- *  - The REFRESH token is stored in localStorage so it survives page
- *    refreshes (cross-origin httpOnly cookies are blocked by modern
- *    browsers as third-party cookies). The backend ALSO sets an
- *    httpOnly cookie as the primary mechanism for same-origin setups.
+ *  - ACCESS token lives in a module-level variable. Never written to storage.
+ *    XSS cannot exfiltrate it across tab closures. Survives in-tab navigation
+ *    because module singletons persist for the page session.
+ *  - REFRESH token lives ONLY in an httpOnly cookie set by the backend.
+ *    Inaccessible to JavaScript — XSS cannot steal it.
  *
- * NOTE: For production hardening, configure a reverse proxy (e.g.
- * Vercel rewrites) so API requests are same-origin and httpOnly
- * cookies become first-party. This would allow removing localStorage.
+ * On page refresh the access token is lost (module state clears). The app
+ * calls refreshAccessToken() which POSTs to /auth/token/refresh/ with an
+ * empty body; the browser attaches the httpOnly refresh_token cookie
+ * automatically and the backend returns a fresh access token in JSON.
  *
- * On page refresh the access token is lost (module state is cleared).
- * DashboardLayout calls refreshAccessToken() on mount which POSTs the
- * refresh token from localStorage to /auth/token/refresh/ and the
- * backend returns a fresh access token in the JSON body.
+ * For this to work cross-origin browsers must treat the cookie as
+ * first-party. Achieved via reverse proxy: dev = vite.config.js proxy,
+ * prod = Vercel rewrite in vercel.json. Both make FE+BE same-origin.
+ *
+ * The setTokens signature still accepts a refresh argument for backward
+ * compatibility with callers (login/register/oauth) but DISCARDS it — the
+ * cookie path is the only legitimate channel.
  */
 let _accessToken = null;
-const REFRESH_TOKEN_KEY = 'ee_refresh_token';
+const LEGACY_REFRESH_KEY = 'ee_refresh_token';
+
+// One-time cleanup of any refresh token left over from the old localStorage
+// model. Safe to remove after a release cycle.
+try {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem(LEGACY_REFRESH_KEY);
+  }
+} catch {
+  // ignore
+}
 
 export const tokenManager = {
   getAccessToken: () => _accessToken,
 
-  getRefreshToken: () => {
-    try {
-      return localStorage.getItem(REFRESH_TOKEN_KEY);
-    } catch {
-      return null;
-    }
-  },
+  // Deprecated: refresh token is now httpOnly cookie-only. Returns null so
+  // any legacy caller naturally falls through to cookie-based refresh.
+  getRefreshToken: () => null,
 
-  setTokens: (accessToken, refreshToken) => {
+  // Second arg accepted for back-compat but ignored — backend httpOnly cookie
+  // is the only refresh-token channel.
+  setTokens: (accessToken /* , _refreshToken */) => {
     if (accessToken) {
       _accessToken = accessToken;
-    }
-    if (refreshToken) {
-      try {
-        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-      } catch {
-        // localStorage unavailable (private browsing, etc.)
-      }
     }
   },
 
   clearTokens: () => {
     _accessToken = null;
+    // Defensive cleanup in case any pre-upgrade build left a value behind.
     try {
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      localStorage.removeItem(LEGACY_REFRESH_KEY);
     } catch {
       // ignore
     }
@@ -104,35 +109,33 @@ export const tokenManager = {
 };
 
 /**
- * Refresh access token.
+ * Refresh access token — cookie-only.
  *
- * Reads the refresh token from localStorage and sends it in the request
- * body (cross-origin httpOnly cookies are unreliable). The browser also
- * sends the httpOnly cookie if available — the backend reads from either.
+ * Posts an empty body to /auth/token/refresh/. The browser attaches the
+ * httpOnly refresh_token cookie automatically (first-party because the
+ * dev proxy / Vercel rewrite makes FE+BE same-origin). Backend reads
+ * the cookie, rotates it, sets a new cookie, and returns the new access
+ * token in JSON.
  *
- * Uses single-flight concurrency control: if a refresh is already
- * in-flight, subsequent callers await the same promise. This prevents
- * race conditions with ROTATE_REFRESH_TOKENS / BLACKLIST_AFTER_ROTATION
- * where a second concurrent refresh would use the already-blacklisted token.
+ * A 401 from this endpoint means the cookie is missing or expired — the
+ * caller should treat it as session_expired and route to login.
+ *
+ * Single-flight concurrency control: if a refresh is already in flight,
+ * subsequent callers await the same promise. Prevents races against
+ * ROTATE_REFRESH_TOKENS + BLACKLIST_AFTER_ROTATION where a second
+ * refresh would use the already-blacklisted token.
  */
 let _refreshPromise = null;
 
 export const refreshAccessToken = async () => {
-  // Single-flight: reuse in-progress refresh
   if (_refreshPromise) return _refreshPromise;
 
   _refreshPromise = (async () => {
-    const refreshToken = tokenManager.getRefreshToken();
-
-    if (!refreshToken) {
-      throw new ApiError('No refresh token available.', 401, 'no_refresh_token');
-    }
-
     const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',  // also sends httpOnly cookie if browser allows
-      body: JSON.stringify({ refresh: refreshToken }),
+      credentials: 'include',
+      body: '{}',
     });
 
     if (!response.ok) {
@@ -142,10 +145,9 @@ export const refreshAccessToken = async () => {
 
     const data = await response.json();
     const newAccess = data.access || null;
-    const newRefresh = data.refresh || null;
 
     if (newAccess) {
-      tokenManager.setTokens(newAccess, newRefresh);
+      tokenManager.setTokens(newAccess);
     }
 
     return newAccess;

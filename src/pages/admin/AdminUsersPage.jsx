@@ -462,7 +462,7 @@ const UserMobileCard = ({ user, index, onSuspend, onReactivate, selected, onSele
       onClick={() => onViewDetail(user)}
     >
       {/* Top row: checkbox + avatar/name + role */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-start gap-3">
         <label
           className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer shrink-0"
           onClick={e => e.stopPropagation()}
@@ -489,13 +489,12 @@ const UserMobileCard = ({ user, index, onSuspend, onReactivate, selected, onSele
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-slate-900 truncate">{user.full_name || '—'}</p>
             <p className="text-xs text-slate-500 truncate font-mono">{user.email}</p>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider mt-1 ${role.bg} ${role.text}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${role.dot}`} />
+              {role.label}
+            </span>
           </div>
         </div>
-
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider shrink-0 ${role.bg} ${role.text}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${role.dot}`} />
-          {role.label}
-        </span>
       </div>
 
       {/* Metadata grid */}
@@ -526,7 +525,7 @@ const UserMobileCard = ({ user, index, onSuspend, onReactivate, selected, onSele
 
       {/* Action button */}
       {user.role !== 'admin' && (
-        <div className="pt-1 pl-[56px]" onClick={e => e.stopPropagation()}>
+        <div className="pt-1 sm:pl-[56px]" onClick={e => e.stopPropagation()}>
           {user.status === 'suspended' ? (
             <button
               onClick={() => onReactivate(user)}
@@ -742,6 +741,7 @@ const AdminUsersPage = () => {
   const [searchDebounced, setSearchDebounced] = useState('');
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [detailUser, setDetailUser] = useState(null);
+  const [showAllMobileUsers, setShowAllMobileUsers] = useState(false);
 
   // Debounce search
   useEffect(() => {
@@ -770,6 +770,8 @@ const AdminUsersPage = () => {
 
   const allUsers = usersData?.data?.data?.users ?? usersData?.data?.users ?? [];
   const users = allUsers.filter(u => u.role !== 'admin');
+  const mobileUsers = showAllMobileUsers ? users : users.slice(0, 3);
+  const hasMoreMobileUsers = users.length > 3;
   const pagination = usersData?.data?.data?.pagination ?? usersData?.data?.pagination ?? {};
   const stats = statsData?.data?.data ?? statsData?.data ?? {};
 
@@ -779,6 +781,7 @@ const AdminUsersPage = () => {
   if (prevFiltersKey !== filtersKey) {
     setPrevFiltersKey(filtersKey);
     setSelectedIds(new Set());
+    setShowAllMobileUsers(false);
   }
 
   // Selection handlers
@@ -878,7 +881,7 @@ const AdminUsersPage = () => {
               Oversee every Eagle and Eaglet on the platform.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => exportUsersCSV(users)}
               disabled={users.length === 0}
@@ -902,7 +905,7 @@ const AdminUsersPage = () => {
         </div>
 
         {/* ── Stat Cards ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <StatCard
             icon="group"
             iconBg="bg-white/20 text-white"
@@ -973,7 +976,7 @@ const AdminUsersPage = () => {
                     </motion.div>
                   ) : (
                     <motion.div key="mobile-list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-3">
-                      {users.map((user, i) => (
+                      {mobileUsers.map((user, i) => (
                         <UserMobileCard
                           key={user.id}
                           user={user}
@@ -985,6 +988,14 @@ const AdminUsersPage = () => {
                           onViewDetail={setDetailUser}
                         />
                       ))}
+                      {hasMoreMobileUsers && (
+                        <button
+                          onClick={() => setShowAllMobileUsers((prev) => !prev)}
+                          className="w-full py-2.5 rounded-xl text-sm font-semibold text-primary bg-white border border-slate-200 hover:border-primary/30 hover:bg-primary/5 transition-all"
+                        >
+                          {showAllMobileUsers ? 'Show less' : `See more users (${users.length - 3} more)`}
+                        </button>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

@@ -75,11 +75,12 @@ const TabBar = ({ tabs, activeTab, onChange, variant = 'underline', className = 
         );
     }
 
-    // Default: underline variant
+    // Default: underline variant — overflow-x-auto so tabs scroll horizontally
+    // on narrow viewports instead of bleeding off the right edge.
     return (
         <div
             ref={containerRef}
-            className={`relative flex border-b border-slate-200 ${className}`}
+            className={`relative flex border-b border-slate-200 overflow-x-auto scrollbar-hide ${className}`}
         >
             {tabs.map((tab) => (
                 <button
@@ -87,7 +88,8 @@ const TabBar = ({ tabs, activeTab, onChange, variant = 'underline', className = 
                     ref={(el) => { tabRefs.current[tab.value] = el; }}
                     onClick={() => onChange(tab.value)}
                     className={`
-                        px-5 py-3 text-sm font-medium transition-colors duration-300 relative
+                        flex-shrink-0 whitespace-nowrap
+                        px-3 sm:px-5 py-3 text-sm font-medium transition-colors duration-300 relative
                         ${activeTab === tab.value
                             ? 'text-primary'
                             : 'text-slate-500 hover:text-slate-700'
