@@ -141,7 +141,7 @@ const MembersPreview = ({ nestId, memberCount }) => {
                 </span>
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                 {displayMembers.map((m) => (
                     <div key={m.id} className="flex flex-col items-center gap-1 group cursor-pointer">
                         <InitialsAvatar name={m.user_details?.first_name} size="sm" className="group-hover:ring-2 ring-primary/20 transition-all" />

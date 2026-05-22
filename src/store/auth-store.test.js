@@ -106,6 +106,7 @@ describe('useAuthStore — synchronous actions', () => {
     expect(state.accessToken).toBe(mockAccessToken);
     expect(state.isLoading).toBe(false);
     expect(state.error).toBeNull();
-    expect(tokenManager.setTokens).toHaveBeenCalledWith(mockAccessToken, mockRefreshToken);
+    // Refresh token is httpOnly cookie-only — never passed to setTokens.
+    expect(tokenManager.setTokens).toHaveBeenCalledWith(mockAccessToken);
   });
 });

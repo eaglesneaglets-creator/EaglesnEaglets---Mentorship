@@ -214,7 +214,9 @@ const EagleDashboardPage = () => {
   const pendingRequests = dashboardData?.pending_requests || 0;
   const pointsAwarded = dashboardData?.points_awarded || 0;
   const eaglets = dashboardData?.eaglets || [];
+  const eagletsPreview = eaglets.slice(0, 3);
   const sessions = dashboardData?.upcoming_sessions || [];
+  const sessionsPreview = sessions.slice(0, 3);
 
   // Real Calendar days logic
   const today = new Date();
@@ -431,8 +433,8 @@ const EagleDashboardPage = () => {
               </div>
               {/* Mobile Card View */}
               <div className="sm:hidden p-3 flex flex-col gap-3">
-                {eaglets.length > 0 ? (
-                  eaglets.map((eaglet, index) => (
+                {eagletsPreview.length > 0 ? (
+                  eagletsPreview.map((eaglet, index) => (
                     <EagletMobileCard key={eaglet.id} eaglet={eaglet} delay={index * 50} onAwardPoints={openAwardModal} />
                   ))
                 ) : (
@@ -455,8 +457,8 @@ const EagleDashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {eaglets.length > 0 ? (
-                      eaglets.map((eaglet, index) => (
+                    {eagletsPreview.length > 0 ? (
+                      eagletsPreview.map((eaglet, index) => (
                         <EagletRow key={eaglet.id} eaglet={eaglet} delay={index * 50} onAwardPoints={openAwardModal} />
                       ))
                     ) : (
@@ -517,8 +519,8 @@ const EagleDashboardPage = () => {
                 Upcoming Sessions
               </h3>
               <div className="flex flex-col gap-3">
-                {sessions.length > 0 ? (
-                  sessions.map((session) => (
+                {sessionsPreview.length > 0 ? (
+                  sessionsPreview.map((session) => (
                     <SessionCard key={session.id} {...session} />
                   ))
                 ) : (
@@ -527,6 +529,13 @@ const EagleDashboardPage = () => {
                   </div>
                 )}
               </div>
+              {sessions.length > 3 && (
+                <div className="mt-3 pt-3 border-t border-slate-100 text-right">
+                  <Link to="/eagle/nests" className="text-xs font-semibold text-primary hover:underline">
+                    See more sessions
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Featured Resource */}

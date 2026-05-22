@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   AreaChart,
   Area,
@@ -116,6 +117,7 @@ export default function DonationAnalytics() {
   const [chartPeriod, setChartPeriod] = useState('Monthly');
   const [category, setCategory] = useState('All');
   const [showCreateCampaign, setShowCreateCampaign] = useState(false);
+  const [showAllRecentDonations, setShowAllRecentDonations] = useState(false);
 
   if (isLoading) {
     return (
@@ -141,6 +143,7 @@ export default function DonationAnalytics() {
   }
 
   const recentDonations = stats.recent_donations ?? [];
+  const recentDonationsPreview = showAllRecentDonations ? recentDonations : recentDonations.slice(0, 3);
 
   // Build chart data from real donations grouped by month (last 6 months)
   // Since the backend doesn't have a monthly breakdown endpoint yet,
@@ -395,7 +398,7 @@ export default function DonationAnalytics() {
                 </tr>
               </thead>
               <tbody>
-                {recentDonations.map((d, idx) => (
+                {recentDonationsPreview.map((d, idx) => (
                   <motion.tr
                     key={d.id ?? idx}
                     initial={{ opacity: 0, x: -8 }}
@@ -451,23 +454,20 @@ export default function DonationAnalytics() {
 
         <div className="px-6 py-3 border-t border-slate-100 flex items-center justify-between">
           <span className="text-xs text-slate-400">
-            Showing {recentDonations.length} of {stats.total_donations ?? 0} donations
+            Showing {recentDonationsPreview.length} of {stats.total_donations ?? 0} donations
           </span>
-          <div className="flex gap-1">
-            <button
-              disabled
-              title="Coming soon"
-              className="w-7 h-7 rounded-lg border-2 border-slate-200 text-slate-400 text-xs opacity-60 cursor-not-allowed flex items-center justify-center"
-            >
-              <span className="material-symbols-outlined text-sm">chevron_left</span>
-            </button>
-            <button
-              disabled
-              title="Coming soon"
-              className="w-7 h-7 rounded-lg border-2 border-slate-200 text-slate-400 text-xs opacity-60 cursor-not-allowed flex items-center justify-center"
-            >
-              <span className="material-symbols-outlined text-sm">chevron_right</span>
-            </button>
+          <div className="flex items-center gap-2">
+            {recentDonations.length > 3 && (
+              <button
+                onClick={() => setShowAllRecentDonations((prev) => !prev)}
+                className="text-xs font-semibold text-primary hover:underline"
+              >
+                {showAllRecentDonations ? 'Show less' : 'See more donations'}
+              </button>
+            )}
+            <Link to="/admin/donations" className="text-xs font-medium text-slate-500 hover:text-primary">
+              Open page
+            </Link>
           </div>
         </div>
       </div>

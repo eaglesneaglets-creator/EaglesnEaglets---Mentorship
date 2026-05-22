@@ -303,7 +303,7 @@ const AssignmentDetailPage = () => {
                                 transition={{ delay: 0.2 }}
                                 className="lg:col-span-2"
                             >
-                                <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 sticky top-6">
+                                <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 sticky top-0">
                                     <h2 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
                                         <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                                             <span className="material-symbols-outlined text-primary text-[18px]">cloud_upload</span>
