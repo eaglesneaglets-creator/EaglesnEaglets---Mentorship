@@ -258,10 +258,19 @@ export const ReviewStep = ({ role, cvFile }) => {
                 />
                 <span className="text-sm text-slate-700 leading-relaxed">
                     I confirm the information above is accurate and consent to verification per the{' '}
-                    <a href="/privacy" className="text-primary font-semibold hover:underline">Privacy Policy</a>{' '}
+                    <a
+                        href="/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary font-semibold hover:underline"
+                    >
+                        Privacy Policy
+                    </a>{' '}
                     and{' '}
                     <a
                         href={role === 'mentor' ? '/mentor-code-of-conduct' : '/code-of-conduct'}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-primary font-semibold hover:underline"
                     >
                         {role === 'mentor' ? 'Mentor Code of Conduct' : 'Code of Conduct'}

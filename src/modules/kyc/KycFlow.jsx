@@ -13,8 +13,7 @@ import {
     IdentityStep, ProfessionalStep, BackgroundStep,
     MentorshipStep, DocumentsStep, ReviewStep,
 } from './components/KycSteps';
-
-const DRAFT_KEY = (role) => `kyc-draft-${role}`;
+import { loadDraft, saveDraft, clearDraft, mergeKycDraft } from './utils/kyc-draft';
 
 const WHY_COPY = {
     identity: "Identity verification keeps the nest safe. Your ID number is hashed and never shown to other members. We just confirm you're a real person.",
@@ -69,20 +68,18 @@ export default function KycFlow({ role, onSubmit, onComplete, defaultValues, ini
 
     useEffect(() => {
         const sub = methods.watch((values) => {
-            try {
-                sessionStorage.setItem(DRAFT_KEY(role), JSON.stringify(values));
-                setSavedAt(new Date());
-            } catch { /* ignore quota */ }
+            if (saveDraft(role, values)) setSavedAt(new Date());
         });
         return () => sub.unsubscribe();
     }, [methods, role]);
 
+    // Restore a saved draft on mount. Merge it OVER the form's current values
+    // (which already include any parent-provided defaultValues) so user input
+    // survives a refresh or a round-trip to read the Code of Conduct, without
+    // an empty draft slot blanking a prefilled field.
     useEffect(() => {
-        if (defaultValues) return;
-        try {
-            const saved = sessionStorage.getItem(DRAFT_KEY(role));
-            if (saved) methods.reset(JSON.parse(saved));
-        } catch { /* ignore */ }
+        const draft = loadDraft(role);
+        if (draft) methods.reset(mergeKycDraft(methods.getValues(), draft));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -137,7 +134,7 @@ export default function KycFlow({ role, onSubmit, onComplete, defaultValues, ini
         try {
             setSubmitting(true);
             await onSubmit?.(data, { picture: pictureFile, cv: cvFile, idDoc: idDocFile });
-            sessionStorage.removeItem(DRAFT_KEY(role));
+            clearDraft(role);
             setSubmitted(true);
         } catch (err) {
             toast.error(err.message || 'Submission failed. Please try again.');
