@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useMyDonations } from '@modules/donations/hooks/useDonations';
 
 const STATUS_STYLES = {
-  success: 'bg-green-100 text-green-700',
+  success: 'bg-emerald-100 text-emerald-700',
   pending: 'bg-yellow-100 text-yellow-700',
   processing: 'bg-blue-100 text-blue-700',
   failed: 'bg-red-100 text-red-700',
@@ -45,7 +45,7 @@ export default function MyDonationsPage() {
           </div>
           <Link
             to="/donations"
-            className="bg-green-500 hover:bg-green-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            className="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
           >
             Donate Again
           </Link>
@@ -54,7 +54,7 @@ export default function MyDonationsPage() {
         {/* Loading */}
         {isLoading && (
           <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -75,7 +75,7 @@ export default function MyDonationsPage() {
             </p>
             <Link
               to="/donations"
-              className="inline-block bg-green-500 hover:bg-green-600 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors"
+              className="inline-block bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors"
             >
               Browse Campaigns
             </Link>

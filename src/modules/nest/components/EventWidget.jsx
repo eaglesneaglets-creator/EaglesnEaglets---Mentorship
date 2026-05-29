@@ -1,4 +1,5 @@
 import { useNestEvents } from '../hooks/useNests';
+import { sanitizeUrl } from '@shared/utils/sanitize';
 
 const EventWidget = ({ nestId }) => {
     const { data: eventsData, isLoading } = useNestEvents(nestId);
@@ -28,9 +29,9 @@ const EventWidget = ({ nestId }) => {
                 )}
 
                 <a
-                    href={nextEvent.meeting_link || '#'}
+                    href={sanitizeUrl(nextEvent.meeting_link) || '#'}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="w-full bg-white text-primary text-sm font-bold py-2 rounded-lg hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center"
                 >
                     Join Event

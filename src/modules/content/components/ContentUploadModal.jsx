@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useCreateModule } from '../hooks/useContent';
-import { useMyNests } from '../../nest/hooks/useNests';
+import { useOwnedNests } from '../../nest/hooks/useNests';
 import { useAuthStore } from '@store';
 
 const ContentUploadModal = ({ isOpen, onClose }) => {
     const { user } = useAuthStore();
     const createModuleMutation = useCreateModule();
 
-    // Need to get the eagle's nest to associate the content
-    const { data: nestsResponse } = useMyNests();
+    // Need to get the eagle's owned nest to associate the content with.
+    const { data: nestsResponse } = useOwnedNests();
     const myNests = nestsResponse?.data || [];
     const isAdmin = user?.role === 'admin';
 

@@ -13,6 +13,8 @@ import { Button, Input, Select, Textarea, Alert, Checkbox } from '@components/ui
 import FileUpload from '@components/ui/FileUpload';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
 import { logger } from '../../shared/utils/logger';
+import useAutosave from '../../shared/hooks/useAutosave';
+import AutosaveIndicator from '../../shared/components/ui/AutosaveIndicator';
 
 /**
  * MentorProfilePage Component
@@ -83,13 +85,39 @@ const MentorProfilePage = () => {
     return Math.round((filledCount / requiredFields.length) * 100);
   }, [watchedValues, pictureUrl, cvUploaded, profileData?.cv]);
 
-  // Auto-save draft to sessionStorage on every change (skip during API-driven resets)
+  // Auto-save draft to sessionStorage on every change (offline belt-and-
+  // suspenders backup so a temporary network drop doesn't lose typed text).
   useEffect(() => {
     if (isRestoringRef.current) return;
     try {
       sessionStorage.setItem(DRAFT_KEY, JSON.stringify(watchedValues));
     } catch { /* ignore quota errors */ }
   }, [watchedValues]);
+
+  // SERVER-side autosave (debounced) — the real fix for the "my details
+  // clear when I refresh / log out and back in" complaint. PATCHes the
+  // profile endpoint after 800ms of idle. Status drives the indicator
+  // pill rendered next to the page header.
+  const persistDraft = async (snapshot) => {
+    // Skip server saves until the initial GET has hydrated the form so we
+    // don't overwrite server data with empty defaults on first mount.
+    if (isLoading) return;
+    if (isRestoringRef.current) return;
+    // Only send non-empty trimmed values; an empty payload is a no-op.
+    const payload = {};
+    Object.entries(snapshot || {}).forEach(([k, v]) => {
+      if (v === undefined || v === null) return;
+      if (typeof v === 'string' && v.trim() === '') return;
+      payload[k] = v;
+    });
+    if (!Object.keys(payload).length) return;
+    await profileService.updateMentorProfile(payload);
+  };
+
+  const autosave = useAutosave(watchedValues, persistDraft, {
+    delay: 800,
+    enabled: !isLoading,
+  });
 
   // Load existing profile data
   useEffect(() => {
@@ -373,12 +401,21 @@ const MentorProfilePage = () => {
               : 'Fill in your details to become an Eagle Mentor. All fields marked with * are required.'}
           </p>
 
-          {/* Completion Badge */}
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full">
-            <div className={`w-2 h-2 rounded-full ${completionPercentage === 100 ? 'bg-green-500' : 'bg-primary'}`}></div>
-            <span className="text-sm font-medium text-text-secondary">
-              {completionPercentage}% Complete
-            </span>
+          {/* Completion Badge + Autosave status */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full">
+              <div className={`w-2 h-2 rounded-full ${completionPercentage === 100 ? 'bg-emerald-500' : 'bg-primary'}`}></div>
+              <span className="text-sm font-medium text-text-secondary">
+                {completionPercentage}% Complete
+              </span>
+            </div>
+            <AutosaveIndicator
+              isSaving={autosave.isSaving}
+              isSaved={autosave.isSaved}
+              hasError={autosave.hasError}
+              lastSavedAt={autosave.lastSavedAt}
+              errorMessage={autosave.errorMessage}
+            />
           </div>
         </div>
 
@@ -556,7 +593,7 @@ const MentorProfilePage = () => {
                   required
                   disabled={isLocked}
                 />
-                <p className={`mt-1 text-xs ${profileDescription.length >= 100 ? 'text-green-600' : 'text-text-muted'}`}>
+                <p className={`mt-1 text-xs ${profileDescription.length >= 100 ? 'text-emerald-600' : 'text-text-muted'}`}>
                   {profileDescription.length}/100 characters minimum {profileDescription.length >= 100 && '✓'}
                 </p>
               </div>
@@ -584,7 +621,7 @@ const MentorProfilePage = () => {
                 <p className="text-sm text-error">CV is required</p>
               )}
               {(cvUploaded || profileData?.cv) && (
-                <p className="text-sm text-green-600">CV uploaded ✓</p>
+                <p className="text-sm text-emerald-600">CV uploaded ✓</p>
               )}
             </div>
           </div>

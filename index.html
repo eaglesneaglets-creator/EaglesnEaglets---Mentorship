@@ -23,6 +23,10 @@
     <!-- Preconnect to Paystack CDN to reduce payment widget load latency -->
     <link rel="preconnect" href="https://js.paystack.co">
     <link rel="dns-prefetch" href="https://js.paystack.co">
+    <!-- Preconnect to API origin — shaves the TLS+DNS handshake off the first
+         auth request (register/login submit). -->
+    <link rel="preconnect" href="https://eaglesneaglet-backend-production.up.railway.app" crossorigin>
+    <link rel="dns-prefetch" href="https://eaglesneaglet-backend-production.up.railway.app">
     <!-- Paystack Inline JS — loaded from CDN, exposes window.PaystackPop -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
   </head>

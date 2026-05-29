@@ -369,7 +369,7 @@ const EagleDashboardPage = () => {
                         contentStyle={{ background: '#0f172a', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }}
                         cursor={{ fill: '#f0fdf4' }}
                       />
-                      <Bar dataKey="points" fill="#22c55e" radius={[4, 4, 0, 0]} name="Points" />
+                      <Bar dataKey="points" fill="#10b981" radius={[4, 4, 0, 0]} name="Points" />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -389,8 +389,8 @@ const EagleDashboardPage = () => {
                     <AreaChart data={dashboardData?.completion_by_week ?? []}>
                       <defs>
                         <linearGradient id="eagleGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#22c55e" stopOpacity={0.15} />
-                          <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -400,7 +400,7 @@ const EagleDashboardPage = () => {
                         contentStyle={{ background: '#0f172a', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }}
                         formatter={(v) => [`${v}%`, 'Avg Completion']}
                       />
-                      <Area type="monotone" dataKey="completion" stroke="#22c55e" strokeWidth={2} fill="url(#eagleGrad)" dot={false} name="Completion" />
+                      <Area type="monotone" dataKey="completion" stroke="#10b981" strokeWidth={2} fill="url(#eagleGrad)" dot={false} name="Completion" />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}

@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import PropTypes from 'prop-types';
+import SafeHtml from './SafeHtml';
 
 /**
  * RichTextEditor — Tiptap-based WYSIWYG editor
@@ -60,10 +61,13 @@ const RichTextEditor = ({
   if (!editor) return null;
 
   if (readOnly) {
+    // Audit P1 #10: stored content (descriptions, posts, etc.) must be
+    // sanitized before render. SafeHtml runs the value through DOMPurify
+    // with the platform's allow-list before mounting.
     return (
-      <div
+      <SafeHtml
+        content={value}
         className={`prose prose-sm prose-slate max-w-none ${className}`}
-        dangerouslySetInnerHTML={{ __html: value }}
       />
     );
   }

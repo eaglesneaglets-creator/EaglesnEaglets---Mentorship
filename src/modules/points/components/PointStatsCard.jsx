@@ -8,7 +8,7 @@ const PointStatsCard = ({ title, icon, value, subtext, trend, trendValue, iconCo
             <p className="text-slate-900 tracking-tight text-3xl font-bold leading-tight">{value}</p>
 
             {trend === 'up' && (
-                <p className="text-xs text-green-600 font-medium flex items-center mt-1">
+                <p className="text-xs text-emerald-600 font-medium flex items-center mt-1">
                     <span className="material-symbols-outlined text-sm mr-1">trending_up</span> {trendValue}
                 </p>
             )}

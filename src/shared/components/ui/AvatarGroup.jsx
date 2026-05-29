@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 const COLORS = [
-    'from-emerald-400 to-green-500',
+    'from-emerald-400 to-emerald-500',
     'from-blue-400 to-indigo-500',
     'from-amber-400 to-orange-500',
     'from-pink-400 to-rose-500',

@@ -37,7 +37,7 @@ const ContentItemViewerModal = ({ isOpen, onClose, item }) => {
                                             <span className="font-bold">Content Completed!</span>
                                             <span className="text-sm">You earned points for this activity.</span>
                                         </div>,
-                                        { icon: '🌟' }
+                                        { icon: <span className="material-symbols-outlined text-amber-500">star</span> }
                                     );
                                 }
                             }
@@ -221,7 +221,7 @@ const ContentItemViewerModal = ({ isOpen, onClose, item }) => {
                                         onClick={handleDocumentComplete}
                                         disabled={isSaving || progressPercentage >= 100}
                                         className={`inline-flex items-center gap-2 px-8 py-4 font-bold rounded-xl shadow-lg transition-all ${progressPercentage >= 100
-                                                ? 'bg-green-500 text-white shadow-green-500/20'
+                                                ? 'bg-emerald-500 text-white shadow-emerald-500/20'
                                                 : isSaving
                                                     ? 'bg-primary/70 text-white cursor-not-allowed'
                                                     : 'bg-primary hover:bg-primary-dark text-white shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5'

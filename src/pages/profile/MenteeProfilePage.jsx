@@ -16,6 +16,8 @@ import { Button, Input, Select, Textarea, Alert, Checkbox } from '@components/ui
 import FileUpload from '@components/ui/FileUpload';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
 import { logger } from '../../shared/utils/logger';
+import useAutosave from '../../shared/hooks/useAutosave';
+import AutosaveIndicator from '../../shared/components/ui/AutosaveIndicator';
 
 /**
  * MenteeProfilePage Component
@@ -80,6 +82,26 @@ const MenteeProfilePage = () => {
     const filledCount = requiredFields.filter(f => f.filled).length;
     return Math.round((filledCount / requiredFields.length) * 100);
   }, [watchedValues, pictureUrl]);
+
+  // SERVER-side autosave (debounced 800ms) — fixes "details clear on
+  // refresh / logout" complaint. PATCHes the mentee profile endpoint as
+  // the user types; status drives the AutosaveIndicator pill below.
+  const persistDraft = async (snapshot) => {
+    if (isLoading) return;
+    const payload = {};
+    Object.entries(snapshot || {}).forEach(([k, v]) => {
+      if (v === undefined || v === null) return;
+      if (typeof v === 'string' && v.trim() === '') return;
+      payload[k] = v;
+    });
+    if (!Object.keys(payload).length) return;
+    await profileService.updateMenteeProfile(payload);
+  };
+
+  const autosave = useAutosave(watchedValues, persistDraft, {
+    delay: 800,
+    enabled: !isLoading,
+  });
 
   // Load existing profile data
   useEffect(() => {
@@ -302,12 +324,21 @@ const MenteeProfilePage = () => {
             Fill in your details to join the Eagles & Eaglets community. All fields marked with * are required.
           </p>
 
-          {/* Completion Badge */}
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full">
-            <div className={`w-2 h-2 rounded-full ${completionPercentage === 100 ? 'bg-green-500' : 'bg-primary'}`}></div>
-            <span className="text-sm font-medium text-text-secondary">
-              {completionPercentage}% Complete
-            </span>
+          {/* Completion Badge + Autosave status */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full">
+              <div className={`w-2 h-2 rounded-full ${completionPercentage === 100 ? 'bg-emerald-500' : 'bg-primary'}`}></div>
+              <span className="text-sm font-medium text-text-secondary">
+                {completionPercentage}% Complete
+              </span>
+            </div>
+            <AutosaveIndicator
+              isSaving={autosave.isSaving}
+              isSaved={autosave.isSaved}
+              hasError={autosave.hasError}
+              lastSavedAt={autosave.lastSavedAt}
+              errorMessage={autosave.errorMessage}
+            />
           </div>
         </div>
 
@@ -466,7 +497,7 @@ const MenteeProfilePage = () => {
                   required
                   disabled={isLocked}
                 />
-                <p className={`mt-1 text-xs ${bio.length >= 50 ? 'text-green-600' : 'text-text-muted'}`}>
+                <p className={`mt-1 text-xs ${bio.length >= 50 ? 'text-emerald-600' : 'text-text-muted'}`}>
                   {bio.length}/50 characters minimum {bio.length >= 50 && '✓'}
                 </p>
               </div>

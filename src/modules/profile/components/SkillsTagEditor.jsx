@@ -64,10 +64,10 @@ const SkillsTagEditor = ({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); removeTag(tag); }}
-                className="text-emerald-400 hover:text-emerald-700 transition-colors leading-none"
+                className="text-emerald-400 hover:text-emerald-700 transition-colors inline-flex items-center"
                 aria-label={`Remove ${tag}`}
               >
-                ✕
+                <span className="material-symbols-outlined text-base">close</span>
               </button>
             </motion.span>
           ))}

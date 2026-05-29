@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useModules, useMyProgress, useDeleteModule } from '../../modules/content/hooks/useContent';
-import { useMyNests } from '../../modules/nest/hooks/useNests';
+import { useJoinedNests } from '../../modules/nest/hooks/useNests';
 import { useMyStandaloneAssignments } from '../../modules/content/hooks/useStandaloneAssignment';
 import ContentItemUploadModal from '../../modules/content/components/ContentItemUploadModal';
 import ContentEditModal from '../../modules/content/components/ContentEditModal';
@@ -51,7 +51,7 @@ const AnimatedBg = () => (
         <motion.div
             animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
             transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-green-100/20 rounded-full blur-3xl"
+            className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-emerald-100/20 rounded-full blur-3xl"
         />
     </div>
 );
@@ -457,7 +457,7 @@ const LearningCenterPage = () => {
     }, [allStandaloneAssignments, activeEagletTab]);
 
     // Data
-    const { data: myNestsResponse } = useMyNests();
+    const { data: myNestsResponse } = useJoinedNests();
     const nestId = myNestsResponse?.data?.[0]?.id || myNestsResponse?.data?.results?.[0]?.id || user?.nest_id;
 
     // FOR ADMINS/EAGLES: Fetch everything they uploaded (all visibilities)

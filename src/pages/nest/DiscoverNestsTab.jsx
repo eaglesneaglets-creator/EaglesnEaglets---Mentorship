@@ -6,7 +6,7 @@
 import { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { useNests, useMyNests } from '../../modules/nest/hooks/useNests';
+import { useNests, useJoinedNests } from '../../modules/nest/hooks/useNests';
 import AvatarGroup from '../../shared/components/ui/AvatarGroup';
 import EmptyState from '../../shared/components/ui/EmptyState';
 
@@ -115,7 +115,7 @@ const SkeletonCard = () => (
 );
 
 export default function DiscoverNestsTab() {
-    const { data: myResponse } = useMyNests();
+    const { data: myResponse } = useJoinedNests();
     const myNests = useMemo(() => myResponse?.data || myResponse?.results || [], [myResponse]);
 
     const { data: allResponse, isLoading, isError } = useNests();

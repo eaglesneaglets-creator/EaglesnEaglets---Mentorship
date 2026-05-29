@@ -9,6 +9,12 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
+import SectionTabs from '../../shared/components/layout/SectionTabs';
+
+const USERS_TABS = [
+  { label: 'All Users', to: '/admin/users' },
+  { label: 'KYC Reviews', to: '/admin/kyc' },
+];
 import StatCard from '../../shared/components/ui/StatCard';
 import { ConfirmModal } from '../../shared/components/ui/ConfirmModal';
 import { adminService } from '../../modules/auth/services/auth-service';
@@ -871,6 +877,9 @@ const AdminUsersPage = () => {
       <DashboardLayout variant="admin">
         <div className="flex flex-col gap-5 sm:gap-6">
 
+        {/* Sub-section tabs (relocated from sidebar) */}
+        <SectionTabs tabs={USERS_TABS} />
+
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>
@@ -917,7 +926,7 @@ const AdminUsersPage = () => {
           <StatCard
             icon="psychology"
             iconBg="bg-white/20 text-white"
-            gradient="bg-gradient-to-br from-emerald-500 to-green-600"
+            gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
             label="Eagles (Mentors)"
             value={statsLoading ? '...' : (stats?.users?.eagles ?? 0).toLocaleString()}
             delay={100}

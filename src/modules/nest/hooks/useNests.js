@@ -5,7 +5,10 @@ export const nestKeys = {
     all: ['nests'],
     lists: () => [...nestKeys.all, 'list'],
     list: (filters) => [...nestKeys.lists(), { filters }],
-    my: () => [...nestKeys.all, 'my'],
+    joined: () => [...nestKeys.all, 'joined'],
+    owned: () => [...nestKeys.all, 'owned'],
+    /** @deprecated kept so legacy invalidations still hit the joined cache. */
+    my: () => [...nestKeys.all, 'joined'],
     myRequests: () => [...nestKeys.all, 'my-requests'],
     details: () => [...nestKeys.all, 'detail'],
     detail: (id) => [...nestKeys.details(), id],
@@ -26,12 +29,24 @@ export const useNests = (filters = {}) => {
     });
 };
 
-export const useMyNests = () => {
+/** Nests the current user is an active member of (eaglet POV). */
+export const useJoinedNests = () => {
     return useQuery({
-        queryKey: nestKeys.my(),
-        queryFn: () => NestService.getMyNests(),
+        queryKey: nestKeys.joined(),
+        queryFn: () => NestService.getJoinedNests(),
     });
 };
+
+/** Nests the current user owns as the eagle (mentor POV). */
+export const useOwnedNests = () => {
+    return useQuery({
+        queryKey: nestKeys.owned(),
+        queryFn: () => NestService.getOwnedNests(),
+    });
+};
+
+/** @deprecated Use useJoinedNests() (eaglet) or useOwnedNests() (mentor). */
+export const useMyNests = useJoinedNests;
 
 export const useNestDetail = (id) => {
     return useQuery({

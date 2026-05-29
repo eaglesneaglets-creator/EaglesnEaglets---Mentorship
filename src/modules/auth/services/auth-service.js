@@ -9,9 +9,10 @@ export const authService = {
   /**
    * Register a new user
    * @param {Object} data - Registration data
+   * @param {Object} [options] - Extra apiClient options (e.g. `timeout`)
    */
-  register: (data) =>
-    apiClient.post('/auth/register/', data, { skipAuth: true }),
+  register: (data, options = {}) =>
+    apiClient.post('/auth/register/', data, { skipAuth: true, ...options }),
 
   /**
    * Login user

@@ -46,7 +46,7 @@ const WelcomeToNest = ({ nestName, mentorName, nestId, onDismiss }) => {
                                 style={{
                                     left: `${10 + (i * 7) % 80}%`,
                                     top: `${15 + (i * 13) % 70}%`,
-                                    backgroundColor: ['#FDE68A', '#FBCFE8', '#A5F3FC', '#C4B5FD', '#FCA5A5', '#86EFAC'][i % 6],
+                                    backgroundColor: ['#FDE68A', '#FBCFE8', '#A5F3FC', '#C4B5FD', '#FCA5A5', '#6EE7B7'][i % 6],
                                     animation: `confettiFloat ${2 + (i % 3)}s ease-in-out ${i * 0.2}s infinite alternate`,
                                     opacity: 0.7,
                                 }}

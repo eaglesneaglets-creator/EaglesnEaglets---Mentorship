@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Alert } from '@components/ui';
 import { adminService } from '../../modules/auth/services/auth-service';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
+import SectionTabs from '../../shared/components/layout/SectionTabs';
+
+const USERS_TABS = [
+  { label: 'All Users', to: '/admin/users' },
+  { label: 'KYC Reviews', to: '/admin/kyc' },
+];
 
 /**
  * Stat Card Component
@@ -75,7 +81,7 @@ const KYCApplicationCard = ({ app, onReview, formatDate, getStatusConfig }) => {
           />
         ) : null}
         <div className={`w-10 h-10 rounded-xl items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 ${
-          isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
+          isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
         }`} style={{ display: (app.user_avatar || app.user_profile_picture_url) ? 'none' : 'flex' }}>
           {app.user_full_name?.charAt(0) || 'U'}
         </div>
@@ -149,7 +155,7 @@ const KYCApplicationRow = ({ app, onReview, formatDate, formatTimeAgo, getStatus
             />
           ) : null}
           <div className={`w-10 h-10 rounded-xl items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0 ${
-            isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-green-600'
+            isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
           }`} style={{ display: (app.user_avatar || app.user_profile_picture_url) ? 'none' : 'flex' }}>
             {app.user_full_name?.charAt(0) || 'U'}
           </div>
@@ -230,6 +236,10 @@ const AdminKYCPortalPage = () => {
   const [statusFilter, setStatusFilter] = useState('pending');
   const [roleFilter, setRoleFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Admin Requests moved to /admin/team in plan 18-04 revision —
+  // KYC Portal now shows only KYC reviews. The shared SectionTabs strip
+  // at the top of the page handles navigation between Users and KYC.
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showAllMobileApplications, setShowAllMobileApplications] = useState(false);
 
@@ -313,7 +323,7 @@ const AdminKYCPortalPage = () => {
   const summaryCards = [
     { label: 'Total Applications', value: summary.total, gradient: 'bg-gradient-to-br from-slate-600 to-slate-800', icon: 'description', iconBg: 'bg-white/20 text-white' },
     { label: 'Pending Review', value: summary.pending, gradient: 'bg-gradient-to-br from-amber-500 to-orange-600', icon: 'pending', iconBg: 'bg-white/20 text-white', pulse: true },
-    { label: 'Approved', value: summary.approved, gradient: 'bg-gradient-to-br from-emerald-500 to-green-600', icon: 'check_circle', iconBg: 'bg-white/20 text-white', change: 12 },
+    { label: 'Approved', value: summary.approved, gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600', icon: 'check_circle', iconBg: 'bg-white/20 text-white', change: 12 },
     { label: 'Rejected', value: summary.rejected, gradient: 'bg-gradient-to-br from-rose-500 to-red-600', icon: 'cancel', iconBg: 'bg-white/20 text-white' },
   ];
   const mobileApplications = showAllMobileApplications ? applications : applications.slice(0, 3);
@@ -322,6 +332,9 @@ const AdminKYCPortalPage = () => {
   return (
     <DashboardLayout variant="admin">
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
+        {/* Sub-section tabs (relocated from sidebar) */}
+        <SectionTabs tabs={USERS_TABS} />
+
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
           <div>

@@ -106,7 +106,8 @@ describe('useAuthStore — synchronous actions', () => {
     expect(state.accessToken).toBe(mockAccessToken);
     expect(state.isLoading).toBe(false);
     expect(state.error).toBeNull();
-    // Refresh token is httpOnly cookie-only — never passed to setTokens.
-    expect(tokenManager.setTokens).toHaveBeenCalledWith(mockAccessToken);
+    // Both tokens captured — refresh goes to localStorage (cross-origin
+    // fallback) in addition to the HttpOnly cookie the BE sets.
+    expect(tokenManager.setTokens).toHaveBeenCalledWith(mockAccessToken, mockRefreshToken);
   });
 });

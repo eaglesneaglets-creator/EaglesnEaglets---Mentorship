@@ -1,8 +1,13 @@
+import { useAuthStore } from '@store';
 import PasswordChangeForm from './account/PasswordChangeForm';
 import EmailChangeForm from './account/EmailChangeForm';
+import AdminRoleSection from './account/AdminRoleSection';
 import DeleteAccountSection from './account/DeleteAccountSection';
 
 export default function AccountSection() {
+  const { user } = useAuthStore();
+  const isMentor = user?.role === 'eagle';
+
   return (
     <div className="space-y-6">
       <div>
@@ -11,6 +16,8 @@ export default function AccountSection() {
       </div>
       <PasswordChangeForm />
       <EmailChangeForm />
+      {/* Admin role EOI lives here for mentors only — never shown to mentees. */}
+      {isMentor && <AdminRoleSection />}
       <DeleteAccountSection />
     </div>
   );

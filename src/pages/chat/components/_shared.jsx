@@ -3,7 +3,7 @@ export const Avatar = ({ name, isOnline, size = 'md', isNest = false }) => {
     const sizes = { sm: 'w-8 h-8 text-xs', md: 'w-11 h-11 text-sm', lg: 'w-14 h-14 text-lg' };
     return (
         <div className="relative flex-shrink-0">
-            <div className={`${sizes[size]} rounded-full flex items-center justify-center font-bold ${isNest ? 'bg-gradient-to-br from-emerald-400 to-green-600 text-white' : 'bg-gradient-to-br from-slate-200 to-slate-300 text-slate-600'}`}>
+            <div className={`${sizes[size]} rounded-full flex items-center justify-center font-bold ${isNest ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' : 'bg-gradient-to-br from-slate-200 to-slate-300 text-slate-600'}`}>
                 {isNest ? <span className="material-symbols-outlined text-base">groups</span> : initial}
             </div>
             {typeof isOnline === 'boolean' && (

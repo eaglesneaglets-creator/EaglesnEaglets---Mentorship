@@ -6,17 +6,21 @@
    ============================================================================= */
 
 @theme {
-  /* Primary Colors - Logo Green */
-  --color-primary: #22C55E;
-  --color-primary-rgb: 34 197 94;
-  --color-primary-dark: #16A34A;
-  --color-primary-light: #86EFAC;
-  --color-primary-50: #F0FDF4;
-  --color-primary-100: #DCFCE7;
-  --color-primary-200: #BBF7D0;
-  --color-primary-500: #22C55E;
-  --color-primary-600: #16A34A;
-  --color-primary-700: #15803D;
+  /* Primary Colors — Emerald palette (matches the LoginPage chrome:
+     gradient header, pill button, accent glow). Previously this was
+     Tailwind green-500 (#22C55E), which is the warmer/yellower cousin
+     of emerald. Unifying to emerald gives the whole app the same primary
+     hue as the auth flow + email templates. */
+  --color-primary: #10B981;
+  --color-primary-rgb: 16 185 129;
+  --color-primary-dark: #059669;
+  --color-primary-light: #6EE7B7;
+  --color-primary-50: #ECFDF5;
+  --color-primary-100: #D1FAE5;
+  --color-primary-200: #A7F3D0;
+  --color-primary-500: #10B981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
 
   /* Secondary Colors - Logo Gray */
   --color-secondary: #4B5563;
@@ -39,8 +43,8 @@
   --color-border-dark: #D1D5DB;
 
   /* Status Colors */
-  --color-success: #22C55E;
-  --color-success-light: #F0FDF4;
+  --color-success: #10B981;
+  --color-success-light: #ECFDF5;
   --color-error: #EF4444;
   --color-error-light: #FEF2F2;
   --color-warning: #F59E0B;

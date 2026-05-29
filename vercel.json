@@ -1,9 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "_note": "The /api proxy is kept active so that once you own a single parent domain for FE+BE, the HttpOnly refresh cookie becomes first-party automatically — no FE change needed. Until then the FE falls back to localStorage for refresh.",
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://REPLACE-ME-RAILWAY-BACKEND.up.railway.app/api/:path*"
+      "destination": "https://eaglesneaglet-backend-production.up.railway.app/api/:path*"
     }
   ]
 }

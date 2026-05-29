@@ -12,7 +12,7 @@ import { toast as sonnerToast } from 'sonner';
 export const toast = {
   success: (message, options) =>
     sonnerToast.success(message, {
-      style: { background: '#22c55e', color: '#fff', border: 'none' },
+      style: { background: '#10b981', color: '#fff', border: 'none' },
       ...options,
     }),
 

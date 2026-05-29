@@ -20,7 +20,14 @@ export const NestService = {
 
     updateNest: (id, data) => apiClient.patch(`/nests/${id}/`, data),
 
-    getMyNests: () => apiClient.get('/nests/my/'),
+    // Audience-specific listings. Names match the BE endpoints so the
+    // intent is unambiguous (avoids the old /nests/my/ ambiguity where
+    // mentors and mentees called the same URL expecting different data).
+    getJoinedNests: () => apiClient.get('/nests/joined/'), // eaglet POV
+    getOwnedNests: () => apiClient.get('/nests/owned/'),   // mentor POV
+
+    /** @deprecated Use getJoinedNests() (eaglet) or getOwnedNests() (mentor). */
+    getMyNests: () => apiClient.get('/nests/joined/'),
 
     // ------------------------------------------------------------------
     // Memberships

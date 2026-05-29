@@ -377,7 +377,7 @@ const LoginPage = () => {
                             Sending a new verification email...
                           </p>
                         ) : resendStatus === 'sent' ? (
-                          <p className="text-sm text-green-700">
+                          <p className="text-sm text-emerald-700">
                             We&apos;ve sent another verification email to your inbox.
                           </p>
                         ) : resendStatus === 'error' ? (

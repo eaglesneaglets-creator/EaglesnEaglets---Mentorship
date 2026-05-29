@@ -193,7 +193,7 @@ const AdminDashboardPage = () => {
           <StatCard
             icon="school"
             iconBg="bg-white/20 text-white"
-            gradient="bg-gradient-to-br from-emerald-500 to-green-600"
+            gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
             label="Eagles (Mentors)"
             value={isLoading ? '...' : totalEagles.toLocaleString()}
             delay={100}
