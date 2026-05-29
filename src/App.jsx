@@ -73,9 +73,18 @@ const PendingApprovalPage = lazy(() => import('./pages/profile/PendingApprovalPa
 const AdminKYCPortalPage = lazy(() => import('./pages/admin/AdminKYCPortalPage'));
 const AdminKYCDetailPage = lazy(() => import('./pages/admin/AdminKYCDetailPage'));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
+const AdminTeamPage = lazy(() => import('./pages/admin/AdminTeamPage'));
+const AdminRoleRequestsPage = lazy(() => import('./pages/admin/AdminRoleRequestsPage'));
+const AdminInviteAcceptPage = lazy(() => import('./pages/auth/AdminInviteAcceptPage'));
 
 // Shared Pages
 const ComingSoonPage = lazy(() => import('./pages/shared/ComingSoonPage'));
+
+// Legal Pages (Phase 21)
+const TermsPage = lazy(() => import('./pages/legal/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/legal/PrivacyPage'));
+const CodeOfConductPage = lazy(() => import('./pages/legal/CodeOfConductPage'));
+const MentorCodeOfConductPage = lazy(() => import('./pages/legal/MentorCodeOfConductPage'));
 
 // Donation Pages
 const DonationsPage = lazy(() => import('./pages/donations/DonationsPage'));
@@ -100,6 +109,9 @@ import { FeatureLockGuard } from './shared/components/guards/FeatureLockGuard';
 
 // Session Management
 import InactivityManager from './shared/components/InactivityManager';
+import CookieConsentBanner from './shared/components/legal/CookieConsentBanner';
+import useUrlModeSync from './shared/hooks/useUrlModeSync';
+import useFirstAdminSessionReveal from './shared/hooks/useFirstAdminSessionReveal';
 
 // Auth Store
 import { useAuthStore } from '@store';
@@ -176,13 +188,23 @@ const queryClient = new QueryClient({
   },
 });
 
+// Mounted inside BrowserRouter so useLocation works. Wraps the global
+// hooks the role-switcher needs (plan 18-03).
+function GlobalSideEffects({ children }) {
+  useUrlModeSync();
+  useFirstAdminSessionReveal();
+  return children;
+}
+
 function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Toaster />
+          <CookieConsentBanner />
           <InactivityManager>
+          <GlobalSideEffects>
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* ============================================================= */}
@@ -195,10 +217,15 @@ function App() {
                 </Route>
 
                 {/* Public routes (accessible to all) */}
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/code-of-conduct" element={<CodeOfConductPage />} />
+                <Route path="/mentor-code-of-conduct" element={<MentorCodeOfConductPage />} />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
                 <Route path="/auth/email-change/confirm/:token" element={<EmailChangeConfirmPage />} />
+                <Route path="/admin-role/accept/:token" element={<AdminInviteAcceptPage />} />
 
                 {/* Public Donations — accessible without login */}
                 <Route path="/donations" element={<DonationsPage />} />
@@ -299,6 +326,8 @@ function App() {
                     <Route path="/admin/kyc/:kycId" element={<AdminKYCDetailPage />} />
                     {/* Admin Coming Soon Pages */}
                     <Route path="/admin/users" element={<AdminUsersPage />} />
+                    <Route path="/admin/team" element={<AdminTeamPage />} />
+                    <Route path="/admin/team/requests" element={<AdminRoleRequestsPage />} />
                     <Route path="/admin/nests" element={<ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" />} />
                     <Route path="/admin/content" element={<LearningCenterPage />} />
                     <Route path="/admin/content/upload" element={<ContentUploadPage />} />
@@ -320,6 +349,7 @@ function App() {
                 <Route path="*" element={<Navigate to="/login" replace />} />
               </Routes>
             </Suspense>
+          </GlobalSideEffects>
           </InactivityManager>
         </BrowserRouter>
       </QueryClientProvider>

@@ -13,3 +13,5 @@ export { default as Alert } from './Alert';
 export { default as Stepper } from './Stepper';
 export { default as FileUpload } from './FileUpload';
 export { default as SafeHtml } from './SafeHtml';
+export { default as BrandLogo } from './BrandLogo';
+export { default as PasswordStrengthMeter } from './PasswordStrengthMeter';

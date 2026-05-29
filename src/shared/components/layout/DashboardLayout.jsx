@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { useAuthStore, useLockedFeatures } from '@store';
+import { useAuthStore, useLockedFeatures, useCurrentMode, useIsStackedAdmin } from '@store';
 import { LockedFeatureModal } from '@shared/components/feature-lock/LockedFeatureModal';
+import RoleSwitcher from './RoleSwitcher';
 import { refreshAccessToken } from '../../../api';
 import { adminService } from '../../../modules/auth/services/auth-service';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, useNotificationSocket } from '../../../modules/notifications/hooks/useNotifications';
@@ -21,7 +22,7 @@ const AnimatedBackground = ({ variant = 'default' }) => {
   const variants = {
     admin: 'from-blue-50 via-indigo-50/30 to-slate-50',
     eagle: 'from-amber-50 via-orange-50/30 to-slate-50',
-    eaglet: 'from-emerald-50 via-green-50/30 to-slate-50',
+    eaglet: 'from-emerald-50 via-emerald-50/30 to-slate-50',
     default: 'from-slate-50 via-white to-gray-50/40',
   };
 
@@ -157,7 +158,27 @@ const DashboardLayout = ({
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Role-switcher mode (plan 18-03). Drives sidebar nav swap + amber stripe.
+  const currentMode = useCurrentMode();
+  const isStackedAdmin = useIsStackedAdmin();
+  // Persist sidebar collapse across route changes. Each page mounts its own
+  // DashboardLayout instance, so without persistence the sidebar resets to
+  // expanded on every nav click. Read once on mount, write on every toggle.
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    try {
+      const stored = localStorage.getItem('ee_sidebar_open');
+      return stored === null ? true : stored === 'true';
+    } catch {
+      return true;
+    }
+  });
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => {
+      const next = !prev;
+      try { localStorage.setItem('ee_sidebar_open', String(next)); } catch { /* ignore */ }
+      return next;
+    });
+  };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [pendingKycCount, setPendingKycCount] = useState(0);
@@ -305,19 +326,31 @@ const DashboardLayout = ({
     navigate('/login');
   };
 
-  // Navigation items based on role
+  // Navigation items based on role + current mode (plan 18-03).
+  // For stacked-admin users, mode drives which nav set renders so the
+  // sidebar swaps entirely between mentor and admin views.
   const getNavItems = () => {
     const role = user?.role || 'eaglet';
 
-    if (role === 'admin') {
+    // Stacked admin (eagle + is_platform_staff) — `currentMode` decides
+    // which nav set to render. Pure admins (role='admin') always see
+    // the admin nav.
+    const showAdminNav =
+      role === 'admin' || (role === 'eagle' && user?.is_platform_staff && currentMode === 'admin');
+
+    if (showAdminNav) {
+      // Three sidebar items now host paired sub-sections via SectionTabs:
+      //   User Management  → All Users + KYC Reviews
+      //   Admin Team       → Team + Admin Requests
+      //   Store            → Catalog + Orders
+      // Removed from sidebar: Orders, KYC Reviews (now reachable through their parent's tab strip).
       return [
         { to: '/', icon: 'home', label: 'Home' },
         { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
-        { to: '/admin/users', icon: 'group', label: 'Users' },
-        { to: '/admin/kyc', icon: 'verified_user', label: 'KYC Reviews', badge: pendingKycCount > 0 ? pendingKycCount : undefined },
+        { to: '/admin/users', icon: 'group', label: 'User Management', aliases: ['/admin/kyc'], badge: pendingKycCount > 0 ? pendingKycCount : undefined },
+        { to: '/admin/team', icon: 'shield_person', label: 'Admin Team', aliases: ['/admin/team/requests'] },
         { to: '/admin/nests', icon: 'diversity_3', label: 'Nests' },
-        { to: '/admin/store', icon: 'storefront', label: 'Store', exact: true },
-        { to: '/admin/store/orders', icon: 'receipt_long', label: 'Orders' },
+        { to: '/admin/store', icon: 'storefront', label: 'Store' },
         { to: '/admin/content', icon: 'library_books', label: 'Content' },
         { to: '/admin/donations', icon: 'volunteer_activism', label: 'Donations' },
         { to: '/settings', icon: 'settings', label: 'Settings' },
@@ -328,8 +361,9 @@ const DashboardLayout = ({
       return [
         { to: '/', icon: 'home', label: 'Home' },
         { to: '/eagle/dashboard', icon: 'dashboard', label: 'Dashboard' },
-        { to: '/eagle/nests', icon: 'diversity_3', label: 'My Nests' },
-        { to: '/eagle/eaglets', icon: 'group', label: 'My Eaglets' },
+        // 'My Eaglets' moved into NestCommunityHubPage as a tab.
+        // Standalone /eagle/eaglets route kept for deep links / back-compat.
+        { to: '/eagle/nests', icon: 'diversity_3', label: 'My Nest' },
         { to: '/eagle/grading', icon: 'grading', label: 'Grading Center' },
         { to: '/eagle/content', icon: 'upload_file', label: 'Content' },
         { to: '/eagle/messages', icon: 'chat', label: 'Messages', badge: chatBadge },
@@ -394,6 +428,16 @@ const DashboardLayout = ({
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
+        {/* Admin-mode accent stripe (plan 18-03) — passive cue that
+            elevated privileges are active. Rendered as a natural-flow first
+            child of the flex column so it doesn't need a relative ancestor
+            (which would conflict with the `fixed lg:static` aside positioning). */}
+        {currentMode === 'admin' && (
+          <div
+            aria-hidden
+            className="w-full h-[2px] flex-shrink-0 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-300"
+          />
+        )}
         {/* Header with Logo and Collapse Toggle */}
         <div className={`h-16 flex items-center border-b border-slate-200/50 ${isSidebarOpen ? 'px-4 justify-between' : 'px-2 justify-center'}`}>
           <Link to="/" className={`flex items-center gap-3 ${isSidebarOpen ? '' : 'justify-center'}`}>
@@ -414,7 +458,7 @@ const DashboardLayout = ({
 
           {/* Collapse Toggle Button */}
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={toggleSidebar}
             className={`hidden lg:flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-all duration-300 flex-shrink-0 ${isSidebarOpen ? '' : 'absolute -right-3.5 top-4 bg-white shadow-md border border-slate-200'}`}
           >
             <span className={`material-symbols-outlined text-lg transition-transform duration-300 ${isSidebarOpen ? '' : 'rotate-180'}`}>
@@ -425,27 +469,36 @@ const DashboardLayout = ({
 
         {/* User Profile Section */}
         <div className={`border-b border-slate-200/50 ${isSidebarOpen ? 'px-4 py-4' : 'px-2 py-3'}`}>
-          <div className={`flex items-center rounded-xl transition-all duration-300 cursor-pointer group ${isSidebarOpen ? 'gap-3 p-3 bg-slate-50/80 hover:bg-slate-100' : 'justify-center p-2 hover:bg-slate-100'}`}>
-            <div className="relative flex-shrink-0">
-              {user?.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.first_name}
-                  className="w-10 h-10 rounded-xl object-cover shadow-lg transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white items-center justify-center font-bold shadow-lg transition-transform duration-300 group-hover:scale-105 text-sm`}
-                style={{ display: user?.avatar ? 'none' : 'flex' }}>
-                {getInitials(user?.first_name, user?.last_name)}
+          {isStackedAdmin ? (
+            // Stacked admins get the role-switcher dropdown (plan 18-03).
+            <RoleSwitcher
+              user={user}
+              onClose={() => setIsMobileMenuOpen(false)}
+              onLogout={handleLogout}
+              variant={isSidebarOpen ? 'expanded' : 'collapsed'}
+            />
+          ) : (
+            // Single-role users see the existing static pill.
+            <div className={`flex items-center rounded-xl transition-all duration-300 ${isSidebarOpen ? 'gap-3 p-3 bg-slate-50/80' : 'justify-center p-2'}`}>
+              <div className="relative flex-shrink-0">
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.first_name}
+                    className="w-10 h-10 rounded-xl object-cover shadow-lg"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white items-center justify-center font-bold shadow-lg text-sm`}
+                  style={{ display: user?.avatar ? 'none' : 'flex' }}>
+                  {getInitials(user?.first_name, user?.last_name)}
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
-            </div>
-            {isSidebarOpen && (
-              <>
+              {isSidebarOpen && (
                 <div className="flex-1 min-w-0 overflow-hidden">
                   <p className="font-semibold text-slate-900 text-sm truncate">
                     {user?.first_name} {user?.last_name}
@@ -454,12 +507,9 @@ const DashboardLayout = ({
                     {roleDisplay[user?.role] || user?.role}
                   </p>
                 </div>
-                <span className="material-symbols-outlined text-slate-400 text-lg group-hover:text-slate-600 transition-colors flex-shrink-0">
-                  expand_more
-                </span>
-              </>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
@@ -474,7 +524,14 @@ const DashboardLayout = ({
                 isCollapsed={!isSidebarOpen}
                 isActive={
                   location.pathname === item.to ||
-                  (!item.exact && location.pathname.startsWith(item.to + '/'))
+                  (!item.exact && location.pathname.startsWith(item.to + '/')) ||
+                  // SectionTabs consolidation: a sidebar item can keep its
+                  // highlight when the user is on one of its sub-section
+                  // routes that lives under a different path prefix.
+                  (item.aliases || []).some((alias) =>
+                    location.pathname === alias ||
+                    location.pathname.startsWith(alias + '/'),
+                  )
                 }
                 isLocked={itemLocked}
                 onClick={() => {

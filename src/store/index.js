@@ -13,5 +13,9 @@ export {
   useMenteeLevel,
   useLockedFeatures,
   useMentorEligibility,
+  useCurrentMode,
+  useSetCurrentMode,
+  useIsStackedAdmin,
+  useHasAdminAccess,
 } from './auth-store';
 export { useUIStore } from './ui-store';

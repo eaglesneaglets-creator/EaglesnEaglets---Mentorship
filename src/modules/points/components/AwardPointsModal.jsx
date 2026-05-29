@@ -5,7 +5,7 @@ import { z } from 'zod';
 import PropTypes from 'prop-types';
 import Button from '../../../shared/components/ui/Button';
 import Input from '../../../shared/components/ui/Input';
-import { useMyNests } from '../../nest/hooks/useNests';
+import { useOwnedNests } from '../../nest/hooks/useNests';
 import { useEagletsByNest, useAwardManualPoints } from '../hooks/usePoints';
 
 const schema = z.object({
@@ -22,8 +22,9 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
     const [selectedNestId, setSelectedNestId] = useState(prefillNestId || '');
     const [selectedEagletId, setSelectedEagletId] = useState(prefillEagletId || '');
 
-    // useMyNests() calls GET /nests/my/ — scoped to the Eagle's own nests
-    const { data: nestsData } = useMyNests();
+    // Mentor awarding points must pick from nests they OWN, not nests
+    // they're a member of (which is empty for eagles).
+    const { data: nestsData } = useOwnedNests();
     const nests = nestsData?.data?.results || nestsData?.data || [];
 
     const { data: eagletsData, isLoading: eagletsLoading } = useEagletsByNest(selectedNestId);

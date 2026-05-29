@@ -260,7 +260,12 @@ export const ReviewStep = ({ role, cvFile }) => {
                     I confirm the information above is accurate and consent to verification per the{' '}
                     <a href="/privacy" className="text-primary font-semibold hover:underline">Privacy Policy</a>{' '}
                     and{' '}
-                    <a href="/code-of-conduct" className="text-primary font-semibold hover:underline">Code of Conduct</a>.
+                    <a
+                        href={role === 'mentor' ? '/mentor-code-of-conduct' : '/code-of-conduct'}
+                        className="text-primary font-semibold hover:underline"
+                    >
+                        {role === 'mentor' ? 'Mentor Code of Conduct' : 'Code of Conduct'}
+                    </a>.
                 </span>
             </label>
             {errors.agree?.message && (

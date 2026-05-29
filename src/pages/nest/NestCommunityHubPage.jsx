@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
@@ -6,6 +7,7 @@ import { useNestDetail, useNestMembers, useNestEvents } from '../../modules/nest
 import { usePrograms } from '../../modules/program/hooks/usePrograms';
 import { useEnrollments } from '../../modules/program/hooks/useEnrollments';
 import PostFeed from '../../modules/nest/components/PostFeed';
+import { MyEagletsSection } from '../eagle/MyEagletsPage';
 
 const PROGRAM_STATUS_BADGE = {
     draft: 'bg-slate-100 text-slate-600',
@@ -35,7 +37,7 @@ const WelcomeBanner = ({ nest }) => (
     <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 rounded-2xl p-6 border border-emerald-200/50 overflow-hidden"
+        className="relative bg-gradient-to-r from-emerald-50 via-emerald-50 to-emerald-50 rounded-2xl p-6 border border-emerald-200/50 overflow-hidden"
     >
         {/* Decorative bird silhouette */}
         <div className="absolute right-6 bottom-2 opacity-10">
@@ -54,29 +56,6 @@ const WelcomeBanner = ({ nest }) => (
     </motion.div>
 );
 
-
-/* ─── Sidebar: About Card ─── */
-const AboutCard = ({ nest }) => (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/70">
-        <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-lg">info</span>
-            About {nest?.name || 'This Nest'}
-        </h3>
-        <p className="text-sm text-slate-500 leading-relaxed mb-4">
-            {nest?.description || 'A mentorship community focused on growth and learning.'}
-        </p>
-        <div className="flex items-center gap-4 text-sm text-slate-500">
-            <span className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-base">group</span>
-                {nest?.member_count || 0} Members
-            </span>
-            <span className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-base">{nest?.privacy === 'public' ? 'public' : 'lock'}</span>
-                {nest?.privacy === 'public' ? 'Global' : 'Private'}
-            </span>
-        </div>
-    </div>
-);
 
 /* ─── Sidebar: Upcoming Events ─── */
 const EventsCard = ({ nestId }) => {
@@ -111,8 +90,15 @@ const EventsCard = ({ nestId }) => {
                             </div>
                             <div className="min-w-0">
                                 <p className="text-sm font-semibold text-slate-900 truncate">{event.title}</p>
-                                <p className="text-xs text-slate-400">
-                                    {event.meeting_link ? '🔗 Zoom Link' : `@ ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`}
+                                <p className="text-xs text-slate-400 inline-flex items-center gap-1">
+                                    {event.meeting_link ? (
+                                        <>
+                                            <span className="material-symbols-outlined text-sm">videocam</span>
+                                            Zoom Link
+                                        </>
+                                    ) : (
+                                        `@ ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -170,6 +156,11 @@ const NestCommunityHubPage = () => {
     const { user } = useAuthStore();
     const { nestId } = useParams();
     const navigate = useNavigate();
+
+    // Mentor-only tab toggle: 'community' shows the feed + members sidebar,
+    // 'eaglets' shows the embedded MyEagletsSection. Eaglet viewers never
+    // see the tab strip.
+    const [activeTab, setActiveTab] = useState('community');
 
     const { data: nestData, isLoading, isError } = useNestDetail(nestId);
     const { data: membersData, isLoading: membersLoading } = useNestMembers(nestId);
@@ -290,25 +281,55 @@ const NestCommunityHubPage = () => {
                     </div>
                 </motion.div>
 
-                {/* ─── Two-Column Layout ─── */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                    {/* Left: Feed (8 cols) */}
-                    <div className="lg:col-span-8 flex flex-col gap-5">
-                        {/* Welcome Banner */}
-                        <WelcomeBanner nest={nest} />
-
-                        {/* Post Feed */}
-                        <PostFeed nestId={nestId} />
+                {/* ─── Mentor Tabs ─── */}
+                {isOwner && (
+                    <div className="flex items-center gap-1 mb-5 border-b border-slate-200">
+                        {[
+                            { id: 'community', label: 'Community', icon: 'forum' },
+                            { id: 'eaglets', label: 'Eaglets', icon: 'group' },
+                        ].map((tab) => {
+                            const active = activeTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`relative flex items-center gap-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
+                                        active
+                                            ? 'text-primary'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                    }`}
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                                    {tab.label}
+                                    {active && (
+                                        <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-primary rounded-full" />
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
+                )}
 
-                    {/* Right: Sidebar (4 cols) */}
-                    <div className="lg:col-span-4 flex flex-col gap-5">
-                        <AboutCard nest={nest} />
-                        <EventsCard nestId={nest.id} />
-                        <MembersPreview nestId={nest.id} memberCount={nest.member_count} />
+                {/* ─── Tab Content ─── */}
+                {isOwner && activeTab === 'eaglets' ? (
+                    <MyEagletsSection embedded nestId={nest.id} nestName={nest.name} />
+                ) : (
+                    /* Two-Column Layout — community feed + members sidebar */
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        {/* Left: Feed (8 cols) */}
+                        <div className="lg:col-span-8 flex flex-col gap-5">
+                            <WelcomeBanner nest={nest} />
+                            <PostFeed nestId={nestId} />
+                        </div>
+
+                        {/* Right: Sidebar (4 cols) — AboutCard removed per spec */}
+                        <div className="lg:col-span-4 flex flex-col gap-5">
+                            <EventsCard nestId={nest.id} />
+                            <MembersPreview nestId={nest.id} memberCount={nest.member_count} />
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </DashboardLayout>
     );

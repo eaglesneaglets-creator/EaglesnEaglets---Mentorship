@@ -5,7 +5,8 @@
 
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { apiClient, tokenManager } from '@api';
+import { tokenManager } from '@api';
+import { authService } from '@/modules/auth/services/auth-service';
 
 const initialState = {
   user: null,
@@ -18,6 +19,53 @@ const initialState = {
   // Program access status from /auth/me/ (plan 14-02 BE / 14-05 FE).
   // Drives sidebar lock badges, route gating, and dashboard widgets.
   accessStatus: null,
+  // Role context for stacked-admin users (plan 18-03).
+  // Values: 'mentor' | 'admin' | null. Computed on /auth/me/ hydration —
+  // see hydrateCurrentMode(). Single-role users have it forced to their role.
+  currentMode: null,
+};
+
+// Persisted under its own key so the value is glanceable in DevTools and
+// cleared independently of the auth-storage blob.
+const MODE_STORAGE_KEY = 'ee_role_mode';
+
+const readStoredMode = () => {
+  try {
+    const m = localStorage.getItem(MODE_STORAGE_KEY);
+    return m === 'admin' || m === 'mentor' ? m : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredMode = (mode) => {
+  try {
+    if (mode) localStorage.setItem(MODE_STORAGE_KEY, mode);
+    else localStorage.removeItem(MODE_STORAGE_KEY);
+  } catch {
+    /* private browsing */
+  }
+};
+
+/**
+ * Pick the right mode for a user given:
+ *  - whether they're stacked (eagle + is_platform_staff)
+ *  - whether the BE flagged a first-admin-session moment
+ *  - persisted localStorage value
+ *
+ * Single-role users are forced to their role mode; the role switcher is
+ * hidden for them.
+ */
+export const resolveCurrentMode = (user) => {
+  if (!user) return null;
+  const isStackedAdmin = user.role === 'eagle' && user.is_platform_staff === true;
+  const isPureAdmin = (user.role === 'admin' || user.is_superuser) && !isStackedAdmin;
+  if (isPureAdmin) return 'admin';
+  if (!isStackedAdmin) return 'mentor'; // pure mentor or mentee fallback
+  // Stacked path:
+  if (user.admin_request?.first_admin_session) return 'admin';
+  const stored = readStoredMode();
+  return stored || 'mentor';
 };
 
 /**
@@ -76,17 +124,24 @@ export const useAuthStore = create(
           set({ isLoading: true, error: null });
 
           try {
-            const response = await apiClient.post('/auth/login/', { email, password }, { skipAuth: true });
+            const response = await authService.login(email, password);
 
-            // Refresh token lives only in the httpOnly cookie the backend
-            // sets on this response. Access token stays in memory.
+            // Capture both tokens. Refresh goes to localStorage (temporary
+            // cross-origin fallback) AND is also set as an httpOnly cookie
+            // by the BE — see api/index.js tokenManager note.
             const data = response.data || response;
             const user = data.user || data;
             const accessToken = data.access || null;
+            const refreshToken = data.refresh || null;
 
             if (accessToken) {
-              tokenManager.setTokens(accessToken);
+              tokenManager.setTokens(accessToken, refreshToken);
             }
+
+            // Resolve role-switcher mode at login time. Stacked admins
+            // land in mentor mode unless the BE flags first_admin_session.
+            const currentMode = resolveCurrentMode(user);
+            if (currentMode) writeStoredMode(currentMode);
 
             set({
               user,
@@ -94,6 +149,7 @@ export const useAuthStore = create(
               isLoading: false,
               error: null,
               accessToken,
+              currentMode,
             });
 
             return user;
@@ -125,8 +181,7 @@ export const useAuthStore = create(
           set({ isLoading: true, error: null });
 
           try {
-            const response = await apiClient.post('/auth/register/', userData, {
-              skipAuth: true,
+            const response = await authService.register(userData, {
               timeout: 60000, // 60 seconds for registration (may be slower due to email sending)
             });
 
@@ -156,12 +211,13 @@ export const useAuthStore = create(
           try {
             // Backend reads the refresh token from the httpOnly cookie and
             // blacklists it, then deletes both cookies in the response.
-            await apiClient.post('/auth/logout/', {});
+            await authService.logout();
           } catch {
             // Continue with logout even if API call fails
           }
 
           tokenManager.clearTokens();
+          writeStoredMode(null);
           set(initialState);
 
           // Dispatch event for other components to react
@@ -183,7 +239,7 @@ export const useAuthStore = create(
           set({ isLoading: true });
 
           try {
-            const response = await apiClient.get('/auth/me/');
+            const response = await authService.getCurrentUser();
             const user = response.data || response;
             const accessStatus = user?.access_status ?? null;
 
@@ -214,7 +270,7 @@ export const useAuthStore = create(
           set({ isLoading: true, error: null });
 
           try {
-            const response = await apiClient.patch('/auth/me/', data);
+            const response = await authService.updateProfile(data);
             const user = response.data || response;
             const accessStatus = user?.access_status ?? get().accessStatus;
 
@@ -242,11 +298,7 @@ export const useAuthStore = create(
           set({ isLoading: true, error: null });
 
           try {
-            await apiClient.post('/auth/password/change/', {
-              old_password: oldPassword,
-              new_password: newPassword,
-              new_password_confirm: newPasswordConfirm,
-            });
+            await authService.changePassword(oldPassword, newPassword, newPasswordConfirm);
 
             set({ isLoading: false });
 
@@ -268,7 +320,7 @@ export const useAuthStore = create(
           set({ isLoading: true, error: null });
 
           try {
-            await apiClient.post('/auth/password/reset/', { email }, { skipAuth: true });
+            await authService.requestPasswordReset(email);
             set({ isLoading: false });
             return true;
           } catch (error) {
@@ -288,15 +340,7 @@ export const useAuthStore = create(
           set({ isLoading: true, error: null });
 
           try {
-            await apiClient.post(
-              '/auth/password/reset/confirm/',
-              {
-                token,
-                new_password: newPassword,
-                new_password_confirm: newPasswordConfirm,
-              },
-              { skipAuth: true }
-            );
+            await authService.confirmPasswordReset(token, newPassword, newPasswordConfirm);
             set({ isLoading: false });
             return true;
           } catch (error) {
@@ -316,7 +360,7 @@ export const useAuthStore = create(
           set({ isLoading: true, error: null });
 
           try {
-            await apiClient.post('/auth/email/verify/', { token }, { skipAuth: true });
+            await authService.verifyEmail(token);
             set({ isLoading: false });
             return true;
           } catch (error) {
@@ -336,7 +380,7 @@ export const useAuthStore = create(
           set({ isLoading: true, error: null });
 
           try {
-            await apiClient.post('/auth/email/resend/', { email }, { skipAuth: true });
+            await authService.resendVerification(email);
             set({ isLoading: false });
             return true;
           } catch (error) {
@@ -381,9 +425,18 @@ export const useAuthStore = create(
           }
           const promise = (async () => {
             try {
-              const response = await apiClient.get('/auth/me/');
+              const response = await authService.getCurrentUser();
               const user = response.data || response;
-              set({ user, accessStatus: user?.access_status ?? null });
+              // Recompute current mode whenever /auth/me/ lands. The BE may
+              // have flipped `admin_request.first_admin_session` to true to
+              // force admin mode on the next render — see plan 18-03.
+              const nextMode = resolveCurrentMode(user);
+              if (nextMode) writeStoredMode(nextMode);
+              set({
+                user,
+                accessStatus: user?.access_status ?? null,
+                currentMode: nextMode,
+              });
               return user?.access_status ?? null;
             } catch {
               return get().accessStatus;
@@ -396,6 +449,16 @@ export const useAuthStore = create(
         },
 
         /**
+         * Switch the role context for stacked-admin users (plan 18-03).
+         * Persists to localStorage so refresh + cross-tab stays in sync.
+         */
+        setCurrentMode: (mode) => {
+          if (mode !== 'admin' && mode !== 'mentor') return;
+          writeStoredMode(mode);
+          set({ currentMode: mode });
+        },
+
+        /**
          * Clear any errors
          */
         clearError: () => set({ error: null }),
@@ -403,11 +466,11 @@ export const useAuthStore = create(
         /**
          * Set auth state directly (used for OAuth callbacks)
          */
-        setAuth: ({ accessToken, user }) => {
-          // Refresh token arrives as an httpOnly cookie on the OAuth callback
-          // response — never touched by JS. Only the access token stays in memory.
+        setAuth: ({ accessToken, refreshToken, user }) => {
+          // Capture both tokens — refresh goes to localStorage (cross-origin
+          // fallback) and is also set as an httpOnly cookie by the BE.
           if (accessToken) {
-            tokenManager.setTokens(accessToken);
+            tokenManager.setTokens(accessToken, refreshToken || null);
           }
           set({
             user,
@@ -486,12 +549,39 @@ export const useLockedFeatures = () =>
 export const useMentorEligibility = () =>
   useAuthStore((s) => Boolean(s.accessStatus?.mentor_eligibility));
 
+// ─── Role-switcher selectors (plan 18-03) ──────────────────────────────────
+
+export const useCurrentMode = () =>
+  useAuthStore((s) => s.currentMode);
+
+export const useSetCurrentMode = () =>
+  useAuthStore((s) => s.setCurrentMode);
+
+/** True iff the user is a mentor who also holds platform-admin privileges. */
+export const useIsStackedAdmin = () =>
+  useAuthStore((s) =>
+    Boolean(s.user?.role === 'eagle' && s.user?.is_platform_staff === true),
+  );
+
+/** True for any user (stacked or pure) who has admin capabilities. */
+export const useHasAdminAccess = () =>
+  useAuthStore((s) => {
+    const u = s.user;
+    if (!u) return false;
+    return Boolean(
+      u.role === 'admin' ||
+      u.is_superuser ||
+      u.is_platform_staff,
+    );
+  });
+
 // Listen for logout events from other parts of the app
 if (typeof window !== 'undefined') {
   window.addEventListener('auth:logout', (event) => {
     const store = useAuthStore.getState();
     if (event.detail?.reason === 'session_expired' && store.isAuthenticated) {
       tokenManager.clearTokens();
+      writeStoredMode(null);
       useAuthStore.setState(initialState);
     }
   });

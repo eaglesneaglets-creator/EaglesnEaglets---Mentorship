@@ -9,7 +9,7 @@ const STORIES = [
   {
     id: 1,
     tag: 'SCHOLARSHIP',
-    tagColor: 'bg-green-500',
+    tagColor: 'bg-emerald-500',
     title: "Sarah's Journey to Seminary",
     body: "Thanks to the Nest Scholarship Fund, Sarah was able to complete her theology degree without the burden of debt.",
     image: null,
@@ -51,7 +51,7 @@ export default function ImpactStories() {
               className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
             >
               {/* Image placeholder */}
-              <div className="relative h-44 bg-gradient-to-br from-green-100 to-teal-50 flex items-center justify-center">
+              <div className="relative h-44 bg-gradient-to-br from-emerald-100 to-teal-50 flex items-center justify-center">
                 <span className="text-5xl opacity-30">🦅</span>
                 <span
                   className={`absolute top-3 left-3 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${story.tagColor}`}
@@ -66,7 +66,7 @@ export default function ImpactStories() {
                 <button
                   disabled
                   title="Coming soon"
-                  className="text-green-600 text-xs font-semibold opacity-60 cursor-not-allowed"
+                  className="text-emerald-600 text-xs font-semibold opacity-60 cursor-not-allowed"
                 >
                   Read More →
                 </button>

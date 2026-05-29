@@ -8,6 +8,7 @@ import { useToggleLike } from '../hooks/useToggleLike';
 import { useUploadMedia } from '../hooks/useUploadMedia';
 import PostCommentSection from './PostCommentSection';
 import { formatDistanceToNow } from 'date-fns';
+import { sanitizeUrl, sanitizeImageUrl } from '@shared/utils/sanitize';
 
 // ---------------------------------------------------------------------------
 // PostComposer — create new post with emoji + file upload
@@ -230,21 +231,22 @@ const PostCard = ({ post, nestId }) => {
           {post.content}
         </p>
 
-        {/* Attachment */}
-        {post.attachment_url && post.attachment_type === 'image' && (
+        {/* Attachment — user-controlled URLs pass through sanitiseUrl /
+            sanitiseImageUrl to strip javascript:/data: schemes (audit P1 #11). */}
+        {post.attachment_url && post.attachment_type === 'image' && sanitizeImageUrl(post.attachment_url) && (
           <img
-            src={post.attachment_url}
+            src={sanitizeImageUrl(post.attachment_url)}
             alt="Post attachment"
             loading="lazy"
             className="rounded-xl w-full object-cover max-h-80 mb-4"
           />
         )}
-        {post.attachment_url && post.attachment_type === 'video' && (
-          <video src={post.attachment_url} controls className="rounded-xl w-full max-h-80 mb-4" />
+        {post.attachment_url && post.attachment_type === 'video' && sanitizeUrl(post.attachment_url) && (
+          <video src={sanitizeUrl(post.attachment_url)} controls className="rounded-xl w-full max-h-80 mb-4" />
         )}
-        {post.attachment_url && post.attachment_type === 'file' && (
+        {post.attachment_url && post.attachment_type === 'file' && sanitizeUrl(post.attachment_url) && (
           <a
-            href={post.attachment_url}
+            href={sanitizeUrl(post.attachment_url)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors text-sm text-primary font-medium mb-4"

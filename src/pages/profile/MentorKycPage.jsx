@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { profileService } from '../../modules/profile/services/profile-service';
 import KycFlow from '../../modules/kyc/KycFlow';
+import { MENTOR_CONDUCT_VERSION, MENTOR_CONDUCT_PLAINTEXT } from '../legal/MentorCodeOfConductPage';
 import toast from 'react-hot-toast';
 
 export default function MentorKycPage() {
@@ -25,6 +26,9 @@ export default function MentorKycPage() {
             phone_number: data.phone_number,
             profile_description: data.profile_description,
             mentorship_types: data.mentorship_types,
+            // Record which Mentor Code of Conduct version was agreed + an immutable snapshot.
+            code_of_conduct_version: MENTOR_CONDUCT_VERSION,
+            code_of_conduct_text: MENTOR_CONDUCT_PLAINTEXT,
         };
         if (data.linkedin_url) payload.linkedin_url = data.linkedin_url;
         const res = await profileService.updateMentorProfile(payload);

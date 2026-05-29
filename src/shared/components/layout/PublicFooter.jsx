@@ -8,6 +8,7 @@
  */
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import logoImg from '../../../assets/EaglesnEagletsLogo.jpeg';
 
@@ -164,8 +165,8 @@ const PublicFooter = () => {
                 <div className="border-t border-slate-200/70 pt-5 sm:pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
                     <p className="text-[11px] sm:text-xs text-slate-400">© {currentYear} Eagles & Eaglets Community Platform. All rights reserved.</p>
                     <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5">
-                        <a href="#" className="text-[11px] sm:text-xs text-slate-400 hover:text-primary transition-colors">Privacy Policy</a>
-                        <a href="#" className="text-[11px] sm:text-xs text-slate-400 hover:text-primary transition-colors">Terms of Service</a>
+                        <Link to="/privacy" className="text-[11px] sm:text-xs text-slate-400 hover:text-primary transition-colors">Privacy Policy</Link>
+                        <Link to="/terms" className="text-[11px] sm:text-xs text-slate-400 hover:text-primary transition-colors">Terms of Service</Link>
                     </div>
                 </div>
             </div>

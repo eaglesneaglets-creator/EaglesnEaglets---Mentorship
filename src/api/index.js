@@ -46,60 +46,56 @@ export class ApiError extends Error {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Token storage — cookie-only model (Phase 07-01 hardening).
+ * Token storage — temporary cross-origin localStorage model.
  *
- *  - ACCESS token lives in a module-level variable. Never written to storage.
- *    XSS cannot exfiltrate it across tab closures. Survives in-tab navigation
- *    because module singletons persist for the page session.
- *  - REFRESH token lives ONLY in an httpOnly cookie set by the backend.
- *    Inaccessible to JavaScript — XSS cannot steal it.
+ *  - ACCESS token lives in a module-level variable (in-memory only).
+ *  - REFRESH token is stored in localStorage AND set as an httpOnly cookie
+ *    by the backend. Whichever the browser accepts wins:
+ *      * Same-origin (future): the cookie attaches automatically; localStorage
+ *        becomes redundant.
+ *      * Cross-origin (today, FE on Vercel + BE on Railway): the cookie is
+ *        third-party and silently blocked, so the FE falls back to sending
+ *        the localStorage value in the refresh body.
  *
- * On page refresh the access token is lost (module state clears). The app
- * calls refreshAccessToken() which POSTs to /auth/token/refresh/ with an
- * empty body; the browser attaches the httpOnly refresh_token cookie
- * automatically and the backend returns a fresh access token in JSON.
- *
- * For this to work cross-origin browsers must treat the cookie as
- * first-party. Achieved via reverse proxy: dev = vite.config.js proxy,
- * prod = Vercel rewrite in vercel.json. Both make FE+BE same-origin.
- *
- * The setTokens signature still accepts a refresh argument for backward
- * compatibility with callers (login/register/oauth) but DISCARDS it — the
- * cookie path is the only legitimate channel.
+ * SECURITY TRADE-OFF: localStorage is readable by XSS. The mitigation
+ * is to flip back to cookie-only once the platform has a single parent
+ * domain — see notes in apps/users/views/auth.py (P0 #1).
  */
 let _accessToken = null;
-const LEGACY_REFRESH_KEY = 'ee_refresh_token';
-
-// One-time cleanup of any refresh token left over from the old localStorage
-// model. Safe to remove after a release cycle.
-try {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.removeItem(LEGACY_REFRESH_KEY);
-  }
-} catch {
-  // ignore
-}
+const REFRESH_TOKEN_KEY = 'ee_refresh_token';
 
 export const tokenManager = {
   getAccessToken: () => _accessToken,
 
-  // Deprecated: refresh token is now httpOnly cookie-only. Returns null so
-  // any legacy caller naturally falls through to cookie-based refresh.
-  getRefreshToken: () => null,
+  getRefreshToken: () => {
+    try {
+      return localStorage.getItem(REFRESH_TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  },
 
-  // Second arg accepted for back-compat but ignored — backend httpOnly cookie
-  // is the only refresh-token channel.
-  setTokens: (accessToken /* , _refreshToken */) => {
+  /**
+   * Set the in-memory access token and, if provided, persist the refresh
+   * token to localStorage so it survives page refresh.
+   */
+  setTokens: (accessToken, refreshToken) => {
     if (accessToken) {
       _accessToken = accessToken;
+    }
+    if (refreshToken) {
+      try {
+        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      } catch {
+        // localStorage unavailable (private browsing, quota, etc.)
+      }
     }
   },
 
   clearTokens: () => {
     _accessToken = null;
-    // Defensive cleanup in case any pre-upgrade build left a value behind.
     try {
-      localStorage.removeItem(LEGACY_REFRESH_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
     } catch {
       // ignore
     }
@@ -109,21 +105,18 @@ export const tokenManager = {
 };
 
 /**
- * Refresh access token — cookie-only.
+ * Refresh access token — sends the localStorage refresh value in the body
+ * AND lets the browser attach the httpOnly cookie (if it survives the
+ * cross-origin trip). Backend reads either source, rotates the token,
+ * sets a new cookie, AND returns the rotated refresh in JSON so we can
+ * keep localStorage in sync.
  *
- * Posts an empty body to /auth/token/refresh/. The browser attaches the
- * httpOnly refresh_token cookie automatically (first-party because the
- * dev proxy / Vercel rewrite makes FE+BE same-origin). Backend reads
- * the cookie, rotates it, sets a new cookie, and returns the new access
- * token in JSON.
+ * A 401 means the refresh token is missing or expired — clear local
+ * state and treat as session_expired.
  *
- * A 401 from this endpoint means the cookie is missing or expired — the
- * caller should treat it as session_expired and route to login.
- *
- * Single-flight concurrency control: if a refresh is already in flight,
- * subsequent callers await the same promise. Prevents races against
- * ROTATE_REFRESH_TOKENS + BLACKLIST_AFTER_ROTATION where a second
- * refresh would use the already-blacklisted token.
+ * Single-flight concurrency control: concurrent callers await the same
+ * promise. Prevents races against ROTATE_REFRESH_TOKENS + BLACKLIST_AFTER_
+ * ROTATION where a second refresh would use the already-blacklisted token.
  */
 let _refreshPromise = null;
 
@@ -131,11 +124,17 @@ export const refreshAccessToken = async () => {
   if (_refreshPromise) return _refreshPromise;
 
   _refreshPromise = (async () => {
+    const refreshToken = tokenManager.getRefreshToken();
+
+    if (!refreshToken) {
+      throw new ApiError('No refresh token available.', 401, 'no_refresh_token');
+    }
+
     const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: '{}',
+      credentials: 'include',  // also attaches the cookie if it's first-party
+      body: JSON.stringify({ refresh: refreshToken }),
     });
 
     if (!response.ok) {
@@ -145,9 +144,10 @@ export const refreshAccessToken = async () => {
 
     const data = await response.json();
     const newAccess = data.access || null;
+    const newRefresh = data.refresh || null;
 
     if (newAccess) {
-      tokenManager.setTokens(newAccess);
+      tokenManager.setTokens(newAccess, newRefresh);
     }
 
     return newAccess;

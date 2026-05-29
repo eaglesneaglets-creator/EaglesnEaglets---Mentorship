@@ -51,9 +51,10 @@ export default function MessageBubble({ message, isOwn, showAvatar, senderName, 
                     {!message.is_deleted && (
                         <button
                             onClick={() => setShowPicker((v) => !v)}
-                            className={`absolute top-1/2 -translate-y-1/2 ${isOwn ? '-left-7' : '-right-7'} opacity-0 group-hover:opacity-100 transition-opacity duration-150 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-xs`}
+                            aria-label="Add reaction"
+                            className={`absolute top-1/2 -translate-y-1/2 ${isOwn ? '-left-7' : '-right-7'} opacity-0 group-hover:opacity-100 transition-opacity duration-150 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500`}
                         >
-                            😊
+                            <span className="material-symbols-outlined text-base">add_reaction</span>
                         </button>
                     )}
                 </div>

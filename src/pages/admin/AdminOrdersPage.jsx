@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
+import SectionTabs from '../../shared/components/layout/SectionTabs';
+
+const STORE_TABS = [
+    { label: 'Catalog', to: '/admin/store' },
+    { label: 'Orders', to: '/admin/store/orders' },
+];
 import { useAdminOrders, useAdminOrderDetail, useUpdateOrderStatus } from '../../modules/store/hooks/useAdminOrders';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -364,6 +370,9 @@ const AdminOrdersPage = () => {
     return (
         <DashboardLayout variant="admin">
             <div className="space-y-6">
+                {/* Sub-section tabs (relocated from sidebar) */}
+                <SectionTabs tabs={STORE_TABS} />
+
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>

@@ -93,8 +93,8 @@ const Footer = () => {
                     © {currentYear} The Nest Community Platform. All rights reserved.
                 </p>
                 <div className="flex gap-6">
-                    <a href="#" className="text-slate-400 text-xs hover:text-slate-600">Privacy Policy</a>
-                    <a href="#" className="text-slate-400 text-xs hover:text-slate-600">Terms of Service</a>
+                    <Link to="/privacy" className="text-slate-400 text-xs hover:text-slate-600">Privacy Policy</Link>
+                    <Link to="/terms" className="text-slate-400 text-xs hover:text-slate-600">Terms of Service</Link>
                 </div>
             </div>
         </footer>

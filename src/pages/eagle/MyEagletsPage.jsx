@@ -2,7 +2,8 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
-import { useMyNests, useNestMembers } from '../../modules/nest/hooks/useNests';
+import { useOwnedNests, useNestMembers } from '../../modules/nest/hooks/useNests';
+import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -179,7 +180,7 @@ ActionBtn.propTypes = {
 /**
  * Single eaglet row
  */
-const EagletRow = ({ member, nestName, onViewProfile, onMessage, onManage, delay = 0 }) => {
+const EagletRow = ({ member, nestName, onViewProfile, onMessage, onManage, onAward, delay = 0 }) => {
   // Backend returns `user_details` from UserMinimalSerializer
   const user = member.user_details || member.user || member;
   const fullName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Eaglet';
@@ -276,6 +277,12 @@ const EagletRow = ({ member, nestName, onViewProfile, onMessage, onManage, delay
             className="text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
           />
           <ActionBtn
+            icon="military_tech"
+            title="Award points"
+            onClick={() => onAward(member)}
+            className="text-slate-400 hover:text-emerald-600 hover:bg-emerald-50"
+          />
+          <ActionBtn
             icon="manage_accounts"
             title="Manage eaglet"
             onClick={() => onManage(member)}
@@ -293,6 +300,7 @@ EagletRow.propTypes = {
   onViewProfile: PropTypes.func,
   onMessage: PropTypes.func,
   onManage: PropTypes.func,
+  onAward: PropTypes.func,
   delay: PropTypes.number,
 };
 
@@ -341,7 +349,14 @@ const NestMembersLoader = ({ nestId, nestName, onLoaded }) => {
   const { data, isSuccess } = useNestMembers(nestId);
   useEffect(() => {
     if (isSuccess) {
-      const members = data?.data?.results ?? data?.data ?? (Array.isArray(data) ? data : []);
+      // BE returns DRF-paginated `{count, next, previous, results: [...]}` directly.
+      // Older custom-action endpoints wrap in `{success, data: [...]}`.
+      // Walk both shapes; default to [].
+      const members =
+        data?.results ??
+        data?.data?.results ??
+        data?.data ??
+        (Array.isArray(data) ? data : []);
       onLoaded(nestId, nestName, members);
     }
   }, [isSuccess, data, nestId, nestName, onLoaded]);
@@ -358,15 +373,32 @@ NestMembersLoader.propTypes = {
 
 const ITEMS_PER_PAGE = 8;
 
-const MyEagletsPage = () => {
+/**
+ * MyEagletsSection — embeddable body, no DashboardLayout wrapper.
+ *
+ * Used standalone via MyEagletsPage (route /eagle/eaglets, legacy) and
+ * embedded as a tab in NestCommunityHubPage. The two consumers share
+ * filtering, pagination, and the award-points flow.
+ *
+ * `embedded` hides the PageBackground + header so the parent owns the
+ * surrounding chrome.
+ */
+export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = null, nestName: providedNestName = null }) => {
   const navigate = useNavigate();
 
-  // Fetch the mentor's nests
-  const { data: nestsData, isLoading: nestsLoading } = useMyNests();
+  // Nest discovery:
+  // - Embedded mode (inside NestCommunityHubPage): caller hands us the
+  //   nest directly, so we skip the API roundtrip.
+  // - Legacy /eagle/eaglets route: list the mentor's owned nests so we
+  //   can aggregate their members across all of them.
+  const { data: nestsData, isLoading: nestsLoading } = useOwnedNests();
   const nests = useMemo(() => {
+    if (providedNestId) {
+      return [{ id: providedNestId, name: providedNestName || 'My Nest' }];
+    }
     const raw = nestsData?.data?.results ?? nestsData?.data ?? (Array.isArray(nestsData) ? nestsData : []);
     return raw;
-  }, [nestsData]);
+  }, [providedNestId, providedNestName, nestsData]);
 
   // Accumulate members across all nests as they load
   const [membersMap, setMembersMap] = useState({});
@@ -426,7 +458,9 @@ const MyEagletsPage = () => {
     ? Math.round(allEaglets.reduce((sum, m) => sum + (m.progress ?? 0), 0) / totalEaglets)
     : 0;
 
-  const isLoading = nestsLoading || (nests.length > 0 && Object.keys(membersMap).length < nests.length);
+  const isLoading =
+    (providedNestId ? false : nestsLoading) ||
+    (nests.length > 0 && Object.keys(membersMap).length < nests.length);
 
   // Actions
   const handleViewProfile = useCallback((member) => {
@@ -443,13 +477,26 @@ const MyEagletsPage = () => {
     if (nestId) navigate(`/eagle/nests/${nestId}`);
   }, [navigate]);
 
+  // Award-points modal state. Pre-fills eaglet + nest so mentor skips
+  // the dropdowns when launching from a row.
+  const [awardModal, setAwardModal] = useState({ open: false, eagletId: null, nestId: null });
+  const handleAward = useCallback((member) => {
+    const uid = member.user_details?.id || member.user?.id || member.id;
+    const nid = member.nest || member.nest_id || null;
+    setAwardModal({ open: true, eagletId: uid, nestId: nid });
+  }, []);
+  const closeAwardModal = useCallback(
+    () => setAwardModal({ open: false, eagletId: null, nestId: null }),
+    [],
+  );
+
   const nestNames = useMemo(
     () => [...new Set(Object.values(membersMap).map((v) => v.nestName).filter(Boolean))],
     [membersMap]
   );
 
   return (
-    <DashboardLayout variant="eagle">
+    <>
       {/* Load members for each nest (side-effect loaders) */}
       {nests.map((nest) => (
         <NestMembersLoader
@@ -460,45 +507,47 @@ const MyEagletsPage = () => {
         />
       ))}
 
-      <PageBackground />
+      {!embedded && <PageBackground />}
 
       <div className="space-y-7 animate-fade-in-up pb-8">
 
-        {/* ── Page Header ──────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-1 h-7 rounded-full bg-gradient-to-b from-primary to-blue-400" />
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
-                My Eaglets
-              </h1>
+        {/* ── Page Header (hidden when embedded — host page owns the header) ── */}
+        {!embedded && (
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1 h-7 rounded-full bg-gradient-to-b from-primary to-blue-400" />
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
+                  My Eaglets
+                </h1>
+              </div>
+              <p className="text-slate-500 text-sm pl-3">
+                Manage and monitor the progress of your mentees across all Nests.
+              </p>
             </div>
-            <p className="text-slate-500 text-sm pl-3">
-              Manage and monitor the progress of your mentees across all Nests.
-            </p>
-          </div>
 
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <Link
-              to="/eagle/nests"
-              className="group flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm text-sm font-semibold text-slate-600 hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:-rotate-12">
-                diversity_3
-              </span>
-              Manage Nests
-            </Link>
-            <Link
-              to="/eagle/messages"
-              className="group flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary/90 text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
-            >
-              <span className="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:rotate-12">
-                send
-              </span>
-              Broadcast Message
-            </Link>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <Link
+                to="/eagle/nests"
+                className="group flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm text-sm font-semibold text-slate-600 hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:-rotate-12">
+                  diversity_3
+                </span>
+                Manage Nest
+              </Link>
+              <Link
+                to="/eagle/messages"
+                className="group flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary/90 text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <span className="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:rotate-12">
+                  send
+                </span>
+                Broadcast Message
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ── Stat Cards ───────────────────────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -626,6 +675,7 @@ const MyEagletsPage = () => {
                       onViewProfile={handleViewProfile}
                       onMessage={handleMessage}
                       onManage={handleManage}
+                      onAward={handleAward}
                       delay={i * 40}
                     />
                   ))
@@ -699,8 +749,8 @@ const MyEagletsPage = () => {
           )}
         </div>
 
-        {/* ── Quick-access: Nest Cards ─────────────────────────────── */}
-        {nests.length > 0 && (
+        {/* ── Quick-access: Nest Cards (legacy /eagle/eaglets only) ── */}
+        {!embedded && nests.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
@@ -749,8 +799,8 @@ const MyEagletsPage = () => {
           </div>
         )}
 
-        {/* ── No nests fallback ────────────────────────────────────── */}
-        {!nestsLoading && nests.length === 0 && (
+        {/* ── No nests fallback (legacy mode only) ─────────────────── */}
+        {!embedded && !nestsLoading && nests.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-blue-50 flex items-center justify-center mb-5">
               <span className="material-symbols-outlined text-4xl text-primary/40">nest_eco_leaf</span>
@@ -782,8 +832,32 @@ const MyEagletsPage = () => {
           50% { transform: translate(-50px, -25px) scale(1.03); }
         }
       `}</style>
-    </DashboardLayout>
+
+      <AwardPointsModal
+        isOpen={awardModal.open}
+        onClose={closeAwardModal}
+        prefillEagletId={awardModal.eagletId}
+        prefillNestId={awardModal.nestId}
+      />
+    </>
   );
 };
+
+MyEagletsSection.propTypes = {
+  embedded: PropTypes.bool,
+  nestId: PropTypes.string,
+  nestName: PropTypes.string,
+};
+
+/**
+ * Legacy /eagle/eaglets route wrapper. Keeps the standalone page reachable
+ * for deep links while the canonical home is the Eaglets tab in
+ * NestCommunityHubPage.
+ */
+const MyEagletsPage = () => (
+  <DashboardLayout variant="eagle">
+    <MyEagletsSection />
+  </DashboardLayout>
+);
 
 export default MyEagletsPage;

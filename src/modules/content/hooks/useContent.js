@@ -15,6 +15,8 @@ export const contentKeys = {
 
     progress: () => [...contentKeys.all, 'progress'],
     myProgress: () => [...contentKeys.progress(), 'my'],
+    /** Per-item progress LIST (rows of ContentProgress), optionally nest-scoped. */
+    progressList: (nestId = null) => [...contentKeys.progress(), 'list', nestId],
     submissions: (params) => [...contentKeys.assignments(), 'submissions', params],
 };
 
@@ -138,10 +140,24 @@ export const useDeleteItem = (moduleId) => {
 
 // --- Progress Hooks ---
 
+/** Dashboard-style aggregate (total_items, completed, average_progress, etc). */
 export const useMyProgress = () => {
     return useQuery({
         queryKey: contentKeys.myProgress(),
         queryFn: () => ContentService.getMyProgress(),
+    });
+};
+
+/**
+ * Per-item progress rows — full ContentProgress objects with content_item
+ * and status. Use this when you need to know WHICH items are completed
+ * (sidebar locks, completion checkmarks). The summary endpoint is not a
+ * substitute — it only gives counts.
+ */
+export const useContentProgressList = (nestId = null) => {
+    return useQuery({
+        queryKey: contentKeys.progressList(nestId),
+        queryFn: () => ContentService.getContentProgress(nestId ? { nest: nestId } : undefined),
     });
 };
 
@@ -156,7 +172,12 @@ export const useUpdateProgress = () => {
             queryClient.invalidateQueries({ queryKey: analyticsKeys.eagletDashboard() });
             // Refresh points data since completion triggers auto-award
             queryClient.invalidateQueries({ queryKey: ['points'] });
-        }
+        },
+        onError: (error) => {
+            // Surface BE failures (403, validation, etc) so they stop being
+            // silent — used to look like the Mark-as-Complete button did nothing.
+            toast.error(error?.message || 'Could not save progress.');
+        },
     });
 };
 

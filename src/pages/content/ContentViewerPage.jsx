@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
-import { useModuleDetail, useModuleItems, useUpdateProgress } from '../../modules/content/hooks/useContent';
+import { useModuleDetail, useModuleItems, useUpdateProgress, useContentProgressList } from '../../modules/content/hooks/useContent';
 import toast from 'react-hot-toast';
 import DocumentViewer from '../../shared/components/visual/DocumentViewer';
 import { sanitizeUrl } from '../../shared/utils/sanitize';
@@ -13,6 +13,26 @@ const TYPE_CONFIG = {
     document: { icon: 'description', color: 'emerald', label: 'Document' },
     reading: { icon: 'menu_book', color: 'emerald', label: 'Reading' },
     quiz: { icon: 'quiz', color: 'emerald', label: 'Quiz' },
+};
+
+/**
+ * Detect external video providers whose URLs can't be played in a native
+ * <video> tag (they block via X-Frame-Options or aren't raw media).
+ * Returns an embed URL or null if the URL isn't an embeddable provider.
+ */
+const toExternalEmbed = (url) => {
+    if (!url || typeof url !== 'string') return null;
+    // YouTube — covers: youtu.be/X, (www|m).youtube.com/watch?v=X[&…],
+    // /embed/X, /shorts/X, /v/X, /live/X. Captures 11-char video ID first;
+    // anything after `&`, `?` or `/` is ignored.
+    const yt = url.match(
+        /(?:youtu\.be\/|(?:www\.|m\.)?youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/|v\/|live\/))([A-Za-z0-9_-]{11})/,
+    );
+    if (yt) return `https://www.youtube.com/embed/${yt[1]}?rel=0&modestbranding=1&playsinline=1`;
+    // Vimeo — vimeo.com/{id} or vimeo.com/video/{id} or player.vimeo.com/video/{id}
+    const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+    return null;
 };
 
 
@@ -28,13 +48,33 @@ const ContentViewerPage = () => {
     const [, setProgressPercentage] = useState(0);
     const [lastSyncTime, setLastSyncTime] = useState(0);
     const [isSaving, setIsSaving] = useState(false);
-    const [completedItems, setCompletedItems] = useState(new Set());
 
     const { data: moduleResponse, isLoading: moduleLoading } = useModuleDetail(moduleId);
     const { data: itemsResponse, isLoading: itemsLoading } = useModuleItems(moduleId);
+    // Per-item rows (not the dashboard summary) — we need individual
+    // content_item IDs + status to drive the sidebar locks + progress bar.
+    const { data: progressResponse } = useContentProgressList();
 
     const moduleData = moduleResponse?.data || moduleResponse || {};
     const items = useMemo(() => itemsResponse?.data?.data || itemsResponse?.data || [], [itemsResponse]);
+
+    // Scope completedItems to THIS module's items. The list endpoint returns
+    // every progress row the user has across the platform; if 4 of those land
+    // against a 3-item module we'd render 133%. Intersect with current items.
+    const moduleItemIds = useMemo(
+        () => new Set(items.map(i => i.id)),
+        [items],
+    );
+    const completedItems = useMemo(() => {
+        const records = progressResponse?.data || progressResponse?.results || [];
+        if (!Array.isArray(records)) return new Set();
+        return new Set(
+            records
+                .filter(r => r.status === 'completed' || r.progress_percentage >= 100)
+                .map(r => r.content_item?.id ?? r.content_item)
+                .filter(id => id && moduleItemIds.has(id)),
+        );
+    }, [progressResponse, moduleItemIds]);
 
     const effectiveItemId = activeItemId ?? items[0]?.id ?? null;
 
@@ -43,28 +83,34 @@ const ContentViewerPage = () => {
     const hasPrev = activeIndex > 0;
     const hasNext = activeIndex < items.length - 1;
 
+    /**
+     * Sequential lock: item at index N is unlocked iff item N-1 is completed.
+     * First item always unlocked. Mentors/admins bypass the lock entirely
+     * since they're authoring, not learning.
+     */
+    const isAuthor = user?.role === 'eagle' || user?.role === 'admin';
+    const isItemUnlocked = useCallback((idx) => {
+        if (isAuthor) return true;
+        if (idx <= 0) return true;
+        const prev = items[idx - 1];
+        return prev ? completedItems.has(prev.id) : false;
+    }, [items, completedItems, isAuthor]);
+
+    const nextIsUnlocked = isItemUnlocked(activeIndex + 1);
+
     // Progress sync (throttled)
     const syncProgressToServer = useCallback(
         (percent, duration, force = false) => {
             const now = Date.now();
             if (force || now - lastSyncTime > 5000) {
                 if (activeItem?.id) {
-                    updateProgress(
-                        {
-                            itemId: activeItem.id,
-                            data: {
-                                progress_percentage: percent,
-                                watch_duration_seconds: duration,
-                            },
+                    updateProgress({
+                        itemId: activeItem.id,
+                        data: {
+                            progress_percentage: percent,
+                            watch_duration_seconds: duration,
                         },
-                        {
-                            onSuccess: () => {
-                                if (force && percent >= 100) {
-                                    setCompletedItems(prev => new Set([...prev, activeItem.id]));
-                                }
-                            }
-                        }
-                    );
+                    });
                     setLastSyncTime(now);
                 }
             }
@@ -115,9 +161,12 @@ const ContentViewerPage = () => {
 
     const goToItem = (direction) => {
         const nextIndex = direction === 'next' ? activeIndex + 1 : activeIndex - 1;
-        if (nextIndex >= 0 && nextIndex < items.length) {
-            setActiveItemId(items[nextIndex].id);
+        if (nextIndex < 0 || nextIndex >= items.length) return;
+        if (direction === 'next' && !isItemUnlocked(nextIndex)) {
+            toast.error('Complete the current lesson first.');
+            return;
         }
+        setActiveItemId(items[nextIndex].id);
     };
 
     const isLoading = moduleLoading || itemsLoading;
@@ -234,26 +283,49 @@ const ContentViewerPage = () => {
                                             {/* Viewer Container */}
                                             <div className="relative aspect-video w-full rounded-2xl md:rounded-3xl overflow-hidden bg-slate-50 shadow-2xl shadow-emerald-500/5 mb-6 md:mb-10 border border-slate-200">
 
-                                                {activeItem.content_type === 'video' ? (
-                                                    <video
-                                                        ref={videoRef}
-                                                        key={activeItem.id}
-                                                        src={activeItem.file_url}
-                                                        controls
-                                                        className="w-full h-full object-contain"
-                                                        onTimeUpdate={handleTimeUpdate}
-                                                        onEnded={handleVideoEnded}
-                                                        controlsList="nodownload"
-                                                        playsInline
-                                                        preload="metadata"
-                                                    />
-                                                ) : (
-                                                    <DocumentViewer
-                                                        url={sanitizeUrl(activeItem.file_url)}
-                                                        type={activeItem.content_type}
-                                                        title={activeItem.title}
-                                                    />
-                                                )}
+                                                {(() => {
+                                                    // 1. Any YouTube/Vimeo URL → iframe, regardless
+                                                    //    of how the mentor classified the item.
+                                                    //    Native <video> can't load those (X-Frame-Options).
+                                                    // 2. Other URLs + content_type='video' → native <video>.
+                                                    // 3. Everything else → DocumentViewer (PDF/image).
+                                                    const embedUrl = toExternalEmbed(activeItem.file_url);
+                                                    if (embedUrl) {
+                                                        return (
+                                                            <iframe
+                                                                key={activeItem.id}
+                                                                src={embedUrl}
+                                                                title={activeItem.title}
+                                                                className="w-full h-full"
+                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                allowFullScreen
+                                                            />
+                                                        );
+                                                    }
+                                                    if (activeItem.content_type === 'video') {
+                                                        return (
+                                                            <video
+                                                                ref={videoRef}
+                                                                key={activeItem.id}
+                                                                src={sanitizeUrl(activeItem.file_url)}
+                                                                controls
+                                                                className="w-full h-full object-contain"
+                                                                onTimeUpdate={handleTimeUpdate}
+                                                                onEnded={handleVideoEnded}
+                                                                controlsList="nodownload"
+                                                                playsInline
+                                                                preload="metadata"
+                                                            />
+                                                        );
+                                                    }
+                                                    return (
+                                                        <DocumentViewer
+                                                            url={sanitizeUrl(activeItem.file_url)}
+                                                            type={activeItem.content_type}
+                                                            title={activeItem.title}
+                                                        />
+                                                    );
+                                                })()}
                                             </div>
 
                                             {/* Lesson Description */}
@@ -352,19 +424,34 @@ const ContentViewerPage = () => {
 
                                 <button
                                     onClick={() => goToItem('next')}
-                                    disabled={!hasNext}
+                                    disabled={!hasNext || !nextIsUnlocked}
+                                    title={!nextIsUnlocked ? 'Complete the current lesson to unlock the next.' : undefined}
                                     className="flex items-center gap-1.5 sm:gap-3 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-900 text-white font-black transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-30 shadow-xl shadow-slate-900/20 text-sm sm:text-base"
                                 >
                                     <span className="hidden sm:inline">Next</span>
-                                    <span className="material-symbols-outlined text-lg sm:text-2xl">arrow_forward</span>
+                                    <span className="material-symbols-outlined text-lg sm:text-2xl">
+                                        {hasNext && !nextIsUnlocked ? 'lock' : 'arrow_forward'}
+                                    </span>
                                 </button>
 
                             </div>
                         </footer>
                     </main>
 
-                    {/* 4. Right Sidebar: Course Content — slides in/out on all screen sizes */}
-                    <aside id="course-content-sidebar" className={`shrink-0 border-l border-slate-200 bg-slate-50/30 flex flex-col overflow-hidden transition-all duration-300 absolute lg:static inset-y-0 right-0 z-30 shadow-2xl lg:shadow-none ${sidebarOpen ? 'w-[85vw] sm:w-[340px] lg:w-[400px]' : 'w-0'}`}>
+                    {/* Mobile backdrop — click anywhere outside the drawer to close it. */}
+                    {sidebarOpen && (
+                        <button
+                            type="button"
+                            aria-label="Close course content"
+                            onClick={() => setSidebarOpen(false)}
+                            className="lg:hidden fixed inset-0 z-20 bg-slate-900/40 backdrop-blur-sm cursor-pointer"
+                        />
+                    )}
+
+                    {/* 4. Right Sidebar: Course Content — slides in/out on all screen sizes.
+                        Solid white bg (was bg-slate-50/30 which rendered the underlying
+                        viewer through the panel on mobile). */}
+                    <aside id="course-content-sidebar" className={`shrink-0 border-l border-slate-200 bg-white flex flex-col overflow-hidden transition-all duration-300 absolute lg:static inset-y-0 right-0 z-30 shadow-2xl lg:shadow-none ${sidebarOpen ? 'w-[85vw] sm:w-[340px] lg:w-[400px]' : 'w-0'}`}>
                         <div className="shrink-0 p-6 flex items-center justify-between border-b border-slate-200 bg-white">
                             <div className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-emerald-500">list_alt</span>
@@ -383,7 +470,10 @@ const ContentViewerPage = () => {
                                 ))
                             ) : (
                                 <div className="space-y-1">
-                                    {items.map((group, gIdx) => (
+                                    {items.map((group, gIdx) => {
+                                        const unlocked = isItemUnlocked(gIdx);
+                                        const completed = isCompleted(group.id);
+                                        return (
                                         <div key={gIdx} className="border-b border-slate-100 last:border-0">
                                             <div className="px-6 py-4 bg-white flex items-center justify-between cursor-pointer group">
                                                 <h4 className="font-black text-[11px] text-emerald-600 uppercase tracking-widest">
@@ -395,10 +485,21 @@ const ContentViewerPage = () => {
 
                                             {/* Sub-item matching your reference (2.1, 2.2, etc) */}
                                             <button
-                                                onClick={() => setActiveItemId(group.id)}
-                                                className={`w-full text-left px-6 py-6 flex items-center gap-5 transition-all relative ${effectiveItemId === group.id
-                                                    ? 'bg-emerald-50/50'
-                                                    : 'hover:bg-slate-50'
+                                                onClick={() => {
+                                                    if (!unlocked) {
+                                                        toast.error('Complete previous lessons first.');
+                                                        return;
+                                                    }
+                                                    setActiveItemId(group.id);
+                                                }}
+                                                disabled={!unlocked}
+                                                title={!unlocked ? 'Locked — finish the previous lesson to unlock.' : undefined}
+                                                className={`w-full text-left px-6 py-6 flex items-center gap-5 transition-all relative ${
+                                                    !unlocked
+                                                        ? 'opacity-60 cursor-not-allowed bg-slate-50/50'
+                                                        : effectiveItemId === group.id
+                                                            ? 'bg-emerald-50/50'
+                                                            : 'hover:bg-slate-50'
                                                     }`}
                                             >
 
@@ -407,14 +508,14 @@ const ContentViewerPage = () => {
                                                     <motion.div layoutId="sidebar-active" className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
                                                 )}
 
-                                                <div className={`shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${isCompleted(group.id)
+                                                <div className={`shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${completed
                                                     ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                                                     : effectiveItemId === group.id
                                                         ? 'bg-slate-900 text-white shadow-lg'
                                                         : 'bg-slate-100 text-slate-400'
                                                     }`}>
 
-                                                    {isCompleted(group.id) ? (
+                                                    {completed ? (
                                                         <span className="material-symbols-outlined text-[20px]">check</span>
                                                     ) : effectiveItemId === group.id ? (
                                                         <span className="material-symbols-outlined text-[20px] animate-pulse">play_arrow</span>
@@ -445,12 +546,17 @@ const ContentViewerPage = () => {
                                                     </div>
                                                 </div>
 
-                                                {!isCompleted(group.id) && group.is_required && (
+                                                {/* Trailing indicator: lock if not yet unlocked,
+                                                    check_circle if completed, blank otherwise. */}
+                                                {!unlocked ? (
                                                     <span className="material-symbols-outlined text-[18px] text-slate-300">lock</span>
-                                                )}
+                                                ) : completed ? (
+                                                    <span className="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span>
+                                                ) : null}
                                             </button>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>

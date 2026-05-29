@@ -242,8 +242,8 @@ export default function DonationAnalytics() {
             <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="donGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -253,11 +253,11 @@ export default function DonationAnalytics() {
               <Area
                 type="monotone"
                 dataKey="amount"
-                stroke="#22c55e"
+                stroke="#10b981"
                 strokeWidth={2.5}
                 fill="url(#donGrad)"
-                dot={{ fill: '#22c55e', r: 4, strokeWidth: 0 }}
-                activeDot={{ r: 6, fill: '#16a34a' }}
+                dot={{ fill: '#10b981', r: 4, strokeWidth: 0 }}
+                activeDot={{ r: 6, fill: '#059669' }}
               />
             </AreaChart>
           </ResponsiveContainer>

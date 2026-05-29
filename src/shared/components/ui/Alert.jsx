@@ -23,7 +23,7 @@ const Alert = ({
     success: {
       bg: 'bg-success-light',
       border: 'border-success/30',
-      text: 'text-green-800',
+      text: 'text-emerald-800',
       iconColor: 'text-success',
     },
     warning: {

@@ -17,7 +17,7 @@ const AnimatedBg = () => (
         <motion.div
             animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
             transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-green-100/20 rounded-full blur-3xl"
+            className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-emerald-100/20 rounded-full blur-3xl"
         />
     </div>
 );
@@ -515,7 +515,7 @@ const ResourceCenterPage = () => {
                                 initial={{ opacity: 0, x: 16 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border border-emerald-200/50 p-5"
+                                className="bg-gradient-to-br from-emerald-50 to-emerald-50 rounded-2xl border border-emerald-200/50 p-5"
                             >
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-primary mb-4">
                                     YOUR PROGRESS
