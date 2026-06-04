@@ -25,10 +25,14 @@ export default function ReasonModal({ config, onClose }) {
         confirmLabel = 'Submit',
         variant = 'danger',
         required = false,
+        minLength = 0,
         onConfirm,
     } = config;
 
-    const valid = !required || reason.trim().length > 0;
+    const trimmedLen = reason.trim().length;
+    const meetsMin = trimmedLen >= minLength;
+    const meetsRequired = !required || trimmedLen > 0;
+    const valid = meetsRequired && meetsMin;
 
     const handleConfirm = () => {
         if (!valid) return;
@@ -53,6 +57,13 @@ export default function ReasonModal({ config, onClose }) {
                     placeholder={required ? 'Required — explain your decision' : 'Optional — share context with the mentee'}
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                 />
+                {minLength > 0 && (
+                    <p className={`text-xs mt-2 ${trimmedLen < minLength ? 'text-red-600' : 'text-slate-500'}`}>
+                        {trimmedLen < minLength
+                            ? `Need ${minLength - trimmedLen} more character${minLength - trimmedLen === 1 ? '' : 's'} (minimum ${minLength})`
+                            : `${trimmedLen} characters`}
+                    </p>
+                )}
             </Modal.Body>
             <Modal.Footer>
                 <button
@@ -80,6 +91,7 @@ ReasonModal.propTypes = {
         confirmLabel: PropTypes.string,
         variant: PropTypes.oneOf(['danger', 'primary']),
         required: PropTypes.bool,
+        minLength: PropTypes.number,
         onConfirm: PropTypes.func.isRequired,
     }),
     onClose: PropTypes.func.isRequired,

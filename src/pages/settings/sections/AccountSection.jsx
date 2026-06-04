@@ -6,7 +6,9 @@ import DeleteAccountSection from './account/DeleteAccountSection';
 
 export default function AccountSection() {
   const { user } = useAuthStore();
-  const isMentor = user?.role === 'eagle';
+  // Plan 22-02: opened to eaglets as well. Pure admins + visitors still skipped.
+  const canSeeAdminRoleSection =
+    user?.role === 'eagle' || user?.role === 'eaglet';
 
   return (
     <div className="space-y-6">
@@ -16,8 +18,8 @@ export default function AccountSection() {
       </div>
       <PasswordChangeForm />
       <EmailChangeForm />
-      {/* Admin role EOI lives here for mentors only — never shown to mentees. */}
-      {isMentor && <AdminRoleSection />}
+      {/* Admin role EOI surface — mentors and mentees per plan 22. */}
+      {canSeeAdminRoleSection && <AdminRoleSection />}
       <DeleteAccountSection />
     </div>
   );

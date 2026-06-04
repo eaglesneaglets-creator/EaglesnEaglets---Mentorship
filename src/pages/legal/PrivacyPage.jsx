@@ -1,15 +1,7 @@
 import { Link } from 'react-router-dom';
 import LegalPageLayout from '@shared/components/legal/LegalPageLayout';
-
-const PRIVACY_VERSION = '2026-05-28';
-const LAST_UPDATED = 'May 28, 2026';
-
-/** Inline marker for clauses that need licensed-counsel review per jurisdiction. */
-const ReviewFlag = () => (
-  <span className="inline-block ml-1 text-xs font-semibold text-amber-700 whitespace-nowrap">
-    → legal review required
-  </span>
-);
+import ReviewFlag from '@shared/components/legal/ReviewFlag';
+import { LEGAL_DOCUMENT_VERSION, LEGAL_LAST_UPDATED } from '@shared/components/legal/legalDocumentMeta';
 
 /**
  * PrivacyPage — first-draft Privacy Policy for Eagles & Eaglets, rendered through
@@ -17,7 +9,7 @@ const ReviewFlag = () => (
  * markdown dependency). Jurisdiction-specific clauses carry a review marker.
  */
 const PrivacyPage = () => (
-  <LegalPageLayout title="Privacy Policy" version={PRIVACY_VERSION} lastUpdated={LAST_UPDATED}>
+  <LegalPageLayout title="Privacy Policy" version={LEGAL_DOCUMENT_VERSION} lastUpdated={LEGAL_LAST_UPDATED}>
     <section>
       <h2>1. Introduction &amp; Scope</h2>
       <p>

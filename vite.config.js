@@ -70,9 +70,6 @@ export default defineConfig(({ mode }) => {
             }
             if (id.includes('/react-router') || id.includes('/react-router-dom/')) return 'router';
 
-            // Three.js + Vanta (landing page 3D background) — large but isolated
-            if (id.includes('/three/') || id.includes('/vanta/')) return 'three';
-
             // Emoji picker — emoji-mart "native" entry was producing a 432 kB unnamed chunk
             if (id.includes('/emoji-mart/') || id.includes('/@emoji-mart/')) return 'emoji';
 

@@ -30,7 +30,7 @@ const processQueue = (error, token = null) => {
 /**
  * Custom API Error class
  */
-export class ApiError extends Error {
+class ApiError extends Error {
   constructor(message, status, code, details = null) {
     super(message);
     this.name = 'ApiError';

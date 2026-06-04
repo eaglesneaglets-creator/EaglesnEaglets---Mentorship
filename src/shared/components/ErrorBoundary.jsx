@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
+import { isChunkLoadError, reloadOnceForChunkMiss } from '../../lib/chunkReload';
 
 /**
  * Error Boundary Component
@@ -22,6 +23,13 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
+    // Stale-chunk auto-recovery: if a lazy import failed (typical after a
+    // deploy or HMR rebuild), reload once before surfacing the error UI.
+    // Throttled via sessionStorage so a real bug can't loop forever.
+    if (isChunkLoadError(error) && reloadOnceForChunkMiss()) {
+      return;
+    }
+
     // Log error to error reporting service
     this.setState({ errorInfo });
 

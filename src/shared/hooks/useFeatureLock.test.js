@@ -58,13 +58,33 @@ describe('useFeatureLock', () => {
         expect(result.current.isLocked).toBe(false);
     });
 
-    it('defaults to isLocked=true for eaglet when accessStatus has not loaded yet', () => {
+    it('reports isChecking=true (NOT isLocked) for eaglet when accessStatus has not loaded yet', () => {
         mockStore('eaglet', { accessStatusLoaded: false });
         useLockedFeatures.mockReturnValue([]);
 
         const { result } = renderHook(() => useFeatureLock('assignments'));
-        // Pessimistic default — prevents transient unlocked render + 403 spam.
-        expect(result.current.isLocked).toBe(true);
+        // Separate "checking" from "locked" — callers render a neutral loader
+        // instead of the lock modal so users with access don't see a flash.
+        expect(result.current.isChecking).toBe(true);
+        expect(result.current.isLocked).toBe(false);
+    });
+
+    it('isChecking=false for eagle/admin even when accessStatus has not loaded', () => {
+        mockStore('eagle', { accessStatusLoaded: false });
+        useLockedFeatures.mockReturnValue([]);
+
+        const { result } = renderHook(() => useFeatureLock('assignments'));
+        expect(result.current.isChecking).toBe(false);
+        expect(result.current.isLocked).toBe(false);
+    });
+
+    it('isChecking=false for eaglet on a non-gated feature key', () => {
+        mockStore('eaglet', { accessStatusLoaded: false });
+        useLockedFeatures.mockReturnValue([]);
+
+        const { result } = renderHook(() => useFeatureLock('unknown_key'));
+        expect(result.current.isChecking).toBe(false);
+        expect(result.current.isLocked).toBe(false);
     });
 
     it('toggles modal open/close state', () => {

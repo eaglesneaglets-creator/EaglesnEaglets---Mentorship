@@ -5,7 +5,7 @@ import ChatService from '../services/chat-service';
 import { useWebSocket } from '@hooks/useWebSocket';
 import { useAuthStore } from '@store';
 
-export const chatKeys = {
+const chatKeys = {
     all: ['chat'],
     conversations: () => [...chatKeys.all, 'conversations'],
     messages: (convId) => [...chatKeys.all, 'messages', convId],
@@ -58,14 +58,6 @@ export const useMessages = (conversationId, { enabled = true } = {}) =>
         }),
         enabled: !!conversationId && enabled,
         staleTime: 0, // always fresh — WS keeps it updated
-    });
-
-export const useNestConversation = (nestId) =>
-    useQuery({
-        queryKey: chatKeys.nestConversation(nestId),
-        queryFn: () => ChatService.getNestConversation(nestId),
-        select: (data) => data?.data,
-        enabled: !!nestId,
     });
 
 export const useCreateDM = () => {

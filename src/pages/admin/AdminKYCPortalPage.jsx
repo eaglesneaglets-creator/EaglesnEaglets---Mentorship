@@ -4,11 +4,7 @@ import { Alert } from '@components/ui';
 import { adminService } from '../../modules/auth/services/auth-service';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import SectionTabs from '../../shared/components/layout/SectionTabs';
-
-const USERS_TABS = [
-  { label: 'All Users', to: '/admin/users' },
-  { label: 'KYC Reviews', to: '/admin/kyc' },
-];
+import { ADMIN_USERS_TABS } from './adminUsersTabs';
 
 /**
  * Stat Card Component
@@ -333,7 +329,7 @@ const AdminKYCPortalPage = () => {
     <DashboardLayout variant="admin">
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Sub-section tabs (relocated from sidebar) */}
-        <SectionTabs tabs={USERS_TABS} />
+        <SectionTabs tabs={ADMIN_USERS_TABS} />
 
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">

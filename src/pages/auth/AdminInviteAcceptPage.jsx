@@ -87,7 +87,7 @@ export default function AdminInviteAcceptPage() {
     // Already attempted (pending, success, or error) — don't re-fire.
     if (tokenResults.has(token)) return;
 
-    setTokenResult(token, { status: 'pending' });
+    setTokenResult(token, { status: 'pending', startedAt: Date.now() });
     acceptMutation.mutate(token, {
       onSuccess: () => {
         setTokenResult(token, { status: 'success' });
@@ -102,6 +102,39 @@ export default function AdminInviteAcceptPage() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, user?.id, token]);
+
+  // Watchdog: if the mutation hasn't resolved (success or error) within 15s,
+  // flip to a recoverable error state. Without this, an orphaned pending entry
+  // in tokenResults (e.g. user navigated away mid-mutation) would keep the
+  // page stuck on "Processing invite…" forever on every revisit.
+  useEffect(() => {
+    if (!token || recorded?.status !== 'pending') return;
+    const startedAt = recorded.startedAt || Date.now();
+    const remaining = Math.max(0, 15_000 - (Date.now() - startedAt));
+    const timer = setTimeout(() => {
+      const latest = tokenResults.get(token);
+      if (latest?.status === 'pending') {
+        setTokenResult(token, { status: 'error', code: 'timeout' });
+      }
+    }, remaining);
+    return () => clearTimeout(timer);
+  }, [token, recorded?.status, recorded?.startedAt]);
+
+  const handleRetry = () => {
+    if (!token) return;
+    tokenResults.delete(token);
+    setTokenResult(token, { status: 'pending', startedAt: Date.now() });
+    acceptMutation.mutate(token, {
+      onSuccess: () => {
+        setTokenResult(token, { status: 'success' });
+        refreshAccessStatus?.();
+      },
+      onError: (err) => {
+        const code = err?.code || err?.response?.data?.error?.type || 'invalid';
+        setTokenResult(token, { status: 'error', code });
+      },
+    });
+  };
 
   // Unauthenticated → bounce to login with redirect target.
   if (!isAuthenticated) {
@@ -198,6 +231,40 @@ export default function AdminInviteAcceptPage() {
     );
   }
 
+  // ─── Timeout (watchdog) — give a retry CTA, not a dead-end ──────────────
+  if (recorded?.status === 'error' && recorded.code === 'timeout') {
+    return (
+      <Shell>
+        <Card
+          icon="schedule"
+          iconBg="bg-amber-50 text-amber-600"
+          title="Taking longer than expected"
+          actions={
+            <>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="px-6 py-3 rounded-full text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
+              >
+                Try again
+              </button>
+              <Link
+                to="/"
+                className="px-5 py-2.5 rounded-full text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors text-center"
+              >
+                Go home
+              </Link>
+            </>
+          }
+        >
+          <p>
+            We couldn&apos;t verify your invite in time. Check your connection and try again.
+          </p>
+        </Card>
+      </Shell>
+    );
+  }
+
   // ─── Invalid / expired (generic to prevent enumeration) ──────────────────
   if (recorded?.status === 'error') {
     return (
@@ -207,16 +274,25 @@ export default function AdminInviteAcceptPage() {
           iconBg="bg-slate-100 text-slate-500"
           title="Invite no longer valid"
           actions={
-            <Link
-              to="/"
-              className="px-6 py-3 rounded-full text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
-            >
-              Go home
-            </Link>
+            <>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
+              >
+                Try again
+              </button>
+              <Link
+                to="/"
+                className="px-5 py-2.5 rounded-full text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors text-center"
+              >
+                Go home
+              </Link>
+            </>
           }
         >
           <p>
-            This invite link can&apos;t be used. It may have been revoked, expired,
+            This invite link can&apos;t be used right now. It may have been revoked, expired,
             or already accepted. If you think this is a mistake, contact the admin
             who sent the invite.
           </p>

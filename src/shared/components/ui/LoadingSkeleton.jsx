@@ -1,25 +1,9 @@
 import PropTypes from 'prop-types';
 
 /**
- * LoadingSkeleton — animated pulse placeholder for loading states
- */
-export function LoadingSkeleton({ className = '' }) {
-  return (
-    <div
-      className={`animate-pulse bg-slate-200 rounded-md ${className}`}
-      aria-hidden="true"
-    />
-  );
-}
-
-LoadingSkeleton.propTypes = {
-  className: PropTypes.string,
-};
-
-/**
  * SkeletonText — multiple lines of skeleton text
  */
-export function SkeletonText({ lines = 3, className = '' }) {
+function SkeletonText({ lines = 3, className = '' }) {
   return (
     <div className={`space-y-2 ${className}`} aria-hidden="true">
       {Array.from({ length: lines }).map((_, i) => (
@@ -101,5 +85,3 @@ SkeletonTable.propTypes = {
   cols: PropTypes.number,
   className: PropTypes.string,
 };
-
-export default LoadingSkeleton;

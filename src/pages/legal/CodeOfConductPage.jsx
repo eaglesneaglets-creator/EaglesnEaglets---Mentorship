@@ -1,15 +1,7 @@
 import { Link } from 'react-router-dom';
 import LegalPageLayout from '@shared/components/legal/LegalPageLayout';
-
-export const CONDUCT_VERSION = '2026-05-28';
-const LAST_UPDATED = 'May 28, 2026';
-
-/** Inline marker for clauses that need licensed-counsel review per jurisdiction. */
-const ReviewFlag = () => (
-  <span className="inline-block ml-1 text-xs font-semibold text-amber-700 whitespace-nowrap">
-    → legal review required
-  </span>
-);
+import ReviewFlag from '@shared/components/legal/ReviewFlag';
+import { LEGAL_DOCUMENT_VERSION, LEGAL_LAST_UPDATED } from '@shared/components/legal/legalDocumentMeta';
 
 /**
  * CodeOfConductPage — GENERAL/community Code of Conduct for ALL users
@@ -17,7 +9,7 @@ const ReviewFlag = () => (
  * Mentor Code of Conduct (/mentor-code-of-conduct).
  */
 const CodeOfConductPage = () => (
-  <LegalPageLayout title="Community Code of Conduct" version={CONDUCT_VERSION} lastUpdated={LAST_UPDATED}>
+  <LegalPageLayout title="Community Code of Conduct" version={LEGAL_DOCUMENT_VERSION} lastUpdated={LEGAL_LAST_UPDATED}>
     <section>
       <h2>1. Purpose</h2>
       <p>

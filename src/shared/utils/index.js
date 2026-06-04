@@ -8,9 +8,7 @@ export {
   sanitizeHtml,
   sanitizeStrict,
   sanitizeToText,
-  escapeHtml,
   sanitizeUrl,
-  createSafeInnerHTML,
 } from './sanitize';
 
 /**

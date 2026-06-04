@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@shared/components/ui/toast-utils';
 import adminRoleService from '../services/admin-role-service';
 
-export const adminRoleKeys = {
+const adminRoleKeys = {
   all: ['admin-role'],
   eligibility: () => [...adminRoleKeys.all, 'eligibility'],
   myRequest: () => [...adminRoleKeys.all, 'my-request'],
@@ -172,10 +172,3 @@ export const useSelfRevokeAdmin = () => {
     onError: (err) => toast.error(errMsg(err, 'Could not revoke admin.')),
   });
 };
-
-export const useAdminAuditLog = () =>
-  useQuery({
-    queryKey: adminRoleKeys.audit(),
-    queryFn: adminRoleService.listAudit,
-    staleTime: 60_000,
-  });

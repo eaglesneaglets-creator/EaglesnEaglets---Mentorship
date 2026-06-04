@@ -1,0 +1,57 @@
+# Eagles & Eaglets — robots.txt
+#
+# Goal: let search crawlers index the public surface (landing, about, legal,
+# store, donations, auth screens) and skip the authenticated app + token URLs.
+# AI training crawlers are blocked; search-engine crawlers (Google, Bing) are
+# allowed normally.
+#
+# Sitemap line intentionally omitted — ships in Plan 22-02 once sitemap.xml
+# is generated. Pointing at a non-existent sitemap creates noisy Search
+# Console errors.
+
+# ─── AI training crawlers — blocked ────────────────────────────────────────
+# Opt-out signal. Not legally binding but widely respected.
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+# ─── All other crawlers (Googlebot, Bingbot, etc.) ─────────────────────────
+User-agent: *
+Allow: /
+
+# Authenticated app surface — JS-rendered behind auth; nothing useful for SEO.
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /dashboard/
+Disallow: /eaglet/
+Disallow: /eagle/
+Disallow: /pending-approval
+
+# Token-gated flows — never index a URL that contains an auth token.
+Disallow: /auth/
+Disallow: /admin-role/accept/
+Disallow: /reset-password
+Disallow: /verify-email

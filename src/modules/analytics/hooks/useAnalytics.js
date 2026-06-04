@@ -40,17 +40,6 @@ export const useAdminDashboardStats = (period = 'weekly') => {
     });
 };
 
-export const useNestAnalytics = (nestId) => {
-    return useQuery({
-        queryKey: analyticsKeys.nest(nestId),
-        queryFn: async () => {
-            const response = await AnalyticsService.getNestAnalytics(nestId);
-            return response.data;
-        },
-        enabled: !!nestId,
-    });
-};
-
 export const useCheckIn = () => {
     const queryClient = useQueryClient();
     return useMutation({

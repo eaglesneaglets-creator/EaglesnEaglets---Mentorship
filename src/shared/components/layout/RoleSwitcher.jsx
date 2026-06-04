@@ -19,22 +19,31 @@ import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentMode, useSetCurrentMode } from '@store';
 
-const MODES = [
-  {
-    value: 'admin',
-    label: 'Administrator',
-    description: 'Manage platform & members',
-    icon: 'shield_person',
-    home: '/admin/dashboard',
-  },
-  {
-    value: 'mentor',
-    label: 'Mentor',
-    description: 'Lead your Nest',
-    icon: 'workspaces',
-    home: '/dashboard',
-  },
-];
+const ADMIN_MODE = {
+  value: 'admin',
+  label: 'Administrator',
+  description: 'Manage platform & members',
+  icon: 'shield_person',
+  home: '/admin/dashboard',
+};
+const MENTOR_MODE = {
+  value: 'mentor',
+  label: 'Mentor',
+  description: 'Lead your Nest',
+  icon: 'workspaces',
+  home: '/dashboard',
+};
+const MENTEE_MODE = {
+  value: 'mentee',
+  label: 'Mentee',
+  description: 'Continue your learning',
+  icon: 'school',
+  home: '/dashboard',
+};
+
+// Plan 22-02: stacked role pair depends on user's base role.
+const modesForRole = (role) =>
+  role === 'eaglet' ? [ADMIN_MODE, MENTEE_MODE] : [ADMIN_MODE, MENTOR_MODE];
 
 export default function RoleSwitcher({
   user,
@@ -88,8 +97,13 @@ export default function RoleSwitcher({
   const initials = `${user?.first_name?.[0] || ''}${user?.last_name?.[0] || ''}`
     .toUpperCase() || '?';
 
+  const modes = modesForRole(user?.role);
   const currentLabel =
-    currentMode === 'admin' ? 'Administrator' : 'Mentor';
+    currentMode === 'admin'
+      ? 'Administrator'
+      : user?.role === 'eaglet'
+        ? 'Mentee'
+        : 'Mentor';
   const badgeBg =
     currentMode === 'admin'
       ? 'bg-amber-50 text-amber-700 border-amber-200'
@@ -111,6 +125,7 @@ export default function RoleSwitcher({
         {open && (
           <DropdownMenu
             position="collapsed"
+            modes={modes}
             currentMode={currentMode}
             onPick={handlePick}
             onSettings={handleSettings}
@@ -174,6 +189,7 @@ export default function RoleSwitcher({
       {open && (
         <DropdownMenu
           position="expanded"
+          modes={modes}
           currentMode={currentMode}
           onPick={handlePick}
           onSettings={handleSettings}
@@ -191,7 +207,7 @@ RoleSwitcher.propTypes = {
   variant: PropTypes.oneOf(['expanded', 'collapsed']),
 };
 
-function DropdownMenu({ position, currentMode, onPick, onSettings, onLogout }) {
+function DropdownMenu({ position, modes, currentMode, onPick, onSettings, onLogout }) {
   // Expanded: anchored beneath the pill, full width.
   // Collapsed: floats to the right of the icon at top.
   const positionClass =
@@ -208,7 +224,7 @@ function DropdownMenu({ position, currentMode, onPick, onSettings, onLogout }) {
         Switch role
       </p>
       <div className="px-2 pb-2 space-y-1">
-        {MODES.map((mode) => {
+        {modes.map((mode) => {
           const isCurrent = mode.value === currentMode;
           return (
             <button
@@ -280,6 +296,7 @@ function DropdownMenu({ position, currentMode, onPick, onSettings, onLogout }) {
 
 DropdownMenu.propTypes = {
   position: PropTypes.oneOf(['expanded', 'collapsed']).isRequired,
+  modes: PropTypes.array.isRequired,
   currentMode: PropTypes.string,
   onPick: PropTypes.func.isRequired,
   onSettings: PropTypes.func.isRequired,

@@ -80,21 +80,6 @@ export function sanitizeToText(dirty) {
 }
 
 /**
- * Sanitize user input for display
- * Escapes HTML entities to prevent rendering
- * @param {string} input - User input string
- * @returns {string} Escaped string safe for display
- */
-export function escapeHtml(input) {
-  if (!input || typeof input !== 'string') {
-    return '';
-  }
-  const div = document.createElement('div');
-  div.textContent = input;
-  return div.innerHTML;
-}
-
-/**
  * Strip Cloudinary delivery signature token (s--TOKEN--) from a URL.
  * When the Cloudinary account has unsigned delivery enabled, stored URLs with
  * signatures may fail or show security warnings. Stripping the token lets
@@ -144,20 +129,6 @@ export function sanitizeUrl(url) {
   }
 
   return '';
-}
-
-/**
- * Create props for dangerouslySetInnerHTML with sanitized content
- * @param {string} dirty - The untrusted HTML string
- * @param {Object} config - Optional DOMPurify configuration
- * @returns {Object} Props object for dangerouslySetInnerHTML
- */
-export function createSafeInnerHTML(dirty, config = DEFAULT_CONFIG) {
-  return {
-    dangerouslySetInnerHTML: {
-      __html: sanitizeHtml(dirty, config),
-    },
-  };
 }
 
 /**

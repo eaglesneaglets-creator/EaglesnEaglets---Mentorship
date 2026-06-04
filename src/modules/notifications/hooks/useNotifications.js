@@ -5,7 +5,7 @@ import NotificationService from '../services/notification-service';
 import { useWebSocket } from '@hooks/useWebSocket';
 import { useAuthStore } from '@store';
 
-export const notificationKeys = {
+const notificationKeys = {
     all: ['notifications'],
     list: () => [...notificationKeys.all, 'list'],
     unread: () => [...notificationKeys.all, 'unread'],

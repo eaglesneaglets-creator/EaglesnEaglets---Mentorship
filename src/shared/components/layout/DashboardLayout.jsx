@@ -332,11 +332,13 @@ const DashboardLayout = ({
   const getNavItems = () => {
     const role = user?.role || 'eaglet';
 
-    // Stacked admin (eagle + is_platform_staff) — `currentMode` decides
-    // which nav set to render. Pure admins (role='admin') always see
-    // the admin nav.
+    // Stacked admin (eagle OR eaglet + is_platform_staff — plan 22-02) —
+    // `currentMode` decides which nav set to render. Pure admins
+    // (role='admin') always see the admin nav.
+    const isStackedAdmin =
+      (role === 'eagle' || role === 'eaglet') && user?.is_platform_staff === true;
     const showAdminNav =
-      role === 'admin' || (role === 'eagle' && user?.is_platform_staff && currentMode === 'admin');
+      role === 'admin' || (isStackedAdmin && currentMode === 'admin');
 
     if (showAdminNav) {
       // Three sidebar items now host paired sub-sections via SectionTabs:

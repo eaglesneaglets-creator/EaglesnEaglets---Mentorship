@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import PointsService from '../services/points-service';
 import toast from 'react-hot-toast';
 
-export const pointsKeys = {
+const pointsKeys = {
     all: ['points'],
     myPoints: () => [...pointsKeys.all, 'my'],
     transactions: () => [...pointsKeys.all, 'transactions'],
@@ -42,14 +42,6 @@ export const useBadges = ({ staleTime } = {}) => {
     });
 };
 
-export const useBadgeDetail = (id) => {
-    return useQuery({
-        queryKey: [...pointsKeys.badges(), id],
-        queryFn: () => PointsService.getBadgeDetail(id),
-        enabled: !!id,
-    });
-};
-
 export const useMyBadges = () => {
     return useQuery({
         queryKey: pointsKeys.myBadges(),
@@ -76,7 +68,7 @@ export const useAwardManualPoints = () => {
 };
 
 // nestEagletsKeys used for the eaglets-by-nest query in award modal
-export const nestEagletsKeys = {
+const nestEagletsKeys = {
     eaglets: (nestId) => ['nests', nestId, 'eaglets'],
 };
 

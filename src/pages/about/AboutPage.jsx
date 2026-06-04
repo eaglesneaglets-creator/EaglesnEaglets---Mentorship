@@ -1,130 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PublicNavbar from '@shared/components/layout/PublicNavbar';
 import PublicFooter from '@shared/components/layout/PublicFooter';
-// Same students-learning artwork the landing page uses, so the About hero
-// reads as part of the same visual world. Motion layered on top in JSX.
-import aboutIllustration from '../../assets/about-illustration.png';
-
-/* ═══════════════════════════════════════════════
-   STUDENTS-LEARNING ILLUSTRATION
-   Uses the same artwork as the landing page About section
-   so the visual language carries across surfaces. Motion is
-   added as a layer: the artwork breathes gently, and three
-   accent glyphs orbit around the card (book, lightbulb,
-   sparkle) on independent periods so nothing pulses in sync.
-   ═══════════════════════════════════════════════ */
-const LearningIllustration = () => (
-    <div className="relative w-full h-full">
-        {/* Soft glow halo behind the artwork */}
-        <motion.div
-            aria-hidden
-            className="absolute inset-4 rounded-3xl bg-gradient-to-br from-emerald-100/50 via-transparent to-amber-100/30 blur-2xl"
-            animate={{ opacity: [0.5, 0.85, 0.5] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        />
-
-        {/* The artwork — gentle breathing motion (scale + translate) */}
-        <motion.img
-            src={aboutIllustration}
-            alt="Diverse youth learning together"
-            className="relative w-full h-full object-cover"
-            loading="eager"
-            decoding="async"
-            animate={{ y: [0, -6, 0], scale: [1, 1.012, 1] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        />
-
-        {/* Accent glyph: open book (top-left) */}
-        <motion.div
-            aria-hidden
-            className="absolute top-4 left-4 w-11 h-11 rounded-2xl bg-white shadow-lg shadow-emerald-200/50 border border-emerald-100 flex items-center justify-center"
-            animate={{ y: [0, -10, 0], rotate: [-4, 4, -4] }}
-            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-        >
-            <span className="material-symbols-outlined text-emerald-600 text-xl">menu_book</span>
-        </motion.div>
-
-        {/* Accent glyph: lightbulb (top-right) */}
-        <motion.div
-            aria-hidden
-            className="absolute top-6 right-5 w-12 h-12 rounded-2xl bg-white shadow-lg shadow-amber-200/60 border border-amber-100 flex items-center justify-center"
-            animate={{ y: [0, -12, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
-        >
-            <span className="material-symbols-outlined text-amber-500 text-2xl">lightbulb</span>
-        </motion.div>
-
-        {/* Accent glyph: graduation cap (mid-right) */}
-        <motion.div
-            aria-hidden
-            className="absolute top-1/2 -right-2 sm:-right-3 w-12 h-12 rounded-2xl bg-white shadow-lg shadow-slate-200/60 border border-slate-100 flex items-center justify-center"
-            animate={{ y: [0, -8, 0], rotate: [0, -6, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }}
-        >
-            <span className="material-symbols-outlined text-slate-700 text-xl">school</span>
-        </motion.div>
-
-        {/* Drifting sparkle particles */}
-        <motion.span
-            aria-hidden
-            className="absolute top-12 right-1/3 text-amber-400"
-            animate={{ y: [0, -16, 0], opacity: [0.4, 1, 0.4], scale: [0.8, 1.1, 0.8] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        >
-            <span className="material-symbols-outlined text-base">auto_awesome</span>
-        </motion.span>
-        <motion.span
-            aria-hidden
-            className="absolute bottom-12 left-1/3 text-emerald-400"
-            animate={{ y: [0, -14, 0], opacity: [0.3, 0.9, 0.3], scale: [0.8, 1, 0.8] }}
-            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}
-        >
-            <span className="material-symbols-outlined text-sm">auto_awesome</span>
-        </motion.span>
-        <motion.span
-            aria-hidden
-            className="absolute top-1/3 left-8 text-emerald-300"
-            animate={{ y: [0, -18, 0], opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        >
-            <span className="material-symbols-outlined text-xs">circle</span>
-        </motion.span>
-    </div>
-);
-
-
-/* ═══════════════════════════════════════════════
-   SCROLL FADE-IN WRAPPER (matches HomePage pattern)
-   ═══════════════════════════════════════════════ */
-const FadeIn = ({ children, delay = 0, direction = 'up', className = '' }) => {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, margin: '-80px' });
-
-    const variants = {
-        hidden: {
-            opacity: 0,
-            y: direction === 'up' ? 40 : direction === 'down' ? -40 : 0,
-            x: direction === 'left' ? 40 : direction === 'right' ? -40 : 0,
-            filter: 'blur(4px)',
-        },
-        visible: { opacity: 1, y: 0, x: 0, filter: 'blur(0px)' },
-    };
-
-    return (
-        <motion.div
-            ref={ref}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-            variants={variants}
-            transition={{ duration: 0.75, delay, ease: [0.22, 1, 0.36, 1] }}
-            className={className}
-        >
-            {children}
-        </motion.div>
-    );
-};
+import FadeIn from '@shared/components/motion/FadeIn';
+import LearningIllustration from '@shared/components/visual/LearningIllustration';
+import storyPic from '../../assets/Story Pic.jpeg';
 
 /* ═══════════════════════════════════════════════
    HERO — text left, photo right with floating badge
@@ -175,16 +56,6 @@ const HeroSection = () => {
                             <div className="rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-slate-100 shadow-2xl shadow-slate-300/40 aspect-[4/3]">
                                 <LearningIllustration />
                             </div>
-                            {/* Floating stat badge — sits inside the card on small screens to avoid clipping */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.85, y: 10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                transition={{ delay: 0.7, duration: 0.55, type: 'spring' }}
-                                className="absolute bottom-3 left-3 sm:bottom-6 sm:-left-6 bg-primary text-white rounded-2xl px-4 sm:px-5 py-2.5 sm:py-3 shadow-2xl shadow-primary/30"
-                            >
-                                <p className="text-xl sm:text-2xl font-black leading-none">500+</p>
-                                <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider mt-1 text-white/90">Active Mentees</p>
-                            </motion.div>
                         </div>
                     </FadeIn>
                 </div>
@@ -201,13 +72,16 @@ const OurStorySection = () => {
         <section className="py-14 sm:py-20 px-4 sm:px-6 bg-slate-50">
             <div className="max-w-7xl mx-auto">
                 <div className="grid lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-16 items-start">
-                    {/* Left: portrait photo */}
+                    {/* Left: portrait photo. Container matches the photo's native
+                        portrait ratio (~4/5) so object-cover has nothing to crop —
+                        the full subject shows. Sticky on lg keeps the face in view
+                        while the long story scrolls beside it. */}
                     <FadeIn delay={0} direction="right">
-                        <div className="rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-200 shadow-lg shadow-slate-200/50 aspect-[4/3] sm:aspect-[5/4] lg:aspect-square">
+                        <div className="lg:sticky lg:top-24 rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-200 shadow-lg shadow-slate-200/50 aspect-[4/5] max-w-md mx-auto lg:mx-0">
                             <img
-                                src="https://images.unsplash.com/photo-1573497019418-b400bb3ab074?q=80&w=1200&auto=format&fit=crop"
-                                alt="Mentee at a window"
-                                className="w-full h-full object-cover"
+                                src={storyPic}
+                                alt="The conversations that became Eagles & Eaglets"
+                                className="w-full h-full object-cover object-top"
                                 loading="lazy"
                                 decoding="async"
                             />
@@ -221,30 +95,55 @@ const OurStorySection = () => {
                             <div className="w-12 h-0.5 bg-primary mb-5 sm:mb-6" />
                         </FadeIn>
                         <FadeIn delay={0.15} direction="left">
-                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-4">
-                                It started with a simple observation: the world is full of brilliant minds that lack the specific guidance required to navigate complex career terrains. A group of leaders decided to open their calendars to aspiring talent.
+                            <h3 className="text-base sm:text-lg font-bold italic text-slate-700 mb-3">
+                                How It All Begun
+                            </h3>
+                            {/* Opening staccato beats grouped into one paragraph; <br/>
+                                keeps the line rhythm without per-line margin gaps. */}
+                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-3">
+                                It didn&apos;t begin as a platform.<br />
+                                It began with people.<br />
+                                A message. A conversation. A young person looking for guidance.
                             </p>
-                        </FadeIn>
-                        <FadeIn delay={0.22} direction="left">
-                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-6 sm:mb-8">
-                                What began as a local meetup in a community center has evolved into a growing ecosystem. Today, Eagles & Eaglets connects mentors with mentees worldwide, bridging the gap between industry veterans and the next generation of innovators, ensuring that wisdom is never lost, but always passed forward.
+                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-3">
+                                Over time, more and more young people reached out through LinkedIn, conferences, workshops, and everyday interactions. They were searching for clarity, encouragement, direction, and someone who could help them navigate life&apos;s opportunities and challenges. I showed up as much as I could&mdash;listening, sharing experiences, offering guidance, and investing in their growth.
                             </p>
                         </FadeIn>
 
-                        {/* Stats — placeholders for now, swap in real values when known */}
-                        <FadeIn delay={0.3} direction="left">
-                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                                <div className="bg-white rounded-2xl border border-slate-200/70 p-4 sm:p-5 shadow-sm">
-                                    {/* TODO: replace 'YYYY' with the Ministry's actual founding year */}
-                                    <p className="text-xl sm:text-2xl font-black text-primary leading-none">YYYY</p>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-2">Founded</p>
-                                </div>
-                                <div className="bg-white rounded-2xl border border-slate-200/70 p-4 sm:p-5 shadow-sm">
-                                    {/* TODO: replace '#+' with the actual countries-reached number */}
-                                    <p className="text-xl sm:text-2xl font-black text-primary leading-none">#+</p>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-2">Countries</p>
-                                </div>
-                            </div>
+                        <FadeIn delay={0.22} direction="left">
+                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-2">
+                                But soon, it became clear: one person could only reach so many people. Yet the need was much greater. So I began to ask a simple question:
+                            </p>
+                            <p className="text-sm md:text-base italic text-slate-600 leading-relaxed mb-3">
+                                What if more people could be part of this?
+                            </p>
+                        </FadeIn>
+
+                        <FadeIn delay={0.30} direction="left">
+                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-2">
+                                I reached out to professionals, leaders, and individuals whose journeys, experiences, and lessons could inspire the next generation. Many were willing and eager to help. But there was a challenge: busy schedules, distance, and limited time made consistent mentorship difficult. And that&apos;s when the idea was born.
+                            </p>
+                            <p className="text-sm md:text-base italic text-slate-600 leading-relaxed mb-3">
+                                What if mentorship could happen beyond physical boundaries? What if technology could connect mentors and young people&mdash;anytime, anywhere&mdash;without losing the human connection that makes mentorship so powerful?
+                            </p>
+                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-3">
+                                That vision gave birth to Eagles &amp; Eaglets.
+                            </p>
+                        </FadeIn>
+
+                        <FadeIn delay={0.38} direction="left">
+                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-3">
+                                Today, Eagles &amp; Eaglets is a growing digital mentorship community where mentors (Eagles) and young people (Eaglets) connect, learn, share experiences, and grow together&mdash;without the limitations of time or location.
+                            </p>
+                            <p className="text-sm md:text-base text-slate-500 leading-relaxed mb-4">
+                                What started as a few conversations has grown into something much bigger: a movement dedicated to empowering young people with wisdom, guidance, encouragement, and opportunities to thrive&mdash;built on the belief that no young person should have to navigate life&apos;s journey alone.
+                            </p>
+                        </FadeIn>
+
+                        <FadeIn delay={0.46} direction="left">
+                            <p className="text-base md:text-lg font-bold text-slate-800 leading-relaxed">
+                                Eagles mentor. Eaglets grow. Together, we rise. 🦅✨
+                            </p>
                         </FadeIn>
                     </div>
                 </div>

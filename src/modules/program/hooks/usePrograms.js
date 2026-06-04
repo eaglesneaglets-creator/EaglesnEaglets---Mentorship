@@ -15,14 +15,6 @@ export function usePrograms(nestId) {
     });
 }
 
-export function useProgram(nestId, pk) {
-    return useQuery({
-        queryKey: ['program', nestId, pk],
-        queryFn: () => ProgramService.getProgram(nestId, pk),
-        enabled: Boolean(nestId && pk),
-    });
-}
-
 export function useCreateProgram(nestId) {
     const qc = useQueryClient();
     return useMutation({

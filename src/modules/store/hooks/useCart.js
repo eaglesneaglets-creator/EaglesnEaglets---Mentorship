@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import StoreService from '../services/store-service';
 import { useAuthStore } from '@store';
 
-export const cartKeys = {
+const cartKeys = {
     cart: ['store', 'cart'],
 };
 

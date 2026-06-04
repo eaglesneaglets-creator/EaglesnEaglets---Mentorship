@@ -91,3 +91,46 @@ describe('RoleSwitcher', () => {
     expect(screen.getByText('Administrator')).toBeInTheDocument();
   });
 });
+
+// Plan 22-02: stacked-mentee (eaglet + is_platform_staff) renders "Mentee" instead of "Mentor".
+describe('RoleSwitcher — stacked-mentee', () => {
+  const mentee = {
+    first_name: 'Ada',
+    last_name: 'Mente',
+    role: 'eaglet',
+    is_platform_staff: true,
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockMode = 'mentee';
+  });
+
+  it('badge reads "Mentee" when role is eaglet and currentMode is mentee', () => {
+    wrap({ user: mentee });
+    expect(screen.getByText('Mentee')).toBeInTheDocument();
+    expect(screen.queryByText('Mentor')).not.toBeInTheDocument();
+  });
+
+  it('dropdown lists Administrator + Mentee (not Mentor)', async () => {
+    wrap({ user: mentee });
+    await userEvent.click(screen.getByRole('button', { name: /ada mente/i }));
+    expect(screen.getByRole('menuitem', { name: /administrator/i })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /mentee/i })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /^mentor$/i })).not.toBeInTheDocument();
+  });
+
+  it('switching to admin mode calls setCurrentMode("admin")', async () => {
+    wrap({ user: mentee });
+    await userEvent.click(screen.getByRole('button', { name: /ada mente/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: /administrator/i }));
+    expect(mockSetMode).toHaveBeenCalledWith('admin');
+    expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
+  });
+
+  it('admin badge shows Administrator regardless of base role', () => {
+    mockMode = 'admin';
+    wrap({ user: mentee });
+    expect(screen.getByText('Administrator')).toBeInTheDocument();
+  });
+});

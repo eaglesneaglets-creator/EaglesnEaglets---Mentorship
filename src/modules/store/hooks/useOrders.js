@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import StoreService from '../services/store-service';
 
-export const orderKeys = {
+const orderKeys = {
     all: ['store', 'orders'],
     detail: (id) => ['store', 'orders', id],
 };
@@ -26,13 +26,5 @@ export const useCreateOrder = () => {
             qc.invalidateQueries({ queryKey: orderKeys.all });
             qc.invalidateQueries({ queryKey: ['store', 'cart'] });
         },
-    });
-};
-
-export const useCancelOrder = () => {
-    const qc = useQueryClient();
-    return useMutation({
-        mutationFn: (id) => StoreService.cancelOrder(id),
-        onSuccess: () => qc.invalidateQueries({ queryKey: orderKeys.all }),
     });
 };

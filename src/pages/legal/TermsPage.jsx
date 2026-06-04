@@ -1,15 +1,7 @@
 import { Link } from 'react-router-dom';
 import LegalPageLayout from '@shared/components/legal/LegalPageLayout';
-
-const TERMS_VERSION = '2026-05-28';
-const LAST_UPDATED = 'May 28, 2026';
-
-/** Inline marker for clauses that need licensed-counsel review per jurisdiction. */
-const ReviewFlag = () => (
-  <span className="inline-block ml-1 text-xs font-semibold text-amber-700 whitespace-nowrap">
-    → legal review required
-  </span>
-);
+import ReviewFlag from '@shared/components/legal/ReviewFlag';
+import { LEGAL_DOCUMENT_VERSION, LEGAL_LAST_UPDATED } from '@shared/components/legal/legalDocumentMeta';
 
 /**
  * TermsPage — first-draft Terms of Service for Eagles & Eaglets, rendered
@@ -17,7 +9,7 @@ const ReviewFlag = () => (
  * dependency). Jurisdiction-specific clauses carry an explicit review marker.
  */
 const TermsPage = () => (
-  <LegalPageLayout title="Terms of Service" version={TERMS_VERSION} lastUpdated={LAST_UPDATED}>
+  <LegalPageLayout title="Terms of Service" version={LEGAL_DOCUMENT_VERSION} lastUpdated={LEGAL_LAST_UPDATED}>
     <section>
       <h2>1. Acceptance of Terms</h2>
       <p>
