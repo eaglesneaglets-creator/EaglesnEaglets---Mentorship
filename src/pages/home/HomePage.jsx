@@ -1,44 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
-import aboutIllustration from '../../assets/about-illustration.png';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import PublicNavbar from '@shared/components/layout/PublicNavbar';
 import PublicFooter from '@shared/components/layout/PublicFooter';
+import FadeIn from '@shared/components/motion/FadeIn';
+import LearningIllustration from '@shared/components/visual/LearningIllustration';
 import { useProducts } from '../../modules/store/hooks/useStore';
 
 // 4K community teaching & learning hero — diverse group in a learning/mentorship setting
 const heroBg = 'https://images.unsplash.com/photo-1529390079861-591de354faf5?q=90&w=3840&auto=format&fit=crop';
-
-/* ═══════════════════════════════════════════════
-   SCROLL FADE-IN WRAPPER
-   ═══════════════════════════════════════════════ */
-const FadeIn = ({ children, delay = 0, direction = 'up', className = '' }) => {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, margin: '-80px' });
-
-    const variants = {
-        hidden: {
-            opacity: 0,
-            y: direction === 'up' ? 40 : direction === 'down' ? -40 : 0,
-            x: direction === 'left' ? 40 : direction === 'right' ? -40 : 0,
-            filter: 'blur(4px)',
-        },
-        visible: { opacity: 1, y: 0, x: 0, filter: 'blur(0px)' },
-    };
-
-    return (
-        <motion.div
-            ref={ref}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-            variants={variants}
-            transition={{ duration: 0.75, delay, ease: [0.22, 1, 0.36, 1] }}
-            className={className}
-        >
-            {children}
-        </motion.div>
-    );
-};
 
 /* ═══════════════════════════════════════════════
    ROLLING NUMBER — animates 0 → target on mount
@@ -208,13 +178,7 @@ const AboutSection = () => {
                     <FadeIn delay={0.1} direction="left">
                         <div className="relative">
                             <div className="rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-50 border border-slate-100 shadow-xl shadow-slate-200/40 aspect-[4/3] sm:aspect-auto">
-                                <img
-                                    src={aboutIllustration}
-                                    alt="Diverse youth learning together"
-                                    className="w-full h-full object-cover"
-                                    loading="lazy"
-                                    decoding="async"
-                                />
+                                <LearningIllustration />
                             </div>
                             {/* Small floating badge — sits inside the card on phones so it doesn't clip past the viewport */}
                             <motion.div

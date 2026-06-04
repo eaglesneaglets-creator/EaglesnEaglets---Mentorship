@@ -151,4 +151,3 @@ export const directUpload = async (file, { context, onProgress, signal } = {}) =
   });
 };
 
-export { DirectUploadError };

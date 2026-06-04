@@ -12,7 +12,7 @@
 
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useIsStackedAdmin, useCurrentMode, useSetCurrentMode } from '@store';
+import { useIsStackedAdmin, useCurrentMode, useSetCurrentMode, useAuthStore } from '@store';
 
 const ADMIN_PREFIX = '/admin';
 
@@ -21,18 +21,21 @@ export default function useUrlModeSync() {
   const isStacked = useIsStackedAdmin();
   const currentMode = useCurrentMode();
   const setCurrentMode = useSetCurrentMode();
+  // Plan 22-02: eaglet+staff (stacked-mentee) flips to 'mentee' instead of 'mentor'.
+  const role = useAuthStore((s) => s.user?.role);
 
   useEffect(() => {
     if (!isStacked) return;
     const inAdminRoute =
       pathname === ADMIN_PREFIX || pathname.startsWith(`${ADMIN_PREFIX}/`);
+    const nonAdminMode = role === 'eaglet' ? 'mentee' : 'mentor';
     if (inAdminRoute && currentMode !== 'admin') {
       setCurrentMode('admin');
     } else if (!inAdminRoute && currentMode === 'admin') {
-      // Only flip back when we land on a route that's clearly mentor-side
-      // (e.g. /dashboard, /eagle/*, /settings/*). Public routes like
+      // Only flip back when we land on a route that's clearly non-admin
+      // (e.g. /dashboard, /eagle/*, /eaglet/*, /settings/*). Public routes like
       // /admin-role/accept/:token are NOT under /admin/ so they don't trigger.
-      setCurrentMode('mentor');
+      setCurrentMode(nonAdminMode);
     }
-  }, [pathname, isStacked, currentMode, setCurrentMode]);
+  }, [pathname, isStacked, currentMode, setCurrentMode, role]);
 }

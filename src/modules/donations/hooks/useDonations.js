@@ -32,15 +32,6 @@ export function useCampaigns() {
   });
 }
 
-export function useCampaign(id) {
-  return useQuery({
-    queryKey: donationKeys.campaign(id),
-    queryFn: () => donationService.getCampaign(id),
-    enabled: !!id,
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
 // ---------------------------------------------------------------------------
 // Donation mutation
 // ---------------------------------------------------------------------------

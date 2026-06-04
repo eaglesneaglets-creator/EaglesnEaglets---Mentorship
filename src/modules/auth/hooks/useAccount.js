@@ -22,11 +22,6 @@ export const useRequestEmailChange = () =>
     },
   });
 
-export const useConfirmEmailChange = () =>
-  useMutation({
-    mutationFn: (token) => authService.confirmEmailChange(token),
-  });
-
 export const useDeleteAccount = () => {
   const { logout } = useAuthStore();
   const navigate = useNavigate();

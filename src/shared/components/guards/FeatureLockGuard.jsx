@@ -14,7 +14,26 @@ import { useFeatureLock } from '@hooks/useFeatureLock';
 import { LockedFeatureModal } from '@shared/components/feature-lock/LockedFeatureModal';
 
 export function FeatureLockGuard({ featureKey, children }) {
-  const { isLocked } = useFeatureLock(featureKey);
+  const { isLocked, isChecking } = useFeatureLock(featureKey);
+
+  // While /auth/me/ is in flight: render a neutral loader, NOT the lock modal.
+  // Prevents the modal flash for users who actually have access (bug from
+  // pre-fix where isLocked defaulted true during the loading window).
+  // Children are intentionally NOT rendered here either — that would
+  // re-introduce the original 403-prone unlocked-render race.
+  if (isChecking) {
+    return (
+      <div
+        role="status"
+        aria-busy="true"
+        aria-label="Checking access"
+        className="min-h-[60vh] flex items-center justify-center"
+      >
+        <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
   if (!isLocked) return children;
 
   return (

@@ -61,4 +61,24 @@ describe('FeatureLockGuard', () => {
         // Underlying placeholder still rendered (blurred)
         expect(screen.getByText('Leaderboard placeholder')).toBeInTheDocument();
     });
+
+    // Bug fix: while access is being checked, render a neutral loader — NOT
+    // the lock modal. Users with access were seeing the modal flash before it
+    // disappeared once /auth/me/ resolved.
+    it('renders neutral loader (not modal, not children) while isChecking', () => {
+        useFeatureLock.mockReturnValue({ isLocked: false, isChecking: true });
+
+        renderWithRouter(
+            <FeatureLockGuard featureKey="leaderboard">
+                <div>Leaderboard content</div>
+            </FeatureLockGuard>
+        );
+
+        // Neutral loader visible
+        expect(screen.getByRole('status', { name: /checking access/i })).toBeInTheDocument();
+        // No lock modal
+        expect(screen.queryByRole('dialog')).toBeNull();
+        // Children NOT rendered (prevents the 403-prone unlocked-render race)
+        expect(screen.queryByText('Leaderboard content')).toBeNull();
+    });
 });

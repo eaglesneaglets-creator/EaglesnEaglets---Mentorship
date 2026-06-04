@@ -45,9 +45,6 @@ export const useOwnedNests = () => {
     });
 };
 
-/** @deprecated Use useJoinedNests() (eaglet) or useOwnedNests() (mentor). */
-export const useMyNests = useJoinedNests;
-
 export const useNestDetail = (id) => {
     return useQuery({
         queryKey: nestKeys.detail(id),
@@ -99,17 +96,6 @@ export const useNestEvents = (id, filters = {}) => {
 // Mutations
 // ------------------------------------------------------------------
 
-export const useCreateNest = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (data) => NestService.createNest(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: nestKeys.lists() });
-            queryClient.invalidateQueries({ queryKey: nestKeys.my() });
-        },
-    });
-};
-
 export const useUpdateNest = (id) => {
     const queryClient = useQueryClient();
     return useMutation({
@@ -122,19 +108,7 @@ export const useUpdateNest = (id) => {
     });
 };
 
-export const useJoinNest = (id) => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (message) => NestService.requestToJoin(id, message),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: nestKeys.my() });
-            queryClient.invalidateQueries({ queryKey: nestKeys.myRequests() });
-        },
-    });
-};
-
-// Plan 14.5-02: program-enrollment-aware join. Use this instead of
-// useJoinNest for mentee → Nest discovery flow.
+// Plan 14.5-02: program-enrollment-aware join.
 export const useEnrollNest = (id) => {
     const queryClient = useQueryClient();
     return useMutation({

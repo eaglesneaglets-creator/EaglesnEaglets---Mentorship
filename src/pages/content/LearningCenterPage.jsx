@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useModules, useMyProgress, useDeleteModule } from '../../modules/content/hooks/useContent';
-import { useJoinedNests } from '../../modules/nest/hooks/useNests';
+import { useJoinedNests, useOwnedNests } from '../../modules/nest/hooks/useNests';
 import { useMyStandaloneAssignments } from '../../modules/content/hooks/useStandaloneAssignment';
 import ContentItemUploadModal from '../../modules/content/components/ContentItemUploadModal';
 import ContentEditModal from '../../modules/content/components/ContentEditModal';
@@ -411,6 +411,12 @@ const LearningCenterPage = () => {
     const isEagleOrAdmin = user?.role === 'eagle' || user?.role === 'admin';
     const variant = user?.role === 'eagle' ? 'eagle' : user?.role === 'admin' ? 'admin' : 'eaglet';
 
+    // "Send Assignment" is a mentor capability. A stacked mentor-admin
+    // (role='eagle' + is_platform_staff) still owns a Nest and must be able
+    // to send assignments even while browsing in admin mode — hence we key off
+    // the eagle role itself, not the current view mode.
+    const canSendAssignment = user?.role === 'eagle';
+
     // Standalone assignments (eaglet only)
     const { data: tasksResponse, isLoading: tasksLoading } = useMyStandaloneAssignments();
     const allStandaloneAssignments = useMemo(
@@ -457,8 +463,19 @@ const LearningCenterPage = () => {
     }, [allStandaloneAssignments, activeEagletTab]);
 
     // Data
-    const { data: myNestsResponse } = useJoinedNests();
-    const nestId = myNestsResponse?.data?.[0]?.id || myNestsResponse?.data?.results?.[0]?.id || user?.nest_id;
+    // Mentors own nests (Nest.eagle FK) but hold no membership row in them, so
+    // the joined-nests list is empty for an eagle. Source the nestId from the
+    // owned-nests list for mentors and the joined list for everyone else.
+    // Without this, "Send Assignment" stayed hidden because nestId was undefined.
+    const isMentor = user?.role === 'eagle';
+    const { data: joinedNestsResponse } = useJoinedNests();
+    const { data: ownedNestsResponse } = useOwnedNests();
+    const myNestsResponse = isMentor ? ownedNestsResponse : joinedNestsResponse;
+    const nestId =
+        myNestsResponse?.data?.[0]?.id ||
+        myNestsResponse?.data?.results?.[0]?.id ||
+        myNestsResponse?.results?.[0]?.id ||
+        user?.nest_id;
 
     // FOR ADMINS/EAGLES: Fetch everything they uploaded (all visibilities)
     // FOR EAGLETS: Fetch nest_only modules (Learning Modules / Assignments view)
@@ -556,7 +573,7 @@ const LearningCenterPage = () => {
                         {/* Eagle: Send Assignment + Upload Content buttons */}
                         {isEagleOrAdmin && (
                             <div className="flex items-center gap-2 flex-wrap">
-                                {user?.role === 'eagle' && nestId && (
+                                {canSendAssignment && nestId && (
                                     <motion.button
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.97 }}

@@ -116,13 +116,14 @@ const PublicFooter = () => {
                     <div>
                         <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-3 sm:mb-5">Contact</h4>
                         <ul className="space-y-2.5 sm:space-y-3">
-                            <li className="flex items-start gap-2 text-sm text-slate-600">
-                                <span className="material-symbols-outlined text-sm text-primary mt-0.5 flex-shrink-0">location_on</span>
-                                <span className="leading-relaxed">123 Visionary Way, Suite 100<br />Creative Park, CA 90210</span>
-                            </li>
                             <li className="flex items-center gap-2 text-sm text-slate-600 min-w-0">
                                 <span className="material-symbols-outlined text-sm text-primary flex-shrink-0">alternate_email</span>
-                                <span className="truncate">hello@eaglesneaglets.org</span>
+                                <a
+                                    href="mailto:support.eaglesandeaglets@gmail.com"
+                                    className="truncate hover:text-primary transition-colors"
+                                >
+                                    support.eaglesandeaglets@gmail.com
+                                </a>
                             </li>
                         </ul>
                     </div>

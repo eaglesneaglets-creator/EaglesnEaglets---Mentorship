@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import StoreService from '../services/store-service';
 
-export const adminOrderKeys = {
+const adminOrderKeys = {
     all: ['adminOrders'],
     list: (filters) => [...adminOrderKeys.all, 'list', filters],
     detail: (id) => [...adminOrderKeys.all, 'detail', id],

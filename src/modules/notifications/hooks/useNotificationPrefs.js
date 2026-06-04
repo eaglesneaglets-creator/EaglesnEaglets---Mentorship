@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@shared/components/ui/toast-utils';
 import NotificationsPrefsService from '../services/notifications-prefs-service';
 
-export const notificationPrefsKeys = {
+const notificationPrefsKeys = {
   all: ['notification-prefs'],
 };
 

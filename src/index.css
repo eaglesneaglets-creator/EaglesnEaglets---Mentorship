@@ -296,26 +296,6 @@ body {
 }
 
 /* =============================================================================
-   VANTA.JS HERO STYLES
-   ============================================================================= */
-
-.vanta-hero {
-  position: relative;
-  min-height: 100vh;
-  width: 100%;
-  overflow: hidden;
-}
-
-.vanta-hero canvas {
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 0;
-}
-
-/* =============================================================================
    ADMIN PORTAL STYLES
    ============================================================================= */
 

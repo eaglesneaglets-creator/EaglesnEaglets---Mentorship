@@ -18,18 +18,25 @@ export function useFeatureLock(featureKey) {
   const lockedFeatures = useLockedFeatures();
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Default-deny for eaglets while accessStatus is still loading.
-  // Without this, a direct-nav refresh briefly renders the unlocked page
-  // (and fires 403-prone API calls) before /auth/me/ resolves.
   const isEagletGatedKey = role === 'eaglet' && GATED_KEYS.has(featureKey);
   const accessStatusLoaded = accessStatus !== null && accessStatus !== undefined;
+
+  // Tri-state contract (fixes the "join-a-nest modal flash" bug):
+  //   isChecking — eaglet on a gated key, but /auth/me/ hasn't resolved yet.
+  //                Callers MUST render a neutral loader (NOT the lock modal),
+  //                otherwise users with access see the modal flash before it
+  //                disappears. Children must NOT render during isChecking either
+  //                — that re-introduces the 403-prone unlocked-render race.
+  //   isLocked   — eaglet on a gated key, access loaded, feature in locked list.
+  //                Callers render the lock UI.
+  //   neither    — feature is accessible (eagle/admin OR eaglet with the feature
+  //                unlocked). Callers render children.
+  const isChecking = isEagletGatedKey && !accessStatusLoaded;
   const isLocked =
-    isEagletGatedKey && (
-      !accessStatusLoaded || lockedFeatures.includes(featureKey)
-    );
+    isEagletGatedKey && accessStatusLoaded && lockedFeatures.includes(featureKey);
 
   const openLockModal = useCallback(() => setModalOpen(true), []);
   const closeLockModal = useCallback(() => setModalOpen(false), []);
 
-  return { isLocked, modalOpen, openLockModal, closeLockModal };
+  return { isLocked, isChecking, modalOpen, openLockModal, closeLockModal };
 }

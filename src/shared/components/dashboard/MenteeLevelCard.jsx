@@ -1,12 +1,117 @@
 /**
  * MenteeLevelCard — 5-level progression widget (plan 14-05 T6).
  * Reads mentee_level from access_status (current/next thresholds + mentor_eligible).
+ *
+ * Plan 16-02: when the user becomes mentor-eligible, replace the static
+ * "Eligible to apply" banner with a state-aware CTA strip that mirrors the
+ * /eaglet/mentor-application page (eligible / submitted / approved / rejected).
  */
-import { useMenteeLevel, useMentorEligibility } from '@store';
+import { Link } from 'react-router-dom';
+import {
+    useMenteeLevel,
+    useMentorApplicationStatus,
+    useMentorApplicationEligible,
+} from '@store';
+
+function MentorApplicationStrip() {
+    const eligible = useMentorApplicationEligible();
+    const status = useMentorApplicationStatus();
+
+    if (!eligible && !status) return null;
+
+    if (status === 'approved') {
+        return (
+            <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                    <span className="material-symbols-outlined text-emerald-600 text-lg shrink-0">verified</span>
+                    <p className="text-xs font-semibold text-emerald-900 truncate">You’re now a mentor</p>
+                </div>
+                <Link
+                    to="/eagle/dashboard"
+                    className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 shrink-0"
+                >
+                    Open mentor dashboard →
+                </Link>
+            </div>
+        );
+    }
+
+    if (status === 'submitted') {
+        return (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-600 text-lg">hourglass_top</span>
+                <p className="text-xs font-semibold text-amber-900">
+                    Application pending — we’ll email you when reviewed
+                </p>
+            </div>
+        );
+    }
+
+    if (status === 'rejected') {
+        return (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="material-symbols-outlined text-red-600 text-lg">error</span>
+                    <p className="text-xs font-semibold text-red-900">
+                        Application not approved — you can review & re-apply
+                    </p>
+                </div>
+                <Link
+                    to="/eaglet/mentor-application"
+                    className="inline-block text-xs font-semibold text-red-700 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100"
+                >
+                    Re-apply
+                </Link>
+            </div>
+        );
+    }
+
+    if (status === 'withdrawn') {
+        return (
+            <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <div className="flex items-center gap-2 mb-2">
+                    <span className="material-symbols-outlined text-slate-600 text-lg">undo</span>
+                    <p className="text-xs font-semibold text-slate-800">
+                        Application withdrawn — re-apply when ready
+                    </p>
+                </div>
+                {eligible && (
+                    <Link
+                        to="/eaglet/mentor-application"
+                        className="inline-block text-xs font-semibold text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-white"
+                    >
+                        Re-apply
+                    </Link>
+                )}
+            </div>
+        );
+    }
+
+    // Eligible + no prior application → fresh apply CTA.
+    if (eligible) {
+        return (
+            <Link
+                to="/eaglet/mentor-application"
+                className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between gap-2 hover:bg-amber-100 transition group"
+            >
+                <div className="flex items-center gap-2 min-w-0">
+                    <span className="material-symbols-outlined text-amber-600 text-lg shrink-0">military_tech</span>
+                    <p className="text-xs font-semibold text-amber-900">
+                        Apply to become a mentor
+                    </p>
+                </div>
+                <span className="material-symbols-outlined text-amber-700 text-base group-hover:translate-x-0.5 transition-transform">
+                    arrow_forward
+                </span>
+            </Link>
+        );
+    }
+
+    return null;
+}
 
 export default function MenteeLevelCard() {
     const level = useMenteeLevel();
-    const eligible = useMentorEligibility();
 
     if (!level) return null;
 
@@ -54,14 +159,11 @@ export default function MenteeLevelCard() {
               </>
             )}
 
-            {eligible && (
-                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2">
-                    <span className="material-symbols-outlined text-amber-600 text-lg">military_tech</span>
-                    <p className="text-xs font-semibold text-amber-900">
-                        Eligible to apply as mentor
-                    </p>
-                </div>
-            )}
+            {/* Mentor-application state strip — supersedes the old eligibility-only banner.
+                Render unconditionally; the strip's own guard returns null when neither
+                eligible nor any application status exists. This ensures users who lose
+                eligibility after applying still see their pending/approved/rejected status. */}
+            <MentorApplicationStrip />
         </div>
     );
 }

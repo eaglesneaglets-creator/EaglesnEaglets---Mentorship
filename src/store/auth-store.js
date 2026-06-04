@@ -32,7 +32,8 @@ const MODE_STORAGE_KEY = 'ee_role_mode';
 const readStoredMode = () => {
   try {
     const m = localStorage.getItem(MODE_STORAGE_KEY);
-    return m === 'admin' || m === 'mentor' ? m : null;
+    // Tri-mode contract (plan 22-02): 'admin' | 'mentor' | 'mentee'.
+    return m === 'admin' || m === 'mentor' || m === 'mentee' ? m : null;
   } catch {
     return null;
   }
@@ -49,23 +50,31 @@ const writeStoredMode = (mode) => {
 
 /**
  * Pick the right mode for a user given:
- *  - whether they're stacked (eagle + is_platform_staff)
+ *  - whether they're stacked (eagle OR eaglet, plus is_platform_staff — plan 22)
  *  - whether the BE flagged a first-admin-session moment
  *  - persisted localStorage value
  *
- * Single-role users are forced to their role mode; the role switcher is
- * hidden for them.
+ * Tri-mode contract (plan 22-02): 'admin' | 'mentor' | 'mentee'.
+ *  - Stacked mentor (eagle + is_platform_staff): toggles 'mentor' <-> 'admin'
+ *  - Stacked mentee (eaglet + is_platform_staff): toggles 'mentee' <-> 'admin'
+ *  - Pure admin: forced to 'admin'
+ *  - Pure mentor / pure mentee: forced to their non-admin mode; switcher hidden
  */
 export const resolveCurrentMode = (user) => {
   if (!user) return null;
-  const isStackedAdmin = user.role === 'eagle' && user.is_platform_staff === true;
+  const isStackedAdmin =
+    (user.role === 'eagle' || user.role === 'eaglet') &&
+    user.is_platform_staff === true;
   const isPureAdmin = (user.role === 'admin' || user.is_superuser) && !isStackedAdmin;
   if (isPureAdmin) return 'admin';
-  if (!isStackedAdmin) return 'mentor'; // pure mentor or mentee fallback
+  const nonAdminMode = user.role === 'eaglet' ? 'mentee' : 'mentor';
+  if (!isStackedAdmin) return nonAdminMode; // pure mentor or pure mentee
   // Stacked path:
   if (user.admin_request?.first_admin_session) return 'admin';
   const stored = readStoredMode();
-  return stored || 'mentor';
+  // Only honour stored value if it's compatible with the user's role pair.
+  const validForRole = stored === 'admin' || stored === nonAdminMode;
+  return validForRole ? stored : nonAdminMode;
 };
 
 /**
@@ -453,7 +462,7 @@ export const useAuthStore = create(
          * Persists to localStorage so refresh + cross-tab stays in sync.
          */
         setCurrentMode: (mode) => {
-          if (mode !== 'admin' && mode !== 'mentor') return;
+          if (mode !== 'admin' && mode !== 'mentor' && mode !== 'mentee') return;
           writeStoredMode(mode);
           set({ currentMode: mode });
         },
@@ -526,9 +535,6 @@ export const useAuthStore = create(
 // unrelated store changes.
 // ---------------------------------------------------------------------------
 
-export const useAccessStatus = () =>
-  useAuthStore((s) => s.accessStatus);
-
 export const useHasActiveProgram = () =>
   useAuthStore((s) => Boolean(s.accessStatus?.has_active_program));
 
@@ -549,6 +555,17 @@ export const useLockedFeatures = () =>
 export const useMentorEligibility = () =>
   useAuthStore((s) => Boolean(s.accessStatus?.mentor_eligibility));
 
+// ─── Mentor Application passthroughs (plan 16-02) ──────────────────────────
+// /auth/me/ exposes mentor_application_status + mentor_application_eligible
+// on the user payload (eaglet branch). These selectors avoid a parallel store
+// slice — the canonical source stays the /auth/me/ payload.
+
+export const useMentorApplicationStatus = () =>
+  useAuthStore((s) => s.user?.mentor_application_status ?? null);
+
+export const useMentorApplicationEligible = () =>
+  useAuthStore((s) => Boolean(s.user?.mentor_application_eligible));
+
 // ─── Role-switcher selectors (plan 18-03) ──────────────────────────────────
 
 export const useCurrentMode = () =>
@@ -557,23 +574,15 @@ export const useCurrentMode = () =>
 export const useSetCurrentMode = () =>
   useAuthStore((s) => s.setCurrentMode);
 
-/** True iff the user is a mentor who also holds platform-admin privileges. */
+/** True iff the user is a mentor OR mentee who also holds platform-admin
+ *  privileges (plan 22-02 extended this from eagle-only). */
 export const useIsStackedAdmin = () =>
   useAuthStore((s) =>
-    Boolean(s.user?.role === 'eagle' && s.user?.is_platform_staff === true),
+    Boolean(
+      (s.user?.role === 'eagle' || s.user?.role === 'eaglet') &&
+        s.user?.is_platform_staff === true,
+    ),
   );
-
-/** True for any user (stacked or pure) who has admin capabilities. */
-export const useHasAdminAccess = () =>
-  useAuthStore((s) => {
-    const u = s.user;
-    if (!u) return false;
-    return Boolean(
-      u.role === 'admin' ||
-      u.is_superuser ||
-      u.is_platform_staff,
-    );
-  });
 
 // Listen for logout events from other parts of the app
 if (typeof window !== 'undefined') {

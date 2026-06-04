@@ -1,4 +1,4 @@
-export const SETTINGS_SECTIONS = [
+const SETTINGS_SECTIONS = [
   {
     id: 'account',
     path: 'account',

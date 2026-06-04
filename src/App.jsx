@@ -13,6 +13,7 @@ const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'))
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 const GoogleCallbackPage = lazy(() => import('./pages/auth/GoogleCallbackPage'));
 const EagletOnboardingPage = lazy(() => import('./pages/eaglet/EagletOnboardingPage'));
+const MentorApplicationPage = lazy(() => import('./pages/eaglet/MentorApplicationPage'));
 
 // Role-specific Dashboard Pages
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
@@ -75,10 +76,12 @@ const AdminKYCDetailPage = lazy(() => import('./pages/admin/AdminKYCDetailPage')
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const AdminTeamPage = lazy(() => import('./pages/admin/AdminTeamPage'));
 const AdminRoleRequestsPage = lazy(() => import('./pages/admin/AdminRoleRequestsPage'));
+const AdminMentorApplicationsPage = lazy(() => import('./pages/admin/AdminMentorApplicationsPage'));
 const AdminInviteAcceptPage = lazy(() => import('./pages/auth/AdminInviteAcceptPage'));
 
 // Shared Pages
 const ComingSoonPage = lazy(() => import('./pages/shared/ComingSoonPage'));
+const NotFoundPage = lazy(() => import('./pages/shared/NotFoundPage'));
 
 // Legal Pages (Phase 21)
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'));
@@ -287,6 +290,7 @@ function App() {
                     <Route path="/eaglet/modules/:moduleId/quiz" element={<FeatureLockGuard featureKey="assignments"><ModuleQuizPage /></FeatureLockGuard>} />
                     <Route path="/eaglet/leaderboard" element={<FeatureLockGuard featureKey="leaderboard"><PointsLeaderboardPage /></FeatureLockGuard>} />
                     <Route path="/eaglet/badges" element={<BadgesPage />} />
+                    <Route path="/eaglet/mentor-application" element={<MentorApplicationPage />} />
                     <Route path="/eaglet/messages" element={<FeatureLockGuard featureKey="messages"><ChatPage /></FeatureLockGuard>} />
                     <Route path="/eaglet/resources" element={<FeatureLockGuard featureKey="resources"><ResourceCenterPage /></FeatureLockGuard>} />
                     <Route path="/eaglet/settings" element={<Navigate to="/settings" replace />} />
@@ -328,6 +332,7 @@ function App() {
                     <Route path="/admin/users" element={<AdminUsersPage />} />
                     <Route path="/admin/team" element={<AdminTeamPage />} />
                     <Route path="/admin/team/requests" element={<AdminRoleRequestsPage />} />
+                    <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
                     <Route path="/admin/nests" element={<ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" />} />
                     <Route path="/admin/content" element={<LearningCenterPage />} />
                     <Route path="/admin/content/upload" element={<ContentUploadPage />} />
@@ -345,8 +350,9 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/about" element={<AboutPage />} />
 
-                {/* 404 - Catch all */}
-                <Route path="*" element={<Navigate to="/login" replace />} />
+                {/* 404 - Catch all. Renders a real NotFoundPage instead of
+                    redirecting to /login (soft-404 anti-pattern). */}
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>
           </GlobalSideEffects>

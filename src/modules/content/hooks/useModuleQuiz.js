@@ -3,7 +3,7 @@ import { apiClient } from '@api';
 import toast from 'react-hot-toast';
 import { contentKeys } from './useContent';
 
-export const quizKeys = {
+const quizKeys = {
     quiz: (moduleId) => [...contentKeys.moduleDetail(moduleId), 'quiz'],
     attempts: (moduleId) => [...contentKeys.moduleDetail(moduleId), 'quiz', 'attempts'],
 };

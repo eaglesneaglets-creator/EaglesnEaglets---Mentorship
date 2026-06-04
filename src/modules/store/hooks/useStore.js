@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import StoreService from '../services/store-service';
 
-export const storeKeys = {
+const storeKeys = {
     all: ['store'],
     categories: () => [...storeKeys.all, 'categories'],
     products: (params) => [...storeKeys.all, 'products', params],
@@ -17,12 +17,6 @@ export const useCategories = () => useQuery({
 export const useProducts = (params = {}) => useQuery({
     queryKey: storeKeys.products(params),
     queryFn: () => StoreService.getProducts(params),
-});
-
-export const useProductDetail = (id) => useQuery({
-    queryKey: storeKeys.product(id),
-    queryFn: () => StoreService.getProductDetail(id),
-    enabled: !!id,
 });
 
 export const useProductBySlug = (slug) => useQuery({

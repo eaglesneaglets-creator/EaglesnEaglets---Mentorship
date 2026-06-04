@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import LegalPageLayout from '@shared/components/legal/LegalPageLayout';
+import ReviewFlag from '@shared/components/legal/ReviewFlag';
+import { LEGAL_DOCUMENT_VERSION, LEGAL_LAST_UPDATED } from '@shared/components/legal/legalDocumentMeta';
 
-export const MENTOR_CONDUCT_VERSION = '2026-05-28';
-const LAST_UPDATED = 'May 28, 2026';
+export const MENTOR_CONDUCT_VERSION = LEGAL_DOCUMENT_VERSION;
 
 /**
  * Concise plain-text snapshot of the Mentor Code of Conduct, sent to the backend
@@ -22,20 +23,13 @@ export const MENTOR_CONDUCT_PLAINTEXT = [
   '9. Acknowledgment: By agreeing, the mentor accepts these obligations.',
 ].join('\n');
 
-/** Inline marker for clauses that need licensed-counsel review per jurisdiction. */
-const ReviewFlag = () => (
-  <span className="inline-block ml-1 text-xs font-semibold text-amber-700 whitespace-nowrap">
-    → legal review required
-  </span>
-);
-
 /**
  * MentorCodeOfConductPage — stricter conduct standard for Eagles (mentors).
  * This is the document mentors agree to during KYC step 4; the agreed version +
  * a plain-text snapshot are recorded immutably on the MentorKYC record.
  */
 const MentorCodeOfConductPage = () => (
-  <LegalPageLayout title="Mentor Code of Conduct" version={MENTOR_CONDUCT_VERSION} lastUpdated={LAST_UPDATED}>
+  <LegalPageLayout title="Mentor Code of Conduct" version={MENTOR_CONDUCT_VERSION} lastUpdated={LEGAL_LAST_UPDATED}>
     <section>
       <h2>1. Scope</h2>
       <p>

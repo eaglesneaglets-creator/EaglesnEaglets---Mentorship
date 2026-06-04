@@ -7,6 +7,8 @@ vi.mock('@store', () => ({
     usePendingProgramRequest: vi.fn(),
     useMenteeLevel: vi.fn(),
     useMentorEligibility: vi.fn(),
+    useMentorApplicationStatus: vi.fn(),
+    useMentorApplicationEligible: vi.fn(),
 }));
 
 import {
@@ -14,6 +16,8 @@ import {
     usePendingProgramRequest,
     useMenteeLevel,
     useMentorEligibility,
+    useMentorApplicationStatus,
+    useMentorApplicationEligible,
 } from '@store';
 import ActiveProgramCard from './ActiveProgramCard';
 import MenteeLevelCard from './MenteeLevelCard';
@@ -85,7 +89,7 @@ describe('MenteeLevelCard', () => {
         expect(screen.getByText(/Next: 1,500 pts/)).toBeInTheDocument();
     });
 
-    it('shows mentor eligibility banner when eligible', () => {
+    it('shows mentor apply CTA when eligible + no application', () => {
         useMenteeLevel.mockReturnValue({
             current_level: 5,
             next_threshold: null,
@@ -93,9 +97,12 @@ describe('MenteeLevelCard', () => {
             points: 5000,
         });
         useMentorEligibility.mockReturnValue(true);
+        useMentorApplicationEligible.mockReturnValue(true);
+        useMentorApplicationStatus.mockReturnValue(null);
 
         wrap(<MenteeLevelCard />);
-        expect(screen.getByText(/Eligible to apply as mentor/i)).toBeInTheDocument();
+        const link = screen.getByRole('link', { name: /Apply to become a mentor/i });
+        expect(link).toHaveAttribute('href', '/eaglet/mentor-application');
     });
 
     it('hides next threshold at level 5', () => {
@@ -109,5 +116,77 @@ describe('MenteeLevelCard', () => {
 
         wrap(<MenteeLevelCard />);
         expect(screen.queryByText(/Next:/i)).not.toBeInTheDocument();
+    });
+
+    describe('mentor application strip states', () => {
+        beforeEach(() => {
+            vi.clearAllMocks();
+            useMenteeLevel.mockReturnValue({
+                current_level: 5,
+                next_threshold: null,
+                progress_pct: 100,
+                points: 5000,
+            });
+            useMentorEligibility.mockReturnValue(true);
+        });
+
+        it('submitted → shows amber pending pill, no apply link', () => {
+            useMentorApplicationEligible.mockReturnValue(true);
+            useMentorApplicationStatus.mockReturnValue('submitted');
+
+            wrap(<MenteeLevelCard />);
+            expect(screen.getByText(/Application pending/i)).toBeInTheDocument();
+            expect(screen.queryByRole('link', { name: /Apply to become a mentor/i })).toBeNull();
+        });
+
+        it('approved → shows emerald banner + mentor dashboard link', () => {
+            useMentorApplicationEligible.mockReturnValue(true);
+            useMentorApplicationStatus.mockReturnValue('approved');
+
+            wrap(<MenteeLevelCard />);
+            expect(screen.getByText(/You’re now a mentor/i)).toBeInTheDocument();
+            expect(screen.getByRole('link', { name: /Open mentor dashboard/i }))
+                .toHaveAttribute('href', '/eagle/dashboard');
+        });
+
+        it('rejected → shows red banner + re-apply link to application page', () => {
+            useMentorApplicationEligible.mockReturnValue(true);
+            useMentorApplicationStatus.mockReturnValue('rejected');
+
+            wrap(<MenteeLevelCard />);
+            expect(screen.getByText(/Application not approved/i)).toBeInTheDocument();
+            expect(screen.getByRole('link', { name: /Re-apply/i }))
+                .toHaveAttribute('href', '/eaglet/mentor-application');
+        });
+
+        it('eligible + no app → renders apply CTA', () => {
+            useMentorApplicationEligible.mockReturnValue(true);
+            useMentorApplicationStatus.mockReturnValue(null);
+
+            wrap(<MenteeLevelCard />);
+            expect(screen.getByRole('link', { name: /Apply to become a mentor/i }))
+                .toHaveAttribute('href', '/eaglet/mentor-application');
+        });
+
+        it('withdrawn → shows withdrawn banner (not generic apply CTA)', () => {
+            useMentorApplicationEligible.mockReturnValue(true);
+            useMentorApplicationStatus.mockReturnValue('withdrawn');
+
+            wrap(<MenteeLevelCard />);
+            expect(screen.getByText(/Application withdrawn/i)).toBeInTheDocument();
+            expect(screen.queryByText(/Apply to become a mentor/i)).toBeNull();
+            expect(screen.getByRole('link', { name: /Re-apply/i }))
+                .toHaveAttribute('href', '/eaglet/mentor-application');
+        });
+
+        it('ineligible but has submitted app → still shows pending status', () => {
+            // User lost eligibility after submitting (e.g. points dropped); they
+            // must still see their pending application.
+            useMentorApplicationEligible.mockReturnValue(false);
+            useMentorApplicationStatus.mockReturnValue('submitted');
+
+            wrap(<MenteeLevelCard />);
+            expect(screen.getByText(/Application pending/i)).toBeInTheDocument();
+        });
     });
 });

@@ -91,19 +91,4 @@ export const eagletOnboardingSchema = z.object({
   expectations: z.string().max(1000, 'Expectations must be 1000 characters or less').optional(),
 });
 
-/**
- * Eaglet Profile Update Schema (All optional)
- */
-export const eagletProfileUpdateSchema = z.object({
-  age_group: z.string().optional(),
-  educational_level: z.string().optional(),
-  field_of_study: z.string().optional(),
-  institution: z.string().optional(),
-  interests: z.array(z.string()).max(10).optional(),
-  goals: z.array(z.string()).max(5).optional(),
-  preferred_mentor_expertise: z.array(z.string()).max(5).optional(),
-  bio: z.string().max(500).optional(),
-  expectations: z.string().max(1000).optional(),
-});
-
 export default eagletOnboardingSchema;

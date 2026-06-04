@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Button, Input, Alert } from '@components/ui';
+import { Button, Input } from '@components/ui';
+import AuthFormShell from '../../modules/auth/components/AuthFormShell';
+import AuthFormIntro from '../../modules/auth/components/AuthFormIntro';
+import BackToLoginLink from '../../modules/auth/components/BackToLoginLink';
 import { resetPasswordSchema } from '../../modules/auth/schemas/register-schema';
 import { authService } from '../../modules/auth/services/auth-service';
-import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+
+const LockIcon = () => (
+  <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+  </svg>
+);
 
 /**
  * ResetPasswordPage Component
@@ -105,92 +113,39 @@ const ResetPasswordPage = () => {
   // No token provided
   if (!token) {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="bg-white border-b border-border">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <img src={Logo} alt="Eagles & Eaglets" className="h-10 w-auto" />
-            </Link>
-          </div>
-        </header>
-
-        {/* Error Content */}
-        <main className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
-          <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-border p-8 text-center">
-            <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-text-primary mb-2">Invalid Reset Link</h2>
-            <p className="text-text-secondary mb-6">
-              This password reset link is missing a token. Please request a new password reset.
-            </p>
-            <Link to="/forgot-password">
-              <Button variant="primary" fullWidth>
-                Request New Reset Link
-              </Button>
-            </Link>
-            <Link
-              to="/login"
-              className="flex items-center justify-center gap-2 text-sm text-text-secondary hover:text-text-primary mt-4"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to login
-            </Link>
-          </div>
-        </main>
-      </div>
+      <AuthFormShell cardClassName="text-center">
+        <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-text-primary mb-2">Invalid Reset Link</h2>
+        <p className="text-text-secondary mb-6">
+          This password reset link is missing a token. Please request a new password reset.
+        </p>
+        <Link to="/forgot-password">
+          <Button variant="primary" fullWidth>
+            Request New Reset Link
+          </Button>
+        </Link>
+        <BackToLoginLink className="mt-4" />
+      </AuthFormShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={Logo} alt="Eagles & Eaglets" className="h-10 w-auto" />
-          </Link>
-        </div>
-      </header>
+    <AuthFormShell>
+      {!isSuccess ? (
+        <>
+          <AuthFormIntro
+            icon={<LockIcon />}
+            title="Set New Password"
+            description="Your new password must be different from previous passwords."
+            error={error}
+            onErrorDismiss={() => setError('')}
+          />
 
-      {/* Content */}
-      <main className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border border-border p-8">
-          {!isSuccess ? (
-            <>
-              {/* Icon */}
-              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-
-              {/* Title */}
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-text-primary mb-2">Set New Password</h2>
-                <p className="text-text-secondary">
-                  Your new password must be different from previous passwords.
-                </p>
-              </div>
-
-              {/* Error */}
-              {error && (
-                <Alert
-                  variant="error"
-                  className="mb-4 animate-fade-in"
-                  onClose={() => setError('')}
-                >
-                  {error}
-                </Alert>
-              )}
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
                 {/* New Password */}
                 <div>
                   <Input
@@ -277,23 +232,14 @@ const ResetPasswordPage = () => {
                   }
                 />
 
-                <Button type="submit" variant="primary" size="lg" fullWidth loading={isLoading}>
-                  Reset Password
-                </Button>
-              </form>
+            <Button type="submit" variant="primary" size="lg" fullWidth loading={isLoading}>
+              Reset Password
+            </Button>
+          </form>
 
-              {/* Back to Login */}
-              <Link
-                to="/login"
-                className="flex items-center justify-center gap-2 text-sm text-text-secondary hover:text-text-primary mt-6"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to login
-              </Link>
-            </>
-          ) : (
+          <BackToLoginLink />
+        </>
+      ) : (
             <>
               {/* Success State */}
               <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -314,11 +260,9 @@ const ResetPasswordPage = () => {
               >
                 Continue to Login
               </Button>
-            </>
-          )}
-        </div>
-      </main>
-    </div>
+          </>
+        )}
+    </AuthFormShell>
   );
 };
 
