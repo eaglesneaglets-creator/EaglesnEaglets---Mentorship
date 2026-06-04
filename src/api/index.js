@@ -111,7 +111,8 @@ export const tokenManager = {
  * sets a new cookie, AND returns the rotated refresh in JSON so we can
  * keep localStorage in sync.
  *
- * A 401 means the refresh token is missing or expired — clear local
+ * Guests with no credentials throw no_refresh_token (no network call).
+ * A 401 from the refresh endpoint means the session expired — clear local
  * state and treat as session_expired.
  *
  * Single-flight concurrency control: concurrent callers await the same
@@ -120,21 +121,43 @@ export const tokenManager = {
  */
 let _refreshPromise = null;
 
+const AUTH_STORAGE_KEY = 'auth-storage';
+
+/** True when Zustand persist says the user was logged in (cookie may still exist). */
+const hasPersistedAuthSession = () => {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    return parsed?.state?.isAuthenticated === true;
+  } catch {
+    return false;
+  }
+};
+
 export const refreshAccessToken = async () => {
   if (_refreshPromise) return _refreshPromise;
 
   _refreshPromise = (async () => {
+    // Cookie-primary: the httpOnly refresh cookie is the source of truth and is
+    // attached automatically via credentials:'include'. The localStorage value
+    // is a dormant fallback for cross-origin edge cases (Safari ITP, proxies) —
+    // we send it in the body when present, but its ABSENCE must NOT block the
+    // refresh when a session likely exists (in-memory access or persisted login).
+    // Guests with none of those signals skip the network call so handleTokenRefresh
+    // can throw no_refresh_token instead of session_expired (no spurious logout).
     const refreshToken = tokenManager.getRefreshToken();
+    const accessToken = tokenManager.getAccessToken();
 
-    if (!refreshToken) {
+    if (!refreshToken && !accessToken && !hasPersistedAuthSession()) {
       throw new ApiError('No refresh token available.', 401, 'no_refresh_token');
     }
 
     const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',  // also attaches the cookie if it's first-party
-      body: JSON.stringify({ refresh: refreshToken }),
+      credentials: 'include',  // attaches the httpOnly refresh cookie (primary)
+      body: JSON.stringify(refreshToken ? { refresh: refreshToken } : {}),
     });
 
     if (!response.ok) {
