@@ -7,6 +7,14 @@ const SETTINGS_SECTIONS = [
     roles: ['eagle', 'eaglet', 'admin'],
   },
   {
+    // KYC profile view/edit — mentors + mentees only (admins have no KYC).
+    id: 'profile',
+    path: 'profile',
+    label: 'Profile',
+    icon: 'badge',
+    roles: ['eagle', 'eaglet'],
+  },
+  {
     id: 'notifications',
     path: 'notifications',
     label: 'Notifications',

@@ -66,7 +66,7 @@ export function FloatingNavbarGuestAuth({ useDarkText, linkClassName }) {
         to="/register"
         className="px-4 lg:px-5 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all duration-200 shadow-md shadow-primary/25 whitespace-nowrap flex-shrink-0"
       >
-        Join the Nest
+        Join Now
       </Link>
     </>
   );

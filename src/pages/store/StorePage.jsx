@@ -1,7 +1,41 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useProducts, useCategories } from '../../modules/store/hooks/useStore';
 import ProductCard from '../../modules/store/components/ProductCard';
 import StoreHeader from '../../modules/store/components/StoreHeader';
+
+// Gate the storefront until order fulfilment/logistics are ready.
+// Flip by setting VITE_STORE_ENABLED=true in the environment — no code change.
+const STORE_COMING_SOON = import.meta.env.VITE_STORE_ENABLED !== 'true';
+
+/** Non-dismissable overlay: blurred storefront behind, Coming Soon card on top. */
+const ComingSoonOverlay = () => (
+    <div
+        className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-md"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="store-coming-soon-title"
+    >
+        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 shadow-2xl p-8 sm:p-10 text-center">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
+                <span className="material-symbols-outlined text-primary text-3xl">storefront</span>
+            </div>
+            <h2 id="store-coming-soon-title" className="text-2xl font-black text-slate-900 mb-2 tracking-tight">
+                Store Coming Soon
+            </h2>
+            <p className="text-sm text-slate-500 leading-relaxed mb-7">
+                We&apos;re putting the finishing touches on our store and delivery
+                logistics. Check back soon — it&apos;ll be worth the wait.
+            </p>
+            <Link
+                to="/"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-white bg-primary rounded-xl shadow-lg shadow-primary/25 hover:bg-primary-dark transition"
+            >
+                Back to home
+            </Link>
+        </div>
+    </div>
+);
 
 const StorePage = () => {
     const [search, setSearch] = useState('');
@@ -19,7 +53,8 @@ const StorePage = () => {
     });
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className={`min-h-screen bg-slate-50 ${STORE_COMING_SOON ? 'overflow-hidden max-h-screen' : ''}`}>
+            {STORE_COMING_SOON && <ComingSoonOverlay />}
             <StoreHeader />
 
             {/* Hero Banner — glossy emerald gradient matching the rest of the platform */}

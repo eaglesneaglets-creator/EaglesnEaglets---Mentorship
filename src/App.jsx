@@ -82,6 +82,7 @@ const AdminInviteAcceptPage = lazy(() => import('./pages/auth/AdminInviteAcceptP
 // Shared Pages
 const ComingSoonPage = lazy(() => import('./pages/shared/ComingSoonPage'));
 const NotFoundPage = lazy(() => import('./pages/shared/NotFoundPage'));
+const FaqPage = lazy(() => import('./pages/shared/FaqPage'));
 
 // Legal Pages (Phase 21)
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'));
@@ -98,6 +99,7 @@ const AdminDonationsPage = lazy(() => import('./pages/donations/AdminDonationsPa
 const SettingsLayout = lazy(() => import('./pages/settings/SettingsLayout'));
 const SettingsHomePage = lazy(() => import('./pages/settings/SettingsHomePage'));
 const AccountSection = lazy(() => import('./pages/settings/sections/AccountSection'));
+const ProfileSection = lazy(() => import('./pages/settings/sections/ProfileSection'));
 const NotificationsSection = lazy(() => import('./pages/settings/sections/NotificationsSection'));
 const PrivacySection = lazy(() => import('./pages/settings/sections/PrivacySection'));
 const AdminPointsConfigSection = lazy(() => import('./pages/settings/sections/AdminPointsConfigSection'));
@@ -223,6 +225,7 @@ function App() {
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/code-of-conduct" element={<CodeOfConductPage />} />
+                <Route path="/faq" element={<FaqPage />} />
                 <Route path="/mentor-code-of-conduct" element={<MentorCodeOfConductPage />} />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -314,6 +317,7 @@ function App() {
                   <Route path="/settings" element={<SettingsLayout />}>
                     <Route index element={<SettingsHomePage />} />
                     <Route path="account" element={<AccountSection />} />
+                    <Route path="profile" element={<ProfileSection />} />
                     <Route path="notifications" element={<NotificationsSection />} />
                     <Route path="privacy" element={<PrivacySection />} />
                     <Route element={<AdminGuard />}>

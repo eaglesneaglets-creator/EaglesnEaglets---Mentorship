@@ -182,7 +182,7 @@ const EagletOnboardingPage = () => {
                 <input
                   type="text"
                   {...register('institution')}
-                  placeholder="e.g., University of Lagos"
+                  placeholder="e.g., University of Ghana"
                   className="form-input"
                 />
               </div>

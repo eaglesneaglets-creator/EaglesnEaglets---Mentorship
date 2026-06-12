@@ -21,10 +21,10 @@ const SOCIAL_LINKS = {
 };
 
 const QUICK_LINKS = [
-    { label: 'Our Mission', href: '/about' },
-    { label: 'Mentorship Programs', href: '/#features' },
-    { label: 'The Shop', href: '/store' },
-    { label: 'Success Stories', href: '/#testimonials' },
+    { label: 'About', href: '/about' },
+    { label: 'Store', href: '/store' },
+    { label: 'Donate', href: '/donations' },
+    { label: "FAQs", href: '/faq' },
 ];
 
 const FacebookIcon = (props) => (
@@ -118,11 +118,13 @@ const PublicFooter = () => {
                         <ul className="space-y-2.5 sm:space-y-3">
                             <li className="flex items-center gap-2 text-sm text-slate-600 min-w-0">
                                 <span className="material-symbols-outlined text-sm text-primary flex-shrink-0">alternate_email</span>
+                                {/* Short label — the full address is too long for the column.
+                                    mailto: still carries the real support address. */}
                                 <a
                                     href="mailto:support.eaglesandeaglets@gmail.com"
-                                    className="truncate hover:text-primary transition-colors"
+                                    className="font-medium hover:text-primary transition-colors"
                                 >
-                                    support.eaglesandeaglets@gmail.com
+                                    Email Us
                                 </a>
                             </li>
                         </ul>

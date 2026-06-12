@@ -1,13 +1,15 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { profileService } from '../../modules/profile/services/profile-service';
 import KycFlow from '../../modules/kyc/KycFlow';
+import { useKycRouteGuard } from '../../modules/kyc/hooks/useKycRouteGuard';
 import { MENTOR_CONDUCT_VERSION, MENTOR_CONDUCT_PLAINTEXT } from '../legal/MentorCodeOfConductPage';
 import toast from 'react-hot-toast';
 
 export default function MentorKycPage() {
     const { user } = useAuthStore();
     const navigate = useNavigate();
+    const { isLoading, redirectTo } = useKycRouteGuard('mentor');
 
     const handleSubmit = async (data, files) => {
         if (files.picture) {
@@ -40,11 +42,15 @@ export default function MentorKycPage() {
         toast.success('Application submitted! Review within 1-3 business days.');
     };
 
+    // Submitted/approved profiles can't re-open the wizard (back-button fix).
+    if (isLoading) return null;
+    if (redirectTo) return <Navigate to={redirectTo} replace />;
+
     return (
         <KycFlow
             role="mentor"
             onSubmit={handleSubmit}
-            onComplete={() => navigate('/pending-approval')}
+            onComplete={() => navigate('/pending-approval', { replace: true })}
             defaultValues={{
                 full_name: user?.full_name || '',
             }}

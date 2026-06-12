@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PublicNavbar from '@shared/components/layout/PublicNavbar';
 import PublicFooter from '@shared/components/layout/PublicFooter';
 import FadeIn from '@shared/components/motion/FadeIn';
@@ -9,30 +9,6 @@ import { useProducts } from '../../modules/store/hooks/useStore';
 
 // 4K community teaching & learning hero — diverse group in a learning/mentorship setting
 const heroBg = 'https://images.unsplash.com/photo-1529390079861-591de354faf5?q=90&w=3840&auto=format&fit=crop';
-
-/* ═══════════════════════════════════════════════
-   ROLLING NUMBER — animates 0 → target on mount
-   ═══════════════════════════════════════════════ */
-const RollingNumber = ({ target, suffix = '', duration = 1.6, delay = 0 }) => {
-    const count = useMotionValue(0);
-    const rounded = useTransform(count, (v) => Math.floor(v));
-    const [display, setDisplay] = useState(0);
-
-    useEffect(() => {
-        const unsubscribe = rounded.on('change', setDisplay);
-        const controls = animate(count, target, {
-            duration,
-            delay,
-            ease: [0.22, 1, 0.36, 1],
-        });
-        return () => {
-            controls.stop();
-            unsubscribe();
-        };
-    }, [count, rounded, target, duration, delay]);
-
-    return <span>{display}{suffix}</span>;
-};
 
 /* ═══════════════════════════════════════════════
    HERO SECTION — 4K photo background
@@ -58,7 +34,7 @@ const HeroSection = () => {
                         className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 bg-white/10 backdrop-blur-sm text-white text-[10px] sm:text-xs font-bold rounded-full border border-white/20 mb-4 sm:mb-6"
                     >
                         <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                        Community-Centered Ministry
+                        Community-Centered Mentorship
                     </motion.span>
 
                     <div className="max-w-3xl">
@@ -103,25 +79,6 @@ const HeroSection = () => {
                             </motion.button>
                         </motion.div>
 
-                        {/* Stats — aligned with content, animated roll-up on load */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.75, delay: 0.56, ease: [0.22, 1, 0.36, 1] }}
-                            className="flex flex-wrap gap-8 sm:gap-14 md:gap-16 mt-8 sm:mt-12 md:mt-14"
-                        >
-                            {[
-                                { value: 100, suffix: '+', label: 'Mentors' },
-                                { value: 500, suffix: '+', label: 'Mentees' },
-                            ].map((stat, i) => (
-                                <div key={stat.label}>
-                                    <p className="text-xl sm:text-2xl md:text-3xl font-black text-white">
-                                        <RollingNumber target={stat.value} suffix={stat.suffix} delay={0.7 + i * 0.15} />
-                                    </p>
-                                    <p className="text-[11px] sm:text-xs text-white/60 font-medium mt-0.5">{stat.label}</p>
-                                </div>
-                            ))}
-                        </motion.div>
                     </div>
                 </div>
             </div>
@@ -204,7 +161,7 @@ const AboutSection = () => {
 };
 
 /* ═══════════════════════════════════════════════
-   STORE / MINISTRY SHOP — real products from API
+   STORE — real products from API
    ═══════════════════════════════════════════════ */
 const StoreSection = () => {
     const { data: productsData, isLoading } = useProducts();
@@ -217,7 +174,7 @@ const StoreSection = () => {
                 <FadeIn>
                     <div className="flex items-end justify-between gap-3 mb-8 sm:mb-10">
                         <div>
-                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Ministry Shop</h2>
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">The Store</h2>
                             <p className="text-sm text-slate-400 mt-1.5 sm:mt-2">Exclusive apparel and resources for the community.</p>
                         </div>
                         <Link to="/store" className="hidden md:flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-dark transition-colors group flex-shrink-0">
@@ -286,11 +243,14 @@ const StoreSection = () => {
 
 /* ═══════════════════════════════════════════════
    TESTIMONIALS — Voices of the Nest
+   Temporarily unmounted from the homepage (placeholder quotes).
+   Exported so it stays lint-clean; re-add <TestimonialsSection /> to
+   HomePage's render once real testimonials are collected.
    ═══════════════════════════════════════════════ */
-const TestimonialsSection = () => {
+export const TestimonialsSection = () => {
     const testimonials = [
         {
-            quote: "This ministry has provided a safe space for my son to grow and discover his talents. The mentors are truly invested in the kids' futures.",
+            quote: "This community has provided a safe space for my son to grow and discover his talents. The mentors are truly invested in the kids' futures.",
             name: 'Sarah Miller',
             role: 'Community Parent',
             stars: 5,
@@ -387,7 +347,7 @@ const DonateSection = () => {
 
                         {/* Heading */}
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3 sm:mb-4">
-                            Support the Ministry
+                            Support the Mission
                         </h2>
                         <p className="text-sm md:text-base text-slate-500 leading-relaxed max-w-lg mx-auto mb-6 sm:mb-10">
                             Every contribution helps us provide more resources, mentoring sessions, and safe environments for our eaglets to soar. Together, we can make a lasting impact.
@@ -426,7 +386,7 @@ const HomePage = () => {
             <HeroSection />
             <AboutSection />
             <StoreSection />
-            <TestimonialsSection />
+            {/* <TestimonialsSection /> — re-enable when real testimonials exist */}
             <DonateSection />
             <PublicFooter />
         </div>
