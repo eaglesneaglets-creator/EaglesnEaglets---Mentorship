@@ -26,6 +26,8 @@ export const menteeKycSchema = z.object({
     phone_number: z.string().min(7, 'Phone number is required'),
     country: z.string().min(2, 'Select a country'),
     city: z.string().min(2, 'City is required'),
+    // Optional finer-grained area (BE MenteeKYCUpdateSerializer.location).
+    location: z.string().optional().or(z.literal('')),
     employment_status: z.enum(['employed', 'self_employed', 'student', 'unemployed'], {
         errorMap: () => ({ message: 'Select your status' }),
     }),

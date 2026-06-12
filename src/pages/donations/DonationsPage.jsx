@@ -120,7 +120,7 @@ export default function DonationsPage() {
           >
             <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full mb-3 sm:mb-4 shadow-sm">
               <span className="material-symbols-outlined text-sm">volunteer_activism</span>
-              Support the Ministry
+              Support the Mission
             </span>
           </motion.div>
 

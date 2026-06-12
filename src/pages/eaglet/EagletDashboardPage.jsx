@@ -83,8 +83,7 @@ const EagletDashboardPage = () => {
   const stats = [
     { icon: 'psychiatry', iconColor: 'text-emerald-500', label: 'Growth Points', value: points.toLocaleString(), subValue: 'Keep earning!', progress: Math.min((points % 1000) / 10, 100) },
     { icon: 'school', iconColor: 'text-blue-500', label: 'Modules Completed', value: modulesCompleted.toString(), subValue: 'Total completed', subColor: 'text-slate-400' },
-    { icon: 'local_fire_department', iconColor: 'text-orange-500', label: 'Prayer Streak', value: `${streak} Days`, subValue: 'Keep it going!', subColor: 'text-emerald-600' },
-    { icon: 'menu_book', iconColor: 'text-purple-500', label: 'Recent Action', value: 'Active', subValue: 'Based on logs' },
+    { icon: 'local_fire_department', iconColor: 'text-orange-500', label: 'Learning Streak', value: `${streak} Days`, subValue: 'Keep it going!', subColor: 'text-emerald-600' },
   ];
 
   const recentContent = dashboardData?.recent_content || [];
@@ -118,8 +117,9 @@ const EagletDashboardPage = () => {
           <BadgeShelf />
         </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
+        {/* Stats Row — 3 cards since Recent Action was removed; sm:3-up keeps
+            the row balanced (2+1 stack only on the narrowest screens). */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-4">
           {stats.map((stat, index) => (
             <StatCard key={stat.label} {...stat} delay={index * 75} />
           ))}

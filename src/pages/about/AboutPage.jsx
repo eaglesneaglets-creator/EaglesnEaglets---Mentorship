@@ -77,14 +77,24 @@ const OurStorySection = () => {
                         the full subject shows. Sticky on lg keeps the face in view
                         while the long story scrolls beside it. */}
                     <FadeIn delay={0} direction="right">
-                        <div className="lg:sticky lg:top-24 rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-200 shadow-lg shadow-slate-200/50 aspect-[4/5] max-w-md mx-auto lg:mx-0">
-                            <img
-                                src={storyPic}
-                                alt="The conversations that became Eagles & Eaglets"
-                                className="w-full h-full object-cover object-top"
-                                loading="lazy"
-                                decoding="async"
-                            />
+                        <div className="lg:sticky lg:top-24 max-w-md mx-auto lg:mx-0">
+                            <div className="rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-200 shadow-lg shadow-slate-200/50 aspect-[4/5]">
+                                <img
+                                    src={storyPic}
+                                    alt="Mr. Richard Densu, founder of Eagles & Eaglets"
+                                    className="w-full h-full object-cover object-top"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                            </div>
+                            <div className="mt-4 text-center lg:text-left">
+                                <p className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                                    Mr. Richard Densu
+                                </p>
+                                <p className="text-xs font-bold uppercase tracking-[0.15em] text-primary mt-0.5">
+                                    Founder, Eagles &amp; Eaglets
+                                </p>
+                            </div>
                         </div>
                     </FadeIn>
 

@@ -133,9 +133,15 @@ export const BackgroundStep = () => {
                 <Input
                     label="City"
                     required
-                    placeholder="Lagos"
+                    placeholder="Accra"
                     error={errors.city?.message}
                     {...register('city')}
+                />
+                <Input
+                    label="Area / Neighbourhood"
+                    placeholder="e.g. Osu"
+                    error={errors.location?.message}
+                    {...register('location')}
                 />
                 <Select
                     label="Employment / education status"

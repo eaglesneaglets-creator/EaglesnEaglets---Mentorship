@@ -7,6 +7,7 @@ import RoleSwitcher from './RoleSwitcher';
 import { refreshAccessToken } from '../../../api';
 import { adminService } from '../../../modules/auth/services/auth-service';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, useNotificationSocket } from '../../../modules/notifications/hooks/useNotifications';
+import { resolveNotificationUrl } from '../../../modules/notifications/utils/resolve-notification-url';
 import { useTotalUnread } from '../../../modules/chat/hooks/useChat';
 import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
 
@@ -279,8 +280,11 @@ const DashboardLayout = ({
     if (!notif.is_read) {
       markAsReadMutation.mutate(notif.id);
     }
-    if (notif.action_url) {
-      navigate(notif.action_url);
+    // Resolver rewrites legacy action_urls (e.g. /points/badges → 404) and
+    // derives a target by notification_type when action_url is empty.
+    const target = resolveNotificationUrl(notif, user?.role);
+    if (target) {
+      navigate(target);
     }
     setShowNotifications(false);
   };
@@ -665,11 +669,16 @@ const DashboardLayout = ({
                 )}
               </div>
 
-              <button className="p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group hidden sm:flex">
+              <Link
+                to="/faq"
+                aria-label="Frequently asked questions"
+                title="FAQs"
+                className="p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group hidden sm:flex items-center justify-center"
+              >
                 <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
                   help
                 </span>
-              </button>
+              </Link>
 
               {/* Logout button — visible on mobile where sidebar bottom is hidden */}
               <button

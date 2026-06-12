@@ -53,8 +53,9 @@ export const MENTORSHIP_GOALS = [
 
 // Mentor expertise choices (what kind of mentor they prefer)
 export const MENTOR_EXPERTISE = [
-  { value: 'spiritual_leadership', label: 'Spiritual Leadership' },
-  { value: 'youth_ministry', label: 'Youth Ministry' },
+  // NOTE: values are stored in the DB — rename labels only, never values.
+  { value: 'spiritual_leadership', label: 'Leadership & Character' },
+  { value: 'youth_ministry', label: 'Youth Development' },
   { value: 'career_guidance', label: 'Career Guidance' },
   { value: 'business_mentoring', label: 'Business & Entrepreneurship' },
   { value: 'education', label: 'Education & Academic' },

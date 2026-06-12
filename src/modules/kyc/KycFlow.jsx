@@ -58,7 +58,7 @@ export default function KycFlow({ role, onSubmit, onComplete, defaultValues, ini
             agree: false,
             ...(role === 'mentor'
                 ? { location: '', profile_description: '' }
-                : { country: '', city: '', bio: '' }),
+                : { country: '', city: '', location: '', bio: '' }),
             ...defaultValues,
         },
     });
@@ -159,7 +159,7 @@ export default function KycFlow({ role, onSubmit, onComplete, defaultValues, ini
                         </button>
                         <div className="text-center flex-1 min-w-0 px-4">
                             <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary">
-                                {role === 'mentor' ? 'Become an Eagle' : 'Join the Nest'}
+                                {role === 'mentor' ? 'Become an Eagle' : 'Join Now'}
                             </p>
                             <h1 className="text-xl sm:text-2xl font-black text-slate-900 truncate">
                                 Earn Your Wings
@@ -267,7 +267,7 @@ export default function KycFlow({ role, onSubmit, onComplete, defaultValues, ini
                                 {submitting ? (
                                     <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>
                                 ) : (
-                                    <>{role === 'mentor' ? 'Apply to Mentor' : 'Join the Nest'} <Plane className="w-4 h-4" /></>
+                                    <>{role === 'mentor' ? 'Apply to Mentor' : 'Join Now'} <Plane className="w-4 h-4" /></>
                                 )}
                             </button>
                         )}
