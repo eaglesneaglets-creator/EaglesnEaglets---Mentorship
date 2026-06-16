@@ -13,9 +13,8 @@ export function FloatingNavbarBrand({ useDarkText, compact = false }) {
     return (
       <Link to="/" className="flex items-center gap-2 min-w-0 flex-1 mr-1">
         <img src={logoImg} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-2 ring-white/50" />
-        <span className={`${navBrandTextClass(useDarkText)} truncate`}>
-          <span className="hidden min-[420px]:inline">Eagles &amp; Eaglets</span>
-          <span className="min-[420px]:hidden">E&amp;E</span>
+        <span className={`${navBrandTextClass(useDarkText)} text-[13px] truncate`}>
+          Eagles &amp; Eaglets
         </span>
       </Link>
     );
