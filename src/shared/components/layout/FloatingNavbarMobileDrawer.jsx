@@ -171,7 +171,7 @@ export default function FloatingNavbarMobileDrawer({
                         onClick={() =>
                           setOpenSection(prev => (prev === link.label ? null : link.label))
                         }
-                        className={`flex w-full items-center gap-3 min-h-12 px-3 rounded-xl text-[15px] font-semibold transition-colors ${
+                        className={`flex w-full items-center gap-3 min-h-12 px-3 rounded-xl text-[15px] font-semibold transition-colors text-left ${
                           sectionOpen || active
                             ? 'bg-primary/10 text-primary'
                             : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
@@ -179,7 +179,7 @@ export default function FloatingNavbarMobileDrawer({
                         aria-expanded={sectionOpen}
                       >
                         <span
-                          className={`material-symbols-outlined text-[22px] ${
+                          className={`material-symbols-outlined text-[22px] flex-shrink-0 ${
                             sectionOpen || active ? 'text-primary' : 'text-slate-400'
                           }`}
                           aria-hidden
