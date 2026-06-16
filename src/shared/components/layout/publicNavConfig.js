@@ -19,6 +19,26 @@ export const PUBLIC_NAV_LINKS = [
   { label: 'Donate', path: '/donations', icon: 'volunteer_activism' },
 ];
 
+/** Store header mobile drawer — flat public links plus root-level store shortcuts. */
+export function getStoreMobileNavLinks(cartCount) {
+  const flatPublicLinks = PUBLIC_NAV_LINKS.map((link) => {
+    if (link.label !== 'Store') return link;
+    const { children: _children, ...storeLink } = link;
+    return storeLink;
+  });
+
+  return [
+    ...flatPublicLinks,
+    { label: 'My Orders', path: '/store/orders', icon: 'receipt_long' },
+    {
+      label: 'Cart',
+      path: '/store/cart',
+      icon: 'shopping_cart',
+      badge: cartCount,
+    },
+  ];
+}
+
 /** Whether a public nav link matches the current route. */
 export function isNavLinkActive(pathname, linkPath) {
   if (linkPath === '/') return pathname === '/';

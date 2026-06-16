@@ -5,6 +5,7 @@
  * but with store-specific icons (cart badge + orders).
  */
 
+import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
@@ -12,6 +13,7 @@ import { useAuthStore } from '@store';
 import { useCartCount } from '../hooks/useCart';
 import {
   PUBLIC_NAV_LINKS,
+  getStoreMobileNavLinks,
   navDividerClass,
   navIconBtnClass,
   navMobileShellClass,
@@ -94,7 +96,10 @@ export default function StoreHeader({ forceScrolled = false }) {
     },
   ];
 
-  const mobileLinks = PUBLIC_NAV_LINKS;
+  const mobileLinks = useMemo(
+    () => getStoreMobileNavLinks(cartCount),
+    [cartCount],
+  );
 
   return (
     <>
