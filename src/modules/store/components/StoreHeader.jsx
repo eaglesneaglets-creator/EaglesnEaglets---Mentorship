@@ -14,8 +14,7 @@ import {
   PUBLIC_NAV_LINKS,
   navDividerClass,
   navIconBtnClass,
-  navMenuBtnClass,
-  navMenuIconClass,
+  navMobileShellClass,
   navPillClass,
   navShellOffsetClass,
 } from '../../../shared/components/layout/publicNavConfig';
@@ -26,6 +25,7 @@ import {
   FloatingNavbarLinks,
 } from '../../../shared/components/layout/FloatingNavbarAuth';
 import FloatingNavbarMobileDrawer from '../../../shared/components/layout/FloatingNavbarMobileDrawer';
+import FloatingNavbarMenuButton from '../../../shared/components/layout/FloatingNavbarMenuButton';
 import {
   useFloatingNavbarState,
   useNavbarScrollThreshold,
@@ -77,6 +77,7 @@ export default function StoreHeader({ forceScrolled = false }) {
   const {
     mobileOpen,
     setMobileOpen,
+    toggleMobile,
     dropdownOpen,
     setDropdownOpen,
     dropdownRef,
@@ -93,20 +94,17 @@ export default function StoreHeader({ forceScrolled = false }) {
     },
   ];
 
-  const mobileLinks = [
-    ...PUBLIC_NAV_LINKS,
-    { label: 'My Orders', path: '/store/orders' },
-    { label: 'Cart', path: '/store/cart', badge: cartCount },
-  ];
+  const mobileLinks = PUBLIC_NAV_LINKS;
 
   return (
-    <motion.nav
-      initial={{ y: -40, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ${navShellOffsetClass(useDarkText)}`}
-    >
-      <div className={navPillClass(useDarkText)}>
+    <>
+      <motion.nav
+        initial={{ y: -40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-500 max-md:left-0 max-md:translate-x-0 max-md:w-full ${navShellOffsetClass(useDarkText)}`}
+      >
+        <div className={navPillClass(useDarkText)}>
         <FloatingNavbarBrand useDarkText={useDarkText} />
         <div className={navDividerClass(useDarkText)} />
         <FloatingNavbarLinks links={PUBLIC_NAV_LINKS} useDarkText={useDarkText} />
@@ -129,33 +127,31 @@ export default function StoreHeader({ forceScrolled = false }) {
           <FloatingNavbarGuestAuth useDarkText={useDarkText} />
         )}
       </div>
+      </motion.nav>
 
-      <div className={navPillClass(useDarkText, { mobile: true })}>
-        <FloatingNavbarBrand useDarkText={useDarkText} compact />
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <Link
-            to="/store/cart"
-            className={navIconBtnClass(useDarkText)}
-            aria-label="Cart"
-            title="Cart"
-          >
-            <span className="material-symbols-outlined text-xl">shopping_cart</span>
-            {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-primary rounded-full text-white text-[9px] font-bold flex items-center justify-center">
-                {cartCount > 9 ? '9+' : cartCount}
-              </span>
-            )}
-          </Link>
-          <button
-            type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className={navMenuBtnClass(useDarkText)}
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-          >
-            <span className={navMenuIconClass(useDarkText)}>
-              {mobileOpen ? 'close' : 'menu'}
-            </span>
-          </button>
+      <div className={navMobileShellClass(useDarkText)}>
+        <div className={navPillClass(useDarkText, { mobile: true })}>
+          <FloatingNavbarBrand useDarkText={useDarkText} compact />
+          <div className="flex flex-shrink-0 items-center gap-1">
+            <Link
+              to="/store/cart"
+              className={`${navIconBtnClass(useDarkText)} relative`}
+              aria-label="Cart"
+              title="Cart"
+            >
+              <span className="material-symbols-outlined text-xl">shopping_cart</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-bold text-white">
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              )}
+            </Link>
+            <FloatingNavbarMenuButton
+              mobileOpen={mobileOpen}
+              onToggle={toggleMobile}
+              useDarkText={useDarkText}
+            />
+          </div>
         </div>
       </div>
 
@@ -168,7 +164,7 @@ export default function StoreHeader({ forceScrolled = false }) {
         onLogout={handleLogout}
         dashboardLabel="Back to Dashboard"
       />
-    </motion.nav>
+    </>
   );
 }
 

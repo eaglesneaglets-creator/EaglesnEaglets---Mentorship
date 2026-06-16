@@ -7,8 +7,16 @@ import FadeIn from '@shared/components/motion/FadeIn';
 import LearningIllustration from '@shared/components/visual/LearningIllustration';
 import { useProducts } from '../../modules/store/hooks/useStore';
 
-// 4K community teaching & learning hero — diverse group in a learning/mentorship setting
-const heroBg = 'https://images.unsplash.com/photo-1529390079861-591de354faf5?q=90&w=3840&auto=format&fit=crop';
+// Young adults in a community mentorship discussion — WOCinTech (#WOCinTech) collection.
+// Christina @ wocintechchat (Unsplash): https://unsplash.com/photos/jzonFmreWok
+const HERO_IMAGE_ID = 'photo-1573497701240-345a300b8d36';
+
+const heroImageUrl = (width) =>
+    `https://images.unsplash.com/${HERO_IMAGE_ID}?q=80&w=${width}&auto=format&fit=crop`;
+const heroBg = heroImageUrl(1920);
+const heroBgSrcSet = [640, 1024, 1280, 1920]
+    .map((w) => `${heroImageUrl(w)} ${w}w`)
+    .join(', ');
 
 /* ═══════════════════════════════════════════════
    HERO SECTION — 4K photo background
@@ -19,7 +27,16 @@ const HeroSection = () => {
     return (
         <section id="hero" className="relative min-h-screen overflow-hidden">
             <div className="absolute inset-0 z-0">
-                <img src={heroBg} alt="" className="w-full h-full object-cover object-center" loading="eager" />
+                <img
+                    src={heroBg}
+                    srcSet={heroBgSrcSet}
+                    sizes="100vw"
+                    alt="Young professionals in a community mentorship group discussion"
+                    className="w-full h-full object-cover object-center md:object-right"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                />
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/55 to-slate-900/25" />
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-900/30 via-transparent to-slate-900/65" />
                 <div className="absolute inset-0 bg-primary/8 mix-blend-multiply" />
