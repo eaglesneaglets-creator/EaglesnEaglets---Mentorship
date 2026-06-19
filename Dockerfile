@@ -55,6 +55,7 @@ RUN rm -rf /usr/share/nginx/html/*
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
+COPY nginx-http.conf /etc/nginx/conf.d/00-http.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf.template
 
 RUN addgroup -g 1000 -S appgroup && \
