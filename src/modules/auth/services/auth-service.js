@@ -93,12 +93,16 @@ export const authService = {
    * @param {string} newPassword - New password
    * @param {string} newPasswordConfirm - New password confirmation
    */
-  changePassword: (oldPassword, newPassword, newPasswordConfirm) =>
-    apiClient.post('/auth/password/change/', {
-      old_password: oldPassword,
+  changePassword: (oldPassword, newPassword, newPasswordConfirm) => {
+    const payload = {
       new_password: newPassword,
       new_password_confirm: newPasswordConfirm,
-    }),
+    };
+    if (oldPassword !== undefined && oldPassword !== null) {
+      payload.old_password = oldPassword;
+    }
+    return apiClient.post('/auth/password/change/', payload);
+  },
 
   /**
    * Get current user profile

@@ -8,8 +8,12 @@ export const useChangePassword = () =>
   useMutation({
     mutationFn: ({ oldPassword, newPassword, newPasswordConfirm }) =>
       authService.changePassword(oldPassword, newPassword, newPasswordConfirm),
-    onSuccess: () => {
-      toast.success('Password updated.');
+    onSuccess: (_data, variables) => {
+      toast.success(
+        variables.oldPassword === undefined
+          ? 'Password set.'
+          : 'Password updated.',
+      );
     },
   });
 

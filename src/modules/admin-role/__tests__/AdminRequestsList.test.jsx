@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 vi.mock('@store', () => ({
-  useAuthStore: () => ({ user: { id: 'me-1' } }),
+  useAuthStore: vi.fn(() => ({ user: { id: 'me-1', is_superuser: true } })),
 }));
 
 vi.mock('@modules/admin-role/hooks/useAdminRole', () => ({
@@ -17,6 +17,7 @@ import {
   useApproveAdminRequest,
   useRejectAdminRequest,
 } from '@modules/admin-role/hooks/useAdminRole';
+import { useAuthStore } from '@store';
 import AdminRequestsList from '../components/AdminRequestsList';
 
 const noopMutation = (overrides = {}) => ({
@@ -81,6 +82,25 @@ describe('AdminRequestsList', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Reject' }));
     expect(await screen.findByText(/Reject Pat/i)).toBeInTheDocument();
     expect(screen.getByText(/Share a brief reason/i)).toBeInTheDocument();
+  });
+
+  it('shows superadmin-only hint for platform admins', () => {
+    useAuthStore.mockReturnValue({ user: { id: 'me-1', is_superuser: false } });
+    usePendingAdminRequests.mockReturnValue({
+      data: [
+        {
+          id: 'r1',
+          status: 'pending',
+          reason: 'I have run 4 cohorts this year.',
+          created_at: '2026-05-01T12:00:00Z',
+          user: { id: 'u1', full_name: 'Pat Mentor', email: 'pat@example.com' },
+        },
+      ],
+      isLoading: false,
+    });
+    render(<AdminRequestsList />);
+    expect(screen.getByText(/Only superadmins can approve or reject/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument();
   });
 
   it('greys out own request and shows tooltip', () => {
