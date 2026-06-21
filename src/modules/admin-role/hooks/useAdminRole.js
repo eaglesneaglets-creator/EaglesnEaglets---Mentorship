@@ -100,11 +100,12 @@ export const useRejectAdminRequest = () => {
 
 // ─── Invites ───────────────────────────────────────────────────────────────
 
-export const usePendingInvites = (status = 'sent') =>
+export const usePendingInvites = (status = 'sent', { enabled = true } = {}) =>
   useQuery({
     queryKey: adminRoleKeys.invites(status),
     queryFn: () => adminRoleService.listInvites(status),
     staleTime: 30_000,
+    enabled,
   });
 
 export const useSendAdminInvite = () => {

@@ -22,8 +22,11 @@ const AdminGuard = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // Check if user is admin (role === 'admin' or is_staff/is_superuser)
-  const isAdmin = user.role === 'admin' || user.is_staff || user.is_superuser;
+  // Check if user is admin (platform staff, legacy admin role, or superuser)
+  const isAdmin = user.role === 'admin'
+    || user.is_staff
+    || user.is_superuser
+    || user.is_platform_staff === true;
 
   if (!isAdmin) {
     // Redirect non-admin users to their dashboard

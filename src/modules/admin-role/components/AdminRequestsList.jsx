@@ -47,7 +47,7 @@ function Avatar({ user }) {
   );
 }
 
-function RequestRow({ req, currentUserId, onApprove, onReject }) {
+function RequestRow({ req, currentUserId, canDecide, onApprove, onReject }) {
   const isOwnRequest = req.user?.id === currentUserId;
   const status = req.status;
   const isPending = status === 'pending';
@@ -95,7 +95,7 @@ function RequestRow({ req, currentUserId, onApprove, onReject }) {
           </div>
         )}
       </div>
-      {isPending && !isOwnRequest && (
+      {isPending && !isOwnRequest && canDecide && (
         <div className="flex sm:flex-col gap-2 flex-shrink-0">
           <button
             type="button"
@@ -113,6 +113,11 @@ function RequestRow({ req, currentUserId, onApprove, onReject }) {
           </button>
         </div>
       )}
+      {isPending && !isOwnRequest && !canDecide && (
+        <p className="text-xs text-slate-400 italic sm:max-w-[180px] sm:text-right">
+          Only superadmins can approve or reject requests.
+        </p>
+      )}
       {isOwnRequest && (
         <p className="text-xs text-slate-400 italic sm:max-w-[140px] sm:text-right">
           You cannot approve your own request.
@@ -124,6 +129,7 @@ function RequestRow({ req, currentUserId, onApprove, onReject }) {
 
 export default function AdminRequestsList() {
   const { user } = useAuthStore();
+  const canDecide = user?.is_superuser === true;
   const [statusFilter, setStatusFilter] = useState('pending');
   const [approveTarget, setApproveTarget] = useState(null);
   const [rejectTarget, setRejectTarget] = useState(null);
@@ -179,6 +185,7 @@ export default function AdminRequestsList() {
               key={req.id}
               req={req}
               currentUserId={user?.id}
+              canDecide={canDecide}
               onApprove={setApproveTarget}
               onReject={setRejectTarget}
             />
