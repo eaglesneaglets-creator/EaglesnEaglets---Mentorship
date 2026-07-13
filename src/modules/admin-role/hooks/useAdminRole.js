@@ -173,3 +173,16 @@ export const useSelfRevokeAdmin = () => {
     onError: (err) => toast.error(errMsg(err, 'Could not revoke admin.')),
   });
 };
+
+export const useTransferSuperadmin = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ successorId, reason }) =>
+      adminRoleService.transferSuperadmin({ successorId, reason }),
+    onSuccess: () => {
+      toast.success('Superadmin role transferred.');
+      qc.invalidateQueries({ queryKey: adminRoleKeys.all });
+    },
+    onError: (err) => toast.error(errMsg(err, 'Could not transfer superadmin role.')),
+  });
+};

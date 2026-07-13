@@ -87,6 +87,14 @@ const adminRoleService = {
     return res?.data;
   },
 
+  transferSuperadmin: async ({ successorId, reason = '' }) => {
+    const res = await apiClient.post(`${BASE}/me/transfer-superadmin/`, {
+      successor_id: successorId,
+      reason,
+    });
+    return res?.data;
+  },
+
   // ─── Audit ───────────────────────────────────────────────────────────────
   listAudit: async () => {
     const res = await apiClient.get(`${BASE}/audit/`);
