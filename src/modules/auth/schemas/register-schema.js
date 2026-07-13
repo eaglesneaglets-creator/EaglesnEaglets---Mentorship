@@ -10,8 +10,9 @@ import { z } from 'zod';
 // Supports 7-15 digits with optional country code (+) and separators (spaces, dashes, dots)
 const internationalPhoneRegex = /^\+?[0-9]{1,4}[-.\s]?(\(?\d{1,4}\)?[-.\s]?)?[\d\s.-]{6,14}$/;
 
-// Password requirements
-const passwordSchema = z
+// Password requirements — exported so other forms (e.g. settings > set/change
+// password) enforce the identical policy the backend does. Single source of truth.
+export const passwordSchema = z
   .string()
   .min(10, 'Password must be at least 10 characters')
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')

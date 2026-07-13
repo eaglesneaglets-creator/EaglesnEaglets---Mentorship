@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useAuthStore } from '@store';
 import { useChangePassword } from '../../../../modules/auth/hooks/useAccount';
+import { passwordSchema } from '../../../../modules/auth/schemas/register-schema';
+import PasswordStrengthMeter from '@components/ui/PasswordStrengthMeter';
+import { extractApiError } from '../../../../shared/utils/extract-api-error';
 
 export default function PasswordChangeForm() {
   const { user, fetchUser } = useAuthStore();
@@ -25,8 +28,13 @@ export default function PasswordChangeForm() {
   const onSubmit = (e) => {
     e.preventDefault();
     setError('');
-    if (newPassword.length < 8) {
-      setError('New password must be at least 8 characters.');
+
+    // Enforce the exact same policy the backend does (min 10, upper, lower,
+    // digit, special) via the shared zod schema — single source of truth so
+    // the client can't accept a password the server will reject.
+    const result = passwordSchema.safeParse(newPassword);
+    if (!result.success) {
+      setError(result.error.issues[0].message);
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -45,11 +53,14 @@ export default function PasswordChangeForm() {
           await fetchUser({ force: true });
         },
         onError: (err) => {
-          const msg = err?.response?.data?.error?.message || err?.response?.data?.detail
-            || (hasPassword
-              ? 'Could not update password. Check your current password.'
-              : 'Could not set password. Please try again.');
-          setError(msg);
+          // Surface the real backend message (DRF field errors, non_field_errors,
+          // or our {error:{message}} envelope) instead of a generic fallback.
+          setError(
+            extractApiError(err) ||
+              (hasPassword
+                ? 'Could not update password. Check your current password.'
+                : 'Could not set password. Please try again.'),
+          );
         },
       },
     );
@@ -63,8 +74,8 @@ export default function PasswordChangeForm() {
         </h3>
         <p className="mt-1 text-sm text-slate-500">
           {hasPassword
-            ? 'Use at least 8 characters.'
-            : 'Add a password so you can sign in with email as well as Google. Use at least 8 characters.'}
+            ? 'Min 10 chars, with upper, lower, number, and special character.'
+            : 'Add a password so you can sign in with email as well as Google. Min 10 chars, with upper, lower, number, and special character.'}
         </p>
       </header>
 
@@ -103,7 +114,7 @@ export default function PasswordChangeForm() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
-              minLength={8}
+              minLength={10}
               autoComplete="new-password"
               className="w-full h-11 px-3 pr-10 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
             />
@@ -116,6 +127,7 @@ export default function PasswordChangeForm() {
               <span className="material-symbols-outlined text-lg">{showNew ? 'visibility_off' : 'visibility'}</span>
             </button>
           </div>
+          <PasswordStrengthMeter password={newPassword} />
         </div>
 
         <div>
@@ -127,7 +139,7 @@ export default function PasswordChangeForm() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            minLength={8}
+            minLength={10}
             autoComplete="new-password"
             className="w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
           />
