@@ -7,13 +7,15 @@
  *   Pending invites           — table of sent invites (copy link / revoke)
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { toast } from '@shared/components/ui/toast-utils';
 import DashboardLayout from '@shared/components/layout/DashboardLayout';
 import SectionTabs from '@shared/components/layout/SectionTabs';
 import InviteAdminModal from '@modules/admin-role/components/InviteAdminModal';
 import NoteModal from '@modules/admin-role/components/NoteModal';
+import TransferSuperadminModal from '@modules/admin-role/components/TransferSuperadminModal';
 import {
   useAdminTeam,
   usePendingInvites,
@@ -22,6 +24,7 @@ import {
   useRevokeInvite,
   useRevokeAdmin,
   useSelfRevokeAdmin,
+  useTransferSuperadmin,
 } from '@modules/admin-role/hooks/useAdminRole';
 
 const TEAM_TABS_BASE = [
@@ -78,11 +81,13 @@ function StackBadge({ member }) {
 }
 
 export default function AdminTeamPage() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
   const isSuperAdmin = user?.is_superuser === true;
   const [inviteOpen, setInviteOpen] = useState(false);
   const [revokeTarget, setRevokeTarget] = useState(null);
   const [selfRevokeOpen, setSelfRevokeOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   const { data: team = [], isLoading: teamLoading } = useAdminTeam();
   const { data: invites = [], isLoading: invitesLoading } = usePendingInvites(
@@ -98,6 +103,18 @@ export default function AdminTeamPage() {
   const revokeInvite = useRevokeInvite();
   const revokeMember = useRevokeAdmin();
   const selfRevoke = useSelfRevokeAdmin();
+  const transferSuperadmin = useTransferSuperadmin();
+
+  const transferCandidates = useMemo(
+    () => team.filter((member) => member.id !== user?.id && !member.is_superuser),
+    [team, user?.id],
+  );
+
+  const handleTransferSuccess = async () => {
+    setTransferOpen(false);
+    await logout();
+    navigate('/login');
+  };
 
   const handleCopyLink = (token) => {
     const link = `${window.location.origin}/admin-role/accept/${token}`;
@@ -182,24 +199,32 @@ export default function AdminTeamPage() {
                       </div>
                     </div>
                     <div className="flex-shrink-0">
-                      {isSuperAdmin && !m.is_superuser && (
-                        isSelf ? (
-                          <button
-                            type="button"
-                            onClick={() => setSelfRevokeOpen(true)}
-                            className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
-                          >
-                            Step down
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => setRevokeTarget(m)}
-                            className="px-4 py-2 rounded-full text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
-                          >
-                            Revoke admin
-                          </button>
-                        )
+                      {isSuperAdmin && isSelf && m.is_superuser && (
+                        <button
+                          type="button"
+                          onClick={() => setTransferOpen(true)}
+                          className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                        >
+                          Transfer &amp; step down
+                        </button>
+                      )}
+                      {isSelf && !m.is_superuser && user?.is_platform_staff && (
+                        <button
+                          type="button"
+                          onClick={() => setSelfRevokeOpen(true)}
+                          className="px-4 py-2 rounded-full text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                        >
+                          Step down
+                        </button>
+                      )}
+                      {isSuperAdmin && !isSelf && !m.is_superuser && (
+                        <button
+                          type="button"
+                          onClick={() => setRevokeTarget(m)}
+                          className="px-4 py-2 rounded-full text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                        >
+                          Revoke admin
+                        </button>
                       )}
                     </div>
                   </div>
@@ -314,6 +339,19 @@ export default function AdminTeamPage() {
         confirmLabel="Step down"
         confirmVariant="danger"
         placeholder="Optional note for the audit log…"
+      />
+
+      <TransferSuperadminModal
+        open={transferOpen}
+        onClose={() => setTransferOpen(false)}
+        onSubmit={({ successorId, reason }) =>
+          transferSuperadmin.mutate(
+            { successorId, reason },
+            { onSuccess: handleTransferSuccess },
+          )
+        }
+        isLoading={transferSuperadmin.isPending}
+        candidates={transferCandidates}
       />
       </div>
     </DashboardLayout>
