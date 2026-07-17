@@ -1,15 +1,23 @@
 import { useState } from 'react';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import SectionTabs from '../../shared/components/layout/SectionTabs';
+import { useAuthStore } from '@store';
 
+// Orders is superadmin-only (backend IsSuperAdmin + SuperAdminRoute); scoped
+// admins only see the Catalog tab.
 const STORE_TABS = [
     { label: 'Catalog', to: '/admin/store' },
-    { label: 'Orders', to: '/admin/store/orders' },
+    { label: 'Orders', to: '/admin/store/orders', superAdminOnly: true },
 ];
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from '../../modules/store/hooks/useStore';
 import AdminProductForm from '../../modules/store/components/AdminProductForm';
 
 const AdminStorePage = () => {
+    const { user } = useAuthStore();
+    const visibleTabs = user?.is_superuser
+        ? STORE_TABS
+        : STORE_TABS.filter((t) => !t.superAdminOnly);
+
     const [showForm, setShowForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [resultModal, setResultModal] = useState(null); // { type: 'success'|'error', message }
@@ -77,7 +85,7 @@ const AdminStorePage = () => {
         <DashboardLayout variant="admin">
             <div className="space-y-6">
                 {/* Sub-section tabs (relocated from sidebar) */}
-                <SectionTabs tabs={STORE_TABS} />
+                <SectionTabs tabs={visibleTabs} />
 
                 {/* Header */}
                 <div className="flex items-center justify-between">

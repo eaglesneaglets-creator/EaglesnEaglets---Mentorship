@@ -1,8 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Button, Alert } from '@components/ui';
 import { authService } from '../../modules/auth/services/auth-service';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+
+// After a successful verify we no longer dead-end at a button — we briefly show
+// the confirmation, then push the user straight to /login with a success
+// banner so they land one step from being in the app instead of two.
+const REDIRECT_DELAY_MS = 1800;
 
 /**
  * VerifyEmailPage Component
@@ -10,7 +15,11 @@ import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
  */
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const token = searchParams.get('token');
+  // Registration flow appends the email to the verify link so we can prefill
+  // the login form; falls back gracefully to no prefill when absent.
+  const email = searchParams.get('email');
 
   const [status, setStatus] = useState('verifying'); // verifying, success, error
   const [error, setError] = useState('');
@@ -49,6 +58,22 @@ const VerifyEmailPage = () => {
     verifyEmail();
   }, [token]);
 
+  // On success, hand off to the login page (which already renders a success
+  // banner from location.state.message and can seed the email field).
+  useEffect(() => {
+    if (status !== 'success') return;
+    const timer = setTimeout(() => {
+      navigate('/login', {
+        replace: true,
+        state: {
+          message: 'Email verified! Log in to continue.',
+          email: email || undefined,
+        },
+      });
+    }, REDIRECT_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [status, navigate, email]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -82,11 +107,11 @@ const VerifyEmailPage = () => {
               </div>
               <h2 className="text-2xl font-bold text-text-primary mb-2">Email Verified!</h2>
               <p className="text-text-secondary mb-6">
-                Your email has been successfully verified. You can now log in to your account.
+                Taking you to log in&hellip;
               </p>
-              <Link to="/login">
+              <Link to="/login" state={{ message: 'Email verified! Log in to continue.', email: email || undefined }}>
                 <Button variant="primary" fullWidth>
-                  Continue to Login
+                  Continue now
                 </Button>
               </Link>
             </>

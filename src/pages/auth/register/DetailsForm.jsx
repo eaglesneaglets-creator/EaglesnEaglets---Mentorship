@@ -135,9 +135,9 @@ const DetailsForm = ({ selectedRole, onSubmit, isSubmitting, onGoogle, isGoogleL
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-blue-800">Quick Start</p>
+                <p className="text-xs sm:text-sm font-medium text-blue-800">Quick Verification</p>
                 <p className="text-xs sm:text-sm text-blue-700 mt-0.5 sm:mt-1">
-                  After verifying your email, you can immediately start exploring mentors.
+                  After registration, you&apos;ll complete a short profile so we can match you with the right mentors and keep the community safe.
                 </p>
               </div>
             </div>

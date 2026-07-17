@@ -13,6 +13,7 @@ import StatCard from '../../shared/components/ui/StatCard';
 import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
 import { SkeletonCard } from '../../shared/components/ui/LoadingSkeleton';
 import { getEagletStatus } from '../../shared/utils/eagletStatus';
+import WelcomeTourHost from '../../shared/components/onboarding/WelcomeTourHost';
 
 /**
  * Eaglet Performance Row
@@ -199,6 +200,40 @@ const SessionCard = ({ title, date, link, isUpcoming = false }) => {
 };
 
 /**
+ * EmptyEagletsState — shown to a mentor with no eaglets yet. A new Eagle's
+ * first job is to get mentees into their nest, so instead of a dead "No eaglets"
+ * line we point them at the two actions that start that: create/share a nest
+ * and approve join requests.
+ */
+const EmptyEagletsState = () => (
+  <div className="flex flex-col items-center text-center px-4 max-w-sm mx-auto">
+    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+      <span className="material-symbols-outlined text-primary text-2xl">groups</span>
+    </div>
+    <p className="text-sm font-semibold text-slate-900 mb-1">No eaglets yet</p>
+    <p className="text-xs text-slate-500 mb-4">
+      Set up your nest and share it — eaglets who join will show up here for you to mentor and award points.
+    </p>
+    <div className="flex flex-wrap items-center justify-center gap-2">
+      <Link
+        to="/eagle/nests"
+        className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors"
+      >
+        <span className="material-symbols-outlined text-base">add_home</span>
+        Set up your nest
+      </Link>
+      <Link
+        to="/eagle/content"
+        className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors"
+      >
+        <span className="material-symbols-outlined text-base">upload_file</span>
+        Add content
+      </Link>
+    </div>
+  </div>
+);
+
+/**
  * Eagle Dashboard Page
  */
 const EagleDashboardPage = () => {
@@ -295,6 +330,7 @@ const EagleDashboardPage = () => {
 
   return (
     <DashboardLayout variant="eagle">
+      <WelcomeTourHost />
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
@@ -438,10 +474,7 @@ const EagleDashboardPage = () => {
                     <EagletMobileCard key={eaglet.id} eaglet={eaglet} delay={index * 50} onAwardPoints={openAwardModal} />
                   ))
                 ) : (
-                  <div className="py-8 text-center text-slate-500">
-                    <span className="material-symbols-outlined mb-2 text-slate-400">group_off</span>
-                    <p className="text-sm">No eaglets to display.</p>
-                  </div>
+                  <EmptyEagletsState />
                 )}
               </div>
               {/* Desktop Table View */}
@@ -463,9 +496,8 @@ const EagleDashboardPage = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="5" className="py-8 text-center text-slate-500">
-                          <span className="material-symbols-outlined mb-2 text-slate-400">group_off</span>
-                          <p className="text-sm">No eaglets to display.</p>
+                        <td colSpan="5" className="py-8">
+                          <EmptyEagletsState />
                         </td>
                       </tr>
                     )}

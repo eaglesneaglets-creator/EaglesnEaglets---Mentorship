@@ -110,6 +110,7 @@ import AuthGuard from './shared/components/guards/AuthGuard';
 import RoleGuard from './shared/components/guards/RoleGuard';
 import GuestGuard from './shared/components/guards/GuestGuard';
 import AdminGuard from './shared/components/guards/AdminGuard';
+import SuperAdminRoute from './shared/components/guards/SuperAdminRoute';
 import { FeatureLockGuard } from './shared/components/guards/FeatureLockGuard';
 
 // Session Management
@@ -335,14 +336,16 @@ function App() {
                     {/* Admin Coming Soon Pages */}
                     <Route path="/admin/users" element={<AdminUsersPage />} />
                     <Route path="/admin/team" element={<AdminTeamPage />} />
-                    <Route path="/admin/team/requests" element={<AdminRoleRequestsPage />} />
+                    {/* Admin-lifecycle actions (approve/reject requests) — superadmin only. */}
+                    <Route path="/admin/team/requests" element={<SuperAdminRoute><AdminRoleRequestsPage /></SuperAdminRoute>} />
                     <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
-                    <Route path="/admin/nests" element={<ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" />} />
+                    {/* Superadmin-only surfaces (backend enforces via IsSuperAdmin). */}
+                    <Route path="/admin/nests" element={<SuperAdminRoute><ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" /></SuperAdminRoute>} />
                     <Route path="/admin/content" element={<LearningCenterPage />} />
                     <Route path="/admin/content/upload" element={<ContentUploadPage />} />
                     <Route path="/admin/store" element={<AdminStorePage />} />
-                    <Route path="/admin/store/orders" element={<AdminOrdersPage />} />
-                    <Route path="/admin/donations" element={<AdminDonationsPage />} />
+                    <Route path="/admin/store/orders" element={<SuperAdminRoute><AdminOrdersPage /></SuperAdminRoute>} />
+                    <Route path="/admin/donations" element={<SuperAdminRoute><AdminDonationsPage /></SuperAdminRoute>} />
                     <Route path="/admin/settings" element={<Navigate to="/settings" replace />} />
                   </Route>
                 </Route>

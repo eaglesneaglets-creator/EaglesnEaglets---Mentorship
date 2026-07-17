@@ -9,6 +9,7 @@ import AnimatedContentItem from '../../shared/components/ui/AnimatedContentItem'
 import BadgeShelf from '../../shared/components/ui/BadgeShelf';
 import ActiveProgramCard from '../../shared/components/dashboard/ActiveProgramCard';
 import MenteeLevelCard from '../../shared/components/dashboard/MenteeLevelCard';
+import WelcomeTourHost from '../../shared/components/onboarding/WelcomeTourHost';
 
 /**
  * Quick Action Button
@@ -63,6 +64,12 @@ const EagletDashboardPage = () => {
   const hasCheckedInToday = dashboardData?.has_checked_in_today || false;
   const weeklyCheckins = dashboardData?.weekly_checkins || [false, false, false, false, false, false, false];
 
+  // A brand-new eaglet hasn't joined a nest yet — the API returns no active
+  // program and no content. In that state "Resume Learning" is meaningless, so
+  // we swap the header CTA (and the empty content state) for a prompt that
+  // actually moves them forward: find a mentor.
+  const hasActiveProgram = Boolean(dashboardData?.active_program || dashboardData?.has_active_program);
+
   const handleCheckIn = () => {
     if (checkInLockRef.current) return;
     checkInLockRef.current = true;
@@ -91,6 +98,7 @@ const EagletDashboardPage = () => {
 
   return (
     <DashboardLayout variant="eaglet">
+      <WelcomeTourHost />
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Welcome Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
@@ -100,13 +108,23 @@ const EagletDashboardPage = () => {
             </h1>
             <p className="text-slate-500 mt-1 text-sm">Ready to continue your growth journey today?</p>
           </div>
-          <button
-            onClick={() => navigate('/eaglet/assignments')}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
-          >
-            <span className="material-symbols-outlined text-lg group-hover:animate-bounce">play_arrow</span>
-            Resume Learning
-          </button>
+          {hasActiveProgram ? (
+            <button
+              onClick={() => navigate('/eaglet/assignments')}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
+            >
+              <span className="material-symbols-outlined text-lg group-hover:animate-bounce">play_arrow</span>
+              Resume Learning
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/eaglet/nest')}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5 group"
+            >
+              <span className="material-symbols-outlined text-lg group-hover:translate-x-0.5 transition-transform">travel_explore</span>
+              Find your first mentor
+            </button>
+          )}
         </div>
 
         {/* Badges */}
@@ -176,8 +194,25 @@ const EagletDashboardPage = () => {
                     );
                   })
                 ) : (
-                  <div className="text-center py-8 border border-dashed border-slate-200 rounded-xl">
-                    <p className="text-slate-400 text-sm italic">No recent content available in your nests.</p>
+                  <div className="text-center py-8 px-4 border border-dashed border-slate-200 rounded-xl">
+                    <span className="material-symbols-outlined text-3xl text-slate-300 mb-2">explore</span>
+                    <p className="text-slate-600 text-sm font-medium mb-1">
+                      {hasActiveProgram ? 'No new content yet' : 'Join a nest to start learning'}
+                    </p>
+                    <p className="text-slate-400 text-xs mb-4">
+                      {hasActiveProgram
+                        ? 'Your mentor will share resources here as your program progresses.'
+                        : 'Find a mentor whose nest matches your goals — their content shows up right here.'}
+                    </p>
+                    {!hasActiveProgram && (
+                      <Link
+                        to="/eaglet/nest"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-base">travel_explore</span>
+                        Discover mentors
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>
