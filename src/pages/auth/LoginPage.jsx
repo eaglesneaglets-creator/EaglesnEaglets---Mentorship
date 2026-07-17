@@ -13,95 +13,81 @@ import loginIllustration from '../../assets/LoginSVG.svg';
 import { validateRedirectUrl } from '../../shared/utils/sanitize';
 
 /* ═══════════════════════════════════════════════
-   LEFT-SIDE ILLUSTRATION
-   Mirrors the About page treatment — same artwork
-   used on the landing About section, with a soft
-   pulsing halo and orbiting accent badges so the
-   panel breathes without distracting from the form.
+   LEFT-SIDE ILLUSTRATION — fills the whole half
+   The vector artwork spans the full left panel (no
+   card frame): a soft pulsing halo behind it, orbiting
+   accent badges, and drifting sparkles so the whole
+   panel breathes. The panel's own emerald gradient is
+   the ground; the art sits on top at large scale.
    ═══════════════════════════════════════════════ */
 const BrandingIllustration = () => (
-  <div className="relative w-full max-w-lg aspect-square">
-    {/* Soft glow halo */}
+  <div className="relative w-full h-full flex items-center justify-center">
+    {/* Soft glow halo — large, behind the artwork */}
     <motion.div
       aria-hidden
-      className="absolute inset-6 rounded-[2.5rem] bg-gradient-to-br from-white/40 via-emerald-200/30 to-amber-200/20 blur-3xl"
-      animate={{ opacity: [0.4, 0.75, 0.4] }}
+      className="absolute inset-[8%] rounded-[3rem] bg-gradient-to-br from-white/30 via-emerald-200/25 to-amber-200/15 blur-3xl"
+      animate={{ opacity: [0.4, 0.7, 0.4] }}
       transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
     />
 
-    {/* The artwork card */}
-    <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden bg-white/95 shadow-2xl shadow-emerald-900/30 border border-white/40">
-      <motion.img
-        src={loginIllustration}
-        alt="Mentee climbing toward new heights"
-        className="w-full h-full object-contain p-6"
-        loading="eager"
-        decoding="async"
-        animate={{ y: [0, -6, 0], scale: [1, 1.012, 1] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-      />
-    </div>
+    {/* The artwork — fills the panel, gently floating */}
+    <motion.img
+      src={loginIllustration}
+      alt="Mentee climbing toward new heights"
+      className="relative z-10 w-full max-w-2xl h-auto max-h-[70vh] object-contain drop-shadow-2xl"
+      loading="eager"
+      decoding="async"
+      animate={{ y: [0, -10, 0], scale: [1, 1.015, 1] }}
+      transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+    />
 
-    {/* Accent badge: book (top-left, outside card) */}
+    {/* Accent badge: book (top-left) */}
     <motion.div
       aria-hidden
-      className="absolute -top-3 left-2 w-14 h-14 rounded-full bg-white shadow-xl shadow-emerald-900/20 border border-emerald-100 flex items-center justify-center"
-      animate={{ y: [0, -10, 0], rotate: [-4, 4, -4] }}
+      className="absolute top-[12%] left-[10%] w-16 h-16 rounded-full bg-white shadow-xl shadow-emerald-900/20 border border-emerald-100 flex items-center justify-center"
+      animate={{ y: [0, -12, 0], rotate: [-4, 4, -4] }}
       transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
     >
-      <span className="material-symbols-outlined text-emerald-600 text-2xl">menu_book</span>
+      <span className="material-symbols-outlined text-emerald-600 text-3xl">menu_book</span>
     </motion.div>
 
     {/* Accent badge: lightbulb (top-right) */}
     <motion.div
       aria-hidden
-      className="absolute -top-2 -right-2 w-16 h-16 rounded-full bg-white shadow-xl shadow-amber-900/25 border border-amber-100 flex items-center justify-center"
-      animate={{ y: [0, -12, 0] }}
+      className="absolute top-[16%] right-[12%] w-[4.5rem] h-[4.5rem] rounded-full bg-white shadow-xl shadow-amber-900/25 border border-amber-100 flex items-center justify-center"
+      animate={{ y: [0, -14, 0] }}
       transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
     >
-      <span className="material-symbols-outlined text-amber-500 text-3xl">lightbulb</span>
+      <span className="material-symbols-outlined text-amber-500 text-4xl">lightbulb</span>
     </motion.div>
 
     {/* Accent badge: graduation cap (mid-right) */}
     <motion.div
       aria-hidden
-      className="absolute top-1/2 -right-5 w-14 h-14 rounded-full bg-white shadow-xl shadow-slate-900/20 border border-slate-100 flex items-center justify-center"
-      animate={{ y: [0, -8, 0], rotate: [0, -6, 0] }}
+      className="absolute top-1/2 right-[8%] w-16 h-16 rounded-full bg-white shadow-xl shadow-slate-900/20 border border-slate-100 flex items-center justify-center"
+      animate={{ y: [0, -10, 0], rotate: [0, -6, 0] }}
       transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }}
     >
-      <span className="material-symbols-outlined text-slate-700 text-2xl">school</span>
+      <span className="material-symbols-outlined text-slate-700 text-3xl">school</span>
     </motion.div>
 
     {/* Drifting sparkles */}
     <motion.span
       aria-hidden
-      className="absolute top-12 right-1/3 text-amber-400"
-      animate={{ y: [0, -16, 0], opacity: [0.4, 1, 0.4], scale: [0.8, 1.1, 0.8] }}
+      className="absolute top-[20%] right-1/3 text-amber-400"
+      animate={{ y: [0, -18, 0], opacity: [0.4, 1, 0.4], scale: [0.8, 1.1, 0.8] }}
       transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
     >
-      <span className="material-symbols-outlined text-lg">auto_awesome</span>
+      <span className="material-symbols-outlined text-xl">auto_awesome</span>
     </motion.span>
     <motion.span
       aria-hidden
-      className="absolute bottom-12 left-1/3 text-emerald-300"
-      animate={{ y: [0, -14, 0], opacity: [0.3, 0.9, 0.3], scale: [0.8, 1, 0.8] }}
+      className="absolute bottom-[22%] left-1/3 text-emerald-200"
+      animate={{ y: [0, -16, 0], opacity: [0.3, 0.9, 0.3], scale: [0.8, 1, 0.8] }}
       transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}
     >
-      <span className="material-symbols-outlined text-base">auto_awesome</span>
+      <span className="material-symbols-outlined text-lg">auto_awesome</span>
     </motion.span>
-
-    {/* Bottom stat ribbon — sits inside the card on small screens to avoid clip */}
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4, duration: 0.6, type: 'spring' }}
-      className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-2.5 rounded-full bg-white shadow-xl shadow-emerald-900/20 border border-emerald-100"
-    >
-      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-      <p className="text-xs font-bold text-slate-700 whitespace-nowrap">
-        500+ mentees · 100+ mentors
-      </p>
-    </motion.div>
   </div>
 );
 
@@ -171,7 +157,9 @@ const LoginPage = () => {
   const { login, resendVerification, isLoading, error: authError, clearError } = useAuthStore();
 
   const [formData, setFormData] = useState({
-    email: '',
+    // Seeded from the verify-email redirect so a just-verified user only has to
+    // type their password. Falls back to empty for a normal login.
+    email: location.state?.email || '',
     password: '',
     remember_me: false,
   });
@@ -305,21 +293,23 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-emerald-50 via-white to-emerald-50/50">
-      {/* ─── Left: Illustration panel (lg+) ─── */}
-      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-10 xl:p-16 overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700">
+      {/* ─── Left: Illustration panel (lg+) — vector fills the whole half ─── */}
+      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700">
         {/* Decorative orbs */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3" />
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-amber-200/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
 
-        {/* Illustration centered */}
-        <div className="relative z-10 flex flex-col items-center gap-10">
+        {/* Illustration fills the panel (leaving room for the tagline below) */}
+        <div className="absolute inset-x-0 top-0 bottom-28 z-10 px-10 xl:px-16 pt-10">
           <BrandingIllustration />
-          <div className="text-center text-white max-w-md">
-            <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight">
-              Soar to <span className="text-emerald-200">New Heights</span>
-            </h1>
-          </div>
+        </div>
+
+        {/* Tagline overlay, anchored above the fold / consent banner */}
+        <div className="absolute bottom-10 xl:bottom-14 inset-x-0 z-20 px-10 text-center text-white">
+          <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight drop-shadow-md">
+            Soar to <span className="text-emerald-200">New Heights</span>
+          </h1>
         </div>
       </div>
 

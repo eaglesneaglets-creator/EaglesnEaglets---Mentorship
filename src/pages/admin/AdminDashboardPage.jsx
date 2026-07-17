@@ -42,6 +42,9 @@ const ActivityItem = ({ icon, icon_bg, iconBg, title, description, time, timesta
 // ═══════════════════════════════════════════════════════════════════════════════
 const AdminDashboardPage = () => {
   const { user } = useAuthStore();
+  // Donations is superadmin-only (backend 403s + SuperAdminRoute redirects);
+  // hide its quick-action so scoped admins don't see a dead link.
+  const isSuperAdmin = Boolean(user?.is_superuser);
   const [chartPeriod, setChartPeriod] = useState('weekly');
   const [chartType, setChartType] = useState('bar');
 
@@ -437,20 +440,22 @@ const AdminDashboardPage = () => {
                 <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
               </Link>
 
-              <Link
-                to="/admin/donations"
-                className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-amber-500/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-amber-500/5 overflow-hidden"
-              >
-                <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
-                <div className="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
-                  <span className="material-symbols-outlined">volunteer_activism</span>
-                </div>
-                <div className="flex-1 z-10">
-                  <p className="font-semibold text-slate-900 group-hover:text-amber-500 transition-colors duration-300">View Donations</p>
-                  <p className="text-xs text-slate-500">Track donation activity</p>
-                </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
-              </Link>
+              {isSuperAdmin && (
+                <Link
+                  to="/admin/donations"
+                  className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-amber-500/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-amber-500/5 overflow-hidden"
+                >
+                  <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+                  <div className="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
+                    <span className="material-symbols-outlined">volunteer_activism</span>
+                  </div>
+                  <div className="flex-1 z-10">
+                    <p className="font-semibold text-slate-900 group-hover:text-amber-500 transition-colors duration-300">View Donations</p>
+                    <p className="text-xs text-slate-500">Track donation activity</p>
+                  </div>
+                  <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>

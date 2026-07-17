@@ -85,7 +85,7 @@ function KycLink({ app }) {
     return (
         <Link
             to={`/admin/kyc/${app.mentor_kyc}?role=mentor`}
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+            className="text-xs font-semibold text-primary hover:text-primary/80"
         >
             View KYC →
         </Link>
@@ -246,7 +246,7 @@ export default function AdminMentorApplicationsPage() {
                             onClick={() => setTab(t.value)}
                             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
                                 tab === t.value
-                                    ? 'bg-slate-900 text-white shadow-md'
+                                    ? 'bg-primary text-white shadow-md shadow-primary/25'
                                     : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
                             }`}
                         >

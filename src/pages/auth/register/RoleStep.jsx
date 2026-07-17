@@ -86,7 +86,9 @@ const RoleStep = ({ selectedRole, onSelect, onChangeRole }) => {
             Registering as {isEagle ? 'an Eagle (Mentor)' : 'an Eaglet (Mentee)'}
           </p>
           <p className="text-[10px] sm:text-xs text-text-secondary">
-            {isEagle ? 'KYC verification required after registration' : 'Optional profile setup after registration'}
+            {isEagle
+              ? 'Identity verification required after registration'
+              : 'Quick profile verification after registration'}
           </p>
         </div>
       </div>

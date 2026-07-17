@@ -126,7 +126,7 @@ function EligibleFormView({ rejected, cooldownUntil, onSubmit, submitting }) {
                         to="/mentor-code-of-conduct"
                         target="_blank"
                         rel="noreferrer"
-                        className="text-indigo-600 font-semibold hover:underline"
+                        className="text-primary font-semibold hover:underline"
                     >
                         Mentor Code of Conduct ↗
                     </Link>
@@ -139,7 +139,7 @@ function EligibleFormView({ rejected, cooldownUntil, onSubmit, submitting }) {
                         type="checkbox"
                         checked={agreed}
                         onChange={(e) => setAgreed(e.target.checked)}
-                        className="mt-1 w-4 h-4 accent-indigo-600"
+                        className="mt-1 w-4 h-4 accent-primary"
                     />
                     <span className="text-sm text-slate-700">
                         I have read the Mentor Code of Conduct and agree to uphold these
@@ -153,7 +153,7 @@ function EligibleFormView({ rejected, cooldownUntil, onSubmit, submitting }) {
                         disabled={!agreed || submitting || cooldownActive}
                         onClick={onSubmit}
                         title={cooldownActive ? `Re-apply available from ${cooldownDate}` : undefined}
-                        className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm shadow-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        className="px-5 py-2.5 rounded-xl bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                         {submitting
                             ? 'Submitting…'
@@ -231,7 +231,7 @@ function ApprovedView() {
             <div className="mt-6">
                 <Link
                     to="/eagle/dashboard"
-                    className="inline-block px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm shadow-md hover:bg-emerald-700 transition"
+                    className="inline-block px-5 py-2.5 rounded-xl bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 transition-all"
                 >
                     Open mentor dashboard
                 </Link>
@@ -254,7 +254,7 @@ function WithdrawnView({ onReapply }) {
                 <button
                     type="button"
                     onClick={onReapply}
-                    className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm shadow-md hover:bg-indigo-700 transition"
+                    className="px-5 py-2.5 rounded-xl bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 transition-all"
                 >
                     Re-apply
                 </button>

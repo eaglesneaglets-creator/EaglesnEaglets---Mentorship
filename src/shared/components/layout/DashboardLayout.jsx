@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useAuthStore, useLockedFeatures, useCurrentMode, useIsStackedAdmin } from '@store';
 import { LockedFeatureModal } from '@shared/components/feature-lock/LockedFeatureModal';
 import RoleSwitcher from './RoleSwitcher';
+import { buildAdminNav } from './admin-nav';
 import { refreshAccessToken } from '../../../api';
 import { adminService } from '../../../modules/auth/services/auth-service';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, useNotificationSocket } from '../../../modules/notifications/hooks/useNotifications';
@@ -345,22 +346,13 @@ const DashboardLayout = ({
       role === 'admin' || (isStackedAdmin && currentMode === 'admin');
 
     if (showAdminNav) {
-      // Three sidebar items now host paired sub-sections via SectionTabs:
-      //   User Management  → All Users + KYC Reviews
-      //   Admin Team       → Team + Admin Requests
-      //   Store            → Catalog + Orders
-      // Removed from sidebar: Orders, KYC Reviews (now reachable through their parent's tab strip).
-      return [
-        { to: '/', icon: 'home', label: 'Home' },
-        { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
-        { to: '/admin/users', icon: 'group', label: 'User Management', aliases: ['/admin/kyc'], badge: pendingKycCount > 0 ? pendingKycCount : undefined },
-        { to: '/admin/team', icon: 'shield_person', label: 'Admin Team', aliases: ['/admin/team/requests'] },
-        { to: '/admin/nests', icon: 'diversity_3', label: 'Nests' },
-        { to: '/admin/store', icon: 'storefront', label: 'Store' },
-        { to: '/admin/content', icon: 'library_books', label: 'Content' },
-        { to: '/admin/donations', icon: 'volunteer_activism', label: 'Donations' },
-        { to: '/settings', icon: 'settings', label: 'Settings' },
-      ];
+      // Tiered admin nav: superadmin-only surfaces (Nests, Donations) are
+      // hidden from scoped (dual-role) admins. Backend independently enforces
+      // the same boundary — see core.permissions.IsSuperAdmin. See buildAdminNav.
+      return buildAdminNav({
+        isSuperAdmin: Boolean(user?.is_superuser),
+        pendingKycCount,
+      });
     }
 
     if (role === 'eagle') {

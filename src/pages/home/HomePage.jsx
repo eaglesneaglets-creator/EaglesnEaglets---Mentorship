@@ -7,9 +7,10 @@ import FadeIn from '@shared/components/motion/FadeIn';
 import LearningIllustration from '@shared/components/visual/LearningIllustration';
 import { useProducts } from '../../modules/store/hooks/useStore';
 
-// Young adults in a community mentorship discussion — WOCinTech (#WOCinTech) collection.
-// Christina @ wocintechchat (Unsplash): https://unsplash.com/photos/jzonFmreWok
-const HERO_IMAGE_ID = 'photo-1573497701240-345a300b8d36';
+// Authentic mentorship moment — a diverse group (Black and mixed-race) in
+// genuine collaborative conversation, warm natural light. Unsplash, free
+// license. To swap the photo, change only this ID (srcSet/sizes is derived).
+const HERO_IMAGE_ID = 'photo-1531482615713-2afd69097998';
 
 const heroImageUrl = (width) =>
     `https://images.unsplash.com/${HERO_IMAGE_ID}?q=80&w=${width}&auto=format&fit=crop`;
@@ -31,7 +32,7 @@ const HeroSection = () => {
                     src={heroBg}
                     srcSet={heroBgSrcSet}
                     sizes="100vw"
-                    alt="Young professionals in a community mentorship group discussion"
+                    alt="A diverse group of mentors and mentees in warm, genuine conversation"
                     className="w-full h-full object-cover object-center md:object-right"
                     loading="eager"
                     fetchPriority="high"
