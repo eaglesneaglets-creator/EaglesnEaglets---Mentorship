@@ -33,6 +33,35 @@ const FAQS = [
           </p>
         ),
       },
+      {
+        q: 'I signed up with Google — how do I log in?',
+        a: (
+          <>
+            <p>
+              If you created your account with <strong>&ldquo;Continue with Google&rdquo;</strong>,
+              keep using that same button on the login page — there&apos;s no separate password to
+              remember.
+            </p>
+            <p className="mt-2">
+              Want to also sign in with your email and a password (for example, if you&apos;re on a
+              device without your Google account)? Go to{' '}
+              <strong>Settings → Account → Set a password</strong>. Once set, you can log in either
+              with Google <em>or</em> with your email and that password.
+            </p>
+          </>
+        ),
+      },
+      {
+        q: 'Do I need to verify my email before logging in?',
+        a: (
+          <p>
+            Yes. After signing up with an email address, we send a verification link — you must
+            confirm it before your first login. Signed up with Google? Your email is already
+            verified, so you can skip this step. Didn&apos;t get the link? Check spam, or use the
+            resend option on the login page.
+          </p>
+        ),
+      },
     ],
   },
   {
@@ -83,6 +112,64 @@ const FAQS = [
     ],
   },
   {
+    category: 'Account & Security',
+    items: [
+      {
+        q: 'What are the password requirements?',
+        a: (
+          <p>
+            Passwords must be at least <strong>10 characters</strong> and include an uppercase
+            letter, a lowercase letter, a number, and a special character (such as{' '}
+            <code className="text-xs">! @ # $ % ^ &amp; *</code>). This keeps your account and the
+            wider community secure.
+          </p>
+        ),
+      },
+      {
+        q: 'Why was I logged out automatically?',
+        a: (
+          <p>
+            For your security, we sign you out after <strong>15 minutes of inactivity</strong>.
+            You&apos;ll see a short warning before it happens so you can stay signed in. Just log
+            back in to pick up where you left off.
+          </p>
+        ),
+      },
+      {
+        q: 'I forgot my password — what do I do?',
+        a: (
+          <p>
+            Use the <Link to="/forgot-password">Forgot password</Link> link on the login page.
+            We&apos;ll email you a secure reset link. If you originally signed up with Google and
+            never set a password, use <strong>&ldquo;Continue with Google&rdquo;</strong> instead.
+          </p>
+        ),
+      },
+      {
+        q: 'How do I delete my account?',
+        a: (
+          <p>
+            Go to <strong>Settings → Account → Delete account</strong>. Deletion is{' '}
+            <strong>permanent</strong>: it signs you out, anonymizes your profile, and prevents
+            future logins with that email. This can&apos;t be undone, so please be sure before
+            confirming.
+          </p>
+        ),
+      },
+      {
+        q: 'How is my personal data protected?',
+        a: (
+          <p>
+            Sensitive identity details (like your national ID) are <strong>encrypted at rest</strong>{' '}
+            and never shown to other members. We use HTTPS everywhere, and payment card details are
+            never stored on our servers. See our <Link to="/privacy">Privacy Policy</Link> for the
+            full picture.
+          </p>
+        ),
+      },
+    ],
+  },
+  {
     category: 'Mentorship & Programs',
     items: [
       {
@@ -120,6 +207,18 @@ const FAQS = [
           </p>
         ),
       },
+      {
+        q: 'What is the daily check-in and streak?',
+        a: (
+          <p>
+            Checking in each day earns you points and builds a <strong>streak</strong>. Keep it
+            going to unlock streak badges — from <em>Morning Wing</em> (3 days) and{' '}
+            <em>Thermal Rider</em> (7 days) all the way to <em>Eternal Soarer</em> (60 days) and the
+            rare <em>Iron Wing</em> (90 days). Miss a day and the streak resets, so consistency
+            pays off.
+          </p>
+        ),
+      },
     ],
   },
   {
@@ -131,6 +230,27 @@ const FAQS = [
           <p>
             Store purchases are processed securely through Paystack; donations support our
             programs and are processed via mobile money. We never store your card details.
+          </p>
+        ),
+      },
+      {
+        q: 'What currency are prices in?',
+        a: (
+          <p>
+            All store prices and donations are in <strong>Ghana Cedis (GHS)</strong>. Payments go
+            through Paystack, which supports cards and mobile money.
+          </p>
+        ),
+      },
+      {
+        q: 'Can I get a refund on a store order?',
+        a: (
+          <p>
+            If something went wrong with an order — wrong item, payment charged but order not
+            confirmed, or a delivery issue — email{' '}
+            <a className="text-primary font-semibold" href={`mailto:${SUPPORT_EMAIL}`}>support</a>{' '}
+            with your order reference. We&apos;ll review it and process an eligible refund back to
+            your original payment method.
           </p>
         ),
       },
@@ -170,7 +290,7 @@ const FAQS = [
 
 export default function FaqPage() {
   return (
-    <LegalPageLayout title="Frequently Asked Questions">
+    <LegalPageLayout title="Frequently Asked Questions" draft={false}>
       <div className="space-y-8 not-prose">
         {FAQS.map((group) => (
           <section key={group.category}>
