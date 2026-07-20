@@ -19,9 +19,21 @@ describe('buildAdminNav', () => {
         'Admin Team',
         'Store',
         'Content',
+        'Messages',
         'Settings',
       ]),
     );
+  });
+
+  it('shows Messages to all admins (super + scoped)', () => {
+    expect(labels(buildAdminNav({ isSuperAdmin: false }))).toContain('Messages');
+    expect(labels(buildAdminNav({ isSuperAdmin: true }))).toContain('Messages');
+  });
+
+  it('passes the chat unread badge through to Messages', () => {
+    const nav = buildAdminNav({ isSuperAdmin: false, chatBadge: 5 });
+    const messages = nav.find((i) => i.label === 'Messages');
+    expect(messages.badge).toBe(5);
   });
 
   it('shows Nests and Donations to superadmins', () => {

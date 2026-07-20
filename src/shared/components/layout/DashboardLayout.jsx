@@ -352,6 +352,7 @@ const DashboardLayout = ({
       return buildAdminNav({
         isSuperAdmin: Boolean(user?.is_superuser),
         pendingKycCount,
+        chatBadge,
       });
     }
 

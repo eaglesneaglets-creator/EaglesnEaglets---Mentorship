@@ -1,4 +1,5 @@
 import { Avatar } from './_shared';
+import { chatRoleLabel } from '../../../modules/chat/utils/roleLabel';
 
 export default function ChatHeader({ conversation, onBack, currentUserId }) {
     if (!conversation) return null;
@@ -7,7 +8,7 @@ export default function ChatHeader({ conversation, onBack, currentUserId }) {
     const displayName = isNest ? (conversation.nest_name || 'Nest Group') : other ? `${other.first_name} ${other.last_name}` : 'Unknown';
     const subtitle = isNest
         ? `${conversation.participants?.length || 0} members`
-        : other?.role === 'eagle' ? 'Mentor' : 'Mentee';
+        : chatRoleLabel(other);
 
     return (
         <div className="flex items-center gap-3 px-5 py-3 border-b border-slate-100 bg-white">

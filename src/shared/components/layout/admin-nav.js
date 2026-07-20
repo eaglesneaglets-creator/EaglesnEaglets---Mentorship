@@ -12,7 +12,7 @@
  * @param {number}  [opts.pendingKycCount] — badge count for User Management
  * @returns {Array<{to:string, icon:string, label:string, aliases?:string[], badge?:number}>}
  */
-export function buildAdminNav({ isSuperAdmin, pendingKycCount = 0 } = {}) {
+export function buildAdminNav({ isSuperAdmin, pendingKycCount = 0, chatBadge } = {}) {
   const nav = [
     { to: '/', icon: 'home', label: 'Home' },
     { to: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
@@ -26,6 +26,8 @@ export function buildAdminNav({ isSuperAdmin, pendingKycCount = 0 } = {}) {
     { to: '/admin/team', icon: 'shield_person', label: 'Admin Team', aliases: ['/admin/team/requests'] },
     { to: '/admin/store', icon: 'storefront', label: 'Store' },
     { to: '/admin/content', icon: 'library_books', label: 'Content' },
+    // Messaging is available to ALL admins (not superadmin-only).
+    { to: '/admin/messages', icon: 'chat', label: 'Messages', badge: chatBadge },
     { to: '/settings', icon: 'settings', label: 'Settings' },
   ];
 
