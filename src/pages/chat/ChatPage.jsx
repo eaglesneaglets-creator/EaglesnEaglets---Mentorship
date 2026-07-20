@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import {
@@ -97,6 +98,23 @@ const ChatPage = () => {
             // toast handled by useCreateDM hook
         }
     }, [createDMMutation]);
+
+    // Deep-link support: /messages?user={id} opens (or creates) a DM with that
+    // user and clears the param. Used by the admin nest "Message" buttons and
+    // any other place that wants to jump straight into a conversation.
+    const [searchParams, setSearchParams] = useSearchParams();
+    const deepLinkUserId = searchParams.get('user');
+    useEffect(() => {
+        if (!deepLinkUserId || deepLinkUserId === user?.id) return;
+        handleNewChat(deepLinkUserId);
+        // Clear the param so re-renders / back-nav don't recreate the DM.
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete('user');
+            return next;
+        }, { replace: true });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [deepLinkUserId]);
 
     const variant = user?.role === 'eagle' ? 'eagle' : user?.role === 'admin' ? 'admin' : 'eaglet';
 

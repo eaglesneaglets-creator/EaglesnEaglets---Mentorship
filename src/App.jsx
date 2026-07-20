@@ -77,6 +77,8 @@ const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const AdminTeamPage = lazy(() => import('./pages/admin/AdminTeamPage'));
 const AdminRoleRequestsPage = lazy(() => import('./pages/admin/AdminRoleRequestsPage'));
 const AdminMentorApplicationsPage = lazy(() => import('./pages/admin/AdminMentorApplicationsPage'));
+const AdminNestsPage = lazy(() => import('./pages/admin/AdminNestsPage'));
+const AdminNestDetailPage = lazy(() => import('./pages/admin/AdminNestDetailPage'));
 const AdminInviteAcceptPage = lazy(() => import('./pages/auth/AdminInviteAcceptPage'));
 
 // Shared Pages
@@ -340,7 +342,10 @@ function App() {
                     <Route path="/admin/team/requests" element={<SuperAdminRoute><AdminRoleRequestsPage /></SuperAdminRoute>} />
                     <Route path="/admin/mentor-applications" element={<AdminMentorApplicationsPage />} />
                     {/* Superadmin-only surfaces (backend enforces via IsSuperAdmin). */}
-                    <Route path="/admin/nests" element={<SuperAdminRoute><ComingSoonPage title="Nests Management" description="Oversee all mentorship nests, monitor activity, and ensure quality standards." icon="diversity_3" /></SuperAdminRoute>} />
+                    <Route path="/admin/nests" element={<SuperAdminRoute><AdminNestsPage /></SuperAdminRoute>} />
+                    <Route path="/admin/nests/:nestId" element={<SuperAdminRoute><AdminNestDetailPage /></SuperAdminRoute>} />
+                    {/* Admin messaging — all admins (not superadmin-only). Reuses ChatPage. */}
+                    <Route path="/admin/messages" element={<ChatPage />} />
                     <Route path="/admin/content" element={<LearningCenterPage />} />
                     <Route path="/admin/content/upload" element={<ContentUploadPage />} />
                     <Route path="/admin/store" element={<AdminStorePage />} />

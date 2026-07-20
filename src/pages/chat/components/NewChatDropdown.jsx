@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useContacts } from '../../../modules/chat/hooks/useChat';
+import { chatRoleLabel } from '../../../modules/chat/utils/roleLabel';
 import { Avatar } from './_shared';
 
 export default function NewChatDropdown({ onSelect, onClose }) {
@@ -25,8 +26,11 @@ export default function NewChatDropdown({ onSelect, onClose }) {
 
     const grouped = useMemo(() => {
         const groups = {};
+        // Pluralised label from the shared role helper so stacked mentor-admins
+        // land under "Admins" (not "Mentors"), consistent with the chat header.
+        const LABEL = { Admin: 'Admins', Mentor: 'Mentors', Mentee: 'Eaglets' };
         filtered.forEach((c) => {
-            const label = c.role === 'eagle' ? 'Mentors' : c.role === 'admin' ? 'Admins' : 'Eaglets';
+            const label = LABEL[chatRoleLabel(c)] || 'Eaglets';
             if (!groups[label]) groups[label] = [];
             groups[label].push(c);
         });
