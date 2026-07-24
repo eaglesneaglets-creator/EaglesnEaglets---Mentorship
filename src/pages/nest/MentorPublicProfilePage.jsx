@@ -1,8 +1,11 @@
 /**
- * MentorPublicProfilePage — Public mentor profile for eaglets browsing
+ * MentorPublicProfilePage — Public mentor profile for eaglets browsing (Phase 28-04).
  *
- * Shows mentor info, nest details, expertise tabs, stats, and a "Request to Join" CTA.
- * Inspired by Image 10 — tabs (About/Expertise/Style), stats sidebar, availability.
+ * Person-first redesign: leads with the mentor (real photo, name, occupation,
+ * verified badge, credibility) sourced from `nest.mentor_profile` (MentorKYC,
+ * Phase 28-03). The nest is context, not the subject — its name appears once,
+ * small, beside the join CTA. No fabricated content: every section renders real
+ * KYC data or a graceful empty state.
  */
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -24,7 +27,7 @@ const TABS = [
 
 const StatCard = ({ icon, value, label, color = 'text-primary' }) => (
     <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200/60 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group">
-        <div className={`w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-primary/5 transition-colors duration-300`}>
+        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-primary/5 transition-colors duration-300">
             <span className={`material-symbols-outlined text-xl ${color}`}>{icon}</span>
         </div>
         <div>
@@ -33,6 +36,14 @@ const StatCard = ({ icon, value, label, color = 'text-primary' }) => (
             </p>
             <p className="text-xs text-slate-500 font-medium">{label}</p>
         </div>
+    </div>
+);
+
+/** Small empty-state block for tabs the mentor hasn't filled in. */
+const TabEmpty = ({ icon, text }) => (
+    <div className="flex flex-col items-center justify-center text-center py-10 text-slate-400">
+        <span className="material-symbols-outlined text-3xl mb-2">{icon}</span>
+        <p className="text-sm">{text}</p>
     </div>
 );
 
@@ -46,10 +57,35 @@ const MentorPublicProfilePage = () => {
     const [showRequestModal, setShowRequestModal] = useState(false);
 
     const nest = nestResponse?.data || nestResponse || {};
-    const mentor = nest.mentor_details || nest.mentor || {};
-    const mentorName = mentor.first_name ? `${mentor.first_name} ${mentor.last_name || ''}` : nest.name || 'Mentor';
+    // Person-first: mentor_profile (MentorKYC) is the source of truth; eagle_details
+    // supplies the real name; legacy mentor_details kept as a soft fallback.
+    const mp = nest.mentor_profile || {};
+    const eagle = nest.eagle_details || nest.mentor_details || nest.mentor || {};
+
+    const mentorName = eagle.first_name
+        ? `${eagle.first_name} ${eagle.last_name || ''}`.trim()
+        : (nest.eagle_name || nest.name || 'Mentor');
     const initials = mentorName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+    // Avatar chain: KYC display_picture → user avatar → initials block.
+    const avatarSrc = mp.display_picture || eagle.avatar_url || eagle.profile_picture || null;
+
+    // Subtitle: real occupation → expertise → focus area.
     const focusArea = nest.industry_focus || nest.focus_area || 'General Mentorship';
+    const subtitle = mp.current_occupation || mp.area_of_expertise || focusArea;
+
+    // Real credibility signals.
+    const years = Number(mp.years_of_service) || 0;
+    const location = mp.location || '';
+    const verified = !!mp.kyc_verified;
+
+    // Real expertise chips (no fabricated fallback list).
+    const expertise = Array.isArray(mp.mentorship_types) && mp.mentorship_types.length
+        ? mp.mentorship_types
+        : (mp.area_of_expertise ? [mp.area_of_expertise] : []);
+
+    const bio = mp.profile_description || nest.description || '';
+
     const memberCount = nest.member_count || nest.members_count || 0;
     const maxMembers = nest.max_members || 20;
     const isFull = memberCount >= maxMembers;
@@ -88,40 +124,66 @@ const MentorPublicProfilePage = () => {
                     Back to Mentors
                 </Link>
 
-                {/* Profile Header */}
+                {/* Mentor Header — person-first */}
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 p-8 md:p-10">
                     {/* Decorative */}
                     <div className="absolute top-0 right-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
                     <div className="absolute bottom-0 left-1/3 w-48 h-48 bg-emerald-400/10 rounded-full blur-2xl translate-y-1/3" />
 
                     <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
-                        {/* Avatar */}
+                        {/* Avatar — circular, real photo */}
                         <div className="relative flex-shrink-0">
-                            {mentor.profile_picture ? (
+                            {avatarSrc ? (
                                 <img
-                                    src={sanitizeImageUrl(mentor.profile_picture)}
+                                    src={sanitizeImageUrl(avatarSrc)}
                                     alt={mentorName}
-                                    className="w-24 h-24 rounded-2xl object-cover ring-4 ring-white/20 shadow-2xl"
+                                    className="w-28 h-28 rounded-full object-cover ring-4 ring-white/20 shadow-2xl"
                                 />
                             ) : (
-                                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-white font-extrabold text-2xl ring-4 ring-white/20 shadow-2xl">
+                                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-white font-extrabold text-3xl ring-4 ring-white/20 shadow-2xl">
                                     {initials}
                                 </div>
                             )}
-                            <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full border-[3px] border-slate-900 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-white text-xs">check</span>
-                            </span>
+                            {/* KYC-verified badge (only on approved mentors) */}
+                            {verified && (
+                                <span
+                                    title="Verified mentor"
+                                    className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full border-[3px] border-slate-900 flex items-center justify-center"
+                                >
+                                    <span className="material-symbols-outlined text-white text-base">verified</span>
+                                </span>
+                            )}
                         </div>
 
                         {/* Info */}
-                        <div className="flex-1">
-                            <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-1">{mentorName}</h1>
-                            <p className="text-emerald-300 font-medium mb-3">{nest.name}</p>
-                            <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                                <h1 className="text-2xl md:text-3xl font-extrabold text-white">{mentorName}</h1>
+                                {verified && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/20 text-emerald-200 text-[11px] font-semibold rounded-full">
+                                        <span className="material-symbols-outlined text-sm">verified</span>
+                                        Verified
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-emerald-300 font-medium mb-3">{subtitle}</p>
+                            <div className="flex flex-wrap items-center gap-2.5">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur text-white text-xs font-semibold rounded-lg">
                                     <span className="material-symbols-outlined text-sm">category</span>
                                     {focusArea}
                                 </span>
+                                {years > 0 && (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur text-white text-xs font-semibold rounded-lg">
+                                        <span className="material-symbols-outlined text-sm">workspace_premium</span>
+                                        {years} {years === 1 ? 'yr' : 'yrs'} experience
+                                    </span>
+                                )}
+                                {location && (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur text-white text-xs font-semibold rounded-lg">
+                                        <span className="material-symbols-outlined text-sm">location_on</span>
+                                        {location}
+                                    </span>
+                                )}
                                 <StatusBadge
                                     status={isFull ? 'inactive' : 'active'}
                                     label={isFull ? 'Nest Full' : 'Accepting Members'}
@@ -148,6 +210,12 @@ const MentorPublicProfilePage = () => {
                                 <span className="material-symbols-outlined text-lg">send</span>
                                 {isFull ? 'Nest Full' : (!hasProgram ? 'No Program Yet' : 'Request to Join')}
                             </button>
+                            {/* Nest context — small, no longer the hero subtitle */}
+                            {nest.name && (
+                                <p className="mt-2 text-center text-[11px] text-slate-400">
+                                    Join via <span className="text-slate-300 font-medium">{nest.name}</span>
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -167,32 +235,12 @@ const MentorPublicProfilePage = () => {
                             {activeTab === 'about' && (
                                 <div className="space-y-6 animate-fade-in">
                                     <div>
-                                        <h3 className="font-bold text-slate-900 mb-3">About the Nest</h3>
-                                        <p className="text-sm text-slate-600 leading-relaxed">
-                                            {nest.description || 'This mentor has not provided a description yet. Request to join to learn more about their mentorship approach.'}
-                                        </p>
-                                    </div>
-                                    {nest.goals && (
-                                        <div>
-                                            <h3 className="font-bold text-slate-900 mb-3">Goals & Objectives</h3>
-                                            <p className="text-sm text-slate-600 leading-relaxed">{nest.goals}</p>
-                                        </div>
-                                    )}
-                                    <div>
-                                        <h3 className="font-bold text-slate-900 mb-3">What You&apos;ll Get</h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            {[
-                                                { icon: 'school', label: 'Structured Learning Path' },
-                                                { icon: 'forum', label: 'Community Support' },
-                                                { icon: 'assignment', label: 'Hands-on Assignments' },
-                                                { icon: 'stars', label: 'Points & Recognition' },
-                                            ].map(item => (
-                                                <div key={item.label} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                                    <span className="material-symbols-outlined text-primary text-lg">{item.icon}</span>
-                                                    <span className="text-sm font-medium text-slate-700">{item.label}</span>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <h3 className="font-bold text-slate-900 mb-3">About {eagle.first_name || 'this Mentor'}</h3>
+                                        {bio ? (
+                                            <p className="text-sm text-slate-600 leading-relaxed">{bio}</p>
+                                        ) : (
+                                            <TabEmpty icon="person" text="This mentor hasn't written a bio yet." />
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -201,21 +249,25 @@ const MentorPublicProfilePage = () => {
                                 <div className="space-y-6 animate-fade-in">
                                     <div>
                                         <h3 className="font-bold text-slate-900 mb-3">Areas of Expertise</h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {(nest.expertise_tags || [focusArea, 'Mentoring', 'Leadership']).map(tag => (
-                                                <span
-                                                    key={tag}
-                                                    className="px-3 py-1.5 bg-primary/5 text-primary text-xs font-semibold rounded-lg border border-primary/10"
-                                                >
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
+                                        {expertise.length > 0 ? (
+                                            <div className="flex flex-wrap gap-2">
+                                                {expertise.map(tag => (
+                                                    <span
+                                                        key={tag}
+                                                        className="px-3 py-1.5 bg-primary/5 text-primary text-xs font-semibold rounded-lg border border-primary/10"
+                                                    >
+                                                        {tag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <TabEmpty icon="school" text="No expertise areas listed yet." />
+                                        )}
                                     </div>
-                                    {mentor.bio && (
+                                    {mp.current_occupation && (
                                         <div>
-                                            <h3 className="font-bold text-slate-900 mb-3">Mentor Background</h3>
-                                            <p className="text-sm text-slate-600 leading-relaxed">{mentor.bio}</p>
+                                            <h3 className="font-bold text-slate-900 mb-2">Current Role</h3>
+                                            <p className="text-sm text-slate-600">{mp.current_occupation}</p>
                                         </div>
                                     )}
                                 </div>
@@ -229,27 +281,14 @@ const MentorPublicProfilePage = () => {
                                 <div className="space-y-6 animate-fade-in">
                                     <div>
                                         <h3 className="font-bold text-slate-900 mb-3">Mentorship Approach</h3>
-                                        <p className="text-sm text-slate-600 leading-relaxed">
-                                            {nest.mentorship_style || 'This mentor combines structured learning with hands-on projects, providing regular feedback and creating a supportive community environment for growth.'}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-slate-900 mb-3">Session Format</h3>
-                                        <div className="space-y-3">
-                                            {[
-                                                { icon: 'video_call', label: 'Group video sessions', detail: 'Weekly' },
-                                                { icon: 'assignment', label: 'Assignments & projects', detail: 'Bi-weekly' },
-                                                { icon: 'chat', label: 'Community discussions', detail: 'Ongoing' },
-                                            ].map(item => (
-                                                <div key={item.label} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="material-symbols-outlined text-primary">{item.icon}</span>
-                                                        <span className="text-sm font-medium text-slate-700">{item.label}</span>
-                                                    </div>
-                                                    <span className="text-xs text-slate-500 font-medium">{item.detail}</span>
-                                                </div>
-                                            ))}
-                                        </div>
+                                        {nest.mentorship_style ? (
+                                            <p className="text-sm text-slate-600 leading-relaxed">{nest.mentorship_style}</p>
+                                        ) : (
+                                            <TabEmpty
+                                                icon="psychology"
+                                                text="This mentor hasn't described their mentorship style yet. Check the Program tab for their objectives."
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -258,22 +297,23 @@ const MentorPublicProfilePage = () => {
 
                     {/* Sidebar */}
                     <div className="space-y-6">
-                        {/* Stats */}
+                        {/* Stats — mentor-relevant only (dropped nest-internal Resources/Points) */}
                         <div className="space-y-3">
-                            <StatCard icon="group" value={memberCount} label="Current Members" />
-                            <StatCard icon="library_books" value={nest.content_count || 0} label="Resources" color="text-blue-500" />
-                            <StatCard icon="stars" value={nest.total_points_awarded || 0} label="Points Awarded" color="text-amber-500" />
+                            <StatCard icon="group" value={memberCount} label="Mentees" />
+                            {years > 0 && (
+                                <StatCard icon="workspace_premium" value={years} label="Years Mentoring" color="text-amber-500" />
+                            )}
                         </div>
 
                         {/* Members preview */}
                         <div className="bg-white rounded-2xl border border-slate-200/60 p-5">
-                            <h3 className="font-bold text-slate-900 text-sm mb-4">Members</h3>
+                            <h3 className="font-bold text-slate-900 text-sm mb-4">Mentees</h3>
                             {memberCount > 0 ? (
                                 <p className="text-xs text-slate-500">
-                                    {memberCount} member{memberCount !== 1 ? 's' : ''} &bull; {Math.max(maxMembers - memberCount, 0)} spot{maxMembers - memberCount !== 1 ? 's' : ''} left
+                                    {memberCount} mentee{memberCount !== 1 ? 's' : ''} &bull; {Math.max(maxMembers - memberCount, 0)} spot{maxMembers - memberCount !== 1 ? 's' : ''} left
                                 </p>
                             ) : (
-                                <p className="text-xs text-slate-500">Be the first to join this nest!</p>
+                                <p className="text-xs text-slate-500">Be the first to join!</p>
                             )}
                         </div>
 
