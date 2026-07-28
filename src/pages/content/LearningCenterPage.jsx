@@ -11,6 +11,7 @@ import ContentEditModal from '../../modules/content/components/ContentEditModal'
 import ModuleQuizModal from '../../modules/content/components/ModuleQuizModal';
 import StandaloneAssignmentModal from '../../modules/content/components/StandaloneAssignmentModal';
 import { formatDate } from '../../shared/utils';
+import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
 /* ─── Constants ─── */
 const TYPE_FILTERS = [
@@ -41,20 +42,6 @@ const TYPE_META = {
 };
 
 /* ─── Soft animated background blobs ─── */
-const AnimatedBg = () => (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <motion.div
-            animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-10 right-20 w-[500px] h-[500px] bg-emerald-100/30 rounded-full blur-3xl"
-        />
-        <motion.div
-            animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-emerald-100/20 rounded-full blur-3xl"
-        />
-    </div>
-);
 
 /* ─── Content Card (Eagle/Admin — matches "My Uploads" screenshot) ─── */
 const ContentCard = ({ module, onClick, onAddItem, onEdit, onDelete, onAddQuiz, delay = 0 }) => {

@@ -588,7 +588,16 @@ export const useIsStackedAdmin = () =>
 if (typeof window !== 'undefined') {
   window.addEventListener('auth:logout', (event) => {
     const store = useAuthStore.getState();
-    if (event.detail?.reason === 'session_expired' && store.isAuthenticated) {
+    // 'account_suspended' clears unconditionally — the account is blocked, so
+    // the local session must go regardless of the current isAuthenticated flag.
+    const reason = event.detail?.reason;
+    if (reason === 'account_suspended') {
+      tokenManager.clearTokens();
+      writeStoredMode(null);
+      useAuthStore.setState(initialState);
+      return;
+    }
+    if (reason === 'session_expired' && store.isAuthenticated) {
       tokenManager.clearTokens();
       writeStoredMode(null);
       useAuthStore.setState(initialState);

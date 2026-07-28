@@ -44,5 +44,3 @@ export const getKYCRedirectPath = (user) => {
 
     return '/dashboard';
 };
-
-export default getKYCRedirectPath;

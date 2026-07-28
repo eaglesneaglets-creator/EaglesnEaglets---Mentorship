@@ -5,22 +5,9 @@ import { formatDate } from '../../shared/utils';
 import { useSubmissions, useGradeSubmission } from '../../modules/content/hooks/useContent';
 import StatCard from '../../shared/components/ui/StatCard';
 import { stripCloudinarySignature } from '../../shared/utils/sanitize';
+import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
 /* ─── Soft animated background blobs ─── */
-const AnimatedBg = () => (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <motion.div
-            animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
-            transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-20 right-[10%] w-[600px] h-[600px] bg-amber-100/30 rounded-full blur-3xl"
-        />
-        <motion.div
-            animate={{ x: [0, -30, 0], y: [0, 50, 0], scale: [1, 1.2, 1] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-20 left-[5%] w-[500px] h-[500px] bg-orange-100/20 rounded-full blur-3xl"
-        />
-    </div>
-);
 
 /* ─── Grading Modal ─── */
 const GradingModal = ({ submission, onClose, onGrade, isSubmitting }) => {
@@ -227,7 +214,7 @@ const GradingCenterPage = () => {
 
     return (
         <DashboardLayout variant="eagle">
-            <AnimatedBg />
+            <AnimatedBg variant="amber" />
 
             <div className="flex-1 w-full max-w-[1200px] mx-auto py-6 md:py-8 lg:px-4">
                 {/* Header Section */}

@@ -45,5 +45,3 @@ export function buildAdminNav({ isSuperAdmin, pendingKycCount = 0, chatBadge } =
 
   return nav;
 }
-
-export default buildAdminNav;

@@ -141,54 +141,11 @@ export const authService = {
     }),
 };
 
-export const kycService = {
-  /**
-   * Get KYC data for current user
-   */
-  getKYC: () =>
-    apiClient.get('/auth/kyc/'),
-
-  /**
-   * Update KYC data
-   * @param {Object} data - KYC data to update
-   */
-  updateKYC: (data) =>
-    apiClient.patch('/auth/kyc/', data),
-
-  /**
-   * Update specific KYC step
-   * @param {number} stepNumber - Step number (1-4)
-   * @param {Object} data - Step data
-   */
-  updateKYCStep: (stepNumber, data) =>
-    apiClient.patch(`/auth/kyc/step/${stepNumber}/`, data),
-
-  /**
-   * Submit KYC application for review
-   */
-  submitKYC: () =>
-    apiClient.post('/auth/kyc/submit/'),
-
-  /**
-   * Upload government ID
-   * @param {File} file - Government ID file
-   */
-  uploadGovernmentID: (file) => {
-    const formData = new FormData();
-    formData.append('government_id', file);
-    return apiClient.upload('/auth/kyc/upload/government-id/', formData);
-  },
-
-  /**
-   * Upload recommendation letter
-   * @param {File} file - Recommendation letter file
-   */
-  uploadRecommendation: (file) => {
-    const formData = new FormData();
-    formData.append('recommendation_letter', file);
-    return apiClient.upload('/auth/kyc/upload/recommendation/', formData);
-  },
-};
+// Note: a local `kycService` object (wrapping /auth/kyc/ get/update/step/submit
+// + government-id and recommendation uploads) was removed (2026-07-28). It was
+// never exported or called — the live KYC flow goes through profile-service.js
+// ("API calls for profile/KYC management, both mentors and mentees"). The
+// backend /auth/kyc/ endpoints still exist if that surface is ever needed.
 
 export const eagletProfileService = {
   /**
@@ -312,6 +269,4 @@ export const adminService = {
   reactivateUser: (userId) =>
     apiClient.post(`/auth/admin/users/${userId}/reactivate/`),
 };
-
-export default authService;
 

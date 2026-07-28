@@ -107,36 +107,10 @@ export const useCreateItem = (moduleId) => {
     });
 };
 
-export const useUpdateItem = (moduleId) => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: ({ itemId, formData }) => ContentService.updateItem(moduleId, itemId, formData),
-        onSuccess: (_, { itemId }) => {
-            queryClient.invalidateQueries({ queryKey: contentKeys.modules() });
-            queryClient.invalidateQueries({ queryKey: contentKeys.moduleItems(moduleId) });
-            queryClient.invalidateQueries({ queryKey: contentKeys.itemDetail(moduleId, itemId) });
-            toast.success('Content item updated successfully');
-        },
-        onError: (error) => {
-            toast.error(error.message || 'Failed to update content item');
-        }
-    });
-};
-
-export const useDeleteItem = (moduleId) => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (itemId) => ContentService.deleteItem(moduleId, itemId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: contentKeys.modules() });
-            queryClient.invalidateQueries({ queryKey: contentKeys.moduleItems(moduleId) });
-            toast.success('Content item deleted successfully');
-        },
-        onError: (error) => {
-            toast.error(error.message || 'Failed to delete content item');
-        }
-    });
-};
+// Note: useUpdateItem / useDeleteItem were removed (2026-07-28) — never
+// exported and no edit/delete UI for content items exists. The backend
+// endpoints (ContentService.updateItem/deleteItem) remain available if that
+// UI is ever built.
 
 // --- Progress Hooks ---
 

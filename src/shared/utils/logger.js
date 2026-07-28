@@ -33,5 +33,3 @@ export const logger = {
         console.error('[ERROR]', ...args);
     },
 };
-
-export default logger;

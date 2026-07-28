@@ -9,7 +9,7 @@
  * product voice — the mechanism doesn't care how many steps you add.
  */
 
-export const EAGLET_TOUR_STEPS = [
+const EAGLET_TOUR_STEPS = [
   {
     icon: 'waving_hand',
     title: 'Welcome to your nest',
@@ -33,7 +33,7 @@ export const EAGLET_TOUR_STEPS = [
   },
 ];
 
-export const EAGLE_TOUR_STEPS = [
+const EAGLE_TOUR_STEPS = [
   {
     icon: 'waving_hand',
     title: 'Welcome, mentor',

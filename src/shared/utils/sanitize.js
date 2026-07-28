@@ -29,15 +29,6 @@ const DEFAULT_CONFIG = {
 };
 
 /**
- * Strict configuration - only allows text formatting
- */
-const STRICT_CONFIG = {
-  ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'p'],
-  ALLOWED_ATTR: [],
-  ALLOW_DATA_ATTR: false,
-};
-
-/**
  * Plain text only - strips all HTML
  */
 const TEXT_ONLY_CONFIG = {
@@ -52,21 +43,11 @@ const TEXT_ONLY_CONFIG = {
  * @param {Object} config - Optional DOMPurify configuration
  * @returns {string} Sanitized HTML string
  */
-export function sanitizeHtml(dirty, config = DEFAULT_CONFIG) {
+function sanitizeHtml(dirty, config = DEFAULT_CONFIG) {
   if (!dirty || typeof dirty !== 'string') {
     return '';
   }
   return DOMPurify.sanitize(dirty, config);
-}
-
-/**
- * Sanitize with strict rules - only basic text formatting allowed
- * Use for user bios, comments, etc.
- * @param {string} dirty - The untrusted HTML string
- * @returns {string} Sanitized HTML string
- */
-export function sanitizeStrict(dirty) {
-  return sanitizeHtml(dirty, STRICT_CONFIG);
 }
 
 /**

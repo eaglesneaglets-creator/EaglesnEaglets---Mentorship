@@ -51,7 +51,7 @@ SkeletonCard.propTypes = {
 /**
  * SkeletonTable — table rows loading placeholder
  */
-export function SkeletonTable({ rows = 5, cols = 4, className = '' }) {
+function SkeletonTable({ rows = 5, cols = 4, className = '' }) {
   return (
     <div className={`overflow-hidden ${className}`} aria-hidden="true">
       {/* Header */}

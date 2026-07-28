@@ -143,13 +143,7 @@ export const useCreatePost = (nestId) => {
     });
 };
 
-export const useRemoveMember = (nestId) => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: (memberId) => NestService.removeMember(nestId, memberId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: nestKeys.members(nestId) });
-            queryClient.invalidateQueries({ queryKey: nestKeys.detail(nestId) });
-        },
-    });
-};
+// Note: useRemoveMember was removed (2026-07-28) — never exported, and no
+// mentor-side remove-member UI exists. Admin removal is handled separately by
+// useAdminNests/adminNestService (Phase 27). NestService.removeMember and its
+// backend endpoint remain available if a mentor-side flow is ever built.

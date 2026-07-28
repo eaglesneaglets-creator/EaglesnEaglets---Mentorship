@@ -18,5 +18,3 @@ export function chatRoleLabel(user) {
   if (user.role === 'eagle') return 'Mentor';
   return 'Mentee';
 }
-
-export default chatRoleLabel;

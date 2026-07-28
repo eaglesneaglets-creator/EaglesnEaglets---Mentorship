@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import adminNestService from '../services/admin-nest-service';
 
-export const adminNestKeys = {
+const adminNestKeys = {
   all: ['admin-nests'],
   list: (filters) => [...adminNestKeys.all, 'list', filters],
   detail: (id) => [...adminNestKeys.all, 'detail', id],
