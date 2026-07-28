@@ -12,6 +12,7 @@ const EmailChangeConfirmPage = lazy(() => import('./pages/auth/EmailChangeConfir
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 const GoogleCallbackPage = lazy(() => import('./pages/auth/GoogleCallbackPage'));
+const SuspendedPage = lazy(() => import('./pages/auth/SuspendedPage'));
 const EagletOnboardingPage = lazy(() => import('./pages/eaglet/EagletOnboardingPage'));
 const MentorApplicationPage = lazy(() => import('./pages/eaglet/MentorApplicationPage'));
 
@@ -232,6 +233,9 @@ function App() {
                 <Route path="/mentor-code-of-conduct" element={<MentorCodeOfConductPage />} />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                {/* Suspended-account notice. Public: the API client clears the
+                    session before redirecting here, so it must not need auth. */}
+                <Route path="/suspended" element={<SuspendedPage />} />
                 <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
                 <Route path="/auth/email-change/confirm/:token" element={<EmailChangeConfirmPage />} />
                 <Route path="/admin-role/accept/:token" element={<AdminInviteAcceptPage />} />

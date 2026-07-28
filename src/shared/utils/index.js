@@ -1,15 +1,11 @@
 /**
  * Shared Utilities
  * Helper functions used across modules
+ *
+ * Note: sanitize helpers are NOT re-exported here. Every consumer imports them
+ * directly from './sanitize', and re-exporting made this barrel pull the
+ * sanitize module (and DOMPurify) into any bundle that only wanted formatDate.
  */
-
-// XSS Protection / HTML Sanitization
-export {
-  sanitizeHtml,
-  sanitizeStrict,
-  sanitizeToText,
-  sanitizeUrl,
-} from './sanitize';
 
 /**
  * Format currency (Ghanaian Cedi)

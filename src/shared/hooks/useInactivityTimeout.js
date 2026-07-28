@@ -166,5 +166,3 @@ export const useInactivityTimeout = ({
     resetTimers,
   };
 };
-
-export default useInactivityTimeout;

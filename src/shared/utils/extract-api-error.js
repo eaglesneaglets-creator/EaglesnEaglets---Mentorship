@@ -46,5 +46,3 @@ export function extractApiError(err) {
 
   return '';
 }
-
-export default extractApiError;

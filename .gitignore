@@ -77,6 +77,17 @@ tests/e2e/screenshots/
 .playwright-mcp/
 
 # =============================================================================
+# Code analysis (fallow)
+# =============================================================================
+# Local analysis caches (~1.4MB of .bin files, regenerated on each run).
+# fallow also self-ignores this dir via .fallow/.gitignore; listed here too so
+# the exclusion is explicit and survives the directory being recreated.
+.fallow/
+# NOTE: .fallowrc.json is intentionally NOT ignored — it is shared project
+# config (entry points, duplicate thresholds, ignoreExports) and should be
+# committed so everyone gets the same analysis results.
+
+# =============================================================================
 # Python (for any helper scripts)
 # =============================================================================
 __pycache__/

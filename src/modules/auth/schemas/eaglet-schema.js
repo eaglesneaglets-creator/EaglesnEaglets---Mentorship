@@ -91,5 +91,3 @@ export const eagletOnboardingSchema = z.object({
   bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
   expectations: z.string().max(1000, 'Expectations must be 1000 characters or less').optional(),
 });
-
-export default eagletOnboardingSchema;

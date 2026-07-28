@@ -5,22 +5,9 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useModules, useMyProgress } from '../../modules/content/hooks/useContent';
 import { validateRedirectUrl } from '../../shared/utils/sanitize';
+import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
 /* ─── Soft animated background ─── */
-const AnimatedBg = () => (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <motion.div
-            animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-10 right-20 w-[500px] h-[500px] bg-emerald-100/30 rounded-full blur-3xl"
-        />
-        <motion.div
-            animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-emerald-100/20 rounded-full blur-3xl"
-        />
-    </div>
-);
 
 /* ─── Type config ─── */
 const TYPE_CONFIG = {

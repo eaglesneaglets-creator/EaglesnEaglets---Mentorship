@@ -265,7 +265,7 @@ const StoreSection = () => {
    Exported so it stays lint-clean; re-add <TestimonialsSection /> to
    HomePage's render once real testimonials are collected.
    ═══════════════════════════════════════════════ */
-export const TestimonialsSection = () => {
+const TestimonialsSection = () => {
     const testimonials = [
         {
             quote: "This community has provided a safe space for my son to grow and discover his talents. The mentors are truly invested in the kids' futures.",

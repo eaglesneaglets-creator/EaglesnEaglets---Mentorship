@@ -91,7 +91,7 @@ export const profileService = {
 // CONSTANTS FOR PROFILE FORMS
 // =========================================================================
 
-export const MENTORSHIP_TYPES = [
+const MENTORSHIP_TYPES = [
   { value: 'career_growth', label: 'Career Growth' },
   { value: 'leadership', label: 'Leadership Development' },
   { value: 'entrepreneurship', label: 'Entrepreneurship' },
@@ -100,21 +100,21 @@ export const MENTORSHIP_TYPES = [
   { value: 'spirituality', label: 'Spirituality' },
 ];
 
-export const MARITAL_STATUS_OPTIONS = [
+const MARITAL_STATUS_OPTIONS = [
   { value: 'single', label: 'Single' },
   { value: 'married', label: 'Married' },
   { value: 'divorced', label: 'Divorced' },
   { value: 'widowed', label: 'Widowed' },
 ];
 
-export const EMPLOYMENT_STATUS_OPTIONS = [
+const EMPLOYMENT_STATUS_OPTIONS = [
   { value: 'employed', label: 'Employed' },
   { value: 'self_employed', label: 'Self-Employed' },
   { value: 'student', label: 'Student' },
   { value: 'unemployed', label: 'Unemployed' },
 ];
 
-export const COUNTRY_OPTIONS = [
+const COUNTRY_OPTIONS = [
   { value: 'GH', label: 'Ghana' },
   { value: 'NG', label: 'Nigeria' },
   { value: 'KE', label: 'Kenya' },
@@ -128,5 +128,3 @@ export const COUNTRY_OPTIONS = [
   { value: 'CA', label: 'Canada' },
   { value: 'OTHER', label: 'Other' },
 ];
-
-export default profileService;

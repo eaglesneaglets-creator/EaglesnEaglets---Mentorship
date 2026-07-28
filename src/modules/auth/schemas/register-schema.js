@@ -105,5 +105,3 @@ export const resetPasswordSchema = z
     message: 'Passwords do not match',
     path: ['new_password_confirm'],
   });
-
-export default registerSchema;

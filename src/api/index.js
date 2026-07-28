@@ -404,10 +404,40 @@ export const apiClient = {
       const errorCode = data?.error?.code || data?.code || response.status;
       const errorDetails = data?.error?.details || null;
 
+      // Account suspended (BE sends 403 + error_code 'account_suspended').
+      // Handled here so EVERY call site behaves identically: clear the session
+      // and send the user to a page that explains what happened. Deliberately
+      // NOT a 401 — that path auto-refreshes, and for a suspended user the
+      // refresh succeeds (refresh token is still valid) then fails again,
+      // looping until they're dumped at /login with no explanation.
+      if (response.status === 403 && data?.error?.error_code === 'account_suspended') {
+        this.handleAccountSuspended();
+      }
+
       throw new ApiError(errorMessage, response.status, errorCode, errorDetails);
     }
 
     return data;
+  },
+
+  /**
+   * Tear down the session and route to the suspended notice.
+   * Idempotent — concurrent in-flight requests may each hit a 403.
+   */
+  handleAccountSuspended() {
+    if (typeof window === 'undefined') return;
+    if (window.location.pathname === '/suspended') return;
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent('auth:logout', { detail: { reason: 'account_suspended' } })
+      );
+    } catch {
+      // Never let teardown errors mask the original API error.
+    }
+    // Hard redirect (not react-router) — this runs outside component context
+    // and we want a clean slate with no stale authenticated state in memory.
+    window.location.replace('/suspended');
   },
 
   // HTTP method helpers
@@ -481,5 +511,3 @@ export const apiClient = {
     return this.handleResponse(response);
   },
 };
-
-export default apiClient;

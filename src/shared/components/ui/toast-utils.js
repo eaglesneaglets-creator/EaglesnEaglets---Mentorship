@@ -42,5 +42,3 @@ export const toast = {
 
   dismiss: (id) => sonnerToast.dismiss(id),
 };
-
-export default toast;

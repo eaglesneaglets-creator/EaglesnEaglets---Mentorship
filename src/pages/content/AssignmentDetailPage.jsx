@@ -6,6 +6,7 @@ import { useAuthStore } from '@store';
 import { useAssignmentDetail, useSubmitAssignment } from '../../modules/content/hooks/useContent';
 import { toast } from 'sonner';
 import { stripCloudinarySignature, sanitizeUrl } from '../../shared/utils/sanitize';
+import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
 /* ─── Status Configs ─── */
 const STATUS_MAP = {
@@ -18,20 +19,6 @@ const STATUS_MAP = {
 };
 
 /* ─── Soft animated background ─── */
-const AnimatedBg = () => (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <motion.div
-            animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-10 right-20 w-[500px] h-[500px] bg-emerald-100/30 rounded-full blur-3xl"
-        />
-        <motion.div
-            animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-emerald-100/20 rounded-full blur-3xl"
-        />
-    </div>
-);
 
 /* ─── Resource Item ─── */
 const ResourceItem = ({ resource }) => {

@@ -6,6 +6,7 @@ import { useAuthStore } from '@store';
 import { useCreateModule, useCreateItem, useModules } from '../../modules/content/hooks/useContent';
 import { useNests } from '../../modules/nest/hooks/useNests';
 import toast from 'react-hot-toast';
+import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
 /* ─── Constants ─── */
 const CONTENT_TYPES = [
@@ -78,20 +79,6 @@ const UploadSuccessOverlay = ({ itemTitle, onDone }) => (
 );
 
 /* ─── Soft animated background ─── */
-const AnimatedBg = () => (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <motion.div
-            animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute top-10 right-20 w-[500px] h-[500px] bg-emerald-100/30 rounded-full blur-3xl"
-        />
-        <motion.div
-            animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute bottom-10 left-10 w-[400px] h-[400px] bg-emerald-100/20 rounded-full blur-3xl"
-        />
-    </div>
-);
 
 /* ─── Form Field ─── */
 const FormField = ({ label, required, children }) => (
