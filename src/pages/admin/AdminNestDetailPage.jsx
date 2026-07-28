@@ -18,6 +18,13 @@ const TABS = [
   { id: 'content', label: 'Shared Content', icon: 'folder' },
 ];
 
+// Icon per shared-content kind (resource upload / post attachment / inline link).
+const SHARED_KIND_ICON = {
+  resource: 'description',
+  attachment: 'attachment',
+  link: 'link',
+};
+
 const fmtDate = (iso) =>
   iso ? new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
@@ -197,19 +204,24 @@ const AdminNestDetailPage = () => {
               <p className="text-sm text-slate-400 py-6 text-center">No content shared yet.</p>
             ) : (
               <div className="divide-y divide-slate-100">
-                {nest.shared_content.map((c) => (
+                {nest.shared_content.map((c, i) => (
                   <a
-                    key={c.id}
-                    href={c.file_url}
+                    key={`${c.kind}-${c.url}-${i}`}
+                    href={c.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 py-3 hover:bg-slate-50 -mx-2 px-2 rounded-lg transition-colors"
                   >
-                    <span className="material-symbols-outlined text-slate-400">description</span>
+                    <span className="material-symbols-outlined text-slate-400">{SHARED_KIND_ICON[c.kind] || 'description'}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-slate-900 truncate">{c.title}</p>
                       <p className="text-[11px] text-slate-400">
-                        {c.uploaded_by?.full_name || 'Unknown'} · {fmtDate(c.created_at)}
+                        {c.shared_by || 'Unknown'} · {fmtDate(c.created_at)}
+                        {c.kind && c.kind !== 'resource' && (
+                          <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-medium uppercase tracking-wide">
+                            {c.kind}
+                          </span>
+                        )}
                       </p>
                     </div>
                     <span className="material-symbols-outlined text-slate-300 text-[18px]">open_in_new</span>

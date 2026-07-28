@@ -3,12 +3,28 @@
  *
  * Consumes the /admin/nests/ endpoints from 27-01. Returns unwrapped data
  * (strips the {success, data} envelope) for ergonomic React Query use.
- * List + activity are paginated: {count, next, previous, results}.
+ * Paginated endpoints use the project envelope {success, data: [...], meta:
+ * {pagination: {count,...}}} — the list is `data` (an array), NOT `data.results`.
+ * `normalizePage` maps that onto the {results, count} shape the UI consumes.
  */
 
 import { apiClient } from '@api';
 
 const BASE = '/admin/nests';
+
+/**
+ * Normalize the project pagination envelope onto {results, count}.
+ * Backend sends {success, data: [...], meta: {pagination: {count}}}, so the
+ * rows live at `data` (an array), never `data.results`. Falls back gracefully
+ * if a caller ever receives an already-unwrapped array or a DRF-style body.
+ */
+const normalizePage = (res) => {
+  const rows = Array.isArray(res?.data)
+    ? res.data
+    : (res?.data?.results ?? (Array.isArray(res) ? res : []));
+  const count = res?.meta?.pagination?.count ?? res?.count ?? rows.length;
+  return { results: rows, count };
+};
 
 const adminNestService = {
   // ─── Nests ────────────────────────────────────────────────────────────────
@@ -18,7 +34,7 @@ const adminNestService = {
     );
     const qs = new URLSearchParams(clean).toString();
     const res = await apiClient.get(`${BASE}/${qs ? `?${qs}` : ''}`);
-    return res?.data ?? { results: [], count: 0 };
+    return normalizePage(res);
   },
 
   getNest: async (id) => {
@@ -39,7 +55,7 @@ const adminNestService = {
   getActivity: async (id, params = {}) => {
     const qs = new URLSearchParams(params).toString();
     const res = await apiClient.get(`${BASE}/${id}/activity/${qs ? `?${qs}` : ''}`);
-    return res?.data ?? { results: [], count: 0 };
+    return normalizePage(res);
   },
 
   removeMember: async ({ nestId, membershipId }) => {
