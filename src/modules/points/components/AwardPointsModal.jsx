@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -6,17 +6,39 @@ import PropTypes from 'prop-types';
 import Button from '../../../shared/components/ui/Button';
 import Input from '../../../shared/components/ui/Input';
 import { useOwnedNests } from '../../nest/hooks/useNests';
-import { useEagletsByNest, useAwardManualPoints } from '../hooks/usePoints';
+import { useEagletsByNest, useAwardManualPoints, useAwardBudget } from '../hooks/usePoints';
 
-const schema = z.object({
-    points: z.number({ invalid_type_error: 'Points must be a number' })
+const descriptionRule = z.string()
+    .min(5, 'Description must be at least 5 characters')
+    .max(250, 'Description must be under 250 characters');
+
+/**
+ * Build the validation schema from the LIVE policy (Phase 31-02).
+ *
+ * Deliberately not a module-level constant: a superadmin can change the ceiling
+ * at runtime, and this component must never hold its own copy of the limit —
+ * that drift is exactly what Phase 31 removed on the backend. Admins
+ * (`is_enforced === false`) get no upper bound.
+ */
+const buildSchema = (budget) => {
+    let points = z.number({ invalid_type_error: 'Points must be a number' })
         .int('Points must be a whole number')
-        .min(1, 'Minimum 1 point')
-        .max(1000, 'Maximum 1000 points'),
-    description: z.string()
-        .min(5, 'Description must be at least 5 characters')
-        .max(250, 'Description must be under 250 characters'),
-});
+        .min(1, 'Minimum 1 point');
+
+    if (budget?.is_enforced) {
+        const perAward = budget.max_per_award ?? Infinity;
+        const remaining = budget.remaining ?? Infinity;
+        const cap = Math.min(perAward, remaining);
+        if (Number.isFinite(cap)) {
+            const message = cap === remaining && remaining < perAward
+                ? `Only ${remaining} points left in today's budget`
+                : `Maximum ${cap} points per award`;
+            points = points.max(cap, message);
+        }
+    }
+
+    return z.object({ points, description: descriptionRule });
+};
 
 const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNestId = null }) => {
     const [selectedNestId, setSelectedNestId] = useState(prefillNestId || '');
@@ -30,7 +52,17 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
     const { data: eagletsData, isLoading: eagletsLoading } = useEagletsByNest(selectedNestId);
     const eaglets = eagletsData?.data || [];
 
+    // Only fetch while the modal is open.
+    const { data: budgetData } = useAwardBudget({ enabled: isOpen });
+    const budget = budgetData?.data ?? budgetData ?? null;
+
+    const isLimited = Boolean(budget?.is_enforced);
+    const remaining = isLimited ? (budget.remaining ?? 0) : null;
+    const budgetExhausted = isLimited && remaining <= 0;
+
     const awardMutation = useAwardManualPoints();
+
+    const schema = useMemo(() => buildSchema(budget), [budget]);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
         resolver: zodResolver(schema),
@@ -88,6 +120,35 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
                     </button>
                 </div>
 
+                {/* Daily budget banner — only for users the policy applies to.
+                    Admins (is_enforced=false) see nothing. */}
+                {isLimited && (
+                    <div
+                        className={`mb-4 rounded-xl border px-3 py-2.5 text-xs ${
+                            budgetExhausted
+                                ? 'bg-amber-50 border-amber-200 text-amber-800'
+                                : 'bg-slate-50 border-slate-200 text-slate-600'
+                        }`}
+                    >
+                        <span className="material-symbols-outlined text-sm align-middle mr-1">
+                            {budgetExhausted ? 'error' : 'account_balance_wallet'}
+                        </span>
+                        {budgetExhausted ? (
+                            <span>
+                                <strong>Daily limit reached.</strong> You&apos;ve awarded all{' '}
+                                {budget.daily_limit} of today&apos;s points. Your budget resets tomorrow.
+                            </span>
+                        ) : (
+                            <span>
+                                <strong>{remaining}</strong> of {budget.daily_limit} points left today
+                                {budget.max_per_award != null && (
+                                    <> · max <strong>{budget.max_per_award}</strong> per award</>
+                                )}
+                            </span>
+                        )}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                     {/* Nest selector — hidden when pre-filled from dashboard row */}
                     {!prefillNestId && (
@@ -140,8 +201,11 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
                     <Input
                         label="Points to Award"
                         type="number"
-                        placeholder="e.g. 50"
+                        placeholder={isLimited && budget.max_per_award != null
+                            ? `Up to ${budget.max_per_award}`
+                            : 'e.g. 10'}
                         error={errors.points?.message}
+                        disabled={budgetExhausted}
                         {...register('points', { valueAsNumber: true })}
                     />
 
@@ -177,7 +241,8 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
                             type="submit"
                             variant="success"
                             loading={awardMutation.isPending}
-                            disabled={!selectedEagletId}
+                            disabled={!selectedEagletId || budgetExhausted}
+                            title={budgetExhausted ? 'Daily points budget exhausted' : undefined}
                             className="flex-1"
                         >
                             Award Points
