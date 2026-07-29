@@ -9,6 +9,7 @@ const pointsKeys = {
     leaderboard: (params) => [...pointsKeys.all, 'leaderboard', params],
     badges: () => [...pointsKeys.all, 'badges'],
     myBadges: () => [...pointsKeys.badges(), 'my'],
+    awardBudget: () => [...pointsKeys.all, 'award-budget'],
 };
 
 // --- View Hooks ---
@@ -49,6 +50,22 @@ export const useMyBadges = () => {
     });
 };
 
+/**
+ * Remaining manual-award allowance (Phase 31-02).
+ *
+ * Drives the Award modal's budget banner AND its validation ceiling, so the
+ * numbers shown and the numbers enforced come from the same source. Never
+ * hardcode limits in components — a superadmin can change the policy at runtime.
+ */
+export const useAwardBudget = ({ enabled = true } = {}) => {
+    return useQuery({
+        queryKey: pointsKeys.awardBudget(),
+        queryFn: () => PointsService.getAwardBudget(),
+        enabled,
+        staleTime: 30 * 1000,
+    });
+};
+
 // --- Action Hooks ---
 
 export const useAwardManualPoints = () => {
@@ -60,6 +77,8 @@ export const useAwardManualPoints = () => {
             queryClient.invalidateQueries({ queryKey: pointsKeys.leaderboard() });
             queryClient.invalidateQueries({ queryKey: pointsKeys.transactions() });
             queryClient.invalidateQueries({ queryKey: pointsKeys.myPoints() });
+            // Budget just changed — refetch so the banner reflects it (31-02).
+            queryClient.invalidateQueries({ queryKey: pointsKeys.awardBudget() });
         },
         onError: (error) => {
             toast.error(error.message || 'Failed to award points');

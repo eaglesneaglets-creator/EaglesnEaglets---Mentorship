@@ -20,7 +20,14 @@ export const formatCurrency = (amount, currency = 'GHS') => {
 /**
  * Format date
  */
-export const formatDate = (date, options = {}) => {
+export const formatDate = (date, options = {}, fallback = '—') => {
+  // Same epoch trap as formatRelativeTime: `new Date(null)` is 1970-01-01, not
+  // an invalid date, so an unset value would render as "Jan 1, 1970".
+  if (date === null || date === undefined || date === '') return fallback;
+
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return fallback;
+
   const defaultOptions = {
     year: 'numeric',
     month: 'short',
@@ -28,16 +35,28 @@ export const formatDate = (date, options = {}) => {
     ...options,
   };
 
-  return new Intl.DateTimeFormat('en-GH', defaultOptions).format(new Date(date));
+  return new Intl.DateTimeFormat('en-GH', defaultOptions).format(parsed);
 };
 
 /**
  * Format relative time (e.g., "2 hours ago")
  */
-export const formatRelativeTime = (date) => {
-  const now = new Date();
+export const formatRelativeTime = (date, fallback = 'No activity yet') => {
+  // Guard the empty cases FIRST. `new Date(null)` does not produce an invalid
+  // date — JS coerces null to 0, i.e. the Unix epoch — so an unset timestamp
+  // silently rendered as "56 years ago" (2026 − 1970) instead of an empty state.
+  // A wrong-but-believable value is worse than an obvious error.
+  // Pass a custom `fallback` where different wording suits the surface.
+  if (date === null || date === undefined || date === '') return fallback;
+
   const past = new Date(date);
+  if (Number.isNaN(past.getTime())) return fallback;
+
+  const now = new Date();
   const diffInSeconds = Math.floor((now - past) / 1000);
+
+  // Future timestamps (clock skew) shouldn't read as "x ago".
+  if (diffInSeconds < 0) return 'just now';
 
   const intervals = {
     year: 31536000,

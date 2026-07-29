@@ -423,21 +423,43 @@ export const apiClient = {
   /**
    * Tear down the session and route to the suspended notice.
    * Idempotent — concurrent in-flight requests may each hit a 403.
+   *
+   * CRITICAL: the auth tokens live in **httpOnly cookies**, which JavaScript
+   * cannot delete — only a server response carrying an expiring Set-Cookie can.
+   * So clearing local state is not enough: we must call the logout endpoint
+   * (exempted from the suspension block server-side) or the browser keeps
+   * sending valid suspended-user cookies forever. That previously caused the
+   * /suspended page to reappear on any navigation AND hijacked a *different*
+   * person signing in on the same browser.
    */
   handleAccountSuspended() {
     if (typeof window === 'undefined') return;
+    if (this._suspensionTeardownStarted) return;
     if (window.location.pathname === '/suspended') return;
+    this._suspensionTeardownStarted = true;
 
-    try {
-      window.dispatchEvent(
-        new CustomEvent('auth:logout', { detail: { reason: 'account_suspended' } })
-      );
-    } catch {
-      // Never let teardown errors mask the original API error.
-    }
-    // Hard redirect (not react-router) — this runs outside component context
-    // and we want a clean slate with no stale authenticated state in memory.
-    window.location.replace('/suspended');
+    const finish = () => {
+      try {
+        window.dispatchEvent(
+          new CustomEvent('auth:logout', { detail: { reason: 'account_suspended' } })
+        );
+      } catch {
+        // Never let teardown errors mask the original API error.
+      }
+      // Hard redirect (not react-router) — this runs outside component context
+      // and we want a clean slate with no stale authenticated state in memory.
+      window.location.replace('/suspended');
+    };
+
+    // Server-side cookie deletion, then redirect either way — a failed logout
+    // must not strand the user on a broken page.
+    fetch(`${this.baseURL}/auth/logout/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .catch(() => { /* offline / network error — still tear down locally */ })
+      .finally(finish);
   },
 
   // HTTP method helpers

@@ -19,6 +19,21 @@ const pointsConfigService = {
     const res = await apiClient.patch(`/points/config/${id}/`, patch);
     return res?.data;
   },
+
+  /**
+   * Manual-award governance policy (Phase 31). Distinct from the config rows
+   * above: those set values for AUTOMATIC activities, this caps what a mentor
+   * may hand out by hand. Superadmin-only.
+   */
+  getPolicy: async () => {
+    const res = await apiClient.get('/points/policy/');
+    return res?.data ?? null;
+  },
+
+  updatePolicy: async (patch) => {
+    const res = await apiClient.patch('/points/policy/', patch);
+    return res?.data;
+  },
 };
 
 export default pointsConfigService;
