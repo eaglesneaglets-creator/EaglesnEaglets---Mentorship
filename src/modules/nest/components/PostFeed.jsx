@@ -9,6 +9,7 @@ import { useUploadMedia } from '../hooks/useUploadMedia';
 import PostCommentSection from './PostCommentSection';
 import { formatDistanceToNow } from 'date-fns';
 import { sanitizeUrl, sanitizeImageUrl } from '@shared/utils/sanitize';
+import Avatar from '../../../shared/components/ui/Avatar';
 
 // ---------------------------------------------------------------------------
 // PostComposer — create new post with emoji + file upload
@@ -93,9 +94,8 @@ const PostComposer = ({ nestId, user }) => {
       <div className="p-4">
         <div className="flex gap-3">
           {/* Avatar */}
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">
-            {user?.first_name?.charAt(0) || 'U'}
-          </div>
+          {/* Phase 32-03 */}
+          <Avatar user={user} size="md" />
           <div className="flex-1">
             <textarea
               ref={textareaRef}
@@ -207,9 +207,8 @@ const PostCard = ({ post, nestId }) => {
       <div className="p-5">
         <div className="flex justify-between items-start mb-4">
           <div className="flex gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0 mt-0.5">
-              {post.author_details?.first_name?.charAt(0) || '?'}
-            </div>
+            {/* Phase 32-03 */}
+            <Avatar user={post.author_details} size="md" className="mt-0.5" />
             <div>
               <h4 className="text-sm font-bold text-slate-900">
                 {post.author_details?.first_name} {post.author_details?.last_name}

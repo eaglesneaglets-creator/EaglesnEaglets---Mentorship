@@ -13,6 +13,7 @@ import { useTotalUnread } from '../../../modules/chat/hooks/useChat';
 import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
 
 import { formatRelativeTime } from '../../../shared/utils';
+import Avatar from '../ui/Avatar';
 
 const EMPTY_LOCKED_FEATURES = [];
 
@@ -400,10 +401,6 @@ const DashboardLayout = ({
     eaglet: 'Eaglet (Mentee)',
   };
 
-  const getInitials = (firstName, lastName) => {
-    return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase() || '?';
-  };
-
   return (
     <div className="h-screen flex overflow-hidden">
       {/* Animated Background */}
@@ -480,21 +477,14 @@ const DashboardLayout = ({
             // Single-role users see the existing static pill.
             <div className={`flex items-center rounded-xl transition-all duration-300 ${isSidebarOpen ? 'gap-3 p-3 bg-slate-50/80' : 'justify-center p-2'}`}>
               <div className="relative flex-shrink-0">
-                {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.first_name}
-                    className="w-10 h-10 rounded-xl object-cover shadow-lg"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white items-center justify-center font-bold shadow-lg text-sm`}
-                  style={{ display: user?.avatar ? 'none' : 'flex' }}>
-                  {getInitials(user?.first_name, user?.last_name)}
-                </div>
+                {/* Phase 32-03: <Avatar> replaces the manual img/div pair — that
+                    version read only `user.avatar` (missing avatar_url) and did
+                    DOM-mutating onError show/hide. Kept rounded-xl, not a circle. */}
+                <Avatar
+                  user={user}
+                  size="md"
+                  className="!rounded-xl shadow-lg"
+                />
                 <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
               </div>
               {isSidebarOpen && (

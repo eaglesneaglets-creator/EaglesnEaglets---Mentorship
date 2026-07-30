@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@store';
 import { profileService } from '../../../modules/profile/services/profile-service';
+import AvatarUploadCard from './AvatarUploadCard';
 import {
   MENTORSHIP_TYPES,
   MARITAL_STATUS_OPTIONS,
@@ -94,6 +95,11 @@ function KycProfileForm({ role }) {
           {(data.status || 'draft').replaceAll('_', ' ')}
         </span>
       </div>
+
+      {/* Phase 32-02: always editable, independent of KYC status. Reads the
+          current user from the auth store itself — this is KycProfileForm, which
+          only receives `role`. */}
+      <AvatarUploadCard />
 
       <IdentityCard data={data} />
       <EditableCard

@@ -3,7 +3,6 @@ import {
   formatCurrency,
   truncate,
   capitalize,
-  getInitials,
   cn,
 } from './index';
 
@@ -62,24 +61,8 @@ describe('capitalize', () => {
   });
 });
 
-describe('getInitials', () => {
-  it('returns initials from a full name', () => {
-    expect(getInitials('John Doe')).toBe('JD');
-  });
-
-  it('returns a single initial for a single name', () => {
-    expect(getInitials('John')).toBe('J');
-  });
-
-  it('returns empty string for falsy input', () => {
-    expect(getInitials('')).toBe('');
-    expect(getInitials(null)).toBe('');
-  });
-
-  it('caps at 2 characters', () => {
-    expect(getInitials('John Michael Doe').length).toBeLessThanOrEqual(2);
-  });
-});
+// getInitials tests moved to Avatar.test.jsx in Phase 32-03, alongside the single
+// canonical implementation in shared/utils/initials.js.
 
 describe('cn', () => {
   it('joins truthy class names', () => {

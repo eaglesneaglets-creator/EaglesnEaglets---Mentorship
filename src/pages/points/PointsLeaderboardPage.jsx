@@ -5,6 +5,7 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useMyPoints, useLeaderboard, useMyBadges } from '../../modules/points/hooks/usePoints';
 import BadgeGrid from '../../modules/points/components/BadgeGrid';
 import PointsHistoryPanel from '../../modules/points/components/PointsHistoryPanel';
+import Avatar from '../../shared/components/ui/Avatar';
 
 const FILTER_PARAMS = {
     'All Time': { period: 'all' },
@@ -35,7 +36,9 @@ const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
     const config = {
         1: {
             height: 'h-24 sm:h-32',
-            size: 'w-16 h-16 sm:w-20 sm:h-20',
+            // `!` variant overrides <Avatar>'s own fixed w-/h- classes. Written out
+            // in full because Tailwind only scans for complete literal class names.
+            sizeOverride: '!w-16 !h-16 sm:!w-20 sm:!h-20',
             ring: 'ring-2 sm:ring-4 ring-yellow-400',
             medal: '🥇',
             medalBg: 'bg-gradient-to-br from-yellow-400 to-amber-500',
@@ -46,7 +49,7 @@ const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
         },
         2: {
             height: 'h-20 sm:h-24',
-            size: 'w-14 h-14 sm:w-16 sm:h-16',
+            sizeOverride: '!w-14 !h-14 sm:!w-16 sm:!h-16',
             ring: 'ring-2 sm:ring-4 ring-slate-300',
             medal: '🥈',
             medalBg: 'bg-gradient-to-br from-slate-300 to-slate-400',
@@ -57,7 +60,7 @@ const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
         },
         3: {
             height: 'h-16 sm:h-20',
-            size: 'w-14 h-14 sm:w-16 sm:h-16',
+            sizeOverride: '!w-14 !h-14 sm:!w-16 sm:!h-16',
             ring: 'ring-2 sm:ring-4 ring-amber-600/50',
             medal: '🥉',
             medalBg: 'bg-gradient-to-br from-amber-600 to-amber-700',
@@ -71,8 +74,6 @@ const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
     const c = config[rank];
     if (!entry) return <div className={`flex-1 ${c.order}`} aria-hidden="true" />;
 
-    const initials = `${entry.first_name?.charAt(0) || ''}${entry.last_name?.charAt(0) || ''}`.toUpperCase();
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -82,9 +83,15 @@ const PodiumSpot = ({ entry, rank, isCurrentUser }) => {
         >
             {/* Avatar */}
             <div className="relative mb-2">
-                <div className={`${c.size} rounded-full ${c.ring} bg-gradient-to-br from-primary/80 to-primary text-white flex items-center justify-center font-bold text-base sm:text-lg shadow-lg ${isCurrentUser ? 'ring-primary' : ''}`}>
-                    {initials}
-                </div>
+                {/* Phase 32-03: the podium keeps its responsive w-14/sm:w-16 sizing
+                    via className (the shared SIZES scale is fixed-width and can't
+                    express a breakpoint), so `size` is only a fallback here. */}
+                <Avatar
+                    user={entry}
+                    name={`${entry.first_name || ''} ${entry.last_name || ''}`.trim()}
+                    size="lg"
+                    className={`${c.sizeOverride} ${c.ring} shadow-lg !text-base sm:!text-lg ${isCurrentUser ? 'ring-primary' : ''}`}
+                />
                 <div className="absolute -bottom-1 -right-1 text-lg sm:text-xl">{c.medal}</div>
             </div>
 
@@ -128,9 +135,15 @@ const RankRow = ({ entry, rank, isCurrentUser, index }) => (
         </td>
         <td className="py-3 px-3 sm:px-4">
             <div className="flex items-center gap-2 sm:gap-3">
-                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0 ${isCurrentUser ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'}`}>
-                    {entry.first_name?.charAt(0)}
-                </div>
+                {/* Phase 32-03: was a one-letter initial while the podium above
+                    showed two — the same person looked different in two places
+                    on one screen. Both now go through <Avatar>. */}
+                <Avatar
+                    user={entry}
+                    name={`${entry.first_name || ''} ${entry.last_name || ''}`.trim()}
+                    size="sm"
+                    className={`sm:!w-9 sm:!h-9 shadow-sm ${isCurrentUser ? 'ring-2 ring-primary' : ''}`}
+                />
                 <div className="min-w-0">
                     <p className={`text-sm font-semibold truncate ${isCurrentUser ? 'text-primary' : 'text-slate-900'}`}>
                         {isCurrentUser ? 'You' : `${entry.first_name} ${entry.last_name}`}

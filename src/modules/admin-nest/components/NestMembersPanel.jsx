@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '@shared/components/ui/ConfirmModal';
 import { useRemoveNestMember } from '../hooks/useAdminNests';
+import Avatar from '@shared/components/ui/Avatar';
 
 /**
  * NestMembersPanel — Eagle + Eaglets list with Message + Remove per row.
@@ -11,17 +12,10 @@ import { useRemoveNestMember } from '../hooks/useAdminNests';
 const MemberRow = ({ membership, isOwner, onMessage, onRemove }) => {
   const u = membership.user || membership;
   const name = u.full_name || `${u.first_name || ''} ${u.last_name || ''}`.trim();
-  const initials = `${u.first_name?.[0] || ''}${u.last_name?.[0] || ''}`.toUpperCase() || '?';
-
   return (
     <div className="flex items-center gap-3 py-2.5">
-      {u.avatar_url ? (
-        <img src={u.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" />
-      ) : (
-        <div className="w-9 h-9 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
-          {initials}
-        </div>
-      )}
+      {/* Phase 32-03 follow-up */}
+      <Avatar user={u} name={name} size="sm" className="!w-9 !h-9" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-slate-900 truncate">{name}</p>
         <p className="text-[11px] text-slate-400 capitalize">{u.role}{isOwner ? ' · Owner' : ''}</p>

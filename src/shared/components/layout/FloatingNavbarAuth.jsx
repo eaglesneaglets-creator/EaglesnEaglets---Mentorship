@@ -2,11 +2,11 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
   getDashboardPath,
-  getInitials,
   logoImg,
   navBrandTextClass,
   navLinkClass,
 } from './publicNavConfig';
+import Avatar from '../ui/Avatar';
 
 export function FloatingNavbarBrand({ useDarkText, compact = false }) {
   if (compact) {
@@ -77,29 +77,16 @@ FloatingNavbarGuestAuth.propTypes = {
   linkClassName: PropTypes.string,
 };
 
-export function FloatingNavbarUserAvatar({ user, size = 'md' }) {
-  const dim = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-8 h-8 text-sm';
-
-  if (user.avatar) {
-    return (
-      <img
-        src={user.avatar}
-        alt={user.first_name || ''}
-        className={`${dim} rounded-full object-cover ring-2 ring-primary/30 flex-shrink-0`}
-      />
-    );
-  }
-
-  return (
-    <div className={`${dim} rounded-full bg-primary text-white font-bold flex items-center justify-center ring-2 ring-primary/30 flex-shrink-0`}>
-      {getInitials(user)}
-    </div>
-  );
+export function FloatingNavbarUserAvatar({ user }) {
+  // Phase 32-03: delegates to <Avatar>. The previous version read only
+  // `user.avatar`, so it never showed the `avatar_url` added in 32-01.
+  // The old `size` prop was inert — both 'sm' and 'md' resolved to w-8 h-8 —
+  // so it is gone rather than carried forward as a lie.
+  return <Avatar user={user} size="sm" className="ring-2 ring-primary/30" />;
 }
 
 FloatingNavbarUserAvatar.propTypes = {
   user: PropTypes.object.isRequired,
-  size: PropTypes.oneOf(['sm', 'md']),
 };
 
 export function FloatingNavbarAuthDropdown({

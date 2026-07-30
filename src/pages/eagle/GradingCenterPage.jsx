@@ -6,6 +6,7 @@ import { useSubmissions, useGradeSubmission } from '../../modules/content/hooks/
 import StatCard from '../../shared/components/ui/StatCard';
 import { stripCloudinarySignature } from '../../shared/utils/sanitize';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
+import Avatar from '../../shared/components/ui/Avatar';
 
 /* ─── Soft animated background blobs ─── */
 
@@ -311,9 +312,8 @@ const GradingCenterPage = () => {
                                                 >
                                                     <td className="px-4 py-4 rounded-l-2xl">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs border border-white shadow-sm">
-                                                                {sub.user?.first_name?.charAt(0)}{sub.user?.last_name?.charAt(0)}
-                                                            </div>
+                                                            {/* Phase 32-03 */}
+                                                            <Avatar user={sub.user} size="md" className="border border-white shadow-sm" />
                                                             <div>
                                                                 <p className="text-sm font-bold text-slate-900 leading-none mb-1">{sub.user?.first_name} {sub.user?.last_name}</p>
                                                                 <p className="text-[11px] text-slate-400 font-medium">{sub.user?.email}</p>

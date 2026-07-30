@@ -92,8 +92,10 @@ export default function AdminInviteAcceptPage() {
       onSuccess: () => {
         setTokenResult(token, { status: 'success' });
         // Pull the new is_platform_staff flag into auth-store so the
-        // sidebar role switcher appears on next render.
-        refreshAccessStatus?.();
+        // sidebar role switcher appears on next render. `force` because an
+        // unforced call can be dropped by the 5s throttle — which would mean
+        // the switcher silently fails to appear.
+        refreshAccessStatus?.({ force: true });
       },
       onError: (err) => {
         const code = err?.code || err?.response?.data?.error?.type || 'invalid';
@@ -127,7 +129,7 @@ export default function AdminInviteAcceptPage() {
     acceptMutation.mutate(token, {
       onSuccess: () => {
         setTokenResult(token, { status: 'success' });
-        refreshAccessStatus?.();
+        refreshAccessStatus?.({ force: true });
       },
       onError: (err) => {
         const code = err?.code || err?.response?.data?.error?.type || 'invalid';

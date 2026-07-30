@@ -64,7 +64,7 @@ export default function NewChatDropdown({ onSelect, onClose }) {
                                     onClick={() => onSelect(u.id)}
                                     className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-50 transition-colors text-left"
                                 >
-                                    <Avatar name={`${u.first_name} ${u.last_name}`} size="sm" />
+                                    <Avatar user={u} name={`${u.first_name} ${u.last_name}`} size="sm" />
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-medium text-slate-800 truncate">{u.first_name} {u.last_name}</p>
                                         <p className="text-[10px] text-slate-400 capitalize">{u.role}</p>

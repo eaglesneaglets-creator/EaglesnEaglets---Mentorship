@@ -18,7 +18,7 @@ const EmojiPicker = ({ onSelect, isOwn }) => (
     </div>
 );
 
-export default function MessageBubble({ message, isOwn, showAvatar, senderName, reactions, onReact }) {
+export default function MessageBubble({ message, isOwn, showAvatar, senderName, sender, reactions, onReact }) {
     const [showPicker, setShowPicker] = useState(false);
     const pickerRef = useRef(null);
 
@@ -39,7 +39,7 @@ export default function MessageBubble({ message, isOwn, showAvatar, senderName, 
             transition={{ duration: 0.15 }}
             className={`flex gap-2 group ${isOwn ? 'flex-row-reverse' : ''}`}
         >
-            {!isOwn && showAvatar ? <Avatar name={senderName} size="sm" /> : !isOwn ? <div className="w-8 h-8 flex-shrink-0" /> : null}
+            {!isOwn && showAvatar ? <Avatar user={sender} name={senderName} size="sm" /> : !isOwn ? <div className="w-8 h-8 flex-shrink-0" /> : null}
             <div className={`max-w-[70%] flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
                 <div className="relative" ref={pickerRef}>
                     {showPicker && !message.is_deleted && (

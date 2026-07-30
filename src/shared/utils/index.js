@@ -94,18 +94,11 @@ export const capitalize = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-/**
- * Generate initials from name
- */
-export const getInitials = (name) => {
-  if (!name) return '';
-  return name
-    .split(' ')
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
+// `getInitials` was removed here in Phase 32-03. It had no production callers and
+// its contract disagreed with the canonical one ('John' → 'J' vs 'JO', '' → ''
+// vs '?'), so re-exporting the canonical version under this name would have been
+// a silent behaviour change. Import from `shared/utils/initials` instead — or
+// better, use <Avatar>, which handles the picture-vs-initials decision for you.
 
 /**
  * Class name utility (simple alternative to clsx)

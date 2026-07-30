@@ -4,16 +4,9 @@ import PropTypes from 'prop-types';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useOwnedNests, useNestMembers } from '../../modules/nest/hooks/useNests';
 import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
+import Avatar from '../../shared/components/ui/Avatar';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-const getInitials = (name = '') =>
-  name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase();
 
 const fmtDate = (iso) => {
   if (!iso) return '—';
@@ -24,19 +17,8 @@ const fmtDate = (iso) => {
   });
 };
 
-// Avatar gradient palette tied to name hash
-const AVATAR_GRADIENTS = [
-  'from-blue-500 to-indigo-600',
-  'from-emerald-500 to-teal-600',
-  'from-amber-500 to-orange-600',
-  'from-rose-500 to-pink-600',
-  'from-violet-500 to-purple-600',
-  'from-sky-500 to-cyan-600',
-];
-const avatarGradient = (name = '') => {
-  const hash = [...name].reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  return AVATAR_GRADIENTS[hash % AVATAR_GRADIENTS.length];
-};
+// The name-hashed gradient palette moved to shared/utils/initials.js in Phase
+// 32-03 (colorForName), so every surface gives a person the same fallback colour.
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -185,7 +167,6 @@ const EagletRow = ({ member, nestName, onViewProfile, onMessage, onManage, onAwa
   const user = member.user_details || member.user || member;
   const fullName = user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Eaglet';
   const email = user.email || '';
-  const avatar = user.avatar_url || user.profile_picture_url || user.profile_picture || user.avatar || null;
   const joinDate = member.joined_at || member.created_at || '';
   const points = member.total_points ?? member.points ?? 0;
   const progress = member.progress_percentage ?? member.progress ?? 0;
@@ -201,19 +182,14 @@ const EagletRow = ({ member, nestName, onViewProfile, onMessage, onManage, onAwa
       {/* Eaglet name + avatar */}
       <td className="py-4 px-4">
         <div className="flex items-center gap-3 transition-transform duration-500 ease-out group-hover/row:translate-x-1">
-          {avatar ? (
-            <img
-              src={avatar}
-              alt={fullName}
-              className="w-10 h-10 rounded-xl object-cover shadow-sm ring-2 ring-white group-hover/row:ring-primary/20 transition-all duration-300"
-            />
-          ) : (
-            <div
-              className={`w-10 h-10 rounded-xl bg-gradient-to-br ${avatarGradient(fullName)} flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover/row:shadow-md transition-all duration-300`}
-            >
-              {getInitials(fullName)}
-            </div>
-          )}
+          {/* Phase 32-03: <Avatar> resolves the same URL chain internally and
+              owns the initials fallback + its own gradient palette. */}
+          <Avatar
+            user={user}
+            name={fullName}
+            size="md"
+            className="!rounded-xl shadow-sm ring-2 ring-white group-hover/row:ring-primary/20 transition-all duration-300"
+          />
           <div>
             <p className="font-semibold text-sm text-slate-900 group-hover/row:text-primary transition-colors duration-300 leading-tight">
               {fullName}

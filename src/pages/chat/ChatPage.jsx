@@ -254,6 +254,7 @@ const ChatPage = () => {
                                                     isOwn={isOwn}
                                                     showAvatar={showAvatar}
                                                     senderName={senderName}
+                                                    sender={msg.sender}
                                                     reactions={reactions}
                                                     onReact={handleReact}
                                                 />

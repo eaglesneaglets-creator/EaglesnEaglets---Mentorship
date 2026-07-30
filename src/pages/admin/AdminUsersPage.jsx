@@ -12,6 +12,7 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import SectionTabs from '../../shared/components/layout/SectionTabs';
 import { ADMIN_USERS_TABS } from './adminUsersTabs';
 import StatCard from '../../shared/components/ui/StatCard';
+import Avatar from '../../shared/components/ui/Avatar';
 import { ConfirmModal } from '../../shared/components/ui/ConfirmModal';
 import { adminService } from '../../modules/auth/services/auth-service';
 import { formatRelativeTime } from '../../shared/utils';
@@ -53,11 +54,6 @@ const SORT_COLUMNS = {
 const formatDate = (d) => {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-};
-
-const getInitials = (name) => {
-  if (!name) return '?';
-  return name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
 };
 
 // ─── Export Utility ──────────────────────────────────────────────────────────
@@ -199,17 +195,15 @@ const UserDetailPanel = ({ user, onClose, onSuspend, onReactivate }) => {
         {/* Header */}
         <div className="px-6 pt-8 pb-5 bg-gradient-to-b from-blue-50/60 to-white">
           <div className="flex items-start gap-4">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.full_name}
-                className="w-16 h-16 rounded-2xl object-cover shrink-0 border-2 border-white shadow-md"
-              />
-            ) : (
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-lg font-bold shrink-0 border-2 border-white shadow-md ${role.bg} ${role.text}`}>
-                {getInitials(user.full_name)}
-              </div>
-            )}
+            {/* Phase 32-03: read only `user.avatar`, so the admin serializer's
+                `avatar_url` never showed. w-16 sits between the shared lg/xl
+                steps, so the size is pinned via `!` overrides. */}
+            <Avatar
+              user={user}
+              name={user.full_name}
+              size="lg"
+              className="!w-16 !h-16 !rounded-2xl !text-lg border-2 border-white shadow-md"
+            />
             <div className="min-w-0 pt-1">
               <h3 className="text-xl font-bold text-slate-900 leading-tight truncate">{user.full_name || '—'}</h3>
               <p className="text-xs text-slate-500 font-mono mt-1 truncate">{user.email}</p>
@@ -362,17 +356,13 @@ const UserRow = ({ user, index, onSuspend, onReactivate, selected, onSelect, onV
       <td className="px-4 py-4">
         <div className="flex items-center gap-3">
           <div className="relative shrink-0">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.full_name}
-                className="w-9 h-9 rounded-xl object-cover border border-slate-200 group-hover:border-primary/30 transition-colors"
-              />
-            ) : (
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold border border-slate-200 group-hover:border-primary/30 transition-colors ${role.bg} ${role.text}`}>
-                {getInitials(user.full_name)}
-              </div>
-            )}
+            {/* Phase 32-03 */}
+            <Avatar
+              user={user}
+              name={user.full_name}
+              size="sm"
+              className="!w-9 !h-9 !rounded-xl border border-slate-200 group-hover:border-primary/30 transition-colors"
+            />
             <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${st.dot}`} />
           </div>
           <div className="min-w-0">
@@ -479,13 +469,13 @@ const UserMobileCard = ({ user, index, onSuspend, onReactivate, selected, onSele
 
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="relative shrink-0">
-            {user.avatar ? (
-              <img src={user.avatar} alt={user.full_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200" />
-            ) : (
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold border border-slate-200 ${role.bg} ${role.text}`}>
-                {getInitials(user.full_name)}
-              </div>
-            )}
+            {/* Phase 32-03 */}
+            <Avatar
+              user={user}
+              name={user.full_name}
+              size="md"
+              className="!rounded-xl border border-slate-200"
+            />
             <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${st.dot}`} />
           </div>
           <div className="min-w-0 flex-1">

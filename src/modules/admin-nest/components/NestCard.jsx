@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { categoryMeta, statusMeta } from './nestMeta';
+import Avatar from '@shared/components/ui/Avatar';
 
 /**
  * NestCard — a single nest tile for the admin list. Supports two layouts:
@@ -26,14 +27,8 @@ const MemberStack = ({ members = [], count, max }) => {
       <div className="flex -space-x-2">
         {shown.map((m, i) => {
           const u = m.user || m;
-          const initials = `${u.first_name?.[0] || ''}${u.last_name?.[0] || ''}`.toUpperCase() || '?';
-          return u.avatar_url ? (
-            <img key={u.id || i} src={u.avatar_url} alt="" className="w-6 h-6 rounded-full ring-2 ring-white object-cover" />
-          ) : (
-            <div key={u.id || i} className="w-6 h-6 rounded-full ring-2 ring-white bg-primary/10 text-primary text-[9px] font-bold flex items-center justify-center">
-              {initials}
-            </div>
-          );
+          // Phase 32-03 follow-up
+          return <Avatar key={u.id || i} user={u} size="xs" className="ring-2 ring-white" />;
         })}
       </div>
       <span className="text-xs font-semibold text-slate-500 tabular-nums">

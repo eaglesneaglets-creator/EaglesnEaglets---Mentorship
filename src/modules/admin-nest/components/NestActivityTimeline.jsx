@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import Avatar from '@shared/components/ui/Avatar';
 
 /**
  * NestActivityTimeline — renders the NestActivity audit log (admin detail
@@ -26,17 +27,12 @@ const Row = ({ item }) => {
   const meta = ACTION_META[item.action_type] || ACTION_META.mentor_action;
   const actor = item.actor;
   const actorName = actor?.full_name || `${actor?.first_name || ''} ${actor?.last_name || ''}`.trim() || 'System';
-  const initials = `${actor?.first_name?.[0] || ''}${actor?.last_name?.[0] || ''}`.toUpperCase() || 'S';
-
   return (
     <div className="flex gap-3 p-4 bg-white rounded-xl border border-slate-100">
-      {actor?.avatar_url ? (
-        <img src={actor.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
-      ) : (
-        <div className="w-9 h-9 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0">
-          {initials}
-        </div>
-      )}
+      {/* Phase 32-03 follow-up. `actorName` already resolves to 'System' for
+          system-generated rows, so <Avatar> renders 'SY' where this previously
+          hard-coded 'S'. */}
+      <Avatar user={actor} name={actorName} size="sm" className="!w-9 !h-9" />
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3">
           <p className="text-sm text-slate-700">

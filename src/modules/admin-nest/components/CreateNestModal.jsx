@@ -4,6 +4,7 @@ import Modal from '@shared/components/ui/Modal';
 import { Input, Textarea, Button } from '@components/ui';
 import { useCreateNest, useAssignableMentors } from '../hooks/useAdminNests';
 import { CATEGORY_OPTIONS } from './nestMeta';
+import Avatar from '@shared/components/ui/Avatar';
 
 const selectClass =
   'w-full rounded-lg border border-border bg-white text-text-primary py-3 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors';
@@ -142,9 +143,8 @@ const CreateNestModal = ({ isOpen, onClose }) => {
                         onClick={() => set('eagle_id', m.id)}
                         className={`w-full flex items-center gap-3 p-2.5 text-left transition-colors ${selected ? 'bg-primary/10' : 'hover:bg-slate-50'}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
-                          {`${m.first_name?.[0] || ''}${m.last_name?.[0] || ''}`.toUpperCase() || '?'}
-                        </div>
+                        {/* Phase 32-03 follow-up */}
+                        <Avatar user={m} name={name} size="sm" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-900 truncate">{name}</p>
                           <p className="text-[11px] text-slate-400 truncate">{m.email}</p>

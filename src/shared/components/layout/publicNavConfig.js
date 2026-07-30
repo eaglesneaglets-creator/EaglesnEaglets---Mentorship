@@ -52,13 +52,6 @@ export function getDashboardPath(user) {
   return '/eaglet/dashboard';
 }
 
-export function getInitials(user) {
-  if (!user) return '?';
-  const f = user.first_name?.charAt(0) || '';
-  const l = user.last_name?.charAt(0) || '';
-  return (f + l).toUpperCase() || user.email?.charAt(0).toUpperCase() || '?';
-}
-
 export function navLinkClass(useDarkText) {
   return `px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 ${
     useDarkText

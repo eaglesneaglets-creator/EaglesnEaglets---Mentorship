@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentMode, useSetCurrentMode } from '@store';
+import Avatar from '../ui/Avatar';
 
 const ADMIN_MODE = {
   value: 'admin',
@@ -94,9 +95,6 @@ export default function RoleSwitcher({
     onLogout?.();
   };
 
-  const initials = `${user?.first_name?.[0] || ''}${user?.last_name?.[0] || ''}`
-    .toUpperCase() || '?';
-
   const modes = modesForRole(user?.role);
   const currentLabel =
     currentMode === 'admin'
@@ -118,9 +116,15 @@ export default function RoleSwitcher({
           onClick={() => setOpen((o) => !o)}
           aria-haspopup="menu"
           aria-expanded={open}
-          className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center font-bold text-sm shadow-lg hover:scale-105 transition-transform"
+          // Icon-only trigger: it previously took its accessible name from the
+          // initials text ("FG"), which <Avatar> no longer renders as a text
+          // node. Name it explicitly rather than leaving it to the image.
+          aria-label="Account and role menu"
+          className="rounded-xl shadow-lg hover:scale-105 transition-transform"
         >
-          {initials}
+          {/* Phase 32-03 follow-up: this branch only ever rendered initials, so
+              stacked admins never saw their photo in the collapsed sidebar. */}
+          <Avatar user={user} size="md" className="!rounded-xl" />
         </button>
         {open && (
           <DropdownMenu
@@ -149,17 +153,9 @@ export default function RoleSwitcher({
         }`}
       >
         <div className="relative flex-shrink-0">
-          {user?.avatar ? (
-            <img
-              src={user.avatar}
-              alt={user.first_name}
-              className="w-10 h-10 rounded-xl object-cover shadow-md"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-white flex items-center justify-center font-bold text-sm shadow-md">
-              {initials}
-            </div>
-          )}
+          {/* Phase 32-03 follow-up: read only `user.avatar`, so the `avatar_url`
+              added in 32-01 never reached the stacked-admin sidebar. */}
+          <Avatar user={user} size="md" className="!rounded-xl shadow-md" />
           <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
         </div>
         <div className="flex-1 min-w-0">

@@ -19,7 +19,7 @@ export default function ConversationItem({ conversation, isActive, onClick, curr
             onClick={onClick}
             className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-150 text-left ${isActive ? 'bg-primary/8 border-r-[3px] border-r-primary' : 'hover:bg-slate-50 border-r-[3px] border-r-transparent'}`}
         >
-            <Avatar name={displayName} isNest={isNest} />
+            <Avatar user={otherParticipant} name={displayName} isNest={isNest} />
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                     <p className={`text-sm truncate ${unread > 0 ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
