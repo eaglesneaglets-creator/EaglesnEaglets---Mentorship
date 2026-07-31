@@ -124,7 +124,7 @@ export default function RoleSwitcher({
         >
           {/* Phase 32-03 follow-up: this branch only ever rendered initials, so
               stacked admins never saw their photo in the collapsed sidebar. */}
-          <Avatar user={user} size="md" className="!rounded-xl" />
+          <Avatar user={user} size="md" eager className="!rounded-xl" />
         </button>
         {open && (
           <DropdownMenu
@@ -155,7 +155,7 @@ export default function RoleSwitcher({
         <div className="relative flex-shrink-0">
           {/* Phase 32-03 follow-up: read only `user.avatar`, so the `avatar_url`
               added in 32-01 never reached the stacked-admin sidebar. */}
-          <Avatar user={user} size="md" className="!rounded-xl shadow-md" />
+          <Avatar user={user} size="md" eager className="!rounded-xl shadow-md" />
           <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
         </div>
         <div className="flex-1 min-w-0">

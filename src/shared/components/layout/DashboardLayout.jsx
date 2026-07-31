@@ -483,6 +483,7 @@ const DashboardLayout = ({
                 <Avatar
                   user={user}
                   size="md"
+                  eager
                   className="!rounded-xl shadow-lg"
                 />
                 <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />

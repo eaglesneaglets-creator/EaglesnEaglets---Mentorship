@@ -4,6 +4,18 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 
+/**
+ * Chunks reached ONLY through a `lazy()` / dynamic import behind a user
+ * interaction, so they must not be preloaded on first paint.
+ *
+ * Names must match the `manualChunks` names below. Adding a chunk here that a
+ * route needs during its initial render will make that route SLOWER (serial
+ * fetch instead of parallel), so measure before extending this list.
+ */
+const LAZY_ONLY_CHUNKS = [
+  'emoji', // emoji-mart, 108 kB gzipped — opens only when a picker button is clicked
+];
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -58,6 +70,20 @@ export default defineConfig(({ mode }) => {
       sourcemap: mode === 'development',
       minify: 'esbuild',
       cssMinify: true,
+      modulePreload: {
+        // Vite preloads every statically-reachable chunk, which pulled the 108 kB
+        // emoji-mart bundle into <head> on EVERY page load — including the landing
+        // page — even though both call sites already `lazy()` it. The preload does
+        // not block first paint, but it does compete with the LCP image for
+        // bandwidth at high priority.
+        //
+        // Only chunks that are genuinely interaction-gated belong here. Do not add
+        // a chunk that some route needs during its initial render: dropping the
+        // preload for those trades a parallel fetch for a serial one and makes
+        // things slower, not faster.
+        resolveDependencies: (_url, deps) =>
+          deps.filter((dep) => !LAZY_ONLY_CHUNKS.some((name) => dep.includes(name))),
+      },
       rollupOptions: {
         output: {
           // Function form is reliable in Vite 7 — matches on actual module file paths
