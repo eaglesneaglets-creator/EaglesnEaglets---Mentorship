@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from '@api';
+import { compressImage } from '@shared/utils/compress-image';
 
 export const profileService = {
   // =========================================================================
@@ -59,9 +60,12 @@ export const profileService = {
    * avatar use `uploadAvatar()` below.
    * @param {File} file - Image file to upload
    */
-  uploadPicture: (file) => {
+  uploadPicture: async (file) => {
+    // Downscale first: phone photos are 3-8 MB and used to bounce off the
+    // server's size cap on the user's very first attempt.
+    const compressed = await compressImage(file);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', compressed);
     return apiClient.upload('/auth/upload/picture/', formData);
   },
 
@@ -72,9 +76,10 @@ export const profileService = {
    * can change their photo at any time. Writes User.profile_picture_url.
    * @param {File} file - Image file (jpg/png/webp)
    */
-  uploadAvatar: (file) => {
+  uploadAvatar: async (file) => {
+    const compressed = await compressImage(file);
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('avatar', compressed);
     return apiClient.upload('/auth/me/avatar/', formData);
   },
 
