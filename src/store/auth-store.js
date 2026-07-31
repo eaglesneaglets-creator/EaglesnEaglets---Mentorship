@@ -592,6 +592,22 @@ export const useIsStackedAdmin = () =>
     ),
   );
 
+// Keep `accessToken` in the store in sync with the real token.
+//
+// HTTP requests read the token from tokenManager at call time, so they were
+// always fine. WebSockets bake it into the connection URL, and the store's copy
+// was only ever written once (DashboardLayout, on mount). After the 15-minute
+// access-token lifetime, every WS reconnect used a dead token → 4001 → the
+// client gave up until a page reload. Subscribing here closes that gap for
+// every consumer of `accessToken`, not just the WS hooks.
+// Optional-called: test suites that mock `@api` may stub tokenManager without
+// this method, and a missing subscription must not crash store construction.
+tokenManager.onTokenChange?.((token) => {
+  if (useAuthStore.getState().accessToken !== token) {
+    useAuthStore.setState({ accessToken: token });
+  }
+});
+
 // Listen for logout events from other parts of the app
 if (typeof window !== 'undefined') {
   window.addEventListener('auth:logout', (event) => {
