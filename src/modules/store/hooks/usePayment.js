@@ -15,19 +15,49 @@ import StoreService from '../services/store-service';
  * The backend also calculates this independently — the frontend amount is only
  * used to display the correct figure in the Paystack popup.
  */
+/**
+ * Resolve once window.PaystackPop exists, or reject after `timeoutMs`.
+ *
+ * The CDN script is `defer`red, so it is normally ready long before anyone can
+ * reach a Pay button. This covers the slow-network tail: previously the very
+ * first click in that window failed outright and told the user to refresh, which
+ * threw away a payment for what is usually a few hundred milliseconds of waiting.
+ */
+function waitForPaystack(timeoutMs = 8000) {
+    if (window.PaystackPop) return Promise.resolve(window.PaystackPop);
+
+    return new Promise((resolve, reject) => {
+        const startedAt = Date.now();
+        const poll = setInterval(() => {
+            if (window.PaystackPop) {
+                clearInterval(poll);
+                resolve(window.PaystackPop);
+            } else if (Date.now() - startedAt > timeoutMs) {
+                clearInterval(poll);
+                reject(new Error(
+                    'Payment system could not be loaded. Please check your connection and try again.'
+                ));
+            }
+        }, 100);
+    });
+}
+
 export function usePayment(order) {
     const navigate = useNavigate();
     const [isInitializing, setIsInitializing] = useState(false);
     const [error, setError] = useState(null);
 
     const startPayment = async () => {
-        if (!window.PaystackPop) {
-            setError('Payment system not loaded. Please refresh the page and try again.');
-            return;
-        }
-
         setIsInitializing(true);
         setError(null);
+
+        try {
+            await waitForPaystack();
+        } catch (err) {
+            setError(err.message);
+            setIsInitializing(false);
+            return;
+        }
 
         try {
             const res = await StoreService.initializePayment(order.id);

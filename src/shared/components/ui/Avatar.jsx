@@ -82,13 +82,15 @@ const Avatar = ({
   size = 'md',
   className = '',
   title,
+  eager = false,
   ...rest
 }) => {
   const [failed, setFailed] = useState(false);
 
   const displayName = resolveName(user, name);
   // Ask the CDN for the size we actually render — see SIZE_PX.
-  const resolvedSrc = sizedAvatarUrl(resolveSrc(user, src), SIZE_PX[size] || SIZE_PX.md);
+  const px = SIZE_PX[size] || SIZE_PX.md;
+  const resolvedSrc = sizedAvatarUrl(resolveSrc(user, src), px);
   const sizeCls = SIZES[size] || SIZES.md;
   const showImage = Boolean(resolvedSrc) && !failed;
   // `resolveName` returns '' (never null) for an unknown user, so `||` is what
@@ -103,6 +105,17 @@ const Avatar = ({
         // rather than announcing a filename.
         alt={displayName || ''}
         title={tooltip}
+        // Lists render 15-50 of these (admin users, leaderboard, members, chat),
+        // so defer the off-screen ones and never block the main thread decoding.
+        // `eager` opts out for above-the-fold chrome — the sidebar avatar is
+        // visible at first paint, and lazy-loading a visible image delays it.
+        loading={eager ? 'eager' : 'lazy'}
+        decoding={eager ? 'sync' : 'async'}
+        // Intrinsic size reserves the box before the bytes arrive, so a slow
+        // avatar cannot shift the row it sits in (CLS). Matches SIZE_PX/SIZES;
+        // CSS w-/h- classes still win for rendered size.
+        width={px}
+        height={px}
         // A dead URL degrades to initials instead of a broken-image icon. The
         // 32-01 fallback chain can serve older KYC URLs whose files may be gone.
         onError={() => setFailed(true)}
@@ -134,6 +147,12 @@ Avatar.propTypes = {
   size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
   className: PropTypes.string,
   title: PropTypes.string,
+  /**
+   * Set on above-the-fold avatars (sidebar, navbar) so they load eagerly and
+   * decode synchronously. Everything in a scrollable list should leave this
+   * false — that is where the win is.
+   */
+  eager: PropTypes.bool,
 };
 
 export default Avatar;

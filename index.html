@@ -49,8 +49,19 @@
          auth request (register/login submit). -->
     <link rel="preconnect" href="https://eaglesneaglet-backend-production.up.railway.app" crossorigin>
     <link rel="dns-prefetch" href="https://eaglesneaglet-backend-production.up.railway.app">
-    <!-- Paystack Inline JS — loaded from CDN, exposes window.PaystackPop -->
-    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <!--
+      Paystack Inline JS — loaded from CDN, exposes window.PaystackPop.
+
+      `defer` is required, not cosmetic: without it this third-party script blocks
+      HTML parsing on EVERY page, including the landing page and every route that
+      never takes a payment, while it is fetched and executed from a remote origin.
+
+      Safe because nothing reads window.PaystackPop during load. Its only consumer
+      is usePayment(), reached by clicking "Pay Now" on OrderConfirmationPage —
+      deep in the SPA, long after deferred scripts finish (they run before
+      DOMContentLoaded, which precedes React mount).
+    -->
+    <script src="https://js.paystack.co/v1/inline.js" defer></script>
   </head>
   <body>
     <div id="root"></div>

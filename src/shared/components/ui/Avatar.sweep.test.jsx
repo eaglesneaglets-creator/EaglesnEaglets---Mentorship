@@ -98,6 +98,29 @@ describe('Avatar sweep guard (Phase 32-03)', () => {
     ).toEqual([]);
   });
 
+  it('reserves `eager` for above-the-fold chrome only (P4 perf)', () => {
+    // `eager` disables lazy-loading. That is correct for the sidebar/navbar,
+    // which are visible at first paint, and wrong everywhere else — a list of
+    // 50 eager avatars is exactly the load this optimisation removed.
+    const ALLOWED = [
+      'shared/components/layout/DashboardLayout.jsx',
+      'shared/components/layout/RoleSwitcher.jsx',
+      'shared/components/layout/FloatingNavbarAuth.jsx',
+    ];
+
+    const offenders = FILES.filter((f) => {
+      if (ALLOWED.includes(rel(f))) return false;
+      const src = readFileSync(f, 'utf8');
+      // `eager` / `eager={true}` as a prop on an <Avatar ...> element.
+      return /<Avatar[^>]*\beager\b(?!\s*=\s*\{?\s*false)/s.test(src);
+    }).map(rel);
+
+    expect(
+      offenders,
+      `\`eager\` belongs only on above-the-fold avatars. Remove it from: ${offenders.join(', ')}`,
+    ).toEqual([]);
+  });
+
   it('sanity-check: the scanner actually sees the source tree', () => {
     // Without this, a broken glob would make every test above vacuously pass.
     expect(FILES.length).toBeGreaterThan(100);

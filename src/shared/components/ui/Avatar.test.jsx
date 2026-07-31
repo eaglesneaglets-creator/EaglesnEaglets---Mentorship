@@ -95,6 +95,31 @@ describe('Avatar', () => {
     expect(src).toContain('w_32,h_32');
   });
 
+  // P4 (perf): lists render 15-50 avatars, so off-screen ones must defer. But
+  // lazy-loading an above-the-fold image DELAYS it, so the sidebar/navbar need
+  // an opt-out. Both directions are pinned here.
+  it('lazy-loads and async-decodes by default', () => {
+    render(<Avatar user={withPicture} />);
+    const img = screen.getByRole('img');
+    expect(img).toHaveAttribute('loading', 'lazy');
+    expect(img).toHaveAttribute('decoding', 'async');
+  });
+
+  it('loads eagerly when `eager` is set, for above-the-fold chrome', () => {
+    render(<Avatar user={withPicture} eager />);
+    const img = screen.getByRole('img');
+    expect(img).toHaveAttribute('loading', 'eager');
+    expect(img).toHaveAttribute('decoding', 'sync');
+  });
+
+  it('reserves the box with intrinsic width/height to prevent layout shift', () => {
+    render(<Avatar user={withPicture} size="md" />);
+    const img = screen.getByRole('img');
+    // md === w-10 === 40px, per SIZE_PX.
+    expect(img).toHaveAttribute('width', '40');
+    expect(img).toHaveAttribute('height', '40');
+  });
+
   it('falls back to the email initial for a user with no name (Phase 32-03)', () => {
     // Absorbed from publicNavConfig's helper during the 32-03 sweep. Google
     // sign-ups can arrive with an email and no name; they showed 'D' there and

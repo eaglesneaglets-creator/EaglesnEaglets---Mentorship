@@ -82,7 +82,8 @@ export function FloatingNavbarUserAvatar({ user }) {
   // `user.avatar`, so it never showed the `avatar_url` added in 32-01.
   // The old `size` prop was inert — both 'sm' and 'md' resolved to w-8 h-8 —
   // so it is gone rather than carried forward as a lie.
-  return <Avatar user={user} size="sm" className="ring-2 ring-primary/30" />;
+  // `eager`: persistent navbar chrome, visible at first paint.
+  return <Avatar user={user} size="sm" eager className="ring-2 ring-primary/30" />;
 }
 
 FloatingNavbarUserAvatar.propTypes = {
