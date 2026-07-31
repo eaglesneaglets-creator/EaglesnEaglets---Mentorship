@@ -8,6 +8,7 @@ import { usePrograms } from '../../modules/program/hooks/usePrograms';
 import { useEnrollments } from '../../modules/program/hooks/useEnrollments';
 import PostFeed from '../../modules/nest/components/PostFeed';
 import { MyEagletsSection } from '../eagle/MyEagletsPage';
+import Avatar from '../../shared/components/ui/Avatar';
 
 const PROGRAM_STATUS_BADGE = {
     draft: 'bg-slate-100 text-slate-600',
@@ -23,14 +24,8 @@ const AnimatedBg = () => (
     </div>
 );
 
-const InitialsAvatar = ({ name, size = 'md', className = '' }) => {
-    const sizes = { sm: 'w-8 h-8 text-xs', md: 'w-10 h-10 text-sm', lg: 'w-12 h-12 text-base' };
-    return (
-        <div className={`${sizes[size]} rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center shrink-0 ${className}`}>
-            {name?.charAt(0)?.toUpperCase() || '?'}
-        </div>
-    );
-};
+// Phase 32-03: `InitialsAvatar` was removed — it could only ever render a letter.
+// Call sites now use the shared <Avatar>, which shows the real profile picture.
 
 /* ─── Welcome Banner (green gradient, matching screenshot) ─── */
 const WelcomeBanner = ({ nest }) => (
@@ -130,7 +125,7 @@ const MembersPreview = ({ nestId, memberCount }) => {
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                 {displayMembers.map((m) => (
                     <div key={m.id} className="flex flex-col items-center gap-1 group cursor-pointer">
-                        <InitialsAvatar name={m.user_details?.first_name} size="sm" className="group-hover:ring-2 ring-primary/20 transition-all" />
+                        <Avatar user={m.user_details} size="sm" className="group-hover:ring-2 ring-primary/20 transition-all" />
                         <span className="text-[10px] text-slate-500 truncate w-full text-center font-medium">
                             {m.user_details?.first_name}
                         </span>

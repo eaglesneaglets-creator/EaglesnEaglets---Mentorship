@@ -49,4 +49,12 @@ export default defineConfig([
       globals: globals.node,
     },
   },
+  {
+    // Tests run under vitest/node, so they may reach for node globals
+    // (`process.cwd()` in the Avatar sweep guard) and node: builtins.
+    files: ['**/*.test.{js,jsx}', 'src/test/**/*.{js,jsx}'],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+  },
 ])

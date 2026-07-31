@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { apiClient } from '@api';
 import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
+import Avatar from '../../shared/components/ui/Avatar';
 
 /* ─── Soft animated background ─── */
 
@@ -299,9 +300,8 @@ const NestSettingsPage = () => {
                                     {pendingRequests.map(req => (
                                         <div key={req.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 transition-all">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                                                    {req.eaglet?.first_name?.charAt(0) || 'E'}
-                                                </div>
+                                                {/* Phase 32-03 */}
+                                                <Avatar user={req.eaglet} size="md" />
                                                 <div>
                                                     <p className="text-sm font-bold text-slate-900">
                                                         {req.eaglet?.first_name} {req.eaglet?.last_name}

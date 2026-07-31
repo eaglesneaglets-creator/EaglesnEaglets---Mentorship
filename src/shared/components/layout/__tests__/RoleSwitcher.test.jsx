@@ -81,8 +81,34 @@ describe('RoleSwitcher', () => {
     wrap({ variant: 'collapsed' });
     // No "Fin Gojo" name text in collapsed mode
     expect(screen.queryByText(/fin gojo/i)).not.toBeInTheDocument();
-    // But the trigger button with initials is present
-    expect(screen.getByRole('button', { name: 'FG' })).toBeInTheDocument();
+    // The trigger is still there. Phase 32-03 moved the avatar into <Avatar>, so
+    // the button no longer takes its accessible name from the initials text and
+    // is labelled explicitly instead.
+    expect(screen.getByRole('button', { name: /account and role menu/i })).toBeInTheDocument();
+    // The picture-or-initials avatar renders inside it.
+    expect(screen.getByText('FG')).toBeInTheDocument();
+  });
+
+  // Phase 32-03 follow-up — user-reported: a mentor+admin uploaded a photo and
+  // the sidebar kept showing "JO". Stacked admins render RoleSwitcher, not the
+  // static pill in DashboardLayout, and this component was missed by the sweep:
+  // the expanded row read only `user.avatar` and the collapsed trigger rendered
+  // initials unconditionally.
+  it('shows the profile picture in the expanded row', () => {
+    wrap({
+      user: { first_name: 'Fin', last_name: 'Gojo', avatar_url: 'https://cdn.example.com/fin.jpg' },
+    });
+    expect(screen.getByRole('img', { name: 'Fin Gojo' }))
+      .toHaveAttribute('src', 'https://cdn.example.com/fin.jpg');
+    expect(screen.queryByText('FG')).not.toBeInTheDocument();
+  });
+
+  it('shows the profile picture in the collapsed trigger too', () => {
+    wrap({
+      variant: 'collapsed',
+      user: { first_name: 'Fin', last_name: 'Gojo', avatar_url: 'https://cdn.example.com/fin.jpg' },
+    });
+    expect(screen.getByRole('img', { name: 'Fin Gojo' })).toBeInTheDocument();
   });
 
   it('badge shows Administrator when admin mode is current', () => {

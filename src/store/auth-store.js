@@ -424,12 +424,20 @@ export const useAuthStore = create(
          *
          * - In-flight dedupe: concurrent callers reuse the same promise.
          * - 5-second min interval: ignore repeat calls in tight windows.
+         *
+         * `{ force: true }` skips the time throttle (but NOT the in-flight
+         * dedupe). Use it after a mutation that changes the user record —
+         * an avatar upload, a role change. Those callers know the server data
+         * just changed, so silently serving a cached miss leaves the UI stale:
+         * opening the OS file picker blurs the window, and the refocus fires a
+         * throttled refresh moments before the upload resolves, which used to
+         * swallow the upload's own refresh and keep initials in the sidebar.
          */
-        refreshAccessStatus: async () => {
+        refreshAccessStatus: async ({ force = false } = {}) => {
           const now = Date.now();
           const state = get();
           if (state._authMeInflight) return state._authMeInflight;
-          if (state._authMeLastAt && now - state._authMeLastAt < 5000) {
+          if (!force && state._authMeLastAt && now - state._authMeLastAt < 5000) {
             return state.accessStatus;
           }
           const promise = (async () => {

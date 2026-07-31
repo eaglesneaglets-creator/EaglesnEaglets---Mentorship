@@ -5,6 +5,7 @@ import { profileService } from '../../modules/profile/services/profile-service';
 import { Button, Alert } from '@components/ui';
 import { logger } from '../../shared/utils/logger';
 import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+import Avatar from '../../shared/components/ui/Avatar';
 
 /**
  * PendingApprovalPage Component
@@ -171,19 +172,15 @@ const PendingApprovalPage = () => {
           {/* User Info Card */}
           <div className="bg-white rounded-xl p-4 mb-6 text-left">
             <div className="flex items-center gap-4">
-              {profileData?.display_picture ? (
-                <img
-                  src={profileData.display_picture}
-                  alt={user?.first_name}
-                  className="w-14 h-14 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-xl font-bold text-primary">
-                    {user?.first_name?.[0]}{user?.last_name?.[0]}
-                  </span>
-                </div>
-              )}
+              {/* Phase 32-03 follow-up. `src` is passed explicitly to keep this
+                  page's precedence: it shows the KYC photo under review, which
+                  is the subject of this screen, ahead of the profile avatar. */}
+              <Avatar
+                src={profileData?.display_picture}
+                user={user}
+                size="lg"
+                className="!w-14 !h-14"
+              />
               <div>
                 <p className="font-semibold text-text-primary">
                   {user?.first_name} {user?.last_name}

@@ -5,11 +5,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   getDashboardPath,
-  getInitials,
   isNavLinkActive,
   logoImg,
 } from './publicNavConfig';
 import { MOBILE_NAV_DRAWER_ID } from './FloatingNavbarMenuButton';
+import Avatar from '../ui/Avatar';
 
 function MobileNavLink({ link, active, onNavigate, showChevron }) {
   const icon = link.icon || 'chevron_right';
@@ -230,17 +230,10 @@ export default function FloatingNavbarMobileDrawer({
               {isAuthenticated && user ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 rounded-2xl bg-white px-3 py-3 shadow-sm ring-1 ring-slate-100">
-                    {user.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt=""
-                        className="h-11 w-11 flex-shrink-0 rounded-full object-cover ring-2 ring-primary/20"
-                      />
-                    ) : (
-                      <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                        {getInitials(user)}
-                      </div>
-                    )}
+                    {/* Phase 32-03: was a hand-rolled img/initials pair reading
+                        only `user.avatar`. Snaps 44px → the shared 40px 'md'
+                        step; the ring is preserved. */}
+                    <Avatar user={user} size="md" className="ring-2 ring-primary/20" />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-slate-900">
                         {user.first_name} {user.last_name}

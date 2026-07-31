@@ -5,6 +5,7 @@ import { usePostComments } from '../hooks/usePostComments';
 import { useAddComment } from '../hooks/useAddComment';
 import CommentBubble from './CommentBubble';
 import { useAuthStore } from '@store';
+import Avatar from '@shared/components/ui/Avatar';
 
 /**
  * Inline comment section rendered below a PostCard when comments are open.
@@ -80,9 +81,8 @@ const PostCommentSection = ({ postId, nestId }) => {
       {/* New comment input */}
       <div className="flex gap-2 items-end relative">
         {/* Current user avatar */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-          {user?.first_name?.[0] || '?'}
-        </div>
+        {/* Phase 32-03 follow-up */}
+        <Avatar user={user} size="sm" />
 
         <div className="flex-1 relative">
           <textarea

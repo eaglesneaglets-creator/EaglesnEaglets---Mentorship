@@ -51,7 +51,12 @@ export const profileService = {
     apiClient.post('/auth/profile/submit/'),
 
   /**
-   * Upload profile/display picture
+   * Upload the KYC display picture.
+   *
+   * NOTE: this is the KYC/verification photo — the backend BLOCKS it once
+   * `kyc.status` is approved/submitted/under_review (an intentional Phase 21
+   * immutability contract). Used by the KYC wizard. For the editable profile
+   * avatar use `uploadAvatar()` below.
    * @param {File} file - Image file to upload
    */
   uploadPicture: (file) => {
@@ -59,6 +64,26 @@ export const profileService = {
     formData.append('file', file);
     return apiClient.upload('/auth/upload/picture/', formData);
   },
+
+  /**
+   * Upload the PROFILE avatar (Phase 32).
+   *
+   * Distinct from `uploadPicture` above: no KYC gate, so a fully-onboarded user
+   * can change their photo at any time. Writes User.profile_picture_url.
+   * @param {File} file - Image file (jpg/png/webp)
+   */
+  uploadAvatar: (file) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return apiClient.upload('/auth/me/avatar/', formData);
+  },
+
+  /**
+   * Remove the profile avatar (Phase 32).
+   * The returned `avatar_url` may be a fallback (e.g. the KYC photo) rather
+   * than null — the server decides, the client just renders what comes back.
+   */
+  removeAvatar: () => apiClient.delete('/auth/me/avatar/'),
 
   /**
    * Upload CV document

@@ -97,7 +97,7 @@ export default function PublicNavbar() {
           <FloatingNavbarBrand useDarkText={useDarkText} compact />
           <div className="flex flex-shrink-0 items-center gap-2">
             {isAuthenticated && user && (
-              <FloatingNavbarUserAvatar user={user} size="sm" />
+              <FloatingNavbarUserAvatar user={user} />
             )}
             <FloatingNavbarMenuButton
               mobileOpen={mobileOpen}

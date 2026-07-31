@@ -7,6 +7,7 @@ import { useModuleDetail, useModuleItems, useUpdateProgress, useContentProgressL
 import toast from 'react-hot-toast';
 import DocumentViewer from '../../shared/components/visual/DocumentViewer';
 import { sanitizeUrl } from '../../shared/utils/sanitize';
+import Avatar from '../../shared/components/ui/Avatar';
 
 const TYPE_CONFIG = {
     video: { icon: 'play_circle', color: 'emerald', label: 'Video' },
@@ -351,9 +352,12 @@ const ContentViewerPage = () => {
                                             {/* Instructor Info */}
                                             <div className="flex flex-wrap items-center gap-6 sm:gap-12 py-6 md:py-10 border-t border-slate-100">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-sm border border-emerald-100">
-                                                        {moduleData.created_by?.full_name?.charAt(0) || 'E'}
-                                                    </div>
+                                                    {/* Phase 32-03 */}
+                                                    <Avatar
+                                                        user={moduleData.created_by}
+                                                        size="md"
+                                                        className="sm:!w-12 sm:!h-12 !rounded-2xl border border-emerald-100"
+                                                    />
                                                     <div>
                                                         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Instructor</p>
                                                         <p className="text-sm sm:text-base font-bold text-slate-900 leading-none">{moduleData.created_by?.full_name || 'Elite Mentor'}</p>

@@ -15,7 +15,7 @@ export default function ChatHeader({ conversation, onBack, currentUserId }) {
             <button onClick={onBack} className="lg:hidden w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
                 <span className="material-symbols-outlined text-xl text-slate-500">arrow_back</span>
             </button>
-            <Avatar name={displayName} isNest={isNest} />
+            <Avatar user={other} name={displayName} isNest={isNest} />
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
                 <p className="text-xs text-slate-400">{subtitle}</p>

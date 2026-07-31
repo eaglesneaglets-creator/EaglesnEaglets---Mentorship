@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { adminService } from '../../modules/auth/services/auth-service';
 import { sanitizeToText, stripCloudinarySignature, sanitizeImageUrl, sanitizeUrl } from '../../shared/utils/sanitize';
+import Avatar from '../../shared/components/ui/Avatar';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const BACKEND_URL = API_BASE_URL.replace('/api/v1', '');
@@ -513,23 +514,19 @@ const AdminKYCDetailPage = () => {
           <div className="p-6 flex flex-col sm:flex-row items-start gap-6">
             {/* Avatar */}
             <div className="relative flex-shrink-0">
-              {fullAvatarUrl ? (
-                <img src={sanitizeImageUrl(fullAvatarUrl)} alt={fullName}
-                  className="w-20 h-20 rounded-2xl object-cover ring-4 ring-white shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => openDocumentViewer(avatarUrl, 'Profile Picture')}
-                  onError={(e) => {
-                    // Image failed (404 from ephemeral disk) — show initials fallback
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-              ) : null}
-              <div
-                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 items-center justify-center text-white text-2xl font-bold shadow-lg"
-                style={{ display: fullAvatarUrl ? 'none' : 'flex' }}
-              >
-                {fullName.charAt(0)}
-              </div>
+              {/* Phase 32-03: <Avatar> owns the 404 fallback in state instead of
+                  swapping two siblings' inline `display` from onError. It also
+                  degrades to initials on a dead URL, so the click-to-enlarge is
+                  attached only when there is actually a picture to enlarge. */}
+              <Avatar
+                src={fullAvatarUrl ? sanitizeImageUrl(fullAvatarUrl) : ''}
+                name={fullName}
+                size="xl"
+                className={`!w-20 !h-20 !rounded-2xl !text-2xl ring-4 ring-white shadow-lg ${
+                  fullAvatarUrl ? 'cursor-pointer hover:shadow-xl transition-shadow' : ''
+                }`}
+                onClick={fullAvatarUrl ? () => openDocumentViewer(avatarUrl, 'Profile Picture') : undefined}
+              />
               {isSuspended && (
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center ring-2 ring-white">
                   <span className="material-symbols-outlined text-white text-xs">block</span>

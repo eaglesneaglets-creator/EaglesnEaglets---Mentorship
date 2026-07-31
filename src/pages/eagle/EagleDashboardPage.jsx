@@ -10,6 +10,7 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useEagleDashboardStats } from '../../modules/analytics/hooks/useAnalytics';
 import StatCard from '../../shared/components/ui/StatCard';
+import Avatar from '../../shared/components/ui/Avatar';
 import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
 import { SkeletonCard } from '../../shared/components/ui/LoadingSkeleton';
 import { getEagletStatus } from '../../shared/utils/eagletStatus';
@@ -28,13 +29,13 @@ const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
     >
       <td className="py-4 px-2">
         <div className="flex items-center gap-3 transition-transform duration-500 ease-out group-hover:translate-x-1">
-          {eaglet.avatar ? (
-            <img src={eaglet.avatar} alt={eaglet.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-white shadow-sm transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400/80 to-emerald-600/80 flex items-center justify-center text-white font-bold text-sm shadow-sm transition-transform duration-500 group-hover:scale-105">
-              {eaglet.name?.charAt(0) || '?'}
-            </div>
-          )}
+          {/* Phase 32-03 */}
+          <Avatar
+            user={eaglet}
+            name={eaglet.name}
+            size="sm"
+            className="!w-9 !h-9 ring-2 ring-white shadow-sm transition-transform duration-500 group-hover:scale-105"
+          />
           <div>
             <p className="font-semibold text-sm text-slate-900 group-hover:text-primary transition-colors duration-300">{eaglet.name}</p>
             <p className="text-xs text-slate-500">{eaglet.nest_name || 'No Nest'}</p>
@@ -86,18 +87,8 @@ const EagletMobileCard = ({ eaglet, delay = 0, onAwardPoints }) => {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {eaglet.avatar ? (
-            <img
-              src={eaglet.avatar}
-              alt={eaglet.name}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400/80 to-emerald-600/80 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              {eaglet.name?.charAt(0) || '?'}
-            </div>
-          )}
+          {/* Phase 32-03 */}
+          <Avatar user={eaglet} name={eaglet.name} size="md" className="ring-2 ring-white shadow-sm" />
           <div>
             <p className="font-semibold text-sm text-slate-900">{eaglet.name}</p>
             <p className="text-xs text-slate-500">{eaglet.nest_name || 'No Nest'}</p>

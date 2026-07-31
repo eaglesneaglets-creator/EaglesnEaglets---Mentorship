@@ -32,7 +32,9 @@ export function useSubmitMentorApplication() {
         mutationFn: () => MentorApplicationService.submitApplication(),
         onSuccess: () => {
             invalidateAll(qc);
-            refreshAccessStatus?.();
+            // force: the record just changed server-side, so this refresh must
+            // not be dropped by the 5s focus throttle.
+            refreshAccessStatus?.({ force: true });
             toast.success('Application submitted — we’ll email you when reviewed');
         },
         onError: (err) =>
@@ -47,7 +49,7 @@ export function useWithdrawMentorApplication() {
         mutationFn: (id) => MentorApplicationService.withdrawApplication(id),
         onSuccess: () => {
             invalidateAll(qc);
-            refreshAccessStatus?.();
+            refreshAccessStatus?.({ force: true });
             toast.success('Application withdrawn');
         },
         onError: (err) =>

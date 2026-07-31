@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAddReply } from '../hooks/useAddReply';
+import Avatar from '@shared/components/ui/Avatar';
 
 /**
  * Renders a single top-level comment with inline reply input and collapsible reply list.
@@ -38,9 +39,8 @@ const CommentBubble = ({ comment, postId, nestId }) => {
   return (
     <div className="flex gap-2.5">
       {/* Avatar */}
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5">
-        {author?.first_name?.[0] || '?'}
-      </div>
+      {/* Phase 32-03 follow-up */}
+      <Avatar user={author} size="sm" className="mt-0.5" />
 
       <div className="flex-1 min-w-0">
         {/* Comment bubble */}
@@ -124,9 +124,8 @@ const CommentBubble = ({ comment, postId, nestId }) => {
                   : '';
                 return (
                   <div key={reply.id} className="flex gap-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-0.5">
-                      {replyAuthor?.first_name?.[0] || '?'}
-                    </div>
+                    {/* Phase 32-03 follow-up */}
+                    <Avatar user={replyAuthor} size="xs" className="mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <div className="bg-slate-50 rounded-2xl rounded-tl-sm px-3 py-2">
                         <p className="text-[11px] font-bold text-slate-900">

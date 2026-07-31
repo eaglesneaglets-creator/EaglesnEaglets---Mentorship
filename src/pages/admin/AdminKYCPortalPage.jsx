@@ -5,6 +5,7 @@ import { adminService } from '../../modules/auth/services/auth-service';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import SectionTabs from '../../shared/components/layout/SectionTabs';
 import { ADMIN_USERS_TABS } from './adminUsersTabs';
+import Avatar from '../../shared/components/ui/Avatar';
 
 /**
  * Stat Card Component
@@ -64,23 +65,17 @@ const KYCApplicationCard = ({ app, onReview, formatDate, getStatusConfig }) => {
   return (
     <div className="p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors">
       <div className="flex items-start gap-3">
-        {/* Avatar */}
-        {app.user_avatar || app.user_profile_picture_url ? (
-          <img
-            src={app.user_avatar || app.user_profile_picture_url}
-            alt={app.user_full_name}
-            className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-sm flex-shrink-0"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
-          />
-        ) : null}
-        <div className={`w-10 h-10 rounded-xl items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0 ${
-          isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
-        }`} style={{ display: (app.user_avatar || app.user_profile_picture_url) ? 'none' : 'flex' }}>
-          {app.user_full_name?.charAt(0) || 'U'}
-        </div>
+        {/* Avatar — Phase 32-03. The previous version paired an <img> with a
+            sibling <div> and swapped their inline `display` from onError, which
+            mutates the DOM behind React's back. <Avatar> holds that in state.
+            KYC rows expose the URL as flat user_-prefixed keys, so `src` is
+            passed explicitly rather than relying on Avatar's user-shape lookup. */}
+        <Avatar
+          src={app.user_avatar || app.user_profile_picture_url}
+          name={app.user_full_name}
+          size="md"
+          className="!rounded-xl ring-2 ring-white shadow-sm"
+        />
 
         {/* Main info */}
         <div className="flex-1 min-w-0">
@@ -139,22 +134,13 @@ const KYCApplicationRow = ({ app, onReview, formatDate, formatTimeAgo, getStatus
     <tr className="group hover:bg-slate-50/80 transition-colors duration-300">
       <td className="px-6 py-4">
         <div className="flex items-center gap-3">
-          {app.user_avatar || app.user_profile_picture_url ? (
-            <img
-              src={app.user_avatar || app.user_profile_picture_url}
-              alt={app.user_full_name}
-              className="w-10 h-10 rounded-xl object-cover ring-2 ring-white shadow-sm flex-shrink-0"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-          ) : null}
-          <div className={`w-10 h-10 rounded-xl items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0 ${
-            isEagle ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
-          }`} style={{ display: (app.user_avatar || app.user_profile_picture_url) ? 'none' : 'flex' }}>
-            {app.user_full_name?.charAt(0) || 'U'}
-          </div>
+          {/* Phase 32-03: see the card variant above — same onError DOM-swap retired. */}
+          <Avatar
+            src={app.user_avatar || app.user_profile_picture_url}
+            name={app.user_full_name}
+            size="md"
+            className="!rounded-xl ring-2 ring-white shadow-lg"
+          />
           <div className="min-w-0">
             <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors text-sm">{app.user_full_name}</p>
             <p className="text-xs text-slate-500 truncate">{app.user_email}</p>

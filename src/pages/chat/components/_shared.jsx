@@ -1,11 +1,27 @@
-export const Avatar = ({ name, isOnline, size = 'md', isNest = false }) => {
-    const initial = name?.charAt(0)?.toUpperCase() || '?';
-    const sizes = { sm: 'w-8 h-8 text-xs', md: 'w-11 h-11 text-sm', lg: 'w-14 h-14 text-lg' };
+import SharedAvatar from '../../../shared/components/ui/Avatar';
+
+/**
+ * Chat avatar. Phase 32-03: the person branch now delegates to the shared
+ * <Avatar>, so a real profile picture shows here instead of a single letter.
+ * Pass `user` (the chat payloads carry `avatar_url` via UserMinimalSerializer);
+ * `name` alone still works and simply falls back to initials.
+ *
+ * The nest branch stays hand-rolled — it is a group icon, not a person, and has
+ * no picture to resolve.
+ */
+export const Avatar = ({ user, name, isOnline, size = 'md', isNest = false }) => {
+    // Chat's sm/md/lg names match the shared scale's, so `size` passes straight
+    // through. Chat's md is w-11 against the shared w-10 — a 4px difference.
+    const nestSizes = { sm: 'w-8 h-8 text-xs', md: 'w-11 h-11 text-sm', lg: 'w-14 h-14 text-lg' };
     return (
         <div className="relative flex-shrink-0">
-            <div className={`${sizes[size]} rounded-full flex items-center justify-center font-bold ${isNest ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' : 'bg-gradient-to-br from-slate-200 to-slate-300 text-slate-600'}`}>
-                {isNest ? <span className="material-symbols-outlined text-base">groups</span> : initial}
-            </div>
+            {isNest ? (
+                <div className={`${nestSizes[size]} rounded-full flex items-center justify-center font-bold bg-gradient-to-br from-emerald-400 to-emerald-600 text-white`}>
+                    <span className="material-symbols-outlined text-base">groups</span>
+                </div>
+            ) : (
+                <SharedAvatar user={user} name={name} size={size} />
+            )}
             {typeof isOnline === 'boolean' && (
                 <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white ${isOnline ? 'bg-emerald-400' : 'bg-slate-300'}`} />
             )}
