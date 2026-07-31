@@ -64,6 +64,32 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let _accessToken = null;
 const REFRESH_TOKEN_KEY = 'ee_refresh_token';
 
+/**
+ * Listeners notified whenever the access token changes.
+ *
+ * Why this exists: HTTP requests read the token from this module at call time,
+ * so they always use the current one. **WebSockets do not** — the token is baked
+ * into the connection URL (`?token=…`) at connect time, because browsers block
+ * cross-site cookies on WS upgrades.
+ *
+ * Before this, a silent refresh updated `_accessToken` here but never the auth
+ * store, whose copy was only ever set once on mount. After ~15 minutes (the
+ * access-token lifetime) any WS reconnect rebuilt its URL from that stale store
+ * value, the server rejected it with 4001, and `useWebSocket` treats 4001 as
+ * terminal — so chat/notifications stayed dead until a full page reload.
+ */
+const _tokenListeners = new Set();
+
+function _notifyTokenChange(token) {
+  for (const listener of _tokenListeners) {
+    try {
+      listener(token);
+    } catch {
+      // A misbehaving listener must never break token refresh.
+    }
+  }
+}
+
 export const tokenManager = {
   getAccessToken: () => _accessToken,
 
@@ -73,6 +99,24 @@ export const tokenManager = {
     } catch {
       return null;
     }
+  },
+
+  /**
+   * Subscribe to access-token changes.
+   *
+   * The auth store registers here so `store.accessToken` tracks the *current*
+   * token rather than whatever was present at page load. That matters because
+   * WebSocket URLs embed `?token=` — see the note on `_notifyTokenChange`.
+   *
+   * A callback (rather than importing the store here) keeps the dependency
+   * one-directional: `auth-store` imports `@api`, so `@api` must never import
+   * `auth-store` back.
+   *
+   * @returns {() => void} unsubscribe
+   */
+  onTokenChange: (listener) => {
+    _tokenListeners.add(listener);
+    return () => _tokenListeners.delete(listener);
   },
 
   /**
@@ -90,6 +134,9 @@ export const tokenManager = {
         // localStorage unavailable (private browsing, quota, etc.)
       }
     }
+    if (accessToken) {
+      _notifyTokenChange(accessToken);
+    }
   },
 
   clearTokens: () => {
@@ -99,6 +146,7 @@ export const tokenManager = {
     } catch {
       // ignore
     }
+    _notifyTokenChange(null);
   },
 
   isAuthenticated: () => !!_accessToken,
