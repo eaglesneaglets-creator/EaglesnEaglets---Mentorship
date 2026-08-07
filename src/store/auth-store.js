@@ -135,16 +135,14 @@ export const useAuthStore = create(
           try {
             const response = await authService.login(email, password);
 
-            // Capture both tokens. Refresh goes to localStorage (temporary
-            // cross-origin fallback) AND is also set as an httpOnly cookie
-            // by the BE — see api/index.js tokenManager note.
+            // The short-lived access token stays in memory. The refresh token
+            // is delivered only as an httpOnly cookie.
             const data = response.data || response;
             const user = data.user || data;
             const accessToken = data.access || null;
-            const refreshToken = data.refresh || null;
 
             if (accessToken) {
-              tokenManager.setTokens(accessToken, refreshToken);
+              tokenManager.setTokens(accessToken);
             }
 
             // Resolve role-switcher mode at login time. Stacked admins
@@ -483,11 +481,9 @@ export const useAuthStore = create(
         /**
          * Set auth state directly (used for OAuth callbacks)
          */
-        setAuth: ({ accessToken, refreshToken, user }) => {
-          // Capture both tokens — refresh goes to localStorage (cross-origin
-          // fallback) and is also set as an httpOnly cookie by the BE.
+        setAuth: ({ accessToken, user }) => {
           if (accessToken) {
-            tokenManager.setTokens(accessToken, refreshToken || null);
+            tokenManager.setTokens(accessToken);
           }
           set({
             user,

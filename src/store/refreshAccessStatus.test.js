@@ -26,7 +26,6 @@ vi.mock('@api', () => ({
   tokenManager: {
     setTokens: vi.fn(),
     clearTokens: vi.fn(),
-    getRefreshToken: vi.fn(() => null),
   },
 }));
 

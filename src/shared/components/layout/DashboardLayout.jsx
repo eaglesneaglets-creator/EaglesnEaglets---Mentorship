@@ -188,7 +188,7 @@ const DashboardLayout = ({
   const notifRef = useRef(null);
 
   // Rehydrate access token on page refresh.
-  // The refresh token is read from localStorage and sent in the body.
+  // The browser sends the httpOnly refresh cookie.
   // This MUST run before any authenticated React Query hooks fire.
   const { accessToken, setAccessToken } = useAuthStore();
   const [tokenReady, setTokenReady] = useState(!!accessToken);

@@ -244,7 +244,7 @@ const ResourceCenterPage = () => {
             // Security: validate URL to prevent open redirect attacks
             const safeUrl = validateRedirectUrl(item.file_url);
             if (safeUrl) {
-                window.open(safeUrl, '_blank');
+                window.open(safeUrl, '_blank', 'noopener,noreferrer');
             }
         } else {
             navigate(`${contentBase}/${moduleId}`);

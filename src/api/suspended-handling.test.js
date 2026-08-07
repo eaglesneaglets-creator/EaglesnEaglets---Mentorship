@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { apiClient } from './index';
+import { apiClient, tokenManager } from './index';
 
 /**
  * Phase 26-01b — a 403 + error_code 'account_suspended' must tear the session
@@ -36,7 +36,12 @@ describe('apiClient account-suspension handling', () => {
       events.push(e);
       return true;
     });
-    fetchSpy = vi.fn(() => Promise.resolve({ ok: true }));
+    tokenManager.clearTokens();
+    fetchSpy = vi.fn((url) => Promise.resolve(
+      url.includes('/auth/csrf/')
+        ? { ok: true, json: async () => ({ csrf_token: 'test-csrf-token' }) }
+        : { ok: true },
+    ));
     globalThis.fetch = fetchSpy;
     // window.location.replace is not implementable in jsdom — stub the whole object.
     replaceSpy = vi.fn();
@@ -73,15 +78,20 @@ describe('apiClient account-suspension handling', () => {
     ).rejects.toMatchObject({ status: 403 });
     await flush();
 
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-    const [url, opts] = fetchSpy.mock.calls[0];
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    const [url, opts] = fetchSpy.mock.calls.find(([requestUrl]) => requestUrl.includes('/auth/logout/'));
     expect(url).toContain('/auth/logout/');
     expect(opts.method).toBe('POST');
     expect(opts.credentials).toBe('include');
+    expect(opts.headers['X-CSRFToken']).toBe('test-csrf-token');
   });
 
   it('still redirects when the logout call fails (never strands the user)', async () => {
-    globalThis.fetch = vi.fn(() => Promise.reject(new Error('offline')));
+    globalThis.fetch = vi.fn((url) => (
+      url.includes('/auth/csrf/')
+        ? Promise.resolve({ ok: true, json: async () => ({ csrf_token: 'test-csrf-token' }) })
+        : Promise.reject(new Error('offline'))
+    ));
 
     await expect(
       apiClient.handleResponse(jsonResponse(403, suspendedBody)),

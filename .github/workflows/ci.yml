@@ -35,6 +35,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test
+        run: npm test -- --run
+
       - name: Build
         env:
           VITE_API_URL: https://placeholder-ci-build.example.com/api/v1
