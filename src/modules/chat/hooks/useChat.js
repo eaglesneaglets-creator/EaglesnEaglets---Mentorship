@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import ChatService from '../services/chat-service';
@@ -89,6 +89,21 @@ export const useMarkRead = () => {
             queryClient.invalidateQueries({ queryKey: chatKeys.conversations() });
         },
     });
+};
+
+/**
+ * Mark a conversation read once when it becomes active.
+ *
+ * React Query's mutation result object changes as its status changes, so it
+ * must not be used as an effect dependency. The mutate function itself is
+ * stable and prevents a successful mutation from triggering another request.
+ */
+export const useMarkActiveConversationRead = (conversationId) => {
+    const { mutate } = useMarkRead();
+
+    useEffect(() => {
+        if (conversationId) mutate(conversationId);
+    }, [conversationId, mutate]);
 };
 
 // --- WebSocket Hook ---

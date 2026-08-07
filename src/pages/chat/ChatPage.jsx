@@ -6,7 +6,7 @@ import {
     useConversations,
     useMessages,
     useChatSocket,
-    useMarkRead,
+    useMarkActiveConversationRead,
     useCreateDM,
 } from '../../modules/chat/hooks/useChat';
 import { ConnectionBadge, ConversationSkeleton } from './components/_shared';
@@ -47,18 +47,12 @@ const ChatPage = () => {
     const messages = useMemo(() => msgsData?.messages ?? [], [msgsData?.messages]);
     const hasMoreMessages = msgsData?.hasMore ?? false;
     const { status: wsStatus, sendMessage } = useChatSocket(activeConversation?.id);
-    const markReadMutation = useMarkRead();
+    useMarkActiveConversationRead(activeConversation?.id);
     const createDMMutation = useCreateDM();
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
-
-    useEffect(() => {
-        if (activeConversation?.id) {
-            markReadMutation.mutate(activeConversation.id);
-        }
-    }, [activeConversation?.id, markReadMutation]);
 
     const filteredConversations = useMemo(() => {
         if (!searchQuery.trim()) return conversations;
