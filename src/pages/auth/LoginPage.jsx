@@ -6,7 +6,7 @@ import { Alert } from '@components/ui';
 import { authService } from '../../modules/auth/services/auth-service';
 import { logger } from '../../shared/utils/logger';
 import { loginSchema } from '../../modules/auth/schemas/register-schema';
-import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+import Logo from '../../assets/brand-wordmark.webp';
 // Brand-themed login illustration (Storyset "Personal Goals" recoloured to
 // emerald) — visual rhymes with the "Soar to New Heights" tagline below.
 import loginIllustration from '../../assets/LoginSVG.svg';

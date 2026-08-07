@@ -10,7 +10,7 @@ import { adminService } from '../../../modules/auth/services/auth-service';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, useNotificationSocket } from '../../../modules/notifications/hooks/useNotifications';
 import { resolveNotificationUrl } from '../../../modules/notifications/utils/resolve-notification-url';
 import { useTotalUnread } from '../../../modules/chat/hooks/useChat';
-import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
+const Logo = '/logo.webp';
 
 import { formatRelativeTime } from '../../../shared/utils';
 import Avatar from '../ui/Avatar';

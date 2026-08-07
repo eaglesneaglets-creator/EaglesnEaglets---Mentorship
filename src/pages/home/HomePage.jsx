@@ -56,17 +56,12 @@ const HeroSection = () => {
                     </motion.span>
 
                     <div className="max-w-3xl">
-                        <motion.h1
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.75, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95] tracking-tight text-white mb-4 sm:mb-6"
-                        >
+                        <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.95] tracking-tight text-white mb-4 sm:mb-6">
                             Empowering the{' '}
                             <span className="text-primary drop-shadow-[0_0_30px_rgba(34,197,94,0.5)]">Next</span>
                             <br />
                             <span className="text-primary drop-shadow-[0_0_30px_rgba(34,197,94,0.5)]">Generation</span>
-                        </motion.h1>
+                        </h1>
 
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}

@@ -2,15 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 
 /**
- * usePayment — Paystack readiness (P3, 2026-07-31).
+ * usePayment — on-demand Paystack loading.
  *
- * The CDN script in index.html gained `defer` so it stops blocking HTML parsing
- * on every page. That makes `window.PaystackPop` arrive slightly later, so the
- * hook must WAIT for it rather than failing the first click and telling the user
- * to refresh — which previously threw away a payment over a few hundred ms.
- *
- * These tests pin both directions: it must wait when the script is in flight,
- * and it must still give up (with a usable message) if the CDN never responds.
+ * The CDN script is injected only when checkout begins, keeping Paystack's
+ * iframe and analytics requests off routes that never accept a payment.
  */
 
 const mockNavigate = vi.fn();
@@ -42,6 +37,7 @@ beforeEach(() => {
 
 afterEach(() => {
   delete window.PaystackPop;
+  document.querySelector('script[data-paystack-inline]')?.remove();
   vi.useRealTimers();
 });
 
@@ -58,18 +54,19 @@ describe('usePayment — Paystack readiness', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('waits for a still-loading script instead of failing the click', async () => {
-    // The regression this guards: with `defer`, a fast click can land before the
-    // CDN script has executed. The old code errored out on the spot.
+  it('loads the Paystack script on demand before opening the popup', async () => {
     const fake = fakePaystack();
     const { result } = renderHook(() => usePayment(ORDER));
 
     let payment;
     act(() => { payment = result.current.startPayment(); });
 
-    // Script arrives ~250ms after the click.
-    await new Promise((r) => setTimeout(r, 250));
+    const script = document.querySelector('script[data-paystack-inline]');
+    expect(script).not.toBeNull();
+    expect(script.src).toBe('https://js.paystack.co/v1/inline.js');
+
     window.PaystackPop = fake.global;
+    script.dispatchEvent(new Event('load'));
 
     await act(async () => { await payment; });
 
@@ -77,19 +74,21 @@ describe('usePayment — Paystack readiness', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('surfaces a usable error if the script never loads', async () => {
+  it('surfaces a usable error if the script fails to load', async () => {
     const { result } = renderHook(() => usePayment(ORDER));
 
-    // Short timeout so the test doesn't sit for the full 8s production budget.
-    await act(async () => { await result.current.startPayment(); });
+    let payment;
+    act(() => { payment = result.current.startPayment(); });
+    document.querySelector('script[data-paystack-inline]').dispatchEvent(new Event('error'));
+    await act(async () => { await payment; });
 
-    await waitFor(() => expect(result.current.error).toBeTruthy(), { timeout: 10000 });
+    await waitFor(() => expect(result.current.error).toBeTruthy());
     expect(result.current.error).toMatch(/could not be loaded/i);
     // Must not tell the user to refresh — the old message did, and it lost sales.
     expect(result.current.error).not.toMatch(/refresh/i);
     expect(result.current.isInitializing).toBe(false);
     expect(mockInitializePayment).not.toHaveBeenCalled();
-  }, 15000);
+  });
 
   it('does not charge before the backend returns a reference', async () => {
     const fake = fakePaystack();

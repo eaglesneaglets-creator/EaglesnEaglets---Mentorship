@@ -86,33 +86,19 @@ export default defineConfig(({ mode }) => {
       },
       rollupOptions: {
         output: {
+          // Prevent Rollup from moving shared helpers into an interaction-only
+          // manual chunk. Without this, vendor imported emoji and forced the
+          // 110 kB gzip picker onto every route despite its dynamic import.
+          onlyExplicitManualChunks: true,
           // Function form is reliable in Vite 7 — matches on actual module file paths
           manualChunks(id) {
             if (!id.includes('node_modules')) return;
 
-            // React core — was producing empty vendor chunk with object form
-            if (id.includes('/react-dom/') || id.includes('/react/') && !id.includes('react-router') && !id.includes('react-hook-form')) {
-              return 'vendor';
-            }
-            if (id.includes('/react-router') || id.includes('/react-router-dom/')) return 'router';
-
             // Emoji picker — emoji-mart "native" entry was producing a 432 kB unnamed chunk
             if (id.includes('/emoji-mart/') || id.includes('/@emoji-mart/')) return 'emoji';
 
-            // Charts
-            if (id.includes('/recharts/') || id.includes('/d3-') || id.includes('/victory-')) return 'charts';
-
-            // State management
-            if (id.includes('/zustand/') || id.includes('/@tanstack/')) return 'state';
-
-            // UI / animation
-            if (id.includes('/framer-motion/') || id.includes('/lucide-react/')) return 'ui';
-
-            // Rich text editor (Tiptap)
-            if (id.includes('/@tiptap/') || id.includes('/prosemirror-')) return 'editor';
-
-            // Validation
-            if (id.includes('/zod/')) return 'zod';
+            // Rollup handles every statically reachable shared dependency. Named
+            // React/router/state chunks form cycles with only-explicit chunking.
           },
         },
         treeshake: {

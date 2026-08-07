@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import Logo from '../../../assets/EaglesnEagletsLogo.jpeg';
+import Logo from '../../../assets/brand-wordmark.webp';
 
 const AuthFormShell = ({ headerAction, children, cardClassName = '' }) => (
   <div className="min-h-screen bg-background">

@@ -4,7 +4,7 @@ import { useAuthStore } from '@store';
 import { authService } from '../../modules/auth/services/auth-service';
 import { getKYCRedirectPath } from '../../shared/utils/getKYCRedirectPath';
 import { logger } from '../../shared/utils/logger';
-import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+import Logo from '../../assets/brand-wordmark.webp';
 
 /**
  * GoogleCallbackPage Component

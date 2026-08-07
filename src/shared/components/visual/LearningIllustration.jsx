@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import aboutIllustration from '../../../assets/about-illustration.png';
+import aboutIllustration640 from '../../../assets/about-illustration-640.webp';
 
 /**
  * Students-learning hero artwork with gentle motion and orbiting accent glyphs.
@@ -15,11 +15,14 @@ const LearningIllustration = () => (
         />
 
         <motion.img
-            src={aboutIllustration}
+            src={aboutIllustration640}
             alt="Diverse youth learning together"
+            width="640"
+            height="640"
             className="relative w-full h-full object-cover"
-            loading="eager"
+            loading="lazy"
             decoding="async"
+            fetchPriority="low"
             animate={{ y: [0, -6, 0], scale: [1, 1.012, 1] }}
             transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         />

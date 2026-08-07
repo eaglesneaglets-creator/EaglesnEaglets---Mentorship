@@ -4,7 +4,7 @@ import { useAuthStore } from '@store';
 import { profileService } from '../../modules/profile/services/profile-service';
 import { Button, Alert } from '@components/ui';
 import { logger } from '../../shared/utils/logger';
-import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+import Logo from '../../assets/brand-wordmark.webp';
 import Avatar from '../../shared/components/ui/Avatar';
 
 /**

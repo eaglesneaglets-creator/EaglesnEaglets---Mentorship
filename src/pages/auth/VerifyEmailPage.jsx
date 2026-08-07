@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Button, Alert } from '@components/ui';
 import { authService } from '../../modules/auth/services/auth-service';
-import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+import Logo from '../../assets/brand-wordmark.webp';
 
 // After a successful verify we no longer dead-end at a button — we briefly show
 // the confirmation, then push the user straight to /login with a success

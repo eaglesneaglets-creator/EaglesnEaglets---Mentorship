@@ -5,7 +5,8 @@ import PublicNavbar from '@shared/components/layout/PublicNavbar';
 import PublicFooter from '@shared/components/layout/PublicFooter';
 import FadeIn from '@shared/components/motion/FadeIn';
 import LearningIllustration from '@shared/components/visual/LearningIllustration';
-import storyPic from '../../assets/Story Pic.jpeg';
+import storyPic640 from '../../assets/story-pic-640.webp';
+import storyPic960 from '../../assets/story-pic-960.webp';
 
 /* ═══════════════════════════════════════════════
    HERO — text left, photo right with floating badge
@@ -80,8 +81,12 @@ const OurStorySection = () => {
                         <div className="lg:sticky lg:top-24 max-w-md mx-auto lg:mx-0">
                             <div className="rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-200 shadow-lg shadow-slate-200/50 aspect-[4/5]">
                                 <img
-                                    src={storyPic}
+                                    src={storyPic960}
+                                    srcSet={`${storyPic640} 640w, ${storyPic960} 960w`}
+                                    sizes="(max-width: 1023px) min(100vw - 32px, 448px), 448px"
                                     alt="Mr. Richard Densu, founder of Eagles & Eaglets"
+                                    width="960"
+                                    height="1441"
                                     className="w-full h-full object-cover object-top"
                                     loading="lazy"
                                     decoding="async"
