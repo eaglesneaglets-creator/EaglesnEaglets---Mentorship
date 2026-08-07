@@ -10,7 +10,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import logoImg from '../../../assets/EaglesnEagletsLogo.jpeg';
+const logoImg = '/logo.webp';
 
 // Social link hrefs — placeholders until real URLs are provided
 const SOCIAL_LINKS = {

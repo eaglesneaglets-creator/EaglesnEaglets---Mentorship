@@ -16,30 +16,64 @@ import StoreService from '../services/store-service';
  * used to display the correct figure in the Paystack popup.
  */
 /**
- * Resolve once window.PaystackPop exists, or reject after `timeoutMs`.
- *
- * The CDN script is `defer`red, so it is normally ready long before anyone can
- * reach a Pay button. This covers the slow-network tail: previously the very
- * first click in that window failed outright and told the user to refresh, which
- * threw away a payment for what is usually a few hundred milliseconds of waiting.
+ * Load Paystack only when checkout begins. Keeping this third-party script out
+ * of index.html prevents its iframe, styles, and analytics requests from running
+ * on every public and authenticated route.
  */
-function waitForPaystack(timeoutMs = 8000) {
-    if (window.PaystackPop) return Promise.resolve(window.PaystackPop);
+const PAYSTACK_SCRIPT_SRC = 'https://js.paystack.co/v1/inline.js';
+let paystackLoadPromise = null;
 
-    return new Promise((resolve, reject) => {
-        const startedAt = Date.now();
-        const poll = setInterval(() => {
+export function loadPaystack(timeoutMs = 8000) {
+    if (window.PaystackPop) return Promise.resolve(window.PaystackPop);
+    if (paystackLoadPromise) return paystackLoadPromise;
+
+    paystackLoadPromise = new Promise((resolve, reject) => {
+        let script = document.querySelector(`script[src="${PAYSTACK_SCRIPT_SRC}"]`);
+        const timeout = window.setTimeout(() => {
+            reject(new Error(
+                'Payment system could not be loaded. Please check your connection and try again.'
+            ));
+        }, timeoutMs);
+
+        const finish = (callback) => {
+            window.clearTimeout(timeout);
+            script?.removeEventListener('load', onLoad);
+            script?.removeEventListener('error', onError);
+            callback();
+        };
+
+        const onLoad = () => finish(() => {
             if (window.PaystackPop) {
-                clearInterval(poll);
                 resolve(window.PaystackPop);
-            } else if (Date.now() - startedAt > timeoutMs) {
-                clearInterval(poll);
+            } else {
                 reject(new Error(
                     'Payment system could not be loaded. Please check your connection and try again.'
                 ));
             }
-        }, 100);
+        });
+        const onError = () => finish(() => {
+            script?.remove();
+            reject(new Error(
+                'Payment system could not be loaded. Please check your connection and try again.'
+            ));
+        });
+
+        const shouldAppend = !script;
+        if (shouldAppend) {
+            script = document.createElement('script');
+            script.src = PAYSTACK_SCRIPT_SRC;
+            script.async = true;
+            script.dataset.paystackInline = 'true';
+        }
+
+        script.addEventListener('load', onLoad, { once: true });
+        script.addEventListener('error', onError, { once: true });
+        if (shouldAppend) document.head.appendChild(script);
+    }).finally(() => {
+        paystackLoadPromise = null;
     });
+
+    return paystackLoadPromise;
 }
 
 export function usePayment(order) {
@@ -52,7 +86,7 @@ export function usePayment(order) {
         setError(null);
 
         try {
-            await waitForPaystack();
+            await loadPaystack();
         } catch (err) {
             setError(err.message);
             setIsInitializing(false);

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import logoJpeg from '../../../assets/EaglesnEagletsLogo.jpeg';
+const logoMark = '/logo.webp';
 
 /**
  * BrandLogo — single source for the platform mark.
@@ -13,13 +13,13 @@ import logoJpeg from '../../../assets/EaglesnEagletsLogo.jpeg';
  */
 const BrandLogo = ({ className = '', width = 56, height = 56, alt = 'Eagles & Eaglets' }) => (
   <img
-    src={logoJpeg}
+    src={logoMark}
     alt={alt}
     width={width}
     height={height}
     loading="eager"
     decoding="async"
-    fetchpriority="high"
+    fetchPriority="high"
     className={className}
   />
 );

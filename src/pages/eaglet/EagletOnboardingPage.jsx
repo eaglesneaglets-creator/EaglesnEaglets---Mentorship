@@ -13,7 +13,7 @@ import {
   MENTOR_EXPERTISE,
 } from '../../modules/auth/schemas/eaglet-schema';
 import { Button, Select, Checkbox, Textarea, Alert } from '@components/ui';
-import Logo from '../../assets/EaglesnEagletsLogo.jpeg';
+import Logo from '../../assets/brand-wordmark.webp';
 
 /**
  * EagletOnboardingPage Component

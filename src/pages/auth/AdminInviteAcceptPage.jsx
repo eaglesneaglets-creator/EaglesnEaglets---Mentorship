@@ -23,7 +23,7 @@ import { useEffect, useReducer } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '@store';
 import { useAcceptInvite } from '@modules/admin-role/hooks/useAdminRole';
-import Logo from '@/assets/EaglesnEagletsLogo.jpeg';
+import Logo from '@/assets/brand-wordmark.webp';
 
 // Module-scoped — persists across all mounts of this page within the
 // current SPA session. Maps token -> { status, code? } so we never

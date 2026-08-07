@@ -1,6 +1,4 @@
-import logoImg from '../../../assets/EaglesnEagletsLogo.jpeg';
-
-export { logoImg };
+export const logoImg = '/logo.webp';
 
 export const PUBLIC_NAV_LINKS = [
   { label: 'Home', path: '/', icon: 'home' },
