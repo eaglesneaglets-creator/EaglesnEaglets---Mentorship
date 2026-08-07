@@ -180,7 +180,7 @@ const SessionCard = ({ title, date, link, isUpcoming = false }) => {
         <h4 className="font-bold text-sm text-slate-900">{title}</h4>
         <p className="text-xs text-slate-500 mb-2">{time}</p>
         {link && (
-          <a href={link} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
+          <a href={link} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
             <span className="material-symbols-outlined text-[12px]">link</span>
             Join Session
           </a>

@@ -125,7 +125,7 @@ function EligibleFormView({ rejected, cooldownUntil, onSubmit, submitting }) {
                     <Link
                         to="/mentor-code-of-conduct"
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="text-primary font-semibold hover:underline"
                     >
                         Mentor Code of Conduct ↗

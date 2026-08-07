@@ -10,7 +10,6 @@ vi.mock('@api', () => ({
   tokenManager: {
     setTokens: vi.fn(),
     clearTokens: vi.fn(),
-    getRefreshToken: vi.fn(() => null),
   },
 }));
 
@@ -92,11 +91,9 @@ describe('useAuthStore — synchronous actions', () => {
     const user = { id: '1', name: 'Test User', role: 'eagle' };
     // Use mock tokens that clearly indicate they're test values
     const mockAccessToken = 'mock_access_token_for_testing_only';
-    const mockRefreshToken = 'mock_refresh_token_for_testing_only';
 
     useAuthStore.getState().setAuth({
       accessToken: mockAccessToken,
-      refreshToken: mockRefreshToken,
       user,
     });
 
@@ -106,8 +103,6 @@ describe('useAuthStore — synchronous actions', () => {
     expect(state.accessToken).toBe(mockAccessToken);
     expect(state.isLoading).toBe(false);
     expect(state.error).toBeNull();
-    // Both tokens captured — refresh goes to localStorage (cross-origin
-    // fallback) in addition to the HttpOnly cookie the BE sets.
-    expect(tokenManager.setTokens).toHaveBeenCalledWith(mockAccessToken, mockRefreshToken);
+    expect(tokenManager.setTokens).toHaveBeenCalledWith(mockAccessToken);
   });
 });

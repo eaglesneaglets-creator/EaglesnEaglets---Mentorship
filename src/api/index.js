@@ -45,24 +45,42 @@ class ApiError extends Error {
  */
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/**
- * Token storage — temporary cross-origin localStorage model.
- *
- *  - ACCESS token lives in a module-level variable (in-memory only).
- *  - REFRESH token is stored in localStorage AND set as an httpOnly cookie
- *    by the backend. Whichever the browser accepts wins:
- *      * Same-origin (future): the cookie attaches automatically; localStorage
- *        becomes redundant.
- *      * Cross-origin (today, FE on Vercel + BE on Railway): the cookie is
- *        third-party and silently blocked, so the FE falls back to sending
- *        the localStorage value in the refresh body.
- *
- * SECURITY TRADE-OFF: localStorage is readable by XSS. The mitigation
- * is to flip back to cookie-only once the platform has a single parent
- * domain — see notes in apps/users/views/auth.py (P0 #1).
- */
+/** Access tokens live in memory; refresh tokens are cookie-only. */
 let _accessToken = null;
-const REFRESH_TOKEN_KEY = 'ee_refresh_token';
+let _csrfToken = null;
+let _csrfPromise = null;
+
+// Remove refresh credentials persisted by older frontend releases. This is a
+// one-way migration: current code never writes refresh tokens to Web Storage.
+try {
+  localStorage.removeItem('ee_refresh_token');
+} catch {
+  // Storage can be unavailable in privacy-restricted browser contexts.
+}
+
+const getCsrfToken = async () => {
+  if (_csrfToken) return _csrfToken;
+  if (_csrfPromise) return _csrfPromise;
+
+  _csrfPromise = fetch(`${API_BASE_URL}/auth/csrf/`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new ApiError('Unable to initialize request security.', response.status, 'csrf_init_failed');
+      }
+      const data = await response.json();
+      _csrfToken = data.csrf_token;
+      return _csrfToken;
+    })
+    .finally(() => {
+      _csrfPromise = null;
+    });
+
+  return _csrfPromise;
+};
 
 /**
  * Listeners notified whenever the access token changes.
@@ -93,14 +111,6 @@ function _notifyTokenChange(token) {
 export const tokenManager = {
   getAccessToken: () => _accessToken,
 
-  getRefreshToken: () => {
-    try {
-      return localStorage.getItem(REFRESH_TOKEN_KEY);
-    } catch {
-      return null;
-    }
-  },
-
   /**
    * Subscribe to access-token changes.
    *
@@ -119,20 +129,10 @@ export const tokenManager = {
     return () => _tokenListeners.delete(listener);
   },
 
-  /**
-   * Set the in-memory access token and, if provided, persist the refresh
-   * token to localStorage so it survives page refresh.
-   */
-  setTokens: (accessToken, refreshToken) => {
+  /** Set the short-lived access token in memory only. */
+  setTokens: (accessToken) => {
     if (accessToken) {
       _accessToken = accessToken;
-    }
-    if (refreshToken) {
-      try {
-        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-      } catch {
-        // localStorage unavailable (private browsing, quota, etc.)
-      }
     }
     if (accessToken) {
       _notifyTokenChange(accessToken);
@@ -141,11 +141,7 @@ export const tokenManager = {
 
   clearTokens: () => {
     _accessToken = null;
-    try {
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-    } catch {
-      // ignore
-    }
+    _csrfToken = null;
     _notifyTokenChange(null);
   },
 
@@ -153,11 +149,7 @@ export const tokenManager = {
 };
 
 /**
- * Refresh access token — sends the localStorage refresh value in the body
- * AND lets the browser attach the httpOnly cookie (if it survives the
- * cross-origin trip). Backend reads either source, rotates the token,
- * sets a new cookie, AND returns the rotated refresh in JSON so we can
- * keep localStorage in sync.
+ * Refresh the access token using the cookie-only refresh credential.
  *
  * Guests with no credentials throw no_refresh_token (no network call).
  * A 401 from the refresh endpoint means the session expired — clear local
@@ -187,25 +179,19 @@ export const refreshAccessToken = async () => {
   if (_refreshPromise) return _refreshPromise;
 
   _refreshPromise = (async () => {
-    // Cookie-primary: the httpOnly refresh cookie is the source of truth and is
-    // attached automatically via credentials:'include'. The localStorage value
-    // is a dormant fallback for cross-origin edge cases (Safari ITP, proxies) —
-    // we send it in the body when present, but its ABSENCE must NOT block the
-    // refresh when a session likely exists (in-memory access or persisted login).
-    // Guests with none of those signals skip the network call so handleTokenRefresh
-    // can throw no_refresh_token instead of session_expired (no spurious logout).
-    const refreshToken = tokenManager.getRefreshToken();
     const accessToken = tokenManager.getAccessToken();
 
-    if (!refreshToken && !accessToken && !hasPersistedAuthSession()) {
+    if (!accessToken && !hasPersistedAuthSession()) {
       throw new ApiError('No refresh token available.', 401, 'no_refresh_token');
     }
 
+    const csrfToken = await getCsrfToken();
+
     const response = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',  // attaches the httpOnly refresh cookie (primary)
-      body: JSON.stringify(refreshToken ? { refresh: refreshToken } : {}),
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      credentials: 'include',
+      body: JSON.stringify({}),
     });
 
     if (!response.ok) {
@@ -215,10 +201,8 @@ export const refreshAccessToken = async () => {
 
     const data = await response.json();
     const newAccess = data.access || null;
-    const newRefresh = data.refresh || null;
-
     if (newAccess) {
-      tokenManager.setTokens(newAccess, newRefresh);
+      tokenManager.setTokens(newAccess);
     }
 
     return newAccess;
@@ -254,6 +238,11 @@ export const apiClient = {
       'Content-Type': 'application/json',
       ...options.headers,
     };
+
+    const method = (fetchOptions.method || 'GET').toUpperCase();
+    if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method)) {
+      headers['X-CSRFToken'] = await getCsrfToken();
+    }
 
     // Add authorization header
     if (!skipAuth) {
@@ -310,14 +299,16 @@ export const apiClient = {
         clearTimeout(timeoutId);
         lastError = error;
 
-        // Don't retry on client errors (4xx) except 408 (timeout) and 429 (rate limit)
+        // Don't retry client errors. A 429 explicitly tells the client to stop;
+        // retrying here consumes more of the same throttle bucket before the
+        // caller has a chance to surface the Retry-After guidance.
+        // 408 remains retryable because it represents a transient timeout.
         // Also don't retry if it's a known auth error or 404
         if (
           (error instanceof ApiError &&
             error.status >= 400 &&
             error.status < 500 &&
-            error.status !== 408 &&
-            error.status !== 429) ||
+            error.status !== 408) ||
           [401, 403, 404].includes(error.status)
         ) {
           throw error;
@@ -462,6 +453,24 @@ export const apiClient = {
         this.handleAccountSuspended();
       }
 
+      // 429: rewrite DRF's developer-facing text ("Request was throttled.
+      // Expected available in 10 seconds.") into something a member can act on.
+      // Callers still get a normal rejected promise — React Query is configured
+      // not to retry 429 — so the UI keeps whatever data it already had rather
+      // than blanking the route.
+      if (response.status === 429) {
+        const retryAfter = Number(response.headers.get('retry-after'));
+        const wait = Number.isFinite(retryAfter) && retryAfter > 0
+          ? ` Try again in ${retryAfter} second${retryAfter === 1 ? '' : 's'}.`
+          : ' Please try again shortly.';
+        throw new ApiError(
+          `You're going a bit fast for us.${wait}`,
+          429,
+          errorCode,
+          errorDetails,
+        );
+      }
+
       throw new ApiError(errorMessage, response.status, errorCode, errorDetails);
     }
 
@@ -501,11 +510,12 @@ export const apiClient = {
 
     // Server-side cookie deletion, then redirect either way — a failed logout
     // must not strand the user on a broken page.
-    fetch(`${this.baseURL}/auth/logout/`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-    })
+    getCsrfToken()
+      .then((csrfToken) => fetch(`${this.baseURL}/auth/logout/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      }))
       .catch(() => { /* offline / network error — still tear down locally */ })
       .finally(finish);
   },
@@ -550,7 +560,8 @@ export const apiClient = {
   async upload(endpoint, formData, options = {}) {
     const makeUploadRequest = async () => {
       const token = tokenManager.getAccessToken();
-      const headers = {};
+      const csrfToken = await getCsrfToken();
+      const headers = { 'X-CSRFToken': csrfToken, ...options.headers };
 
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -558,11 +569,11 @@ export const apiClient = {
 
       // Don't set Content-Type - let browser set it with boundary
       const response = await fetch(`${this.baseURL}${endpoint}`, {
+        ...options,
         method: 'POST',
         headers,
         body: formData,
         credentials: 'include',  // sends httpOnly auth cookies on every upload
-        ...options,
       });
 
       return response;

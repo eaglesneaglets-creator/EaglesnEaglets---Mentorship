@@ -73,7 +73,7 @@ const GradingModal = ({ submission, onClose, onGrade, isSubmitting }) => {
                             <a
                                 href={stripCloudinarySignature(submission.file_url)}
                                 target="_blank"
-                                rel="noreferrer"
+                                rel="noopener noreferrer"
                                 className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/10 rounded-2xl text-primary hover:bg-primary/10 transition-all group"
                             >
                                 <span className="material-symbols-outlined">description</span>

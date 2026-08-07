@@ -13,6 +13,15 @@ const chatKeys = {
     contacts: () => [...chatKeys.all, 'contacts'],
 };
 
+export const selectMessages = (data) => {
+    const pages = data?.pages ?? [];
+    return {
+        // Pages arrive newest-first; the thread renders chronologically.
+        messages: pages.slice().reverse().flatMap((page) => page?.data ?? []),
+        hasMore: (pages.at(-1)?.data?.length ?? 0) >= 50,
+    };
+};
+
 // --- REST Hooks ---
 
 export const useConversations = ({ enabled = true } = {}) =>
@@ -51,11 +60,9 @@ export const useMessages = (conversationId, { enabled = true } = {}) =>
             const msgs = lastPage?.data ?? [];
             return msgs.length >= 50 ? (msgs[0]?.id ?? undefined) : undefined;
         },
-        select: (data) => ({
-            // Reverse so oldest page renders first (chronological order)
-            messages: data.pages.slice().reverse().flatMap((p) => p?.data ?? []),
-            hasMore: (data.pages.at(-1)?.data?.length ?? 0) >= 50,
-        }),
+        // Hydration or a manual cache update can expose an incomplete cache
+        // shape; keep render-time selection safe and predictable.
+        select: selectMessages,
         enabled: !!conversationId && enabled,
         staleTime: 0, // always fresh — WS keeps it updated
     });

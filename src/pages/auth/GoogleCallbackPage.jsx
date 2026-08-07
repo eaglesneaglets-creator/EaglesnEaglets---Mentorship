@@ -50,13 +50,11 @@ const GoogleCallbackPage = () => {
         const response = await authService.googleCallback(code, state || '');
 
         if (response.success) {
-          const { access, refresh, user } = response.data;
+          const { access, user } = response.data;
 
-          // Store auth data — setAuth puts the access token in memory
-          // and the refresh token in localStorage via tokenManager.
+          // Store the short-lived access token in memory. Refresh is cookie-only.
           setAuth({
             accessToken: access,
-            refreshToken: refresh || null,
             user,
           });
 
