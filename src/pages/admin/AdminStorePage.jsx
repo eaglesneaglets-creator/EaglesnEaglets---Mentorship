@@ -11,6 +11,7 @@ const STORE_TABS = [
 ];
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from '../../modules/store/hooks/useStore';
 import AdminProductForm from '../../modules/store/components/AdminProductForm';
+import LoadError from '../../shared/components/ui/LoadError';
 
 const AdminStorePage = () => {
     const { user } = useAuthStore();
@@ -185,14 +186,7 @@ const AdminStorePage = () => {
                     {isLoading ? (
                         <div className="p-8 text-center text-slate-400">Loading products...</div>
                     ) : error ? (
-                        <div className="p-12 text-center">
-                            <span className="material-symbols-outlined text-4xl text-red-300">cloud_off</span>
-                            <p className="text-red-500 font-medium mt-2">Failed to load products</p>
-                            <p className="text-slate-400 text-sm mt-1">{error.message}</p>
-                            <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors">
-                                Retry
-                            </button>
-                        </div>
+                        <LoadError title="Failed to load products" detail={error.message} onRetry={() => refetch()} />
                     ) : products.length === 0 ? (
                         <div className="p-12 text-center">
                             <span className="material-symbols-outlined text-4xl text-slate-300">storefront</span>

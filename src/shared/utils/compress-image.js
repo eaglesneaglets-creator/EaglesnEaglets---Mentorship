@@ -85,5 +85,3 @@ export async function compressImage(file, opts = {}) {
     return file;
   }
 }
-
-export default compressImage;

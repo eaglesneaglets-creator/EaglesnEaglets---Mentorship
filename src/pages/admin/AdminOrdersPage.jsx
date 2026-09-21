@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import SectionTabs from '../../shared/components/layout/SectionTabs';
+import LoadError from '../../shared/components/ui/LoadError';
 
 const STORE_TABS = [
     { label: 'Catalog', to: '/admin/store' },
@@ -129,12 +130,7 @@ const OrderDetailModal = ({ orderId, onClose }) => {
                     </div>
                 )}
 
-                {error && (
-                    <div className="p-12 text-center">
-                        <span className="material-symbols-outlined text-4xl text-red-300">cloud_off</span>
-                        <p className="text-red-500 font-medium mt-2">Failed to load order</p>
-                    </div>
-                )}
+                {error && <LoadError title="Failed to load order" />}
 
                 {order && (
                     <div className="divide-y divide-slate-100">
@@ -444,17 +440,7 @@ const AdminOrdersPage = () => {
                     {isLoading ? (
                         <div className="p-8 text-center text-slate-400">Loading orders…</div>
                     ) : error ? (
-                        <div className="p-12 text-center">
-                            <span className="material-symbols-outlined text-4xl text-red-300">cloud_off</span>
-                            <p className="text-red-500 font-medium mt-2">Failed to load orders</p>
-                            <p className="text-slate-400 text-sm mt-1">{error.message}</p>
-                            <button
-                                onClick={() => refetch()}
-                                className="mt-4 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors"
-                            >
-                                Retry
-                            </button>
-                        </div>
+                        <LoadError title="Failed to load orders" detail={error.message} onRetry={() => refetch()} />
                     ) : orders.length === 0 ? (
                         <div className="p-12 text-center">
                             <span className="material-symbols-outlined text-4xl text-slate-300">receipt_long</span>

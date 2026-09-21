@@ -1,8 +1,9 @@
 // src/modules/nest/components/PostCommentSection.jsx
-import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense } from 'react';
 const Picker = lazy(() => import('@emoji-mart/react'));
 import { usePostComments } from '../hooks/usePostComments';
 import { useAddComment } from '../hooks/useAddComment';
+import { useEmojiInsertion } from '../hooks/useEmojiInsertion';
 import CommentBubble from './CommentBubble';
 import { useAuthStore } from '@store';
 import Avatar from '@shared/components/ui/Avatar';
@@ -13,43 +14,16 @@ import Avatar from '@shared/components/ui/Avatar';
  */
 const PostCommentSection = ({ postId, nestId }) => {
   const [commentText, setCommentText] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const pickerRef = useRef(null);
-  const textareaRef = useRef(null);
+  const { showEmojiPicker, setShowEmojiPicker, pickerRef, textareaRef, handleEmojiSelect } =
+    useEmojiInsertion(commentText, setCommentText);
   const { user } = useAuthStore();
 
   const { data: comments = [], isLoading } = usePostComments(postId, nestId, true);
   const { mutate: addComment, isPending } = useAddComment(postId, nestId);
 
-  // Close emoji picker on outside click
-  useEffect(() => {
-    if (!showEmojiPicker) return;
-    const handler = (e) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
-        setShowEmojiPicker(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showEmojiPicker]);
-
   const handleSend = () => {
     if (!commentText.trim()) return;
     addComment({ content: commentText.trim() }, { onSuccess: () => setCommentText('') });
-  };
-
-  const handleEmojiSelect = (emoji) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    setCommentText(commentText.slice(0, start) + emoji.native + commentText.slice(end));
-    setShowEmojiPicker(false);
-    requestAnimationFrame(() => {
-      textarea.selectionStart = start + emoji.native.length;
-      textarea.selectionEnd = start + emoji.native.length;
-      textarea.focus();
-    });
   };
 
   return (

@@ -1,8 +1,37 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
+import path from 'path';
+
+/**
+ * Import path aliases — the single source of truth.
+ *
+ * vitest.config.js imports this rather than keeping its own copy: the two used
+ * to be hand-maintained duplicates, and if they drift, code that builds fine
+ * fails to resolve under test (or the reverse).
+ *
+ * Two constraints, both learned the hard way — static analysers (fallow, editor
+ * tooling) read aliases by PARSING this file, never executing it:
+ *   1. The table must live in vite.config.js. Moved to its own module, every
+ *      `@/…` import looked unresolved and fallow reported 33 "dead" files.
+ *   2. Entries must use the conventional `path.resolve(__dirname, …)` form.
+ *      A computed root (`path.dirname(fileURLToPath(import.meta.url))`) is
+ *      equivalent at runtime but is not recognised by the parser.
+ * `__dirname` is not defined in ESM; Vite injects it into config files (and
+ * into modules a config imports, which is why vitest.config.js can share this).
+ */
+export const aliases = {
+  '@': path.resolve(__dirname, './src'),
+  '@shared': path.resolve(__dirname, './src/shared'),
+  '@components': path.resolve(__dirname, './src/shared/components'),
+  '@hooks': path.resolve(__dirname, './src/shared/hooks'),
+  '@utils': path.resolve(__dirname, './src/shared/utils'),
+  '@modules': path.resolve(__dirname, './src/modules'),
+  '@store': path.resolve(__dirname, './src/store'),
+  '@api': path.resolve(__dirname, './src/api'),
+  '@lib': path.resolve(__dirname, './src/lib'),
+};
 
 /**
  * Chunks reached ONLY through a `lazy()` / dynamic import behind a user
@@ -34,17 +63,7 @@ export default defineConfig(({ mode }) => {
 
     // Path aliases for cleaner imports
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
-        '@shared': path.resolve(__dirname, './src/shared'),
-        '@components': path.resolve(__dirname, './src/shared/components'),
-        '@hooks': path.resolve(__dirname, './src/shared/hooks'),
-        '@utils': path.resolve(__dirname, './src/shared/utils'),
-        '@modules': path.resolve(__dirname, './src/modules'),
-        '@store': path.resolve(__dirname, './src/store'),
-        '@api': path.resolve(__dirname, './src/api'),
-        '@lib': path.resolve(__dirname, './src/lib'),
-      },
+      alias: aliases,
     },
 
     // Development server config

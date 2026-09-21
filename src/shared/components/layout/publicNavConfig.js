@@ -84,7 +84,7 @@ export function navPillClass(useDarkText, { mobile = false } = {}) {
 
 /** Full-width fixed shell for the mobile top bar (industry-standard edge-to-edge header). */
 export function navMobileShellClass(useDarkText) {
-  return `md:hidden fixed top-0 inset-x-0 z-50 px-4 pt-3 pb-2 transition-all duration-500 ${
+  return `ios-public-mobile-nav md:hidden fixed top-0 inset-x-0 z-50 px-4 pt-3 pb-2 transition-all duration-500 ${
     useDarkText ? 'bg-gradient-to-b from-white/80 to-white/0' : 'bg-gradient-to-b from-slate-900/35 to-transparent'
   }`;
 }

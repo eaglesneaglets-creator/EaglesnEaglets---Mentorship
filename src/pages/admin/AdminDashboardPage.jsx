@@ -9,6 +9,7 @@ import {
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useAdminDashboardStats } from '../../modules/analytics/hooks/useAnalytics';
+import LoadError from '../../shared/components/ui/LoadError';
 import { formatRelativeTime } from '../../shared/utils';
 import StatCard from '../../shared/components/ui/StatCard';
 
@@ -48,7 +49,7 @@ const AdminDashboardPage = () => {
   const [chartPeriod, setChartPeriod] = useState('weekly');
   const [chartType, setChartType] = useState('bar');
 
-  const { data: stats, isLoading, isError, isFetching } = useAdminDashboardStats(chartPeriod);
+  const { data: stats, isLoading, isError, isFetching, refetch } = useAdminDashboardStats(chartPeriod);
   const chartLoading = isFetching && !isLoading;
 
   const handlePeriodChange = (newPeriod) => {
@@ -144,18 +145,12 @@ const AdminDashboardPage = () => {
   if (isError) {
     return (
       <DashboardLayout variant="admin">
-        <div className="flex h-64 items-center justify-center">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <span className="material-symbols-outlined text-5xl text-slate-300">cloud_off</span>
-            <p className="text-slate-500 font-medium">Failed to load dashboard data</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="text-sm text-primary hover:underline"
-            >
-              Try again
-            </button>
-          </div>
-        </div>
+        <LoadError
+          variant="page"
+          title="Failed to load dashboard data"
+          retryLabel="Try again"
+          onRetry={() => refetch()}
+        />
       </DashboardLayout>
     );
   }

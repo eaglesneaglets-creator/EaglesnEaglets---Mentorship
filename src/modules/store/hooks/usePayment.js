@@ -23,7 +23,7 @@ import StoreService from '../services/store-service';
 const PAYSTACK_SCRIPT_SRC = 'https://js.paystack.co/v1/inline.js';
 let paystackLoadPromise = null;
 
-export function loadPaystack(timeoutMs = 8000) {
+function loadPaystack(timeoutMs = 8000) {
     if (window.PaystackPop) return Promise.resolve(window.PaystackPop);
     if (paystackLoadPromise) return paystackLoadPromise;
 
