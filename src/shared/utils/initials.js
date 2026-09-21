@@ -8,7 +8,7 @@
  * initials logic, which is why avatars looked different on different surfaces.
  */
 
-export const AVATAR_COLORS = [
+const AVATAR_COLORS = [
   'from-emerald-400 to-emerald-500',
   'from-blue-400 to-indigo-500',
   'from-amber-400 to-orange-500',

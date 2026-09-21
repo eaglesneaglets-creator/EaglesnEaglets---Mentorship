@@ -80,7 +80,7 @@ export const useCreateDM = () => {
     });
 };
 
-export const useMarkRead = () => {
+const useMarkRead = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (conversationId) => ChatService.markRead(conversationId),

@@ -67,5 +67,3 @@ export function sizedAvatarUrl(url, cssPx, dpr) {
   // backend's own 'avatar'/'profile' presets in core/storage.py.
   return `${prefix}c_fill,g_face,w_${px},h_${px},f_auto,q_auto/${rest}`;
 }
-
-export default sizedAvatarUrl;

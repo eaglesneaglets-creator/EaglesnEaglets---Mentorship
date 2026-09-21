@@ -1,11 +1,12 @@
 // src/modules/nest/components/PostFeed.jsx
-import { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import { useState, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 const Picker = lazy(() => import('@emoji-mart/react'));
 import { useAuthStore } from '@store';
 import { useNestPosts, useCreatePost } from '../hooks/useNests';
 import { useToggleLike } from '../hooks/useToggleLike';
 import { useUploadMedia } from '../hooks/useUploadMedia';
+import { useEmojiInsertion } from '../hooks/useEmojiInsertion';
 import PostCommentSection from './PostCommentSection';
 import { formatDistanceToNow } from 'date-fns';
 import { sanitizeUrl, sanitizeImageUrl } from '@shared/utils/sanitize';
@@ -17,26 +18,13 @@ import Avatar from '../../../shared/components/ui/Avatar';
 
 const PostComposer = ({ nestId, user }) => {
   const [content, setContent] = useState('');
+  const { showEmojiPicker, setShowEmojiPicker, pickerRef, textareaRef, handleEmojiSelect } =
+    useEmojiInsertion(content, setContent);
   const [isFocused, setIsFocused] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [attachment, setAttachment] = useState(null); // { url, type }
   const fileInputRef = useRef(null);
-  const pickerRef = useRef(null);
-  const textareaRef = useRef(null);
   const { upload, progress, isUploading, reset: resetUpload } = useUploadMedia();
   const createMutation = useCreatePost(nestId);
-
-  // Close emoji picker on outside click
-  useEffect(() => {
-    if (!showEmojiPicker) return;
-    const handler = (e) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
-        setShowEmojiPicker(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showEmojiPicker]);
 
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
@@ -46,20 +34,6 @@ const PostComposer = ({ nestId, user }) => {
       setAttachment(result);
     } catch { /* toast shown inside hook */ }
     e.target.value = '';
-  };
-
-  const handleEmojiSelect = (emoji) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    setContent(content.slice(0, start) + emoji.native + content.slice(end));
-    setShowEmojiPicker(false);
-    requestAnimationFrame(() => {
-      textarea.selectionStart = start + emoji.native.length;
-      textarea.selectionEnd = start + emoji.native.length;
-      textarea.focus();
-    });
   };
 
   const handlePost = () => {

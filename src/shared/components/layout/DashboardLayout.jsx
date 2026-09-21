@@ -388,6 +388,25 @@ const DashboardLayout = ({
 
   const navItems = getNavItems();
 
+  // Mobile uses four stable role-specific destinations plus a More entry.
+  // Desktop keeps the complete sidebar navigation.
+  const mobilePreferredPaths = {
+    admin: ['/admin/dashboard', '/admin/users', '/admin/content', '/admin/messages'],
+    eagle: ['/eagle/dashboard', '/eagle/nests', '/eagle/content', '/eagle/messages'],
+    eaglet: ['/eaglet/dashboard', '/eaglet/nest', '/eaglet/assignments', '/eaglet/messages'],
+  };
+  const mobileRole = currentMode === 'admin' ? 'admin' : user?.role || 'eaglet';
+  const mobileNavItems = (mobilePreferredPaths[mobileRole] || mobilePreferredPaths.eaglet)
+    .map((path) => navItems.find((item) => item.to === path))
+    .filter(Boolean);
+
+  const isNavItemActive = (item) =>
+    location.pathname === item.to ||
+    (!item.exact && location.pathname.startsWith(item.to + '/')) ||
+    (item.aliases || []).some((alias) =>
+      location.pathname === alias || location.pathname.startsWith(alias + '/'),
+    );
+
   // Plan 14-05: compute per-item lock state from access_status. Eagles + admins
   // never see locks. Clicking a locked item opens the modal instead of routing.
   const lockedFeatures = useLockedFeatures();
@@ -402,7 +421,7 @@ const DashboardLayout = ({
   };
 
   return (
-    <div className="h-screen flex overflow-hidden">
+    <div className="ios-app-shell h-screen flex overflow-hidden">
       {/* Animated Background */}
       <AnimatedBackground variant={variant} />
 
@@ -555,13 +574,18 @@ const DashboardLayout = ({
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden transition-all duration-300">
         {/* Top Header */}
         {!hideHeader && (
-          <header className="flex-shrink-0 z-30 h-16 flex items-center justify-between px-4 lg:px-8 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
+          <header className="ios-app-header flex-shrink-0 z-30 h-16 flex items-center justify-between px-4 lg:px-8 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 min-h-[44px] min-w-[44px] rounded-lg hover:bg-slate-100 transition-colors"
+              className="ios-mobile-brand lg:hidden min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors"
+              aria-label="Open all navigation"
             >
-              <span className="material-symbols-outlined">menu</span>
+              <img src={Logo} alt="" className="w-8 h-8 rounded-lg" />
+              <span>
+                <strong>E&amp;E</strong>
+                <small>{roleDisplay[mobileRole] || 'Platform'}</small>
+              </span>
             </button>
 
             {/* Search Bar */}
@@ -665,15 +689,6 @@ const DashboardLayout = ({
               </Link>
 
               {/* Logout button — visible on mobile where sidebar bottom is hidden */}
-              <button
-                onClick={handleLogout}
-                className="lg:hidden p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-red-50 transition-all duration-300 group flex items-center justify-center"
-                title="Log Out"
-              >
-                <span className="material-symbols-outlined text-slate-600 group-hover:text-red-500 transition-colors">
-                  logout
-                </span>
-              </button>
             </div>
           </header>
         )}
@@ -687,12 +702,45 @@ const DashboardLayout = ({
         )}
 
         {/* Page Content — sole scroll container so sidebar/header stay fixed */}
-        <main className={`flex-1 overflow-y-auto overflow-x-hidden ${noPadding ? '' : 'p-3 sm:p-4 lg:p-8'}`}>
+        <main className={`ios-page-content flex-1 overflow-y-auto overflow-x-hidden ${noPadding ? '' : 'p-3 sm:p-4 lg:p-8'}`}>
           <div className={`${fullWidth ? 'max-w-none w-full' : 'max-w-7xl mx-auto'} animate-fade-in-up h-full min-w-0`}>
             {children}
           </div>
         </main>
       </div>
+
+      <nav className="ios-mobile-tabbar lg:hidden" aria-label="Primary navigation">
+        {mobileNavItems.map((item) => {
+          const itemLocked = isEagletRole && item.featureKey && lockedFeatures.includes(item.featureKey);
+          const active = isNavItemActive(item);
+          return (
+            <Link
+              key={item.to}
+              to={itemLocked ? '#' : item.to}
+              aria-current={active ? 'page' : undefined}
+              aria-disabled={itemLocked || undefined}
+              className={active ? 'is-active' : ''}
+              onClick={(event) => {
+                if (itemLocked) {
+                  event.preventDefault();
+                  setLockModalKey(item.featureKey);
+                }
+              }}
+            >
+              <span className="ios-tab-icon">
+                <span className="material-symbols-outlined">{item.icon}</span>
+                {item.badge && <i>{Number(item.badge) > 9 ? '9+' : item.badge}</i>}
+                {itemLocked && <i className="is-lock"><span className="material-symbols-outlined">lock</span></i>}
+              </span>
+              <small>{item.label === 'Dashboard' ? 'Home' : item.label}</small>
+            </Link>
+          );
+        })}
+        <button type="button" onClick={() => setIsMobileMenuOpen(true)} aria-label="More navigation">
+          <span className="ios-tab-icon"><span className="material-symbols-outlined">apps</span></span>
+          <small>More</small>
+        </button>
+      </nav>
 
       {/* Global Styles for Animations */}
       <style>{`

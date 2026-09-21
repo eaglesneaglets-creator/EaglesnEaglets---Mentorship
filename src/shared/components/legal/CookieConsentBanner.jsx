@@ -40,7 +40,7 @@ const CookieConsentBanner = () => {
     <div
       role="region"
       aria-label="Cookie notice"
-      className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 sm:px-4 sm:pb-4"
+      className="ios-cookie-notice fixed inset-x-0 bottom-0 z-50 px-3 pb-3 sm:px-4 sm:pb-4"
     >
       <div className="mx-auto max-w-3xl rounded-xl border border-border bg-white/95 backdrop-blur-md shadow-lg p-4 sm:flex sm:items-center sm:gap-4">
         <p className="text-sm text-text-secondary">
@@ -51,7 +51,7 @@ const CookieConsentBanner = () => {
           <button
             type="button"
             onClick={() => close('accepted')}
-            className="px-4 py-2 min-h-[40px] rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
+            className="px-4 py-2 min-h-[44px] rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
           >
             Accept
           </button>
@@ -59,7 +59,7 @@ const CookieConsentBanner = () => {
             type="button"
             onClick={() => close('dismissed')}
             aria-label="Dismiss cookie notice"
-            className="px-3 py-2 min-h-[40px] rounded-full text-sm font-medium text-text-secondary hover:bg-slate-100 transition-colors"
+            className="px-3 py-2 min-h-[44px] rounded-full text-sm font-medium text-text-secondary hover:bg-slate-100 transition-colors"
           >
             ✕
           </button>

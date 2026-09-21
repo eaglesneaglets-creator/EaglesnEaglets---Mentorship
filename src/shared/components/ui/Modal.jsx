@@ -43,7 +43,7 @@ const Modal = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="ios-modal-layer fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -65,7 +65,7 @@ const Modal = ({
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className={`
-              relative z-10 w-full ${sizeClasses[size]}
+              ios-modal-panel relative z-10 w-full ${sizeClasses[size]}
               bg-white rounded-2xl shadow-xl border border-slate-100
               flex flex-col max-h-[90vh]
               ${className}
@@ -94,7 +94,7 @@ Modal.propTypes = {
  */
 const ModalHeader = ({ children, onClose, className = '' }) => (
   <div
-    className={`flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0 ${className}`}
+    className={`ios-modal-header flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0 ${className}`}
   >
     <h2 id="modal-title" className="text-lg font-bold text-slate-800">
       {children}
@@ -123,7 +123,7 @@ ModalHeader.propTypes = {
  * ModalBody — scrollable content area
  */
 const ModalBody = ({ children, className = '' }) => (
-  <div className={`flex-1 overflow-y-auto px-6 py-4 ${className}`}>
+  <div className={`ios-modal-body flex-1 overflow-y-auto px-6 py-4 ${className}`}>
     {children}
   </div>
 );
@@ -138,7 +138,7 @@ ModalBody.propTypes = {
  */
 const ModalFooter = ({ children, className = '' }) => (
   <div
-    className={`flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 flex-shrink-0 ${className}`}
+    className={`ios-modal-footer flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 flex-shrink-0 ${className}`}
   >
     {children}
   </div>

@@ -86,6 +86,7 @@ const AdminInviteAcceptPage = lazy(() => import('./pages/auth/AdminInviteAcceptP
 const ComingSoonPage = lazy(() => import('./pages/shared/ComingSoonPage'));
 const NotFoundPage = lazy(() => import('./pages/shared/NotFoundPage'));
 const FaqPage = lazy(() => import('./pages/shared/FaqPage'));
+const MobilePrototypePage = lazy(() => import('./pages/prototype/MobilePrototypePage'));
 
 // Legal Pages (Phase 21)
 const TermsPage = lazy(() => import('./pages/legal/TermsPage'));
@@ -230,6 +231,7 @@ function App() {
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/code-of-conduct" element={<CodeOfConductPage />} />
                 <Route path="/faq" element={<FaqPage />} />
+                <Route path="/mobile-prototype" element={<MobilePrototypePage />} />
                 <Route path="/mentor-code-of-conduct" element={<MentorCodeOfConductPage />} />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />

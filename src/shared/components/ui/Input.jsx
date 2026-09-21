@@ -54,7 +54,7 @@ const Input = forwardRef(({
           disabled={disabled}
           required={required}
           className={`
-            w-full rounded-lg border bg-white text-text-primary
+            w-full rounded-lg border bg-white text-base text-text-primary
             placeholder:text-text-muted
             focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary
             transition-colors duration-200
