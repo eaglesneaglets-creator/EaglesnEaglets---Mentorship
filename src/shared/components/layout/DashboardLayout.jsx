@@ -156,7 +156,8 @@ const DashboardLayout = ({
   variant = 'default',
   fullWidth = false,
   noPadding = false,
-  hideHeader = false
+  hideHeader = false,
+  fullHeight = false
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -335,16 +336,18 @@ const DashboardLayout = ({
   // Navigation items based on role + current mode (plan 18-03).
   // For stacked-admin users, mode drives which nav set renders so the
   // sidebar swaps entirely between mentor and admin views.
-  const getNavItems = () => {
-    const role = user?.role || 'eaglet';
+  // Stacked admin (eagle OR eaglet + is_platform_staff — plan 22-02) —
+  // `currentMode` decides which nav set to render. Pure admins
+  // (role='admin') always see the admin nav. Computed once so the desktop
+  // sidebar and the mobile tab bar can never disagree about the nav set.
+  const navRole = user?.role || 'eaglet';
+  const isStackedAdminUser =
+    (navRole === 'eagle' || navRole === 'eaglet') && user?.is_platform_staff === true;
+  const showAdminNav =
+    navRole === 'admin' || (isStackedAdminUser && currentMode === 'admin');
 
-    // Stacked admin (eagle OR eaglet + is_platform_staff — plan 22-02) —
-    // `currentMode` decides which nav set to render. Pure admins
-    // (role='admin') always see the admin nav.
-    const isStackedAdmin =
-      (role === 'eagle' || role === 'eaglet') && user?.is_platform_staff === true;
-    const showAdminNav =
-      role === 'admin' || (isStackedAdmin && currentMode === 'admin');
+  const getNavItems = () => {
+    const role = navRole;
 
     if (showAdminNav) {
       // Tiered admin nav: superadmin-only surfaces (Nests, Donations) are
@@ -395,7 +398,7 @@ const DashboardLayout = ({
     eagle: ['/eagle/dashboard', '/eagle/nests', '/eagle/content', '/eagle/messages'],
     eaglet: ['/eaglet/dashboard', '/eaglet/nest', '/eaglet/assignments', '/eaglet/messages'],
   };
-  const mobileRole = currentMode === 'admin' ? 'admin' : user?.role || 'eaglet';
+  const mobileRole = showAdminNav ? 'admin' : navRole === 'eagle' ? 'eagle' : 'eaglet';
   const mobileNavItems = (mobilePreferredPaths[mobileRole] || mobilePreferredPaths.eaglet)
     .map((path) => navItems.find((item) => item.to === path))
     .filter(Boolean);
@@ -703,13 +706,18 @@ const DashboardLayout = ({
 
         {/* Page Content — sole scroll container so sidebar/header stay fixed */}
         <main className={`ios-page-content flex-1 overflow-y-auto overflow-x-hidden ${noPadding ? '' : 'p-3 sm:p-4 lg:p-8'}`}>
-          <div className={`${fullWidth ? 'max-w-none w-full' : 'max-w-7xl mx-auto'} animate-fade-in-up h-full min-w-0`}>
+          <div className={`${fullWidth ? 'max-w-none w-full' : 'max-w-7xl mx-auto'} ${fullHeight ? 'ios-page-fill' : 'ios-page-flow'} animate-fade-in-up h-full min-w-0`}>
             {children}
           </div>
         </main>
       </div>
 
-      <nav className="ios-mobile-tabbar lg:hidden" aria-label="Primary navigation">
+      <nav
+        className="ios-mobile-tabbar lg:hidden"
+        aria-label="Primary navigation"
+        aria-hidden={isMobileMenuOpen || undefined}
+        inert={isMobileMenuOpen}
+      >
         {mobileNavItems.map((item) => {
           const itemLocked = isEagletRole && item.featureKey && lockedFeatures.includes(item.featureKey);
           const active = isNavItemActive(item);
@@ -802,6 +810,12 @@ const DashboardLayout = ({
 DashboardLayout.propTypes = {
   children: PropTypes.node.isRequired,
   variant: PropTypes.oneOf(['admin', 'eagle', 'eaglet', 'default']),
+  fullWidth: PropTypes.bool,
+  noPadding: PropTypes.bool,
+  hideHeader: PropTypes.bool,
+  // Page owns its own internal scroll regions (chat, content viewer) and
+  // needs a definite height on mobile instead of growing with content.
+  fullHeight: PropTypes.bool,
 };
 
 export default DashboardLayout;

@@ -154,7 +154,7 @@ const OrderConfirmationPage = () => {
             {/* Status card */}
             <div className={`rounded-2xl border p-6 text-center ${config.bg} ${config.border} mb-6`}>
               <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 ${config.bg} ${
-                order.status === 'paid' || order.status === 'delivered' ? 'animate-bounce-once' : ''
+                order.status === 'paid' || order.status === 'delivered' ? 'animate-settle-in' : ''
               }`}>
                 <span className={`material-symbols-outlined text-3xl ${config.color}`}>{config.icon}</span>
               </div>

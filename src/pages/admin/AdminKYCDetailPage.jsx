@@ -108,8 +108,10 @@ const DocumentViewer = ({ isOpen, onClose, url, title }) => {
   const rawUrl = url?.startsWith('http') ? url : `${BACKEND_URL}${url}`;
   const fullUrl = stripCloudinarySignature(rawUrl);
   // Detect by extension OR Cloudinary URL patterns
-  const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url || '') || url?.includes('image/upload') || url?.includes('profile_pictures') || url?.includes('content_images');
-  const isPdf = /\.pdf/i.test(url || '') || url?.includes('/cvs/') || url?.includes('/documents/');
+  // Private KYC documents arrive as short-lived signed download links
+  // (…/image/download?…&format=jpg…), so match on the format query param too.
+  const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url || '') || /[?&]format=(jpe?g|png|gif|webp)\b/i.test(url || '') || url?.includes('/image/download') || url?.includes('image/upload') || url?.includes('profile_pictures') || url?.includes('content_images');
+  const isPdf = !isImage && (/\.pdf/i.test(url || '') || /[?&]format=pdf\b/i.test(url || '') || url?.includes('/raw/download') || url?.includes('/cvs/') || url?.includes('/documents/'));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

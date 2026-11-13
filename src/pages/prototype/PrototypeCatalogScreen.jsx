@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {
   ArrowLeft,
   BarChart3,
@@ -46,6 +47,14 @@ const ROWS_BY_KIND = {
   legal: [['Your responsibilities', 'Read'], ['How data is used', 'Read'], ['Questions and support', 'Open']],
   community: [['Weekly nest circle', 'Sunday'], ['Community reflection', '7 replies'], ['Program milestone', '2 days']],
   grid: [['Leadership', 'Earned'], ['Consistency', 'Earned'], ['Community builder', 'Locked']],
+};
+
+PrototypeCatalogScreen.propTypes = {
+  // Catalog tuple: [id, title, subtitle, kind]
+  screen: PropTypes.arrayOf(PropTypes.string).isRequired,
+  experience: PropTypes.string.isRequired,
+  onBack: PropTypes.func.isRequired,
+  onOpenSettings: PropTypes.func.isRequired,
 };
 
 export default function PrototypeCatalogScreen({ screen, experience, onBack, onOpenSettings }) {

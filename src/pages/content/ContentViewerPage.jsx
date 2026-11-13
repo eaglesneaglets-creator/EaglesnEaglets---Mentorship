@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useModuleDetail, useModuleItems, useUpdateProgress, useContentProgressList } from '../../modules/content/hooks/useContent';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import DocumentViewer from '../../shared/components/visual/DocumentViewer';
 import { sanitizeUrl } from '../../shared/utils/sanitize';
 import Avatar from '../../shared/components/ui/Avatar';
@@ -180,6 +180,7 @@ const ContentViewerPage = () => {
             hideHeader
             fullWidth
             noPadding
+            fullHeight
         >
             <div className="flex flex-col h-full overflow-hidden bg-white">
 

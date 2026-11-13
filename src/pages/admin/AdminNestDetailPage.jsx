@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { sanitizeUrl } from '@shared/utils/sanitize';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import DashboardLayout from '@shared/components/layout/DashboardLayout';
 import { ConfirmModal } from '@shared/components/ui/ConfirmModal';
@@ -207,7 +208,7 @@ const AdminNestDetailPage = () => {
                 {nest.shared_content.map((c, i) => (
                   <a
                     key={`${c.kind}-${c.url}-${i}`}
-                    href={c.url}
+                    href={sanitizeUrl(c.url) || undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 py-3 hover:bg-slate-50 -mx-2 px-2 rounded-lg transition-colors"
