@@ -8,6 +8,8 @@ import {
 } from './publicNavConfig';
 import Avatar from '../ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 export function FloatingNavbarBrand({ useDarkText, compact = false }) {
   if (compact) {
     return (
@@ -113,11 +115,11 @@ export function FloatingNavbarAuthDropdown({
         }`}>
           {user.first_name || user.email}
         </span>
-        <span className={`material-symbols-outlined text-base transition-transform duration-200 ${
-          dropdownOpen ? 'rotate-180' : ''
-        } ${useDarkText ? 'text-slate-400' : 'text-white/70'}`}>
-          expand_more
-        </span>
+        <Icon
+          name='expand_more'
+          className={`text-base transition-transform duration-200 ${
+            dropdownOpen ? 'rotate-180' : ''
+          } ${useDarkText ? 'text-slate-400' : 'text-white/70'}`} />
       </button>
 
       <div className={`absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200/80 overflow-hidden
@@ -137,7 +139,7 @@ export function FloatingNavbarAuthDropdown({
             onClick={() => setDropdownOpen(false)}
             className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
           >
-            <span className="material-symbols-outlined text-base text-primary">dashboard</span>
+            <Icon name='dashboard' className='text-base text-primary' />
             {dashboardLabel}
           </Link>
           {menuLinks.map((link) => (
@@ -147,9 +149,9 @@ export function FloatingNavbarAuthDropdown({
               onClick={() => setDropdownOpen(false)}
               className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
             >
-              <span className={`material-symbols-outlined text-base ${link.iconClass || 'text-slate-500'}`}>
-                {link.icon}
-              </span>
+              <Icon
+                name={link.icon}
+                className={`text-base ${link.iconClass || 'text-slate-500'}`} />
               {link.label}
               {link.badge != null && link.badge > 0 && (
                 <span className="ml-auto text-[10px] font-bold bg-primary text-white rounded-full px-1.5 py-0.5">
@@ -165,7 +167,7 @@ export function FloatingNavbarAuthDropdown({
             onClick={onLogout}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
           >
-            <span className="material-symbols-outlined text-base">logout</span>
+            <Icon name='logout' className='text-base' />
             Sign Out
           </button>
         </div>

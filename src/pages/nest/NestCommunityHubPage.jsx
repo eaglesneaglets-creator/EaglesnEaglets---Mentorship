@@ -10,6 +10,8 @@ import PostFeed from '../../modules/nest/components/PostFeed';
 import { MyEagletsSection } from '../eagle/MyEagletsPage';
 import Avatar from '../../shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 const PROGRAM_STATUS_BADGE = {
     draft: 'bg-slate-100 text-slate-600',
     active: 'bg-emerald-100 text-emerald-700',
@@ -36,9 +38,7 @@ const WelcomeBanner = ({ nest }) => (
     >
         {/* Decorative bird silhouette */}
         <div className="absolute right-6 bottom-2 opacity-10">
-            <span className="material-symbols-outlined" style={{ fontSize: 80 }}>
-                flutter_dash
-            </span>
+            <Icon name='flutter_dash' style={{ fontSize: 80 }} />
         </div>
         <div className="relative z-10">
             <h2 className="text-lg font-bold text-emerald-900 mb-1.5">
@@ -88,7 +88,7 @@ const EventsCard = ({ nestId }) => {
                                 <p className="text-xs text-slate-400 inline-flex items-center gap-1">
                                     {event.meeting_link ? (
                                         <>
-                                            <span className="material-symbols-outlined text-sm">videocam</span>
+                                            <Icon name='videocam' className='text-sm' />
                                             Zoom Link
                                         </>
                                     ) : (
@@ -114,7 +114,7 @@ const MembersPreview = ({ nestId, memberCount }) => {
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/70">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-lg">group</span>
+                    <Icon name='group' className='text-primary text-lg' />
                     Members
                 </h3>
                 <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
@@ -216,14 +216,16 @@ const NestCommunityHubPage = () => {
                     className="flex items-center justify-between mb-6"
                 >
                     <div className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-primary text-2xl">diversity_3</span>
+                        <Icon name='diversity_3' className='text-primary text-2xl' />
                         <h1 className="text-xl font-bold text-slate-900">{nest?.name} Feed</h1>
                     </div>
 
                     <div className="flex items-center gap-3">
                         {/* Search */}
                         <div className="relative hidden sm:block">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">search</span>
+                            <Icon
+                                name='search'
+                                className='absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400' />
                             <input
                                 type="text"
                                 placeholder="Search nest..."
@@ -240,7 +242,7 @@ const NestCommunityHubPage = () => {
                                     onClick={() => navigate(`/eagle/nests/${nestId}/program`)}
                                     className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:border-primary/30 hover:text-primary transition-all shadow-sm"
                                 >
-                                    <span className="material-symbols-outlined text-base">workspaces</span>
+                                    <Icon name='workspaces' className='text-base' />
                                     Manage Program
                                     {program?.status && (
                                         <span className={`ml-1 px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wide ${PROGRAM_STATUS_BADGE[program.status] || ''}`}>
@@ -254,7 +256,7 @@ const NestCommunityHubPage = () => {
                                     onClick={() => navigate(`/eagle/nests/${nestId}/enrollments`)}
                                     className="relative flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:border-primary/30 hover:text-primary transition-all shadow-sm"
                                 >
-                                    <span className="material-symbols-outlined text-base">how_to_reg</span>
+                                    <Icon name='how_to_reg' className='text-base' />
                                     Enrollments
                                     {pendingCount > 0 && (
                                         <span className="ml-1 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center text-[10px] font-bold rounded-full bg-red-500 text-white">
@@ -268,7 +270,7 @@ const NestCommunityHubPage = () => {
                                     onClick={() => navigate(`/eagle/nests/${nestId}/settings`)}
                                     className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:border-primary/30 hover:text-primary transition-all shadow-sm"
                                 >
-                                    <span className="material-symbols-outlined text-base">settings</span>
+                                    <Icon name='settings' className='text-base' />
                                     Settings
                                 </motion.button>
                             </div>
@@ -295,7 +297,7 @@ const NestCommunityHubPage = () => {
                                             : 'text-slate-500 hover:text-slate-700'
                                     }`}
                                 >
-                                    <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                                    <Icon name={tab.icon} className='text-[18px]' />
                                     {tab.label}
                                     {active && (
                                         <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-primary rounded-full" />

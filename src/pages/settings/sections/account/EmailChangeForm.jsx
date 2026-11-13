@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useAuthStore } from '@store';
 import { useRequestEmailChange } from '../../../../modules/auth/hooks/useAccount';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function EmailChangeForm() {
   const { user } = useAuthStore();
   const [newEmail, setNewEmail] = useState('');
@@ -57,7 +59,7 @@ export default function EmailChangeForm() {
       {pending && (
         <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-4 max-w-md">
           <p className="text-sm text-emerald-800">
-            <span className="material-symbols-outlined align-middle text-base mr-1">mark_email_read</span>
+            <Icon name='mark_email_read' className='align-middle text-base mr-1' />
             Verification sent to <strong>{pending}</strong>. Check your inbox to confirm.
           </p>
         </div>

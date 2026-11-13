@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useNests } from '../../modules/nest/hooks/useNests';
 
+import Icon from '@shared/components/ui/Icon';
+
 const EagleNestPage = () => {
     const navigate = useNavigate();
     const { data: response, isLoading, isError } = useNests();
@@ -29,7 +31,7 @@ const EagleNestPage = () => {
             <DashboardLayout variant="eagle">
                 <div className="max-w-3xl mx-auto p-8 flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg mb-6 animate-pulse">
-                        <span className="material-symbols-outlined text-3xl text-white">diversity_3</span>
+                        <Icon name='diversity_3' className='text-3xl text-white' />
                     </div>
                     <p className="text-slate-500 text-lg">Loading your Nest…</p>
                 </div>
@@ -42,7 +44,7 @@ const EagleNestPage = () => {
             <DashboardLayout variant="eagle">
                 <div className="max-w-3xl mx-auto p-8 flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
                     <div className="w-16 h-16 rounded-2xl bg-red-100 flex items-center justify-center mb-6">
-                        <span className="material-symbols-outlined text-3xl text-red-500">error</span>
+                        <Icon name='error' className='text-3xl text-red-500' />
                     </div>
                     <h2 className="text-xl font-bold text-slate-800 mb-2">Unable to load your Nest</h2>
                     <p className="text-slate-500 text-center">Please try refreshing the page or contact support.</p>
@@ -56,7 +58,7 @@ const EagleNestPage = () => {
         <DashboardLayout variant="eagle">
             <div className="max-w-3xl mx-auto p-8 flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center shadow-lg mb-6">
-                    <span className="material-symbols-outlined text-4xl text-amber-600">nest_cam_wired_stand</span>
+                    <Icon name='nest_cam_wired_stand' className='text-4xl text-amber-600' />
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800 mb-3">Your Nest is Being Prepared</h2>
                 <p className="text-slate-500 text-center max-w-md leading-relaxed">
@@ -65,7 +67,7 @@ const EagleNestPage = () => {
                     resources, and build your community right here.
                 </p>
                 <div className="mt-8 flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-4 py-2 rounded-full">
-                    <span className="material-symbols-outlined text-lg">schedule</span>
+                    <Icon name='schedule' className='text-lg' />
                     <span className="font-medium">Awaiting admin approval</span>
                 </div>
             </div>

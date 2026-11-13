@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCreateQuiz } from '../hooks/useModuleQuiz';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ─── Question row component ─── */
 const QuestionRow = ({ question, index, onUpdate, onRemove }) => {
     const isMcq = question.question_type === 'mcq';
@@ -35,7 +37,7 @@ const QuestionRow = ({ question, index, onUpdate, onRemove }) => {
                     onClick={() => onRemove(index)}
                     className="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors ml-auto"
                 >
-                    <span className="material-symbols-outlined text-[16px]">close</span>
+                    <Icon name='close' className='text-[16px]' />
                 </button>
             </div>
 
@@ -60,7 +62,9 @@ const QuestionRow = ({ question, index, onUpdate, onRemove }) => {
                                     }`}
                             >
                                 {question.correct_option === optIdx && (
-                                    <span className="material-symbols-outlined text-white text-[10px] w-full flex items-center justify-center">check</span>
+                                    <Icon
+                                        name='check'
+                                        className='text-white text-[10px] w-full flex items-center justify-center' />
                                 )}
                             </button>
                             <input
@@ -148,7 +152,7 @@ const ModuleQuizModal = ({ isOpen, onClose, moduleId, moduleName }) => {
                             {moduleName && <p className="text-xs text-slate-400 mt-0.5">{moduleName}</p>}
                         </div>
                         <button onClick={onClose} className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors">
-                            <span className="material-symbols-outlined text-slate-500">close</span>
+                            <Icon name='close' className='text-slate-500' />
                         </button>
                     </div>
 

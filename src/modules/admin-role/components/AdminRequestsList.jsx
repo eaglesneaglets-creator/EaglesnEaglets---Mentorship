@@ -13,6 +13,8 @@ import {
 } from '@modules/admin-role/hooks/useAdminRole';
 import NoteModal from './NoteModal';
 
+import Icon from '@shared/components/ui/Icon';
+
 const STATUS_PILLS = [
   { value: 'pending', label: 'Pending' },
   { value: 'approved', label: 'Approved' },
@@ -171,7 +173,7 @@ export default function AdminRequestsList() {
         </div>
       ) : requests.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center">
-          <span className="material-symbols-outlined text-4xl text-slate-300">inbox</span>
+          <Icon name='inbox' className='text-4xl text-slate-300' />
           <p className="text-sm text-slate-500 mt-2">
             {statusFilter === 'pending'
               ? 'No pending admin requests. New submissions appear here automatically.'

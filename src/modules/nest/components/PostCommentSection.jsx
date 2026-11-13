@@ -8,6 +8,8 @@ import CommentBubble from './CommentBubble';
 import { useAuthStore } from '@store';
 import Avatar from '@shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * Inline comment section rendered below a PostCard when comments are open.
  * Fetches comments on mount, shows CommentBubble list, handles new comment + emoji picker.
@@ -31,9 +33,7 @@ const PostCommentSection = ({ postId, nestId }) => {
       {/* Comment list */}
       {isLoading ? (
         <div className="flex justify-center py-4">
-          <span className="material-symbols-outlined text-slate-300 text-xl animate-spin">
-            progress_activity
-          </span>
+          <Icon name='progress_activity' className='text-slate-300 text-xl animate-spin' />
         </div>
       ) : comments.length === 0 ? (
         <p className="text-center text-xs text-slate-400 italic py-2">
@@ -78,7 +78,7 @@ const PostCommentSection = ({ postId, nestId }) => {
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             className="absolute right-3 bottom-2.5 text-slate-400 hover:text-amber-400 transition-colors"
           >
-            <span className="material-symbols-outlined text-lg">sentiment_satisfied</span>
+            <Icon name='sentiment_satisfied' className='text-lg' />
           </button>
 
           {/* Emoji picker */}
@@ -96,7 +96,7 @@ const PostCommentSection = ({ postId, nestId }) => {
           disabled={!commentText.trim() || isPending}
           className="p-2 bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-40 transition-all flex-shrink-0"
         >
-          <span className="material-symbols-outlined text-sm">send</span>
+          <Icon name='send' className='text-sm' />
         </button>
       </div>
     </div>

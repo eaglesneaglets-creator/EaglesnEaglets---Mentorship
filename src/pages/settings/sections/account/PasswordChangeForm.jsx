@@ -5,6 +5,8 @@ import { passwordSchema } from '../../../../modules/auth/schemas/register-schema
 import PasswordStrengthMeter from '@components/ui/PasswordStrengthMeter';
 import { extractApiError } from '../../../../shared/utils/extract-api-error';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function PasswordChangeForm() {
   const { user, fetchUser } = useAuthStore();
   const hasPassword = user?.has_password !== false;
@@ -98,7 +100,7 @@ export default function PasswordChangeForm() {
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-700"
                 aria-label={showOld ? 'Hide password' : 'Show password'}
               >
-                <span className="material-symbols-outlined text-lg">{showOld ? 'visibility_off' : 'visibility'}</span>
+                <Icon name={showOld ? 'visibility_off' : 'visibility'} className='text-lg' />
               </button>
             </div>
           </div>
@@ -124,7 +126,7 @@ export default function PasswordChangeForm() {
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-700"
               aria-label={showNew ? 'Hide password' : 'Show password'}
             >
-              <span className="material-symbols-outlined text-lg">{showNew ? 'visibility_off' : 'visibility'}</span>
+              <Icon name={showNew ? 'visibility_off' : 'visibility'} className='text-lg' />
             </button>
           </div>
           <PasswordStrengthMeter password={newPassword} />

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useAuthStore } from '@store';
 import { useDeleteAccount } from '../../../../modules/auth/hooks/useAccount';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function DeleteAccountSection() {
   const { user } = useAuthStore();
   const [open, setOpen] = useState(false);
@@ -42,7 +44,7 @@ export default function DeleteAccountSection() {
     <section className="bg-white border-2 border-red-200 rounded-2xl p-6 lg:p-8">
       <header className="mb-5">
         <h3 className="text-lg font-bold text-red-700 flex items-center gap-2">
-          <span className="material-symbols-outlined text-xl">warning</span>
+          <Icon name='warning' className='text-xl' />
           Danger zone
         </h3>
         <p className="mt-1 text-sm text-slate-600">

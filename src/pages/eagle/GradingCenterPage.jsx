@@ -8,6 +8,8 @@ import { stripCloudinarySignature } from '../../shared/utils/sanitize';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 import Avatar from '../../shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ─── Soft animated background blobs ─── */
 
 /* ─── Grading Modal ─── */
@@ -45,7 +47,7 @@ const GradingModal = ({ submission, onClose, onGrade, isSubmitting }) => {
                             </p>
                         </div>
                         <button onClick={onClose} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors">
-                            <span className="material-symbols-outlined">close</span>
+                            <Icon name='close' />
                         </button>
                     </div>
 
@@ -76,9 +78,11 @@ const GradingModal = ({ submission, onClose, onGrade, isSubmitting }) => {
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/10 rounded-2xl text-primary hover:bg-primary/10 transition-all group"
                             >
-                                <span className="material-symbols-outlined">description</span>
+                                <Icon name='description' />
                                 <span className="text-sm font-bold flex-1">View Attached File</span>
-                                <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">open_in_new</span>
+                                <Icon
+                                    name='open_in_new'
+                                    className='text-sm group-hover:translate-x-1 transition-transform' />
                             </a>
                         )}
 
@@ -239,7 +243,9 @@ const GradingCenterPage = () => {
 
                     <div className="flex items-center gap-3">
                         <div className="relative">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">search</span>
+                            <Icon
+                                name='search'
+                                className='absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400' />
                             <input
                                 type="text"
                                 placeholder="Search by name or task..."
@@ -352,7 +358,7 @@ const GradingCenterPage = () => {
                                                             className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-black text-slate-700 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm group-hover:shadow-md"
                                                         >
                                                             {sub.status === 'submitted' ? 'Review & Grade' : 'View Details'}
-                                                            <span className="material-symbols-outlined text-base">arrow_forward</span>
+                                                            <Icon name='arrow_forward' className='text-base' />
                                                         </button>
                                                     </td>
                                                 </motion.tr>
@@ -364,7 +370,7 @@ const GradingCenterPage = () => {
                         ) : (
                             <div className="py-32 text-center">
                                 <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
-                                    <span className="material-symbols-outlined text-5xl">inventory</span>
+                                    <Icon name='inventory' className='text-5xl' />
                                 </div>
                                 <h3 className="text-xl font-bold text-slate-900">Queue is empty</h3>
                                 <p className="text-slate-400 mt-2">No submissions found for the current filter.</p>

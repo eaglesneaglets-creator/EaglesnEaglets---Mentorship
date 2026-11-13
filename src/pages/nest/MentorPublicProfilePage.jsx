@@ -18,6 +18,8 @@ import MentorshipRequestModal from '../../modules/nest/components/MentorshipRequ
 import MentorProgramTab from '../../modules/nest/components/MentorProgramTab';
 import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
+import Icon from '@shared/components/ui/Icon';
+
 const TABS = [
     { value: 'about', label: 'About', icon: 'person' },
     { value: 'expertise', label: 'Expertise', icon: 'school' },
@@ -28,7 +30,7 @@ const TABS = [
 const StatCard = ({ icon, value, label, color = 'text-primary' }) => (
     <div className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200/60 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 group">
         <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-primary/5 transition-colors duration-300">
-            <span className={`material-symbols-outlined text-xl ${color}`}>{icon}</span>
+            <Icon name={icon} className={`text-xl ${color}`} />
         </div>
         <div>
             <p className="text-lg font-extrabold text-slate-900 leading-tight">
@@ -42,7 +44,7 @@ const StatCard = ({ icon, value, label, color = 'text-primary' }) => (
 /** Small empty-state block for tabs the mentor hasn't filled in. */
 const TabEmpty = ({ icon, text }) => (
     <div className="flex flex-col items-center justify-center text-center py-10 text-slate-400">
-        <span className="material-symbols-outlined text-3xl mb-2">{icon}</span>
+        <Icon name={icon} className='text-3xl mb-2' />
         <p className="text-sm">{text}</p>
     </div>
 );
@@ -120,7 +122,9 @@ const MentorPublicProfilePage = () => {
                     to="/eaglet/nest"
                     className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors duration-300 group"
                 >
-                    <span className="material-symbols-outlined text-lg transition-transform duration-300 group-hover:-translate-x-1">arrow_back</span>
+                    <Icon
+                        name='arrow_back'
+                        className='text-lg transition-transform duration-300 group-hover:-translate-x-1' />
                     Back to Mentors
                 </Link>
 
@@ -150,7 +154,7 @@ const MentorPublicProfilePage = () => {
                                     title="Verified mentor"
                                     className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full border-[3px] border-slate-900 flex items-center justify-center"
                                 >
-                                    <span className="material-symbols-outlined text-white text-base">verified</span>
+                                    <Icon name='verified' className='text-white text-base' />
                                 </span>
                             )}
                         </div>
@@ -161,7 +165,7 @@ const MentorPublicProfilePage = () => {
                                 <h1 className="text-2xl md:text-3xl font-extrabold text-white">{mentorName}</h1>
                                 {verified && (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/20 text-emerald-200 text-[11px] font-semibold rounded-full">
-                                        <span className="material-symbols-outlined text-sm">verified</span>
+                                        <Icon name='verified' className='text-sm' />
                                         Verified
                                     </span>
                                 )}
@@ -169,18 +173,18 @@ const MentorPublicProfilePage = () => {
                             <p className="text-emerald-300 font-medium mb-3">{subtitle}</p>
                             <div className="flex flex-wrap items-center gap-2.5">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur text-white text-xs font-semibold rounded-lg">
-                                    <span className="material-symbols-outlined text-sm">category</span>
+                                    <Icon name='category' className='text-sm' />
                                     {focusArea}
                                 </span>
                                 {years > 0 && (
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur text-white text-xs font-semibold rounded-lg">
-                                        <span className="material-symbols-outlined text-sm">workspace_premium</span>
+                                        <Icon name='workspace_premium' className='text-sm' />
                                         {years} {years === 1 ? 'yr' : 'yrs'} experience
                                     </span>
                                 )}
                                 {location && (
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur text-white text-xs font-semibold rounded-lg">
-                                        <span className="material-symbols-outlined text-sm">location_on</span>
+                                        <Icon name='location_on' className='text-sm' />
                                         {location}
                                     </span>
                                 )}
@@ -207,7 +211,7 @@ const MentorPublicProfilePage = () => {
                                     }
                                 `}
                             >
-                                <span className="material-symbols-outlined text-lg">send</span>
+                                <Icon name='send' className='text-lg' />
                                 {isFull ? 'Nest Full' : (!hasProgram ? 'No Program Yet' : 'Request to Join')}
                             </button>
                             {/* Nest context — small, no longer the hero subtitle */}

@@ -11,6 +11,8 @@ import StatusBadge from '../../shared/components/ui/StatusBadge';
 import EmptyState from '../../shared/components/ui/EmptyState';
 import TabBar from '../../shared/components/ui/TabBar';
 
+import Icon from '@shared/components/ui/Icon';
+
 const FILTER_TABS = [
     { value: 'all', label: 'All Requests' },
     { value: 'pending', label: 'Pending', icon: 'schedule' },
@@ -74,7 +76,7 @@ const MyRequestsPage = () => {
                         to="/eaglet/nest"
                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-primary/20 active:scale-[0.98]"
                     >
-                        <span className="material-symbols-outlined text-lg">search</span>
+                        <Icon name='search' className='text-lg' />
                         Find Mentors
                     </Link>
                 </div>
@@ -92,7 +94,7 @@ const MyRequestsPage = () => {
                             className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200/60 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
                         >
                             <div className={`w-10 h-10 rounded-xl ${stat.color} flex items-center justify-center`}>
-                                <span className="material-symbols-outlined text-lg">{stat.icon}</span>
+                                <Icon name={stat.icon} className='text-lg' />
                             </div>
                             <div>
                                 <p className="text-xl font-extrabold text-slate-900">{stat.count}</p>
@@ -170,7 +172,7 @@ const MyRequestsPage = () => {
                                                 {/* Top row: icon + name + status badge */}
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/10 to-emerald-50 flex items-center justify-center flex-shrink-0">
-                                                        <span className="material-symbols-outlined text-primary text-base">diversity_3</span>
+                                                        <Icon name='diversity_3' className='text-primary text-base' />
                                                     </div>
                                                     <div className="min-w-0 flex-1">
                                                         <p className="text-sm font-semibold text-slate-900 truncate">{nestName}</p>
@@ -206,7 +208,7 @@ const MyRequestsPage = () => {
                                                 {/* Nest/Mentor */}
                                                 <div className="col-span-4 flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-emerald-50 flex items-center justify-center flex-shrink-0">
-                                                        <span className="material-symbols-outlined text-primary text-lg">diversity_3</span>
+                                                        <Icon name='diversity_3' className='text-primary text-lg' />
                                                     </div>
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-semibold text-slate-900 truncate">{nestName}</p>

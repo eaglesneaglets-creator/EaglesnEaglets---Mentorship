@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import Icon from '@shared/components/ui/Icon';
 import { navMenuBtnClass, navMenuIconClass } from './publicNavConfig';
 
 export const MOBILE_NAV_DRAWER_ID = 'floating-navbar-mobile-drawer';
@@ -17,9 +18,10 @@ export default function FloatingNavbarMenuButton({
       aria-expanded={mobileOpen}
       aria-controls={MOBILE_NAV_DRAWER_ID}
     >
-      <span className={`${navMenuIconClass(useDarkText)} transition-transform duration-200 ${mobileOpen ? 'rotate-90' : ''}`}>
-        {mobileOpen ? 'close' : 'menu'}
-      </span>
+      <Icon
+        name={mobileOpen ? 'close' : 'menu'}
+        className={`${navMenuIconClass(useDarkText)} transition-transform duration-200 ${mobileOpen ? 'rotate-90' : ''}`}
+      />
     </button>
   );
 }

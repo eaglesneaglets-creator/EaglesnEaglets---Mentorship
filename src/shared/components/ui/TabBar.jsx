@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
+import Icon from '@shared/components/ui/Icon';
+
 const TabBar = ({ tabs, activeTab, onChange, variant = 'underline', className = '' }) => {
     const [indicatorStyle, setIndicatorStyle] = useState({});
     const tabRefs = useRef({});
@@ -57,7 +59,7 @@ const TabBar = ({ tabs, activeTab, onChange, variant = 'underline', className = 
                     >
                         <span className="flex items-center gap-1.5">
                             {tab.icon && (
-                                <span className="material-symbols-outlined text-lg">{tab.icon}</span>
+                                <Icon name={tab.icon} className='text-lg' />
                             )}
                             {tab.label}
                             {tab.count !== undefined && (
@@ -98,7 +100,7 @@ const TabBar = ({ tabs, activeTab, onChange, variant = 'underline', className = 
                 >
                     <span className="flex items-center gap-1.5">
                         {tab.icon && (
-                            <span className="material-symbols-outlined text-lg">{tab.icon}</span>
+                            <Icon name={tab.icon} className='text-lg' />
                         )}
                         {tab.label}
                         {tab.count !== undefined && (

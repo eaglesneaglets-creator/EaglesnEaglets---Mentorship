@@ -5,6 +5,8 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useNestDetail, useNestRequests, useRespondToRequest } from '../../modules/nest/hooks/useNests';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ─── Soft animated background ─── */
 
 const FILTER_TABS = [
@@ -94,7 +96,7 @@ const RequestCard = ({ request, onRespond, isResponding }) => {
                                 disabled={isResponding}
                                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary/90 transition-all shadow-sm shadow-primary/20 disabled:opacity-50"
                             >
-                                <span className="material-symbols-outlined text-sm">check</span>
+                                <Icon name='check' className='text-sm' />
                                 Approve
                             </motion.button>
                             <button
@@ -102,7 +104,7 @@ const RequestCard = ({ request, onRespond, isResponding }) => {
                                 disabled={isResponding}
                                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-red-600 text-xs font-bold rounded-xl border border-red-200 hover:bg-red-50 hover:border-red-300 transition-all disabled:opacity-50"
                             >
-                                <span className="material-symbols-outlined text-sm">close</span>
+                                <Icon name='close' className='text-sm' />
                                 Decline
                             </button>
                         </div>
@@ -181,7 +183,7 @@ const MentorshipRequestsPage = () => {
                             to={`/eagle/nests/${nestId}`}
                             className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm"
                         >
-                            <span className="material-symbols-outlined text-lg">arrow_back</span>
+                            <Icon name='arrow_back' className='text-lg' />
                         </Link>
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900">Mentorship Requests</h1>
@@ -216,7 +218,7 @@ const MentorshipRequestsPage = () => {
                                         : 'text-slate-400 hover:text-slate-600'
                                 }`}
                             >
-                                {tab.icon && <span className="material-symbols-outlined text-base">{tab.icon}</span>}
+                                {tab.icon && <Icon name={tab.icon} className='text-base' />}
                                 {tab.label}
                                 {counts[tab.key] > 0 && (
                                     <span className={`ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
@@ -240,16 +242,16 @@ const MentorshipRequestsPage = () => {
                     <div className="p-5">
                         {isError ? (
                             <div className="text-center py-12">
-                                <span className="material-symbols-outlined text-4xl text-red-300 block mb-3">error</span>
+                                <Icon name='error' className='text-4xl text-red-300 block mb-3' />
                                 <p className="text-sm font-semibold text-slate-900 mb-1">Failed to load requests</p>
                                 <p className="text-xs text-slate-400">Something went wrong. Please try again.</p>
                             </div>
                         ) : filtered.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
-                                    <span className="material-symbols-outlined text-3xl text-slate-300">
-                                        {activeFilter === 'pending' ? 'inbox' : 'filter_list'}
-                                    </span>
+                                    <Icon
+                                        name={activeFilter === 'pending' ? 'inbox' : 'filter_list'}
+                                        className='text-3xl text-slate-300' />
                                 </div>
                                 <p className="text-sm font-semibold text-slate-900 mb-1">
                                     {activeFilter === 'pending' ? 'No pending requests' : `No ${activeFilter} requests`}

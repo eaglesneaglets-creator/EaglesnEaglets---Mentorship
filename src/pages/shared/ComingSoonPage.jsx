@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@components/layout';
 import { useAuthStore } from '@store';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * ComingSoonPage Component
  * A beautifully designed placeholder page for features under development
@@ -51,9 +53,7 @@ const ComingSoonPage = ({ title, description, icon = 'rocket_launch' }) => {
 
               {/* Icon Circle */}
               <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-lg shadow-primary/30">
-                <span className="material-symbols-outlined text-white text-4xl">
-                  {icon}
-                </span>
+                <Icon name={icon} className='text-white text-4xl' />
               </div>
             </div>
 
@@ -96,9 +96,7 @@ const ComingSoonPage = ({ title, description, icon = 'rocket_launch' }) => {
                 onClick={() => navigate(getDashboardPath())}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-emerald-600 text-white font-semibold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300"
               >
-                <span className="material-symbols-outlined text-xl">
-                  arrow_back
-                </span>
+                <Icon name='arrow_back' className='text-xl' />
                 Back to Dashboard
               </button>
 
@@ -106,9 +104,7 @@ const ComingSoonPage = ({ title, description, icon = 'rocket_launch' }) => {
                 onClick={() => window.location.reload()}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition-all duration-300"
               >
-                <span className="material-symbols-outlined text-xl">
-                  refresh
-                </span>
+                <Icon name='refresh' className='text-xl' />
                 Refresh Page
               </button>
             </div>

@@ -4,6 +4,8 @@ import { useProducts, useCategories } from '../../modules/store/hooks/useStore';
 import ProductCard from '../../modules/store/components/ProductCard';
 import StoreHeader from '../../modules/store/components/StoreHeader';
 
+import Icon from '@shared/components/ui/Icon';
+
 // Gate the storefront until order fulfilment/logistics are ready.
 // Flip by setting VITE_STORE_ENABLED=true in the environment — no code change.
 const STORE_COMING_SOON = import.meta.env.VITE_STORE_ENABLED !== 'true';
@@ -18,7 +20,7 @@ const ComingSoonOverlay = () => (
     >
         <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 shadow-2xl p-8 sm:p-10 text-center">
             <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
-                <span className="material-symbols-outlined text-primary text-3xl">storefront</span>
+                <Icon name='storefront' className='text-primary text-3xl' />
             </div>
             <h2 id="store-coming-soon-title" className="text-2xl font-black text-slate-900 mb-2 tracking-tight">
                 Store Coming Soon
@@ -76,7 +78,9 @@ const StorePage = () => {
                     <p className="text-emerald-100 text-sm sm:text-base md:text-lg mb-5 sm:mb-6">Gear up for your mentorship journey</p>
                     {/* Search bar */}
                     <div className="max-w-md mx-auto relative">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                        <Icon
+                            name='search'
+                            className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl' />
                         <input
                             type="text"
                             placeholder="Search products..."
@@ -124,7 +128,7 @@ const StorePage = () => {
                 {/* Error state */}
                 {isError && (
                     <div className="text-center py-16">
-                        <span className="material-symbols-outlined text-6xl text-red-300">error</span>
+                        <Icon name='error' className='text-6xl text-red-300' />
                         <p className="text-slate-500 font-medium mt-3">Failed to load products</p>
                         <p className="text-slate-400 text-sm mt-1">Please try refreshing the page</p>
                     </div>
@@ -148,7 +152,7 @@ const StorePage = () => {
                 {/* Empty state */}
                 {!isLoading && !isError && filteredProducts.length === 0 && (
                     <div className="text-center py-16">
-                        <span className="material-symbols-outlined text-6xl text-slate-300">search_off</span>
+                        <Icon name='search_off' className='text-6xl text-slate-300' />
                         <p className="text-slate-500 font-medium mt-3">No products found</p>
                         {(search || selectedCategory) && (
                             <div className="flex gap-3 justify-center mt-3">

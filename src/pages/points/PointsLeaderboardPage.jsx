@@ -7,6 +7,8 @@ import BadgeGrid from '../../modules/points/components/BadgeGrid';
 import PointsHistoryPanel from '../../modules/points/components/PointsHistoryPanel';
 import Avatar from '../../shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 const FILTER_PARAMS = {
     'All Time': { period: 'all' },
     'This Month': { period: 'month' },
@@ -23,7 +25,7 @@ const StatCard = ({ icon, label, value, accent, delay = 0 }) => (
     >
         <div className="flex items-center gap-2 mb-2">
             <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl ${accent} flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0`}>
-                <span className="material-symbols-outlined text-lg sm:text-xl">{icon}</span>
+                <Icon name={icon} className='text-lg sm:text-xl' />
             </div>
             <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider leading-tight">{label}</span>
         </div>
@@ -191,7 +193,7 @@ const PointsLeaderboardPage = () => {
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20 flex-shrink-0">
-                                <span className="material-symbols-outlined text-white text-xl sm:text-2xl">emoji_events</span>
+                                <Icon name='emoji_events' className='text-white text-xl sm:text-2xl' />
                             </div>
                             <div className="min-w-0">
                                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Leaderboard</h1>
@@ -255,7 +257,7 @@ const PointsLeaderboardPage = () => {
                         </div>
                     ) : (
                         <div className="text-center py-12">
-                            <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">emoji_events</span>
+                            <Icon name='emoji_events' className='text-4xl text-slate-300 mb-2' />
                             <p className="text-sm text-slate-400">No leaderboard data yet</p>
                         </div>
                     )}
@@ -322,7 +324,7 @@ const PointsLeaderboardPage = () => {
                         </div>
                     ) : (
                         <div className="text-center py-12">
-                            <span className="material-symbols-outlined text-3xl text-slate-300">leaderboard</span>
+                            <Icon name='leaderboard' className='text-3xl text-slate-300' />
                             <p className="text-sm text-slate-400 mt-2">No rankings available yet. Start earning points!</p>
                         </div>
                     )}

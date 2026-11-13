@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * LoadError — the "couldn't load this, try again" state for a data region.
  *
@@ -18,7 +20,7 @@ const LoadError = ({ title, detail, onRetry, retryLabel = 'Retry', variant = 'pa
         return (
             <div className="flex h-64 items-center justify-center" role="alert">
                 <div className="flex flex-col items-center gap-3 text-center">
-                    <span className="material-symbols-outlined text-5xl text-slate-300" aria-hidden="true">cloud_off</span>
+                    <Icon name='cloud_off' className='text-5xl text-slate-300' aria-hidden="true" />
                     <p className="text-slate-500 font-medium">{title}</p>
                     {onRetry && (
                         <button type="button" onClick={onRetry} className="text-sm text-primary hover:underline">
@@ -32,7 +34,7 @@ const LoadError = ({ title, detail, onRetry, retryLabel = 'Retry', variant = 'pa
 
     return (
         <div className="p-12 text-center" role="alert">
-            <span className="material-symbols-outlined text-4xl text-red-300" aria-hidden="true">cloud_off</span>
+            <Icon name='cloud_off' className='text-4xl text-red-300' aria-hidden="true" />
             <p className="text-red-500 font-medium mt-2">{title}</p>
             {detail && <p className="text-slate-400 text-sm mt-1">{detail}</p>}
             {onRetry && (

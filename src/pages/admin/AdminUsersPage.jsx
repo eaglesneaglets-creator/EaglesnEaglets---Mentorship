@@ -18,6 +18,8 @@ import { adminService } from '../../modules/auth/services/auth-service';
 import { formatRelativeTime } from '../../shared/utils';
 import { toast } from '@shared/components/ui/toast-utils';
 
+import Icon from '@shared/components/ui/Icon';
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const ROLE_CONFIG = {
@@ -104,7 +106,7 @@ const SuspendModal = ({ user, onClose, onConfirm, isLoading }) => {
       >
         <div className="flex items-center gap-4 mb-5">
           <div className="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center">
-            <span className="material-symbols-outlined text-xl text-red-600">person_off</span>
+            <Icon name='person_off' className='text-xl text-red-600' />
           </div>
           <div>
             <p className="text-xs uppercase tracking-wider font-bold text-red-600">Suspend Account</p>
@@ -151,7 +153,7 @@ const SuspendModal = ({ user, onClose, onConfirm, isLoading }) => {
 
 const DetailRow = ({ label, value, icon, mono = false }) => (
   <div className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
-    <span className="material-symbols-outlined text-base mt-0.5 shrink-0 text-slate-400">{icon}</span>
+    <Icon name={icon} className='text-base mt-0.5 shrink-0 text-slate-400' />
     <div className="min-w-0 flex-1">
       <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-0.5">{label}</p>
       <p className={`text-sm text-slate-700 truncate ${mono ? 'font-mono' : ''}`}>
@@ -189,7 +191,7 @@ const UserDetailPanel = ({ user, onClose, onSuspend, onReactivate }) => {
           onClick={onClose}
           className="absolute top-4 right-4 w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center transition-all hover:bg-slate-100 z-10"
         >
-          <span className="material-symbols-outlined text-lg text-slate-400">close</span>
+          <Icon name='close' className='text-lg text-slate-400' />
         </button>
 
         {/* Header */}
@@ -251,7 +253,7 @@ const UserDetailPanel = ({ user, onClose, onSuspend, onReactivate }) => {
               { label: 'Assignments', value: user.assignments_completed ?? 0, icon: 'assignment_turned_in', color: 'text-amber-600' },
             ]).map(({ label, value, icon, color }) => (
               <div key={label} className="text-center">
-                <span className={`material-symbols-outlined text-base mb-1 block ${color} opacity-60`}>{icon}</span>
+                <Icon name={icon} className={`text-base mb-1 block ${color} opacity-60`} />
                 <p className={`text-lg font-bold font-mono ${color}`}>{typeof value === 'number' ? value.toLocaleString() : value}</p>
                 <p className="text-[10px] uppercase tracking-wider mt-0.5 text-slate-400">{label}</p>
               </div>
@@ -267,7 +269,7 @@ const UserDetailPanel = ({ user, onClose, onSuspend, onReactivate }) => {
                 onClick={() => { onReactivate(user); onClose(); }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all hover:shadow-md active:scale-[0.98] min-h-[44px] bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
               >
-                <span className="material-symbols-outlined text-lg">person_check</span>
+                <Icon name='person_check' className='text-lg' />
                 Reactivate Account
               </button>
             ) : (
@@ -275,7 +277,7 @@ const UserDetailPanel = ({ user, onClose, onSuspend, onReactivate }) => {
                 onClick={() => { onSuspend(user); onClose(); }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all hover:shadow-md active:scale-[0.98] min-h-[44px] bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
               >
-                <span className="material-symbols-outlined text-lg">person_off</span>
+                <Icon name='person_off' className='text-lg' />
                 Suspend Account
               </button>
             )}
@@ -308,7 +310,7 @@ const BulkActionBar = ({ count, onSuspendAll, onDeselectAll }) => (
       onClick={onSuspendAll}
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95 min-h-[36px] bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
     >
-      <span className="material-symbols-outlined text-sm">person_off</span>
+      <Icon name='person_off' className='text-sm' />
       Suspend
     </button>
 
@@ -316,7 +318,7 @@ const BulkActionBar = ({ count, onSuspendAll, onDeselectAll }) => (
       onClick={onDeselectAll}
       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95 min-h-[36px] bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100"
     >
-      <span className="material-symbols-outlined text-sm">close</span>
+      <Icon name='close' className='text-sm' />
       Clear
     </button>
   </motion.div>
@@ -391,7 +393,7 @@ const UserRow = ({ user, index, onSuspend, onReactivate, selected, onSelect, onV
       {/* KYC */}
       <td className="px-4 py-4">
         <span className={`flex items-center gap-1.5 text-xs ${kyc.color}`}>
-          <span className="material-symbols-outlined text-sm">{kyc.icon}</span>
+          <Icon name={kyc.icon} className='text-sm' />
           {kyc.label}
         </span>
       </td>
@@ -414,7 +416,7 @@ const UserRow = ({ user, index, onSuspend, onReactivate, selected, onSelect, onV
               onClick={() => onReactivate(user)}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm min-h-[36px] bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
             >
-              <span className="material-symbols-outlined text-sm">person_check</span>
+              <Icon name='person_check' className='text-sm' />
               Reactivate
             </button>
           ) : user.role !== 'admin' ? (
@@ -422,7 +424,7 @@ const UserRow = ({ user, index, onSuspend, onReactivate, selected, onSelect, onV
               onClick={() => onSuspend(user)}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:shadow-sm min-h-[36px] bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
             >
-              <span className="material-symbols-outlined text-sm">person_off</span>
+              <Icon name='person_off' className='text-sm' />
               Suspend
             </button>
           ) : (
@@ -501,7 +503,7 @@ const UserMobileCard = ({ user, index, onSuspend, onReactivate, selected, onSele
         <div className="flex items-center gap-2">
           <span className="text-[10px] uppercase tracking-wider text-slate-400">KYC</span>
           <span className={`flex items-center gap-1 text-[11px] ${kyc.color}`}>
-            <span className="material-symbols-outlined text-sm">{kyc.icon}</span>
+            <Icon name={kyc.icon} className='text-sm' />
             {kyc.label}
           </span>
         </div>
@@ -523,7 +525,7 @@ const UserMobileCard = ({ user, index, onSuspend, onReactivate, selected, onSele
               onClick={() => onReactivate(user)}
               className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all active:scale-95 min-h-[44px] bg-emerald-50 text-emerald-700 border border-emerald-200"
             >
-              <span className="material-symbols-outlined text-sm">person_check</span>
+              <Icon name='person_check' className='text-sm' />
               Reactivate
             </button>
           ) : (
@@ -531,7 +533,7 @@ const UserMobileCard = ({ user, index, onSuspend, onReactivate, selected, onSele
               onClick={() => onSuspend(user)}
               className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all active:scale-95 min-h-[44px] bg-red-50 text-red-600 border border-red-200"
             >
-              <span className="material-symbols-outlined text-sm">person_off</span>
+              <Icon name='person_off' className='text-sm' />
               Suspend
             </button>
           )}
@@ -568,7 +570,9 @@ const FilterBar = ({ filters, onChange, total, loading }) => {
       {/* Search + toggle */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 min-w-0">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-base text-slate-400">search</span>
+          <Icon
+            name='search'
+            className='absolute left-3 top-1/2 -translate-y-1/2 text-base text-slate-400' />
           <input
             value={filters.search || ''}
             onChange={e => onChange({ ...filters, search: e.target.value, page: 1 })}
@@ -586,7 +590,7 @@ const FilterBar = ({ filters, onChange, total, loading }) => {
               : 'bg-slate-50 text-slate-500 border-slate-200'
           }`}
         >
-          <span className="material-symbols-outlined text-base">tune</span>
+          <Icon name='tune' className='text-base' />
           {activeFilterCount > 0 && (
             <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-primary text-white">
               {activeFilterCount}
@@ -671,9 +675,9 @@ const Pagination = ({ page, totalPages, onChange }) => {
 
   return (
     <div className="flex items-center justify-center gap-1 pt-4">
-      <PaginationBtn p={page - 1} activePage={page} onChange={onChange} disabled={page === 1}><span className="material-symbols-outlined text-base">chevron_left</span></PaginationBtn>
+      <PaginationBtn p={page - 1} activePage={page} onChange={onChange} disabled={page === 1}><Icon name='chevron_left' className='text-base' /></PaginationBtn>
       {pages.map(p => <PaginationBtn key={p} p={p} activePage={page} onChange={onChange}>{p}</PaginationBtn>)}
-      <PaginationBtn p={page + 1} activePage={page} onChange={onChange} disabled={page === totalPages}><span className="material-symbols-outlined text-base">chevron_right</span></PaginationBtn>
+      <PaginationBtn p={page + 1} activePage={page} onChange={onChange} disabled={page === totalPages}><Icon name='chevron_right' className='text-base' /></PaginationBtn>
     </div>
   );
 };
@@ -706,16 +710,14 @@ const SortableHeader = ({ label, ordering, onSort }) => {
     >
       <span className="inline-flex items-center gap-1">
         {label}
-        <span
-          className={`material-symbols-outlined transition-all text-sm ${isActive ? 'opacity-100 text-primary' : 'opacity-0'}`}
-          style={{ transform: isDesc ? 'rotate(0deg)' : 'rotate(180deg)' }}
-        >
-          arrow_downward
-        </span>
+        <Icon
+          name='arrow_downward'
+          className={`transition-all text-sm ${isActive ? 'opacity-100 text-primary' : 'opacity-0'}`}
+          style={{ transform: isDesc ? 'rotate(0deg)' : 'rotate(180deg)' }} />
         {!isActive && (
-          <span className="material-symbols-outlined opacity-0 group-hover:opacity-40 transition-opacity text-sm text-slate-400">
-            unfold_more
-          </span>
+          <Icon
+            name='unfold_more'
+            className='opacity-0 group-hover:opacity-40 transition-opacity text-sm text-slate-400' />
         )}
       </span>
     </th>
@@ -882,7 +884,7 @@ const AdminUsersPage = () => {
               disabled={users.length === 0}
               className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all duration-300 flex items-center gap-2 hover:shadow-md disabled:opacity-40 min-h-[44px]"
             >
-              <span className="material-symbols-outlined text-lg">download</span>
+              <Icon name='download' className='text-lg' />
               <span className="hidden sm:inline">Export</span>
             </button>
             <select
@@ -966,7 +968,7 @@ const AdminUsersPage = () => {
                     </motion.div>
                   ) : users.length === 0 ? (
                     <motion.div key="mobile-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-6 py-12 text-center">
-                      <span className="material-symbols-outlined text-4xl block mb-3 text-slate-300">manage_accounts</span>
+                      <Icon name='manage_accounts' className='text-4xl block mb-3 text-slate-300' />
                       <p className="text-sm text-slate-400">No users found matching your filters.</p>
                     </motion.div>
                   ) : (
@@ -1039,7 +1041,7 @@ const AdminUsersPage = () => {
                   ) : users.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-6 py-20 text-center">
-                        <span className="material-symbols-outlined text-4xl block mb-3 text-slate-300">manage_accounts</span>
+                        <Icon name='manage_accounts' className='text-4xl block mb-3 text-slate-300' />
                         <p className="text-sm text-slate-400">No users found matching your filters.</p>
                       </td>
                     </tr>
@@ -1114,7 +1116,7 @@ const AdminUsersPage = () => {
       </AnimatePresence>
     </DashboardLayout>
 
-    <ConfirmModal config={confirmConfig} onClose={() => setConfirmConfig(null)} />
+      <ConfirmModal config={confirmConfig} onClose={() => setConfirmConfig(null)} />
     </>
   );
 };

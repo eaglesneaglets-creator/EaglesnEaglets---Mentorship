@@ -13,6 +13,8 @@ import {
 } from '../hooks/useObjectives';
 import ObjectiveCard from './ObjectiveCard';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function ProgramObjectiveBuilder({ nestId, programId }) {
     const { data, isLoading } = useObjectives(nestId, programId);
     const createObjective = useCreateObjective(nestId, programId);
@@ -55,14 +57,14 @@ export default function ProgramObjectiveBuilder({ nestId, programId }) {
                     disabled={createObjective.isPending}
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors w-full sm:w-auto"
                 >
-                    <span className="material-symbols-outlined text-base">add</span>
+                    <Icon name='add' className='text-base' />
                     Add Objective
                 </button>
             </div>
 
             {objectives.length === 0 ? (
                 <div className="text-center py-12 border border-dashed border-slate-200 rounded-2xl">
-                    <span className="material-symbols-outlined text-slate-300 text-5xl mb-2">flag</span>
+                    <Icon name='flag' className='text-slate-300 text-5xl mb-2' />
                     <p className="text-slate-500">No objectives defined yet.</p>
                     <p className="text-xs text-slate-400 mt-1">
                         Click "Add Objective" to define what mentees need to accomplish.

@@ -9,6 +9,8 @@ import {
 import { useMentorApplicationEligible } from '@store';
 import { ConfirmModal } from '../../shared/components/ui/ConfirmModal';
 
+import Icon from '@shared/components/ui/Icon';
+
 const OBLIGATIONS = [
     'Safeguarding & mandatory reporting — prioritise mentee safety and escalate concerns.',
     'Professional boundaries — no romantic, sexual, financial, or exploitative relationships with mentees.',
@@ -30,7 +32,7 @@ function StatusBanner({ tone, icon, title, children }) {
     return (
         <div className={`flex items-start gap-3 p-4 rounded-xl border ${tones[tone] || tones.slate}`}>
             {icon && (
-                <span className="material-symbols-outlined text-2xl shrink-0 mt-0.5">{icon}</span>
+                <Icon name={icon} className='text-2xl shrink-0 mt-0.5' />
             )}
             <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">{title}</p>
@@ -49,7 +51,7 @@ function PageShell({ children }) {
                         to="/eaglet/dashboard"
                         className="text-sm text-slate-500 hover:text-slate-900 inline-flex items-center gap-1"
                     >
-                        <span className="material-symbols-outlined text-base">arrow_back</span>
+                        <Icon name='arrow_back' className='text-base' />
                         Back to dashboard
                     </Link>
                 </div>
@@ -113,9 +115,7 @@ function EligibleFormView({ rejected, cooldownUntil, onSubmit, submitting }) {
                 <ul className="space-y-2.5">
                     {OBLIGATIONS.map((o) => (
                         <li key={o} className="flex items-start gap-2 text-sm text-slate-700">
-                            <span className="material-symbols-outlined text-emerald-600 text-lg shrink-0 mt-0.5">
-                                check_circle
-                            </span>
+                            <Icon name='check_circle' className='text-emerald-600 text-lg shrink-0 mt-0.5' />
                             <span>{o}</span>
                         </li>
                     ))}

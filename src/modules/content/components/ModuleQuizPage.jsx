@@ -5,6 +5,8 @@ import DashboardLayout from '../../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useGetQuiz, useSubmitAttempt, useAttemptHistory } from '../hooks/useModuleQuiz';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ─── MCQ question ─── */
 const MCQQuestion = ({ question, answer, onChange }) => (
     <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3">
@@ -53,9 +55,9 @@ const ResultsScreen = ({ result, quiz, onRetry, onDone }) => {
             className="max-w-md mx-auto text-center py-12"
         >
             <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 ${passed ? 'bg-primary/10' : 'bg-red-50'}`}>
-                <span className={`material-symbols-outlined text-4xl ${passed ? 'text-primary' : 'text-red-500'}`}>
-                    {passed ? 'check_circle' : 'cancel'}
-                </span>
+                <Icon
+                    name={passed ? 'check_circle' : 'cancel'}
+                    className={`text-4xl ${passed ? 'text-primary' : 'text-red-500'}`} />
             </div>
             <h2 className="text-2xl font-black text-slate-900 mb-1">
                 {passed ? 'You Passed!' : 'Not Quite'}
@@ -139,7 +141,7 @@ const ModuleQuizPage = () => {
     if (isLoading) return (
         <DashboardLayout variant={layoutVariant}>
             <div className="flex items-center justify-center h-64">
-                <span className="material-symbols-outlined animate-spin text-primary text-3xl">sync</span>
+                <Icon name='sync' className='animate-spin text-primary text-3xl' />
             </div>
         </DashboardLayout>
     );
@@ -147,7 +149,7 @@ const ModuleQuizPage = () => {
     if (!quiz) return (
         <DashboardLayout variant={layoutVariant}>
             <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-                <span className="material-symbols-outlined text-4xl mb-3">quiz</span>
+                <Icon name='quiz' className='text-4xl mb-3' />
                 <p>No quiz found for this module.</p>
             </div>
         </DashboardLayout>
@@ -161,7 +163,7 @@ const ModuleQuizPage = () => {
                     onClick={() => navigate(-1)}
                     className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary mb-6 transition-colors"
                 >
-                    <span className="material-symbols-outlined text-base">arrow_back</span>
+                    <Icon name='arrow_back' className='text-base' />
                     Back to module
                 </button>
 
@@ -183,7 +185,7 @@ const ModuleQuizPage = () => {
                             {/* Quiz header */}
                             <div className="mb-6">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="material-symbols-outlined text-amber-500">quiz</span>
+                                    <Icon name='quiz' className='text-amber-500' />
                                     <h1 className="text-xl font-black text-slate-900">{quiz.title}</h1>
                                 </div>
                                 <div className="flex gap-4 text-xs text-slate-400">
@@ -195,7 +197,7 @@ const ModuleQuizPage = () => {
 
                             {isExhausted ? (
                                 <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
-                                    <span className="material-symbols-outlined text-red-400 text-3xl mb-2 block">block</span>
+                                    <Icon name='block' className='text-red-400 text-3xl mb-2 block' />
                                     <p className="font-bold text-red-700">No attempts remaining</p>
                                     <p className="text-sm text-red-500 mt-1">You've used all {quiz.max_attempts} attempts for this quiz.</p>
                                     <button onClick={() => navigate(-1)} className="mt-4 px-5 py-2 bg-white border border-red-200 text-red-600 text-sm font-semibold rounded-xl hover:bg-red-50 transition-colors">

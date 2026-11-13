@@ -12,6 +12,8 @@ import AvatarGroup from '../../shared/components/ui/AvatarGroup';
 import StatusBadge from '../../shared/components/ui/StatusBadge';
 import RequestSentSuccess from '../../modules/nest/components/RequestSentSuccess';
 
+import Icon from '@shared/components/ui/Icon';
+
 const MAX_CHARS = 500;
 
 const BENEFITS = [
@@ -87,7 +89,9 @@ const NestJoinDetailPage = () => {
                     to={`/eaglet/mentor/${nestId}`}
                     className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors duration-300 group"
                 >
-                    <span className="material-symbols-outlined text-lg transition-transform duration-300 group-hover:-translate-x-1">arrow_back</span>
+                    <Icon
+                        name='arrow_back'
+                        className='text-lg transition-transform duration-300 group-hover:-translate-x-1' />
                     Back to Mentor Profile
                 </Link>
 
@@ -98,7 +102,7 @@ const NestJoinDetailPage = () => {
                     <div className="relative z-10 flex flex-col md:flex-row items-start gap-6">
                         {/* Avatar */}
                         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-lg shadow-primary/20 flex-shrink-0">
-                            <span className="material-symbols-outlined text-3xl">diversity_3</span>
+                            <Icon name='diversity_3' className='text-3xl' />
                         </div>
 
                         {/* Info */}
@@ -114,7 +118,7 @@ const NestJoinDetailPage = () => {
                             <p className="text-sm text-slate-600 mb-3">Mentored by <span className="font-semibold text-slate-800">{mentorName}</span></p>
                             <div className="flex flex-wrap gap-2">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary text-xs font-semibold rounded-lg border border-primary/10">
-                                    <span className="material-symbols-outlined text-sm">category</span>
+                                    <Icon name='category' className='text-sm' />
                                     {focusArea}
                                 </span>
                             </div>
@@ -146,7 +150,7 @@ const NestJoinDetailPage = () => {
                         {nest.description && (
                             <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
                                 <h2 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary text-lg">info</span>
+                                    <Icon name='info' className='text-primary text-lg' />
                                     About This Nest
                                 </h2>
                                 <p className="text-sm text-slate-600 leading-relaxed">{nest.description}</p>
@@ -156,7 +160,7 @@ const NestJoinDetailPage = () => {
                         {/* Benefits */}
                         <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
                             <h2 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary text-lg">workspace_premium</span>
+                                <Icon name='workspace_premium' className='text-primary text-lg' />
                                 Membership Benefits
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -167,7 +171,7 @@ const NestJoinDetailPage = () => {
                                         style={{ animation: `fadeInUp 0.4s ease-out ${idx * 0.08}s both` }}
                                     >
                                         <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/60 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10 group-hover:border-primary/20 transition-colors duration-300">
-                                            <span className="material-symbols-outlined text-primary text-lg">{benefit.icon}</span>
+                                            <Icon name={benefit.icon} className='text-primary text-lg' />
                                         </div>
                                         <div>
                                             <h3 className="text-sm font-semibold text-slate-800">{benefit.title}</h3>
@@ -184,14 +188,14 @@ const NestJoinDetailPage = () => {
                         {/* Join form */}
                         <div className="bg-white rounded-2xl border border-slate-200/60 p-6 sticky top-0">
                             <h2 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary text-lg">send</span>
+                                <Icon name='send' className='text-primary text-lg' />
                                 Request to Join
                             </h2>
 
                             {isFull ? (
                                 <div className="text-center py-6">
                                     <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-slate-400 text-2xl">group_off</span>
+                                        <Icon name='group_off' className='text-slate-400 text-2xl' />
                                     </div>
                                     <p className="text-sm font-semibold text-slate-700 mb-1">Nest is Full</p>
                                     <p className="text-xs text-slate-500">This nest has reached maximum capacity. Check back later.</p>
@@ -218,7 +222,7 @@ const NestJoinDetailPage = () => {
 
                                     {joinMutation.isError && (
                                         <div className="p-3 bg-red-50 border border-red-200/60 rounded-xl flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-red-500 text-lg">error</span>
+                                            <Icon name='error' className='text-red-500 text-lg' />
                                             <p className="text-sm text-red-700">
                                                 {joinMutation.error?.message || 'Failed to send request.'}
                                             </p>
@@ -247,7 +251,7 @@ const NestJoinDetailPage = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <span className="material-symbols-outlined text-lg">send</span>
+                                                <Icon name='send' className='text-lg' />
                                                 Send Request
                                             </>
                                         )}
@@ -268,7 +272,7 @@ const NestJoinDetailPage = () => {
                                 </>
                             ) : (
                                 <div className="text-center py-4">
-                                    <span className="material-symbols-outlined text-slate-300 text-3xl mb-2">group_add</span>
+                                    <Icon name='group_add' className='text-slate-300 text-3xl mb-2' />
                                     <p className="text-xs text-slate-500">Be the first to join!</p>
                                 </div>
                             )}

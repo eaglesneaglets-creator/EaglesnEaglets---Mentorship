@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import aboutIllustration640 from '../../../assets/about-illustration-640.webp';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * Students-learning hero artwork with gentle motion and orbiting accent glyphs.
  * Shared by Home and About so both surfaces use the same visual language.
@@ -33,7 +35,7 @@ const LearningIllustration = () => (
             animate={{ y: [0, -10, 0], rotate: [-4, 4, -4] }}
             transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-            <span className="material-symbols-outlined text-emerald-600 text-xl">menu_book</span>
+            <Icon name='menu_book' className='text-emerald-600 text-xl' />
         </motion.div>
 
         <motion.div
@@ -42,7 +44,7 @@ const LearningIllustration = () => (
             animate={{ y: [0, -12, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
         >
-            <span className="material-symbols-outlined text-amber-500 text-2xl">lightbulb</span>
+            <Icon name='lightbulb' className='text-amber-500 text-2xl' />
         </motion.div>
 
         <motion.div
@@ -51,7 +53,7 @@ const LearningIllustration = () => (
             animate={{ y: [0, -8, 0], rotate: [0, -6, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }}
         >
-            <span className="material-symbols-outlined text-slate-700 text-xl">school</span>
+            <Icon name='school' className='text-slate-700 text-xl' />
         </motion.div>
 
         <motion.span
@@ -60,7 +62,7 @@ const LearningIllustration = () => (
             animate={{ y: [0, -16, 0], opacity: [0.4, 1, 0.4], scale: [0.8, 1.1, 0.8] }}
             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         >
-            <span className="material-symbols-outlined text-base">auto_awesome</span>
+            <Icon name='auto_awesome' className='text-base' />
         </motion.span>
         <motion.span
             aria-hidden
@@ -68,7 +70,7 @@ const LearningIllustration = () => (
             animate={{ y: [0, -14, 0], opacity: [0.3, 0.9, 0.3], scale: [0.8, 1, 0.8] }}
             transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}
         >
-            <span className="material-symbols-outlined text-sm">auto_awesome</span>
+            <Icon name='auto_awesome' className='text-sm' />
         </motion.span>
         <motion.span
             aria-hidden
@@ -76,7 +78,7 @@ const LearningIllustration = () => (
             animate={{ y: [0, -18, 0], opacity: [0.3, 0.8, 0.3] }}
             transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
         >
-            <span className="material-symbols-outlined text-xs">circle</span>
+            <Icon name='circle' className='text-xs' />
         </motion.span>
     </div>
 );

@@ -15,6 +15,8 @@ const Logo = '/logo.webp';
 import { formatRelativeTime } from '../../../shared/utils';
 import Avatar from '../ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 const EMPTY_LOCKED_FEATURES = [];
 
 /**
@@ -83,54 +85,52 @@ const NavItem = React.memo(({ to, icon, label, isActive, badge, isCollapsed, onC
   };
 
   return (
-  <Link
-    to={isLocked ? '#' : to}
-    onClick={handleClick}
-    title={isCollapsed ? label : undefined}
-    aria-disabled={isLocked || undefined}
-    className={`
-      group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative
-      ${isCollapsed ? 'justify-center' : ''}
-      ${isActive
-        ? 'bg-primary text-white shadow-lg shadow-primary/25'
-        : isLocked
-          ? 'text-slate-400 hover:bg-slate-50'
-          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-      }
-    `}
-  >
-    <span className={`material-symbols-outlined text-xl transition-transform duration-300 ${isActive ? '' : 'group-hover:scale-110'} ${isCollapsed ? '' : ''}`}>
-      {icon}
-    </span>
-    {!isCollapsed && (
-      <>
-        <span className="text-sm font-medium flex-1 whitespace-nowrap overflow-hidden">{label}</span>
-        {isLocked && (
-          <span className="material-symbols-outlined text-base text-slate-400" aria-label="Locked">
-            lock
-          </span>
-        )}
-        {badge && !isLocked && (
-          <span className={`
-            px-2 py-0.5 text-xs font-bold rounded-full transition-all duration-300
-            ${isActive ? 'bg-white/20 text-white' : 'bg-emerald-500 text-white'}
-          `}>
-            {badge}
-          </span>
-        )}
-      </>
-    )}
-    {isCollapsed && isLocked && (
-      <span className="absolute -top-1 -right-1 w-4 h-4 bg-slate-300 rounded-full flex items-center justify-center">
-        <span className="material-symbols-outlined text-[10px] text-white">lock</span>
-      </span>
-    )}
-    {isCollapsed && badge && !isLocked && (
-      <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-        {badge}
-      </span>
-    )}
-  </Link>
+    <Link
+      to={isLocked ? '#' : to}
+      onClick={handleClick}
+      title={isCollapsed ? label : undefined}
+      aria-disabled={isLocked || undefined}
+      className={`
+        group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative
+        ${isCollapsed ? 'justify-center' : ''}
+        ${isActive
+          ? 'bg-primary text-white shadow-lg shadow-primary/25'
+          : isLocked
+            ? 'text-slate-400 hover:bg-slate-50'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        }
+      `}
+    >
+      <Icon
+        name={icon}
+        className={`text-xl transition-transform duration-300 ${isActive ? '' : 'group-hover:scale-110'} ${isCollapsed ? '' : ''}`} />
+      {!isCollapsed && (
+        <>
+          <span className="text-sm font-medium flex-1 whitespace-nowrap overflow-hidden">{label}</span>
+          {isLocked && (
+            <Icon name='lock' className='text-base text-slate-400' aria-label="Locked" />
+          )}
+          {badge && !isLocked && (
+            <span className={`
+              px-2 py-0.5 text-xs font-bold rounded-full transition-all duration-300
+              ${isActive ? 'bg-white/20 text-white' : 'bg-emerald-500 text-white'}
+            `}>
+              {badge}
+            </span>
+          )}
+        </>
+      )}
+      {isCollapsed && isLocked && (
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-slate-300 rounded-full flex items-center justify-center">
+          <Icon name='lock' className='text-[10px] text-white' />
+        </span>
+      )}
+      {isCollapsed && badge && !isLocked && (
+        <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+          {badge}
+        </span>
+      )}
+    </Link>
   );
 });
 
@@ -479,9 +479,9 @@ const DashboardLayout = ({
             onClick={toggleSidebar}
             className={`hidden lg:flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-all duration-300 flex-shrink-0 ${isSidebarOpen ? '' : 'absolute -right-3.5 top-4 bg-white shadow-md border border-slate-200'}`}
           >
-            <span className={`material-symbols-outlined text-lg transition-transform duration-300 ${isSidebarOpen ? '' : 'rotate-180'}`}>
-              chevron_left
-            </span>
+            <Icon
+              name='chevron_left'
+              className={`text-lg transition-transform duration-300 ${isSidebarOpen ? '' : 'rotate-180'}`} />
           </button>
         </div>
 
@@ -565,9 +565,9 @@ const DashboardLayout = ({
             title={!isSidebarOpen ? 'Log Out' : undefined}
             className={`w-full flex items-center rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group ${isSidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center p-3'}`}
           >
-            <span className="material-symbols-outlined text-xl transition-transform duration-300 group-hover:rotate-12">
-              logout
-            </span>
+            <Icon
+              name='logout'
+              className='text-xl transition-transform duration-300 group-hover:rotate-12' />
             {isSidebarOpen && <span className="text-sm font-medium">Log Out</span>}
           </button>
         </div>
@@ -594,9 +594,9 @@ const DashboardLayout = ({
             {/* Search Bar */}
             <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
               <div className="w-full relative group">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl transition-colors group-focus-within:text-primary">
-                  search
-                </span>
+                <Icon
+                  name='search'
+                  className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl transition-colors group-focus-within:text-primary' />
                 <input
                   type="text"
                   placeholder="Search..."
@@ -613,9 +613,9 @@ const DashboardLayout = ({
                   onClick={() => setShowNotifications(!showNotifications)}
                   className="relative p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group"
                 >
-                  <span className={`material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors ${bellShaking ? 'animate-wiggle' : ''}`}>
-                    notifications
-                  </span>
+                  <Icon
+                    name='notifications'
+                    className={`text-slate-600 group-hover:text-primary transition-colors ${bellShaking ? 'animate-wiggle' : ''}`} />
                   {unreadCount > 0 && (
                     <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white animate-pulse">
                       {unreadCount > 9 ? '9+' : unreadCount}
@@ -648,7 +648,7 @@ const DashboardLayout = ({
                             className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer ${!n.is_read ? 'bg-primary/[0.03]' : ''}`}
                           >
                             <div className={`w-8 h-8 rounded-lg ${meta.bg} flex items-center justify-center flex-shrink-0`}>
-                              <span className="material-symbols-outlined text-sm">{meta.icon}</span>
+                              <Icon name={meta.icon} className='text-sm' />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className={`text-xs text-slate-900 ${!n.is_read ? 'font-bold' : 'font-semibold'}`}>{n.title}</p>
@@ -662,7 +662,7 @@ const DashboardLayout = ({
                         );
                       }) : (
                         <div className="px-4 py-8 text-center">
-                          <span className="material-symbols-outlined text-2xl text-slate-300">notifications_off</span>
+                          <Icon name='notifications_off' className='text-2xl text-slate-300' />
                           <p className="text-xs text-slate-400 mt-1">No notifications yet</p>
                         </div>
                       )}
@@ -686,9 +686,9 @@ const DashboardLayout = ({
                 title="FAQs"
                 className="p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group hidden sm:flex items-center justify-center"
               >
-                <span className="material-symbols-outlined text-slate-600 group-hover:text-primary transition-colors">
-                  help
-                </span>
+                <Icon
+                  name='help'
+                  className='text-slate-600 group-hover:text-primary transition-colors' />
               </Link>
 
               {/* Logout button — visible on mobile where sidebar bottom is hidden */}
@@ -736,16 +736,16 @@ const DashboardLayout = ({
               }}
             >
               <span className="ios-tab-icon">
-                <span className="material-symbols-outlined">{item.icon}</span>
+                <Icon name={item.icon} />
                 {item.badge && <i>{Number(item.badge) > 9 ? '9+' : item.badge}</i>}
-                {itemLocked && <i className="is-lock"><span className="material-symbols-outlined">lock</span></i>}
+                {itemLocked && <i className="is-lock"><Icon name='lock' /></i>}
               </span>
               <small>{item.label === 'Dashboard' ? 'Home' : item.label}</small>
             </Link>
           );
         })}
         <button type="button" onClick={() => setIsMobileMenuOpen(true)} aria-label="More navigation">
-          <span className="ios-tab-icon"><span className="material-symbols-outlined">apps</span></span>
+          <span className="ios-tab-icon"><Icon name='apps' /></span>
           <small>More</small>
         </button>
       </nav>

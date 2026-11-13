@@ -12,6 +12,8 @@ import NestMembersPanel from '../../modules/admin-nest/components/NestMembersPan
 import NestActivityTimeline from '../../modules/admin-nest/components/NestActivityTimeline';
 import { categoryMeta, statusMeta } from '../../modules/admin-nest/components/nestMeta';
 
+import Icon from '@shared/components/ui/Icon';
+
 const TABS = [
   { id: 'overview', label: 'Overview', icon: 'info' },
   { id: 'members', label: 'Members', icon: 'group' },
@@ -88,13 +90,13 @@ const AdminNestDetailPage = () => {
         {/* Breadcrumb + header */}
         <div>
           <Link to="/admin/nests" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-primary transition-colors mb-3">
-            <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+            <Icon name='arrow_back' className='text-[16px]' />
             Nests
           </Link>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center flex-shrink-0`}>
-                <span className="material-symbols-outlined text-white">{cat.icon}</span>
+                <Icon name={cat.icon} className='text-white' />
               </div>
               <div>
                 <h1 className="text-2xl font-black text-slate-900 leading-tight">
@@ -118,7 +120,7 @@ const AdminNestDetailPage = () => {
                 aria-label="Nest actions"
                 className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors"
               >
-                <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                <Icon name='more_vert' className='text-[20px]' />
               </button>
               {menuOpen && (
                 <>
@@ -130,7 +132,7 @@ const AdminNestDetailPage = () => {
                       disabled={nest.status === 'archived'}
                       className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[18px]">archive</span>
+                      <Icon name='archive' className='text-[18px]' />
                       Archive Nest
                     </button>
                   </div>
@@ -151,7 +153,7 @@ const AdminNestDetailPage = () => {
                 onClick={() => setTab(t.id)}
                 className={`relative flex items-center gap-2 px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-colors ${active ? 'text-primary' : 'text-slate-500 hover:text-slate-700'}`}
               >
-                <span className="material-symbols-outlined text-[18px]">{t.icon}</span>
+                <Icon name={t.icon} className='text-[18px]' />
                 {t.label}
                 {active && <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-primary rounded-full" />}
               </button>
@@ -213,7 +215,9 @@ const AdminNestDetailPage = () => {
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 py-3 hover:bg-slate-50 -mx-2 px-2 rounded-lg transition-colors"
                   >
-                    <span className="material-symbols-outlined text-slate-400">{SHARED_KIND_ICON[c.kind] || 'description'}</span>
+                    <Icon
+                      name={SHARED_KIND_ICON[c.kind] || 'description'}
+                      className='text-slate-400' />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-slate-900 truncate">{c.title}</p>
                       <p className="text-[11px] text-slate-400">
@@ -225,7 +229,7 @@ const AdminNestDetailPage = () => {
                         )}
                       </p>
                     </div>
-                    <span className="material-symbols-outlined text-slate-300 text-[18px]">open_in_new</span>
+                    <Icon name='open_in_new' className='text-slate-300 text-[18px]' />
                   </a>
                 ))}
               </div>

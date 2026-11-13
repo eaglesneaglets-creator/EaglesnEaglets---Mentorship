@@ -9,6 +9,8 @@ import {
   avatarErrorMessage,
 } from '../../../modules/profile/hooks/useAvatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * AvatarUploadCard — change or remove your profile picture (Phase 32-02).
  *
@@ -135,9 +137,7 @@ export default function AvatarUploadCard({ user: userProp = null }) {
                   : 'bg-primary text-white hover:bg-primary/90'
               }`}
             >
-              <span className="material-symbols-outlined text-sm" aria-hidden="true">
-                photo_camera
-              </span>
+              <Icon name='photo_camera' className='text-sm' aria-hidden="true" />
               {uploadMutation.isPending ? 'Uploading…' : hasPicture ? 'Change photo' : 'Upload photo'}
               <input
                 ref={inputRef}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { toast } from '@shared/components/ui/toast-utils';
 import ChatService from '../services/chat-service';
 import { useWebSocket } from '@hooks/useWebSocket';
 import { useAuthStore } from '@store';

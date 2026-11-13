@@ -5,6 +5,8 @@ import NestCard from '../../modules/admin-nest/components/NestCard';
 import CreateNestModal from '../../modules/admin-nest/components/CreateNestModal';
 import { CATEGORY_OPTIONS } from '../../modules/admin-nest/components/nestMeta';
 
+import Icon from '@shared/components/ui/Icon';
+
 const STATUS_OPTIONS = [
   { value: 'all', label: 'All Statuses' },
   { value: 'active', label: 'Active' },
@@ -50,7 +52,7 @@ const AdminNestsPage = () => {
             onClick={() => setCreateOpen(true)}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:-translate-y-0.5 transition-all"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <Icon name='add' className='text-[18px]' />
             Create New Nest
           </button>
         </div>
@@ -58,7 +60,9 @@ const AdminNestsPage = () => {
         {/* Filter bar */}
         <div className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
           <div className="relative flex-1 min-w-0">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">search</span>
+            <Icon
+              name='search'
+              className='absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none' />
             <input
               type="text"
               value={search}
@@ -83,7 +87,7 @@ const AdminNestsPage = () => {
                 aria-pressed={view === 'grid'}
                 className={`w-9 h-10 flex items-center justify-center transition-colors ${view === 'grid' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:bg-slate-50'}`}
               >
-                <span className="material-symbols-outlined text-[20px]">grid_view</span>
+                <Icon name='grid_view' className='text-[20px]' />
               </button>
               <button
                 type="button"
@@ -92,7 +96,7 @@ const AdminNestsPage = () => {
                 aria-pressed={view === 'list'}
                 className={`w-9 h-10 flex items-center justify-center transition-colors ${view === 'list' ? 'bg-primary/10 text-primary' : 'text-slate-400 hover:bg-slate-50'}`}
               >
-                <span className="material-symbols-outlined text-[20px]">view_list</span>
+                <Icon name='view_list' className='text-[20px]' />
               </button>
             </div>
           </div>
@@ -111,7 +115,7 @@ const AdminNestsPage = () => {
           </div>
         ) : nests.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-slate-200">
-            <span className="material-symbols-outlined text-4xl text-slate-300 mb-3">diversity_3</span>
+            <Icon name='diversity_3' className='text-4xl text-slate-300 mb-3' />
             <h3 className="text-lg font-bold text-slate-700 mb-1">No nests found</h3>
             <p className="text-sm text-slate-400 max-w-xs">Try a different filter, or create the first nest.</p>
           </div>
@@ -132,7 +136,7 @@ const AdminNestsPage = () => {
               disabled={!hasPrev}
               className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
-              <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+              <Icon name='chevron_left' className='text-[18px]' />
             </button>
             <span className="text-sm text-slate-500">Page {page} · {totalCount} nests</span>
             <button
@@ -141,7 +145,7 @@ const AdminNestsPage = () => {
               disabled={!hasNext}
               className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
-              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              <Icon name='chevron_right' className='text-[18px]' />
             </button>
           </div>
         )}

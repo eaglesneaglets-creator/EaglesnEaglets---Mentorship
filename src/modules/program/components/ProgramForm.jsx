@@ -4,6 +4,8 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
+import Icon from '@shared/components/ui/Icon';
+
 const STATUS_OPTIONS = [
     { value: 'draft', label: 'Draft', color: 'bg-slate-100 text-slate-700' },
     { value: 'active', label: 'Active', color: 'bg-emerald-100 text-emerald-700' },
@@ -101,7 +103,7 @@ export default function ProgramForm({ initial, onSubmit, submitting, firstCreate
                 </div>
                 {status === 'active' && (
                     <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm">info</span>
+                        <Icon name='info' className='text-sm' />
                         Once enrollments exist, core program rules become locked.
                     </p>
                 )}

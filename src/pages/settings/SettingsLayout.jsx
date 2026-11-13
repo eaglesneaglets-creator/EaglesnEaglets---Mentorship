@@ -4,6 +4,8 @@ import { useAuthStore } from '@store';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { sectionsForRole } from './config/settingsNav';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function SettingsLayout() {
   const { user } = useAuthStore();
   const role = user?.role;
@@ -51,13 +53,13 @@ export default function SettingsLayout() {
           >
             <span className="flex items-center gap-2 min-w-0 truncate">
               {activeSection && (
-                <span className="material-symbols-outlined text-lg text-slate-500">{activeSection.icon}</span>
+                <Icon name={activeSection.icon} className='text-lg text-slate-500' />
               )}
               <span className="truncate">{activeSection?.label || 'Choose a section…'}</span>
             </span>
-            <span className={`material-symbols-outlined text-lg text-slate-400 transition-transform ${pickerOpen ? 'rotate-180' : ''}`}>
-              expand_more
-            </span>
+            <Icon
+              name='expand_more'
+              className={`text-lg text-slate-400 transition-transform ${pickerOpen ? 'rotate-180' : ''}`} />
           </button>
           {pickerOpen && (
             <div
@@ -79,10 +81,10 @@ export default function SettingsLayout() {
                         : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-xl">{section.icon}</span>
+                    <Icon name={section.icon} className='text-xl' />
                     <span className="flex-1 truncate">{section.label}</span>
                     {isActive && (
-                      <span className="material-symbols-outlined text-base text-primary">check</span>
+                      <Icon name='check' className='text-base text-primary' />
                     )}
                   </button>
                 );
@@ -107,7 +109,7 @@ export default function SettingsLayout() {
                   }`
                 }
               >
-                <span className="material-symbols-outlined text-xl">{section.icon}</span>
+                <Icon name={section.icon} className='text-xl' />
                 <span className="flex-1">{section.label}</span>
               </NavLink>
             ))}

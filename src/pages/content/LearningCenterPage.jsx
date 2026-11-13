@@ -13,6 +13,8 @@ import StandaloneAssignmentModal from '../../modules/content/components/Standalo
 import { formatDate } from '../../shared/utils';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ─── Constants ─── */
 const TYPE_FILTERS = [
     { key: 'all', label: 'All Types' },
@@ -62,7 +64,7 @@ const ContentCard = ({ module, onClick, onAddItem, onEdit, onDelete, onAddQuiz, 
                     <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-                        <span className={`material-symbols-outlined text-5xl text-slate-300`}>{typeMeta.icon}</span>
+                        <Icon name={typeMeta.icon} className={`text-5xl text-slate-300`} />
                     </div>
                 )}
                 {/* Status badge — top right */}
@@ -84,7 +86,7 @@ const ContentCard = ({ module, onClick, onAddItem, onEdit, onDelete, onAddQuiz, 
             <div className="flex flex-col flex-1 p-4 pt-3">
                 {/* Type label */}
                 <div className="flex items-center gap-1.5 mb-2">
-                    <span className={`material-symbols-outlined text-sm ${typeMeta.color}`}>{typeMeta.icon}</span>
+                    <Icon name={typeMeta.icon} className={`text-sm ${typeMeta.color}`} />
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${typeMeta.color}`}>{typeMeta.label}</span>
                 </div>
 
@@ -100,7 +102,7 @@ const ContentCard = ({ module, onClick, onAddItem, onEdit, onDelete, onAddQuiz, 
                 {module.has_quiz && (
                     <div className="flex items-center gap-1 mb-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[12px]">quiz</span>
+                            <Icon name='quiz' className='text-[12px]' />
                             Quiz attached
                         </span>
                     </div>
@@ -110,19 +112,27 @@ const ContentCard = ({ module, onClick, onAddItem, onEdit, onDelete, onAddQuiz, 
                 <div className="mt-auto pt-3 flex items-center gap-1.5 border-t border-slate-100 mt-3">
                     <button onClick={(e) => { e.stopPropagation(); onEdit?.(); }} title="Edit"
                         className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-primary/10 flex items-center justify-center transition-colors group/btn">
-                        <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover/btn:text-primary">edit</span>
+                        <Icon
+                            name='edit'
+                            className='text-[16px] text-slate-400 group-hover/btn:text-primary' />
                     </button>
                     <button onClick={(e) => { e.stopPropagation(); onAddQuiz?.(); }} title={module.has_quiz ? "Edit Quiz" : "Add Quiz"}
                         className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-amber-50 flex items-center justify-center transition-colors group/btn">
-                        <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover/btn:text-amber-500">quiz</span>
+                        <Icon
+                            name='quiz'
+                            className='text-[16px] text-slate-400 group-hover/btn:text-amber-500' />
                     </button>
                     <button onClick={(e) => { e.stopPropagation(); onAddItem?.(); }} title="Analytics"
                         className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-primary/10 flex items-center justify-center transition-colors group/btn">
-                        <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover/btn:text-primary">bar_chart</span>
+                        <Icon
+                            name='bar_chart'
+                            className='text-[16px] text-slate-400 group-hover/btn:text-primary' />
                     </button>
                     <button onClick={(e) => { e.stopPropagation(); onDelete?.(); }} title="Delete"
                         className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors group/btn ml-auto">
-                        <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover/btn:text-red-500">delete</span>
+                        <Icon
+                            name='delete'
+                            className='text-[16px] text-slate-400 group-hover/btn:text-red-500' />
                     </button>
                 </div>
             </div>
@@ -140,7 +150,9 @@ const UploadCard = ({ onClick }) => (
         className="group flex flex-col items-center justify-center bg-white rounded-2xl border-2 border-dashed border-slate-300 min-h-[340px] cursor-pointer hover:border-primary/50 hover:bg-primary/[0.02] transition-all duration-300"
     >
         <div className="w-14 h-14 rounded-full bg-slate-100 group-hover:bg-primary/10 flex items-center justify-center mb-4 transition-all duration-300">
-            <span className="material-symbols-outlined text-2xl text-slate-400 group-hover:text-primary transition-colors">add</span>
+            <Icon
+                name='add'
+                className='text-2xl text-slate-400 group-hover:text-primary transition-colors' />
         </div>
         <p className="text-sm font-bold text-slate-700 group-hover:text-primary transition-colors">Add More Content</p>
         <p className="text-xs text-slate-400 mt-1">Files up to 500MB supported</p>
@@ -175,7 +187,7 @@ const AssignmentCard = ({ module, onClick, onTakeQuiz, delay = 0 }) => {
                     <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-emerald-50/10">
-                        <span className="material-symbols-outlined text-4xl text-primary/20">assignment</span>
+                        <Icon name='assignment' className='text-4xl text-primary/20' />
                     </div>
                 )}
                 {/* Status badge — top right */}
@@ -195,7 +207,7 @@ const AssignmentCard = ({ module, onClick, onTakeQuiz, delay = 0 }) => {
                         {module.title}
                     </h3>
                     <button className="p-1 text-slate-300 hover:text-slate-500 transition-colors shrink-0">
-                        <span className="material-symbols-outlined text-lg">more_vert</span>
+                        <Icon name='more_vert' className='text-lg' />
                     </button>
                 </div>
 
@@ -203,13 +215,13 @@ const AssignmentCard = ({ module, onClick, onTakeQuiz, delay = 0 }) => {
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 mb-4">
                     {mentorName && (
                         <span className="flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-sm">person</span>
+                            <Icon name='person' className='text-sm' />
                             {mentorName}
                         </span>
                     )}
                     {(dueDate || finishedDate) && (
                         <span className="flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-sm">calendar_today</span>
+                            <Icon name='calendar_today' className='text-sm' />
                             {isCompleted && finishedDate
                                 ? `Finished ${finishedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
                                 : dueDate
@@ -248,7 +260,7 @@ const AssignmentCard = ({ module, onClick, onTakeQuiz, delay = 0 }) => {
                             }`}
                     >
                         {isCompleted ? 'Review Feedback' : (
-                            <>View Details <span className="material-symbols-outlined text-base">arrow_forward</span></>
+                            <>View Details <Icon name='arrow_forward' className='text-base' /></>
                         )}
                     </motion.button>
                     {hasQuiz && (
@@ -262,7 +274,7 @@ const AssignmentCard = ({ module, onClick, onTakeQuiz, delay = 0 }) => {
                                 : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                 }`}
                         >
-                            <span className="material-symbols-outlined text-base">quiz</span>
+                            <Icon name='quiz' className='text-base' />
                         </motion.button>
                     )}
                 </div>
@@ -329,7 +341,7 @@ const StandaloneTaskCard = ({ assignment, index }) => {
                     </span>
                     {isSubmitted ? (
                         <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[11px]">check_circle</span>
+                            <Icon name='check_circle' className='text-[11px]' />
                             {submissionStatus === 'graded' ? 'Graded' : 'Submitted'}
                         </span>
                     ) : isReturned ? (
@@ -352,11 +364,13 @@ const StandaloneTaskCard = ({ assignment, index }) => {
                 {/* Stats row */}
                 <div className="flex items-center gap-4 text-xs text-slate-400">
                     <span className={`flex items-center gap-1 font-medium ${isOverdue && !isSubmitted ? 'text-red-500' : 'text-slate-500'}`}>
-                        <span className="material-symbols-outlined text-sm">{isOverdue && !isSubmitted ? 'warning' : 'schedule'}</span>
+                        <Icon
+                            name={isOverdue && !isSubmitted ? 'warning' : 'schedule'}
+                            className='text-sm' />
                         {dueDateLabel}
                     </span>
                     <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm text-amber-500">psychiatry</span>
+                        <Icon name='psychiatry' className='text-sm text-amber-500' />
                         {assignment.points_value} pts
                     </span>
                 </div>
@@ -372,7 +386,7 @@ const StandaloneTaskCard = ({ assignment, index }) => {
                     }`}
                 >
                     {isSubmitted ? 'View Submission' : 'View & Submit'}
-                    <span className="material-symbols-outlined text-sm">{isSubmitted ? 'visibility' : 'arrow_forward'}</span>
+                    <Icon name={isSubmitted ? 'visibility' : 'arrow_forward'} className='text-sm' />
                 </Link>
             </div>
         </motion.div>
@@ -547,7 +561,9 @@ const LearningCenterPage = () => {
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                         {/* Search */}
                         <div className="relative flex-1 sm:flex-none">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">search</span>
+                            <Icon
+                                name='search'
+                                className='absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400' />
                             <input
                                 type="text"
                                 placeholder={isEagleOrAdmin ? "Search content..." : "Search tasks..."}
@@ -567,7 +583,7 @@ const LearningCenterPage = () => {
                                         onClick={() => setShowStandaloneModal(true)}
                                         className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold text-sm rounded-xl shadow-sm hover:border-primary/40 hover:text-primary transition-all"
                                     >
-                                        <span className="material-symbols-outlined text-lg">assignment_add</span>
+                                        <Icon name='assignment_add' className='text-lg' />
                                         <span className="hidden sm:inline">Send Assignment</span>
                                     </motion.button>
                                 )}
@@ -577,7 +593,7 @@ const LearningCenterPage = () => {
                                     onClick={() => navigate(uploadPath)}
                                     className="flex items-center gap-2 px-3 sm:px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
                                 >
-                                    <span className="material-symbols-outlined text-lg">add_circle</span>
+                                    <Icon name='add_circle' className='text-lg' />
                                     <span className="hidden sm:inline">Upload New Content</span>
                                     <span className="sm:hidden">Upload</span>
                                 </motion.button>
@@ -587,7 +603,7 @@ const LearningCenterPage = () => {
                         {/* Notification bell (Eaglet) */}
                         {!isEagleOrAdmin && (
                             <button className="w-10 h-10 flex-shrink-0 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm">
-                                <span className="material-symbols-outlined text-xl">notifications</span>
+                                <Icon name='notifications' className='text-xl' />
                             </button>
                         )}
                     </div>
@@ -601,7 +617,7 @@ const LearningCenterPage = () => {
                             className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 whitespace-nowrap ${activeSection === 'modules' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             <span className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-base">school</span>
+                                <Icon name='school' className='text-base' />
                                 <span className="hidden xs:inline">Learning </span>Modules
                             </span>
                         </button>
@@ -610,7 +626,7 @@ const LearningCenterPage = () => {
                             className={`px-3 sm:px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 whitespace-nowrap ${activeSection === 'tasks' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             <span className="flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-base">assignment</span>
+                                <Icon name='assignment' className='text-base' />
                                 Assignments
                                 {pendingCount > 0 && (
                                     <span className="ml-1 min-w-[18px] h-[18px] px-1 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center">
@@ -661,7 +677,7 @@ const LearningCenterPage = () => {
                             className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 opacity-60 cursor-not-allowed shadow-sm"
                         >
                             Date Range
-                            <span className="material-symbols-outlined text-base">calendar_today</span>
+                            <Icon name='calendar_today' className='text-base' />
                         </button>
                     </div>
                 ) : (
@@ -743,7 +759,7 @@ const LearningCenterPage = () => {
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                                     className="flex flex-col items-center justify-center py-24">
                                     <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-5">
-                                        <span className="material-symbols-outlined text-4xl text-amber-300">assignment</span>
+                                        <Icon name='assignment' className='text-4xl text-amber-300' />
                                     </div>
                                     <h3 className="text-lg font-bold text-slate-900 mb-2">No Assignments Yet</h3>
                                     <p className="text-sm text-slate-400 max-w-md text-center">
@@ -765,7 +781,7 @@ const LearningCenterPage = () => {
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                                     className="flex flex-col items-center justify-center py-24">
                                     <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-5">
-                                        <span className="material-symbols-outlined text-4xl text-slate-300">school</span>
+                                        <Icon name='school' className='text-4xl text-slate-300' />
                                     </div>
                                     <h3 className="text-lg font-bold text-slate-900 mb-2">No Modules Found</h3>
                                     <p className="text-sm text-slate-400 max-w-md text-center leading-relaxed">
@@ -823,7 +839,7 @@ const LearningCenterPage = () => {
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-white/70">Upcoming</h3>
-                                <span className="material-symbols-outlined text-white/40">event</span>
+                                <Icon name='event' className='text-white/40' />
                             </div>
                             {nextUpcomingAssignment ? (() => {
                                 const dueDate = new Date(nextUpcomingAssignment.due_date);
@@ -845,7 +861,7 @@ const LearningCenterPage = () => {
                                 );
                             })() : (
                                 <div className="bg-white/15 backdrop-blur-sm p-3 rounded-xl flex items-center gap-3">
-                                    <span className="material-symbols-outlined text-white/60 text-2xl">event_available</span>
+                                    <Icon name='event_available' className='text-white/60 text-2xl' />
                                     <p className="text-sm text-white/70 font-medium">No upcoming due dates</p>
                                 </div>
                             )}
@@ -856,7 +872,7 @@ const LearningCenterPage = () => {
                             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
                             className="bg-white rounded-2xl border border-slate-200/70 p-6 flex flex-col justify-center shadow-sm"
                         >
-                            <span className="material-symbols-outlined text-primary text-2xl mb-2">trending_up</span>
+                            <Icon name='trending_up' className='text-primary text-2xl mb-2' />
                             <p className="text-2xl font-black text-slate-900">{pData.completed || 0}</p>
                             <p className="text-xs text-slate-400 font-medium">Items Completed</p>
                         </motion.div>

@@ -11,6 +11,8 @@ import SectionTabs from '@shared/components/layout/SectionTabs';
 import AdminRequestsList from '@modules/admin-role/components/AdminRequestsList';
 import { usePendingAdminRequests } from '@modules/admin-role/hooks/useAdminRole';
 
+import Icon from '@shared/components/ui/Icon';
+
 const TEAM_TABS_BASE = [
   { label: 'Team', to: '/admin/team' },
   { label: 'Admin Requests', to: '/admin/team/requests' },
@@ -32,7 +34,7 @@ export default function AdminRoleRequestsPage() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 bg-emerald-600 rounded-xl shadow-lg shadow-emerald-600/20">
-              <span className="material-symbols-outlined text-white text-base">shield_person</span>
+              <Icon name='shield_person' className='text-white text-base' />
             </div>
             <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200">
               Admin Team

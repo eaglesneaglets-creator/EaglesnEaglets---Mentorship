@@ -692,12 +692,13 @@ body {
   place-items: center;
 }
 
-.ios-tab-icon > .material-symbols-outlined {
+.ios-tab-icon > .app-icon {
   font-size: 1.4rem;
 }
 
-.ios-mobile-tabbar .is-active .ios-tab-icon > .material-symbols-outlined {
-  font-variation-settings: 'FILL' 1;
+/* Active tab: heavier stroke (lucide has no filled variant). */
+.ios-mobile-tabbar .is-active .ios-tab-icon > .app-icon {
+  stroke-width: 2.5;
 }
 
 .ios-mobile-tabbar small {
@@ -733,7 +734,7 @@ body {
   background: #e2e8f0;
 }
 
-.ios-tab-icon > i.is-lock .material-symbols-outlined {
+.ios-tab-icon > i.is-lock .app-icon {
   font-size: 0.55rem;
 }
 

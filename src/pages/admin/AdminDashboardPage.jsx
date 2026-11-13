@@ -13,6 +13,8 @@ import LoadError from '../../shared/components/ui/LoadError';
 import { formatRelativeTime } from '../../shared/utils';
 import StatCard from '../../shared/components/ui/StatCard';
 
+import Icon from '@shared/components/ui/Icon';
+
 // ─── Custom Tooltip ──────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -28,7 +30,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 const ActivityItem = ({ icon, icon_bg, iconBg, title, description, time, timestamp }) => (
   <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50/80 transition-all duration-500 ease-out group cursor-pointer hover:shadow-sm hover:border-slate-200/50 border border-transparent">
     <div className={`w-10 h-10 rounded-xl ${icon_bg || iconBg} flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3`}>
-      <span className="material-symbols-outlined text-lg transition-transform duration-500 group-hover:-translate-y-0.5">{icon}</span>
+      <Icon
+        name={icon}
+        className='text-lg transition-transform duration-500 group-hover:-translate-y-0.5' />
     </div>
     <div className="flex-1 min-w-0 transition-transform duration-500 ease-out group-hover:translate-x-1">
       <p className="font-semibold text-slate-900 text-sm">{title}</p>
@@ -172,7 +176,7 @@ const AdminDashboardPage = () => {
               title="Coming soon"
               className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 opacity-60 cursor-not-allowed flex items-center gap-2"
             >
-              <span className="material-symbols-outlined text-lg">download</span>
+              <Icon name='download' className='text-lg' />
               <span className="hidden sm:inline">Export</span>
             </button>
           </div>
@@ -241,14 +245,14 @@ const AdminDashboardPage = () => {
                     title="Bar chart"
                     className={`px-2.5 py-1.5 rounded-md transition-all duration-300 ${chartType === 'bar' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
                   >
-                    <span className="material-symbols-outlined text-base leading-none">bar_chart</span>
+                    <Icon name='bar_chart' className='text-base leading-none' />
                   </button>
                   <button
                     onClick={() => setChartType('line')}
                     title="Line chart"
                     className={`px-2.5 py-1.5 rounded-md transition-all duration-300 ${chartType === 'line' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
                   >
-                    <span className="material-symbols-outlined text-base leading-none">show_chart</span>
+                    <Icon name='show_chart' className='text-base leading-none' />
                   </button>
                 </div>
                 {/* Period toggle */}
@@ -273,7 +277,7 @@ const AdminDashboardPage = () => {
             <div className="h-44 md:h-52 w-full">
               {chartLoading ? (
                 <div className="h-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-2xl animate-spin text-slate-400">progress_activity</span>
+                  <Icon name='progress_activity' className='text-2xl animate-spin text-slate-400' />
                 </div>
               ) : chartType === 'bar' ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -313,7 +317,7 @@ const AdminDashboardPage = () => {
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <span className="material-symbols-outlined text-blue-600">school</span>
+                    <Icon name='school' className='text-blue-600' />
                   </div>
                   <span className="font-medium text-slate-700">Eagles</span>
                 </div>
@@ -324,7 +328,7 @@ const AdminDashboardPage = () => {
               <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <span className="material-symbols-outlined text-emerald-600">person</span>
+                    <Icon name='person' className='text-emerald-600' />
                   </div>
                   <span className="font-medium text-slate-700">Eaglets</span>
                 </div>
@@ -335,7 +339,7 @@ const AdminDashboardPage = () => {
               <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                    <span className="material-symbols-outlined text-red-600">block</span>
+                    <Icon name='block' className='text-red-600' />
                   </div>
                   <span className="font-medium text-slate-700">Suspended</span>
                 </div>
@@ -359,7 +363,7 @@ const AdminDashboardPage = () => {
             <div className="divide-y divide-slate-100">
               {isLoading ? (
                 <div className="p-8 text-center text-slate-400">
-                  <span className="material-symbols-outlined text-3xl animate-spin mb-2">progress_activity</span>
+                  <Icon name='progress_activity' className='text-3xl animate-spin mb-2' />
                   <p className="text-sm">Loading activity...</p>
                 </div>
               ) : recentActivityPreview.length > 0 ? (
@@ -368,7 +372,7 @@ const AdminDashboardPage = () => {
                 ))
               ) : (
                 <div className="p-8 text-center text-slate-400">
-                  <span className="material-symbols-outlined text-3xl text-slate-300 mb-2">inbox</span>
+                  <Icon name='inbox' className='text-3xl text-slate-300 mb-2' />
                   <p className="text-sm">No recent activity</p>
                 </div>
               )}
@@ -380,7 +384,7 @@ const AdminDashboardPage = () => {
                   className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
                 >
                   See more activity
-                  <span className="material-symbols-outlined text-base">arrow_forward</span>
+                  <Icon name='arrow_forward' className='text-base' />
                 </Link>
               </div>
             )}
@@ -396,13 +400,15 @@ const AdminDashboardPage = () => {
               >
                 <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
                 <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
-                  <span className="material-symbols-outlined">verified_user</span>
+                  <Icon name='verified_user' />
                 </div>
                 <div className="flex-1 z-10">
                   <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors duration-300">Review KYC Applications</p>
                   <p className="text-xs text-slate-500">{pendingKYC} pending reviews</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
+                <Icon
+                  name='arrow_forward'
+                  className='text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1' />
               </Link>
 
               <Link
@@ -411,13 +417,15 @@ const AdminDashboardPage = () => {
               >
                 <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
                 <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
-                  <span className="material-symbols-outlined">group</span>
+                  <Icon name='group' />
                 </div>
                 <div className="flex-1 z-10">
                   <p className="font-semibold text-slate-900 group-hover:text-blue-500 transition-colors duration-300">Manage Users</p>
                   <p className="text-xs text-slate-500">{totalUsers} total users</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
+                <Icon
+                  name='arrow_forward'
+                  className='text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1' />
               </Link>
 
               <Link
@@ -426,13 +434,15 @@ const AdminDashboardPage = () => {
               >
                 <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
                 <div className="w-10 h-10 bg-purple-500/10 text-purple-500 rounded-xl flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 z-10">
-                  <span className="material-symbols-outlined">library_books</span>
+                  <Icon name='library_books' />
                 </div>
                 <div className="flex-1 z-10">
                   <p className="font-semibold text-slate-900 group-hover:text-purple-500 transition-colors duration-300">Manage Content</p>
                   <p className="text-xs text-slate-500">Videos, courses & resources</p>
                 </div>
-                <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
+                <Icon
+                  name='arrow_forward'
+                  className='text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1' />
               </Link>
 
               {isSuperAdmin && (
@@ -442,13 +452,15 @@ const AdminDashboardPage = () => {
                 >
                   <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
                   <div className="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
-                    <span className="material-symbols-outlined">volunteer_activism</span>
+                    <Icon name='volunteer_activism' />
                   </div>
                   <div className="flex-1 z-10">
                     <p className="font-semibold text-slate-900 group-hover:text-amber-500 transition-colors duration-300">View Donations</p>
                     <p className="text-xs text-slate-500">Track donation activity</p>
                   </div>
-                  <span className="material-symbols-outlined text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1">arrow_forward</span>
+                  <Icon
+                    name='arrow_forward'
+                    className='text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1' />
                 </Link>
               )}
             </div>

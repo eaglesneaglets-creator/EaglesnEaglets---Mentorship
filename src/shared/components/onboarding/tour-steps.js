@@ -1,7 +1,7 @@
 /**
  * Role-specific welcome-tour content.
  *
- * Each step: { icon (material-symbols name), title, body, cta? }.
+ * Each step: { icon (name from shared/components/ui/Icon ICON_MAP), title, body, cta? }.
  * Only the LAST step's `cta` is used — it's the "where do I go now" button that
  * drops the user into the most valuable first action for their role.
  *

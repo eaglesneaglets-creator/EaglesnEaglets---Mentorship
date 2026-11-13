@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import LegalPageLayout from '@shared/components/legal/LegalPageLayout';
 
+import Icon from '@shared/components/ui/Icon';
+
 const SUPPORT_EMAIL = 'support.eaglesandeaglets@gmail.com';
 
 /**
@@ -305,9 +307,9 @@ export default function FaqPage() {
                 >
                   <summary className="flex items-center justify-between gap-3 cursor-pointer list-none px-4 sm:px-5 py-3.5 text-sm font-semibold text-slate-800 [&::-webkit-details-marker]:hidden">
                     {item.q}
-                    <span className="material-symbols-outlined text-slate-400 text-lg transition-transform group-open:rotate-180 flex-shrink-0">
-                      expand_more
-                    </span>
+                    <Icon
+                      name='expand_more'
+                      className='text-slate-400 text-lg transition-transform group-open:rotate-180 flex-shrink-0' />
                   </summary>
                   <div className="px-4 sm:px-5 pb-4 text-sm text-slate-600 leading-relaxed">
                     {item.a}

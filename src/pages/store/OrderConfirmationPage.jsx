@@ -7,6 +7,8 @@ import StoreHeader from '../../modules/store/components/StoreHeader';
 import PaystackCheckout from '../../modules/store/components/PaystackCheckout';
 import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
+import Icon from '@shared/components/ui/Icon';
+
 const STATUS_CONFIG = {
   pending: {
     icon: 'schedule',
@@ -156,7 +158,7 @@ const OrderConfirmationPage = () => {
               <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 ${config.bg} ${
                 order.status === 'paid' || order.status === 'delivered' ? 'animate-settle-in' : ''
               }`}>
-                <span className={`material-symbols-outlined text-3xl ${config.color}`}>{config.icon}</span>
+                <Icon name={config.icon} className={`text-3xl ${config.color}`} />
               </div>
               <h2 className={`text-xl font-bold ${config.color}`}>{config.title}</h2>
               <p className="text-slate-600 text-sm mt-1">{config.message}</p>
@@ -182,9 +184,9 @@ const OrderConfirmationPage = () => {
                             stepStatus === 'cancelled' ? 'bg-red-100 text-red-500' :
                             'bg-slate-100 text-slate-400'
                           }`}>
-                            <span className="material-symbols-outlined text-base">
-                              {stepStatus === 'completed' ? 'check' : step.icon}
-                            </span>
+                            <Icon
+                              name={stepStatus === 'completed' ? 'check' : step.icon}
+                              className='text-base' />
                           </div>
                           {i < TIMELINE_STEPS.length - 1 && (
                             <div className={`flex-1 h-0.5 ${
@@ -225,7 +227,7 @@ const OrderConfirmationPage = () => {
                         <img src={sanitizeImageUrl(item.product.primary_image)} alt={item.product?.name} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <span className="material-symbols-outlined text-slate-300 text-base">shopping_bag</span>
+                          <Icon name='shopping_bag' className='text-slate-300 text-base' />
                         </div>
                       )}
                     </div>

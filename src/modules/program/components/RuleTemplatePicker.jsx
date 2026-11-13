@@ -11,6 +11,8 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { RULE_TEMPLATES } from '../constants/ruleTemplates';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function RuleTemplatePicker({ onSelect, disabled }) {
     const [open, setOpen] = useState(false);
 
@@ -43,7 +45,7 @@ export default function RuleTemplatePicker({ onSelect, disabled }) {
                 onClick={() => setOpen(true)}
                 className="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 text-xs font-semibold rounded-lg transition-colors"
             >
-                <span className="material-symbols-outlined text-base">add</span>
+                <Icon name='add' className='text-base' />
                 Add Rule
             </button>
 
@@ -68,7 +70,7 @@ export default function RuleTemplatePicker({ onSelect, disabled }) {
                                 className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                                 aria-label="Close"
                             >
-                                <span className="material-symbols-outlined text-xl">close</span>
+                                <Icon name='close' className='text-xl' />
                             </button>
                         </div>
 
@@ -81,7 +83,7 @@ export default function RuleTemplatePicker({ onSelect, disabled }) {
                                     onClick={() => handlePick(t)}
                                     className="w-full flex items-start gap-3 px-3 py-3 hover:bg-slate-50 text-left transition-colors rounded-lg"
                                 >
-                                    <span className="material-symbols-outlined text-primary text-xl flex-shrink-0">{t.icon}</span>
+                                    <Icon name={t.icon} className='text-primary text-xl flex-shrink-0' />
                                     <div className="min-w-0 flex-1">
                                         <p className="text-sm font-semibold text-slate-900">{t.label}</p>
                                         <p className="text-xs text-slate-500 mt-0.5">{t.helpText}</p>

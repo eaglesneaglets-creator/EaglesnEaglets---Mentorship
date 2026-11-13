@@ -2,13 +2,15 @@ import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import { sanitizeUrl, stripCloudinarySignature } from '../../utils/sanitize';
 
+import Icon from '@shared/components/ui/Icon';
+
 const DocumentViewer = ({ url, title, type }) => {
     const safeUrl = stripCloudinarySignature(sanitizeUrl(url));
 
     if (!safeUrl || typeof safeUrl !== 'string') {
         return (
             <div className="flex flex-col items-center justify-center h-full text-slate-400">
-                <span className="material-symbols-outlined text-5xl mb-2">find_in_page</span>
+                <Icon name='find_in_page' className='text-5xl mb-2' />
                 <p>No valid document URL provided</p>
             </div>
         );
@@ -35,7 +37,7 @@ const DocumentViewer = ({ url, title, type }) => {
                     {/* Phone fallback — iframes are unreliable for PDFs on mobile Safari/Chrome */}
                     <div className="md:hidden w-full h-full flex flex-col items-center justify-center p-12 text-center">
                         <div className="w-20 h-20 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
-                            <span className="material-symbols-outlined text-4xl text-red-400">picture_as_pdf</span>
+                            <Icon name='picture_as_pdf' className='text-4xl text-red-400' />
                         </div>
                         <h4 className="text-lg font-bold text-slate-900 mb-1">{title || 'Document'}</h4>
                         <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">
@@ -47,7 +49,7 @@ const DocumentViewer = ({ url, title, type }) => {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
                         >
-                            <span className="material-symbols-outlined text-base">open_in_new</span>
+                            <Icon name='open_in_new' className='text-base' />
                             Open PDF
                         </a>
                     </div>
@@ -72,7 +74,7 @@ const DocumentViewer = ({ url, title, type }) => {
             ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center p-12 text-center">
                     <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
-                        <span className="material-symbols-outlined text-4xl font-light text-primary">description</span>
+                        <Icon name='description' className='text-4xl font-light text-primary' />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2">Preview Not Available</h3>
                     <p className="text-slate-500 max-w-sm mb-8">
@@ -84,7 +86,7 @@ const DocumentViewer = ({ url, title, type }) => {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-all shadow-lg shadow-primary/20"
                     >
-                        <span className="material-symbols-outlined">launch</span>
+                        <Icon name='launch' />
                         Open Externally
                     </a>
                 </div>

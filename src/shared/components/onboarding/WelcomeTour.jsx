@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { markTourSeen } from './tour-storage';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * WelcomeTour — a first-run, role-aware walkthrough shown once to brand-new
  * users. Deliberately a centered step-modal rather than an element-anchored
@@ -83,13 +85,13 @@ const WelcomeTour = ({ steps, userId, onClose }) => {
           <AnimatePresence mode="wait">
             <motion.span
               key={step.icon}
-              className="material-symbols-outlined text-white text-5xl relative z-10"
+              className="inline-flex text-white text-5xl relative z-10"
               initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
               animate={{ scale: 1, opacity: 1, rotate: 0 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             >
-              {step.icon}
+              <Icon name={step.icon} />
             </motion.span>
           </AnimatePresence>
         </div>
@@ -143,7 +145,7 @@ const WelcomeTour = ({ steps, userId, onClose }) => {
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
               >
                 {step.cta?.label || 'Get started'}
-                <span className="material-symbols-outlined text-base">arrow_forward</span>
+                <Icon name='arrow_forward' className='text-base' />
               </button>
             ) : (
               <button
@@ -152,7 +154,7 @@ const WelcomeTour = ({ steps, userId, onClose }) => {
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
               >
                 Next
-                <span className="material-symbols-outlined text-base">arrow_forward</span>
+                <Icon name='arrow_forward' className='text-base' />
               </button>
             )}
           </div>
@@ -166,7 +168,7 @@ const WelcomeTour = ({ steps, userId, onClose }) => {
 WelcomeTour.propTypes = {
   steps: PropTypes.arrayOf(
     PropTypes.shape({
-      icon: PropTypes.string.isRequired, // material-symbols name
+      icon: PropTypes.string.isRequired, // Icon name (see ICON_MAP)
       title: PropTypes.string.isRequired,
       body: PropTypes.string.isRequired,
       cta: PropTypes.shape({ label: PropTypes.string, to: PropTypes.string }),

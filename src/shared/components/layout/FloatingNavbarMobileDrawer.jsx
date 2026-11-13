@@ -11,6 +11,8 @@ import {
 import { MOBILE_NAV_DRAWER_ID } from './FloatingNavbarMenuButton';
 import Avatar from '../ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 function MobileNavLink({ link, active, onNavigate, showChevron }) {
   const icon = link.icon || 'chevron_right';
 
@@ -25,14 +27,12 @@ function MobileNavLink({ link, active, onNavigate, showChevron }) {
           : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
       }`}
     >
-      <span
-        className={`material-symbols-outlined text-[22px] ${
+      <Icon
+        name={icon}
+        className={`text-[22px] ${
           active ? 'text-primary' : 'text-slate-400'
         }`}
-        aria-hidden
-      >
-        {icon}
-      </span>
+        aria-hidden />
       <span className="flex-1">{link.label}</span>
       {link.badge != null && link.badge > 0 && (
         <span className="min-w-[22px] h-[22px] px-1.5 text-[11px] font-bold bg-primary text-white rounded-full flex items-center justify-center">
@@ -40,9 +40,7 @@ function MobileNavLink({ link, active, onNavigate, showChevron }) {
         </span>
       )}
       {showChevron && !active && (
-        <span className="material-symbols-outlined text-lg text-slate-300" aria-hidden>
-          chevron_right
-        </span>
+        <Icon name='chevron_right' className='text-lg text-slate-300' aria-hidden />
       )}
     </Link>
   );
@@ -136,7 +134,7 @@ export default function FloatingNavbarMobileDrawer({
                 className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200"
                 aria-label="Close navigation menu"
               >
-                <span className="material-symbols-outlined text-xl">close</span>
+                <Icon name='close' className='text-xl' />
               </button>
             </div>
 
@@ -178,23 +176,19 @@ export default function FloatingNavbarMobileDrawer({
                         }`}
                         aria-expanded={sectionOpen}
                       >
-                        <span
-                          className={`material-symbols-outlined text-[22px] flex-shrink-0 ${
+                        <Icon
+                          name={link.icon || 'folder'}
+                          className={`text-[22px] flex-shrink-0 ${
                             sectionOpen || active ? 'text-primary' : 'text-slate-400'
                           }`}
-                          aria-hidden
-                        >
-                          {link.icon || 'folder'}
-                        </span>
+                          aria-hidden />
                         <span className="flex-1">{link.label}</span>
-                        <span
-                          className={`material-symbols-outlined text-lg transition-transform duration-200 ${
+                        <Icon
+                          name='chevron_right'
+                          className={`text-lg transition-transform duration-200 ${
                             sectionOpen ? 'rotate-90' : ''
                           } ${sectionOpen || active ? 'text-primary' : 'text-slate-400'}`}
-                          aria-hidden
-                        >
-                          chevron_right
-                        </span>
+                          aria-hidden />
                       </button>
 
                       <AnimatePresence initial={false}>
@@ -247,7 +241,7 @@ export default function FloatingNavbarMobileDrawer({
                     onClick={close}
                     className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-white shadow-md shadow-primary/25 transition-colors hover:bg-primary-dark"
                   >
-                    <span className="material-symbols-outlined text-lg">dashboard</span>
+                    <Icon name='dashboard' className='text-lg' />
                     {dashboardLabel}
                   </Link>
 
@@ -261,9 +255,9 @@ export default function FloatingNavbarMobileDrawer({
                             className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-white"
                           >
                             {link.icon && (
-                              <span className={`material-symbols-outlined text-xl ${link.iconClass || 'text-primary'}`}>
-                                {link.icon}
-                              </span>
+                              <Icon
+                                name={link.icon}
+                                className={`text-xl ${link.iconClass || 'text-primary'}`} />
                             )}
                             {link.label}
                           </Link>
@@ -277,7 +271,7 @@ export default function FloatingNavbarMobileDrawer({
                     onClick={onLogout}
                     className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
                   >
-                    <span className="material-symbols-outlined text-lg">logout</span>
+                    <Icon name='logout' className='text-lg' />
                     Sign Out
                   </button>
                 </div>

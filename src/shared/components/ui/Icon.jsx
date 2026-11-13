@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
  *   own aria-label; pass `label` only when the icon itself conveys meaning.
  * - `filled` fills the shape (the old FILL=1 variation).
  */
-export const ICON_MAP = {
+const ICON_MAP = {
   // navigation & chrome
   home: L.House, dashboard: L.LayoutDashboard, menu: L.Menu, apps: L.LayoutGrid, grid_view: L.LayoutGrid,
   view_list: L.List, list_alt: L.ListChecks, more_vert: L.EllipsisVertical, close: L.X, cancel: L.CircleX,
@@ -68,6 +68,9 @@ export const ICON_MAP = {
   inbox: L.Inbox, event: L.Calendar, event_available: L.CalendarCheck, calendar_today: L.Calendar,
   calendar_month: L.CalendarDays, location_on: L.MapPin,
   // nest metaphor
+  flutter_dash: L.Bird, arrow_downward: L.ArrowDown, arrow_upward: L.ArrowUp, unfold_more: L.ChevronsUpDown, draft: L.FilePen,
+  account_balance_wallet: L.Wallet, content_copy: L.Copy, menu_open: L.PanelLeftOpen, photo_camera: L.Camera,
+  pin: L.Pin, signal_cellular_alt: L.SignalHigh,
   nest_eco_leaf: L.Leaf, nest_cam_wired_stand: L.Bird, cottage: L.House, add_home: L.HousePlus, spring: L.Sprout,
   // commerce & giving
   storefront: L.Store, shopping_bag: L.ShoppingBag, shopping_cart: L.ShoppingCart, inventory: L.Package,

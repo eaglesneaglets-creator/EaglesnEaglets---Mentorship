@@ -14,6 +14,8 @@ import { useCampaigns } from '@modules/donations/hooks/useDonations';
 import DonationForm from '@modules/donations/components/DonationForm';
 import FundTransparency from '@modules/donations/components/FundTransparency';
 
+import Icon from '@shared/components/ui/Icon';
+
 // ── Animation helpers ────────────────────────────────────────────────────────
 
 const fadeUp = {
@@ -119,7 +121,7 @@ export default function DonationsPage() {
             custom={0}
           >
             <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full mb-3 sm:mb-4 shadow-sm">
-              <span className="material-symbols-outlined text-sm">volunteer_activism</span>
+              <Icon name='volunteer_activism' className='text-sm' />
               Support the Mission
             </span>
           </motion.div>
@@ -165,9 +167,7 @@ export default function DonationsPage() {
                 className="flex flex-col items-center gap-1.5 group min-w-0"
               >
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-lg shadow-emerald-900/10 group-hover:shadow-xl group-hover:scale-110 group-hover:bg-white/25 transition-all duration-300">
-                  <span className="material-symbols-outlined text-white text-lg sm:text-xl">
-                    {item.icon}
-                  </span>
+                  <Icon name={item.icon} className='text-white text-lg sm:text-xl' />
                 </div>
                 <span className="text-[10px] sm:text-xs text-white/85 font-medium text-center leading-tight">{item.label}</span>
               </motion.div>
@@ -190,7 +190,7 @@ export default function DonationsPage() {
             animate={{ opacity: 1 }}
             className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center text-red-600 text-sm"
           >
-            <span className="material-symbols-outlined text-2xl mb-2 block">error</span>
+            <Icon name='error' className='text-2xl mb-2 block' />
             Unable to load campaigns. Please refresh and try again.
           </motion.div>
         )}
@@ -201,9 +201,7 @@ export default function DonationsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-6 sm:p-10 lg:p-12 text-center shadow-sm"
           >
-            <span className="material-symbols-outlined text-5xl text-slate-300 mb-4 block">
-              volunteer_activism
-            </span>
+            <Icon name='volunteer_activism' className='text-5xl text-slate-300 mb-4 block' />
             <h3 className="font-bold text-slate-900 text-lg mb-2">No active campaigns</h3>
             <p className="text-slate-500 text-sm">Check back soon — new campaigns are coming!</p>
           </motion.div>
@@ -263,9 +261,7 @@ export default function DonationsPage() {
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-emerald-600 text-lg">
-                        campaign
-                      </span>
+                      <Icon name='campaign' className='text-emerald-600 text-lg' />
                     </div>
                     <h4 className="font-bold text-slate-800 text-sm">{campaign.title}</h4>
                   </div>

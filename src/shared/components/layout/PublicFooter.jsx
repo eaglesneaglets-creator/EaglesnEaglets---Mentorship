@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import AppIcon from '@shared/components/ui/Icon';
 const logoImg = '/logo.webp';
 
 // Social link hrefs — placeholders until real URLs are provided
@@ -117,7 +118,7 @@ const PublicFooter = () => {
                         <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400 mb-3 sm:mb-5">Contact</h4>
                         <ul className="space-y-2.5 sm:space-y-3">
                             <li className="flex items-center gap-2 text-sm text-slate-600 min-w-0">
-                                <span className="material-symbols-outlined text-sm text-primary flex-shrink-0">alternate_email</span>
+                                <AppIcon name='alternate_email' className='text-sm text-primary flex-shrink-0' />
                                 {/* Short label — the full address is too long for the column.
                                     mailto: still carries the real support address. */}
                                 <a
@@ -138,7 +139,7 @@ const PublicFooter = () => {
                         </p>
                         {subscribed ? (
                             <div className="flex items-center gap-2 text-primary text-sm font-semibold">
-                                <span className="material-symbols-outlined text-lg">check_circle</span>
+                                <AppIcon name='check_circle' className='text-lg' />
                                 You're subscribed!
                             </div>
                         ) : (

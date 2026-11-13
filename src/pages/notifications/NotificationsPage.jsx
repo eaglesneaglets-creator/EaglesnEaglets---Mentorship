@@ -6,6 +6,8 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead } from '../../modules/notifications/hooks/useNotifications';
 import { formatRelativeTime } from '../../shared/utils';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ─── Notification type metadata ─── */
 const NOTIF_META = {
     mentorship_request: { icon: 'person_add', color: 'bg-blue-500', lightBg: 'bg-blue-50 text-blue-600', label: 'Mentorship' },
@@ -79,7 +81,7 @@ const NotificationRow = ({ notif, onRead, onNavigate, index }) => {
 
             {/* Icon */}
             <div className={`w-10 h-10 rounded-xl ${meta.lightBg} flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110`}>
-                <span className="material-symbols-outlined text-xl">{meta.icon}</span>
+                <Icon name={meta.icon} className='text-xl' />
             </div>
 
             {/* Content */}
@@ -99,9 +101,9 @@ const NotificationRow = ({ notif, onRead, onNavigate, index }) => {
             <div className="flex flex-col items-end gap-2 flex-shrink-0 pt-0.5">
                 <span className="text-xs text-slate-400">{formatRelativeTime(notif.created_at)}</span>
                 {notif.action_url && (
-                    <span className="material-symbols-outlined text-base text-slate-300 group-hover:text-primary transition-colors">
-                        arrow_forward
-                    </span>
+                    <Icon
+                        name='arrow_forward'
+                        className='text-base text-slate-300 group-hover:text-primary transition-colors' />
                 )}
             </div>
         </motion.div>
@@ -160,7 +162,7 @@ const NotificationsPage = () => {
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                                <span className="material-symbols-outlined text-primary text-xl">notifications</span>
+                                <Icon name='notifications' className='text-primary text-xl' />
                             </div>
                             Notifications
                             {unreadCount > 0 && (
@@ -180,7 +182,7 @@ const NotificationsPage = () => {
                             disabled={markAllAsReadMutation.isPending}
                             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium transition-colors disabled:opacity-50 self-start sm:self-auto"
                         >
-                            <span className="material-symbols-outlined text-lg">done_all</span>
+                            <Icon name='done_all' className='text-lg' />
                             Mark all as read
                         </motion.button>
                     )}
@@ -200,7 +202,7 @@ const NotificationsPage = () => {
                                 }
                             `}
                         >
-                            <span className="material-symbols-outlined text-lg">{tab.icon}</span>
+                            <Icon name={tab.icon} className='text-lg' />
                             {tab.label}
                             {tab.key === 'unread' && unreadCount > 0 && (
                                 <span className="ml-1 text-[10px] bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center font-bold">
@@ -271,9 +273,9 @@ const NotificationsPage = () => {
                                     className="text-center py-16"
                                 >
                                     <div className="w-20 h-20 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-                                        <span className="material-symbols-outlined text-4xl text-slate-300">
-                                            {activeTab === 'unread' ? 'mark_email_read' : 'notifications_off'}
-                                        </span>
+                                        <Icon
+                                            name={activeTab === 'unread' ? 'mark_email_read' : 'notifications_off'}
+                                            className='text-4xl text-slate-300' />
                                     </div>
                                     <h3 className="text-lg font-bold text-slate-900 mb-1">
                                         {activeTab === 'unread' ? 'All caught up!' : 'No notifications'}

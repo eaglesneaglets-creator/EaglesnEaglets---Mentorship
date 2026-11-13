@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * AnimatedContentItem Component
  * A consistent, animated UI for displaying content or resources in lists across dashboards.
@@ -16,7 +18,7 @@ const AnimatedContentItem = ({ icon, iconBg, title, subtitle, rightElement, dela
 
             {/* Icon Area */}
             <div className={`relative flex items-center justify-center w-12 h-12 rounded-xl ${iconBg} transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10`}>
-                <span className="material-symbols-outlined text-xl">{icon}</span>
+                <Icon name={icon} className='text-xl' />
             </div>
 
             {/* Text Content */}

@@ -1,5 +1,7 @@
 import SharedAvatar from '../../../shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * Chat avatar. Phase 32-03: the person branch now delegates to the shared
  * <Avatar>, so a real profile picture shows here instead of a single letter.
@@ -17,7 +19,7 @@ export const Avatar = ({ user, name, isOnline, size = 'md', isNest = false }) =>
         <div className="relative flex-shrink-0">
             {isNest ? (
                 <div className={`${nestSizes[size]} rounded-full flex items-center justify-center font-bold bg-gradient-to-br from-emerald-400 to-emerald-600 text-white`}>
-                    <span className="material-symbols-outlined text-base">groups</span>
+                    <Icon name='groups' className='text-base' />
                 </div>
             ) : (
                 <SharedAvatar user={user} name={name} size={size} />

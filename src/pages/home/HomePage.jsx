@@ -7,6 +7,8 @@ import FadeIn from '@shared/components/motion/FadeIn';
 import LearningIllustration from '@shared/components/visual/LearningIllustration';
 import { useProducts } from '../../modules/store/hooks/useStore';
 
+import Icon from '@shared/components/ui/Icon';
+
 // Authentic mentorship moment — a diverse group (Black and mixed-race) in
 // genuine collaborative conversation, warm natural light. Unsplash, free
 // license. To swap the photo, change only this ID (srcSet/sizes is derived).
@@ -86,7 +88,7 @@ const HeroSection = () => {
                             <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
                                 className="min-h-[44px] flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 bg-white/10 backdrop-blur-sm border border-white/25 text-white font-bold text-sm rounded-xl hover:bg-white/20 transition-all duration-300">
                                 <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-white text-base fill">play_arrow</span>
+                                    <Icon name='play_arrow' className='text-white text-base fill' />
                                 </span>
                                 Watch Story
                             </motion.button>
@@ -158,7 +160,7 @@ const AboutSection = () => {
                                 className="absolute bottom-3 left-3 sm:-bottom-4 sm:-left-4 md:-left-6 bg-white rounded-2xl p-3 sm:p-4 shadow-xl shadow-slate-200/40 border border-slate-100 flex items-center gap-2.5 sm:gap-3"
                             >
                                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                    <span className="material-symbols-outlined text-primary text-base sm:text-lg">diversity_3</span>
+                                    <Icon name='diversity_3' className='text-primary text-base sm:text-lg' />
                                 </div>
                                 <div>
                                     <p className="text-xs font-bold text-slate-900">Community First</p>
@@ -192,7 +194,9 @@ const StoreSection = () => {
                         </div>
                         <Link to="/store" className="hidden md:flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-dark transition-colors group flex-shrink-0">
                             View All Items
-                            <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            <Icon
+                                name='arrow_forward'
+                                className='text-lg group-hover:translate-x-1 transition-transform' />
                         </Link>
                     </div>
                 </FadeIn>
@@ -209,7 +213,7 @@ const StoreSection = () => {
                     </div>
                 ) : products.length === 0 ? (
                     <div className="text-center py-12 sm:py-16 border border-dashed border-slate-200 rounded-2xl">
-                        <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">storefront</span>
+                        <Icon name='storefront' className='text-4xl text-slate-300 mb-2' />
                         <p className="text-sm text-slate-400 px-4">New products coming soon. Check back later.</p>
                     </div>
                 ) : (
@@ -229,7 +233,7 @@ const StoreSection = () => {
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-5xl text-slate-300">shopping_bag</span>
+                                                <Icon name='shopping_bag' className='text-5xl text-slate-300' />
                                             </div>
                                         )}
                                         {prod.category_name && (
@@ -316,7 +320,10 @@ const TestimonialsSection = () => {
                             >
                                 <div className="flex gap-0.5 mb-3 sm:mb-4">
                                     {[...Array(t.stars)].map((_, si) => (
-                                        <span key={si} className={`material-symbols-outlined text-base sm:text-lg fill ${t.featured ? 'text-yellow-300' : 'text-yellow-400'}`}>star</span>
+                                        <Icon
+                                            name='star'
+                                            className={`text-base sm:text-lg fill ${t.featured ? 'text-yellow-300' : 'text-yellow-400'}`}
+                                            key={si} />
                                     ))}
                                 </div>
                                 <p className={`text-sm leading-relaxed flex-1 mb-5 sm:mb-6 ${t.featured ? 'text-white/90' : 'text-slate-500'}`}>

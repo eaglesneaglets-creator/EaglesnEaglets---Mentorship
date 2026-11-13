@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 import { useEnrollNest } from '../hooks/useNests';
 import RequestSentSuccess from './RequestSentSuccess';
 
+import Icon from '@shared/components/ui/Icon';
+
 const SUGGESTED_PROMPTS = [
     "I'm eager to learn and grow in this field.",
     "I've been following your work and would love to be mentored by you.",
@@ -78,14 +80,14 @@ const MentorshipRequestModal = ({ nestId, nestName, mentorName, onClose }) => {
                         onClick={onClose}
                         className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-all duration-200"
                     >
-                        <span className="material-symbols-outlined text-lg">close</span>
+                        <Icon name='close' className='text-lg' />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="px-6 pb-6">
                     {/* Nest info chip */}
                     <div className="flex items-center gap-2 mb-4 p-3 bg-primary/5 rounded-xl border border-primary/10">
-                        <span className="material-symbols-outlined text-primary text-lg">diversity_3</span>
+                        <Icon name='diversity_3' className='text-primary text-lg' />
                         <span className="text-sm font-semibold text-primary">{nestName}</span>
                     </div>
 
@@ -130,7 +132,7 @@ const MentorshipRequestModal = ({ nestId, nestName, mentorName, onClose }) => {
                     {/* Error message */}
                     {joinMutation.isError && (
                         <div className="mb-4 p-3 bg-red-50 border border-red-200/60 rounded-xl flex items-center gap-2">
-                            <span className="material-symbols-outlined text-red-500 text-lg">error</span>
+                            <Icon name='error' className='text-red-500 text-lg' />
                             <p className="text-sm text-red-700">
                                 {joinMutation.error?.message || 'Failed to send request. Please try again.'}
                             </p>
@@ -168,7 +170,7 @@ const MentorshipRequestModal = ({ nestId, nestName, mentorName, onClose }) => {
                                 </>
                             ) : (
                                 <>
-                                    <span className="material-symbols-outlined text-lg">send</span>
+                                    <Icon name='send' className='text-lg' />
                                     Send Request
                                 </>
                             )}

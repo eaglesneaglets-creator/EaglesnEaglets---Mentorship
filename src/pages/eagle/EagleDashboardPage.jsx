@@ -17,6 +17,8 @@ import { SkeletonCard } from '../../shared/components/ui/LoadingSkeleton';
 import { getEagletStatus } from '../../shared/utils/eagletStatus';
 import WelcomeTourHost from '../../shared/components/onboarding/WelcomeTourHost';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * Eaglet Performance Row
  */
@@ -68,7 +70,7 @@ const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
           onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}
           className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-all duration-300"
         >
-          <span className="material-symbols-outlined text-sm">military_tech</span>
+          <Icon name='military_tech' className='text-sm' />
           Award
         </button>
       </td>
@@ -132,7 +134,7 @@ const EagletMobileCard = ({ eaglet, delay = 0, onAwardPoints }) => {
         onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}
         className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 active:bg-emerald-200 transition-all"
       >
-        <span className="material-symbols-outlined text-sm">military_tech</span>
+        <Icon name='military_tech' className='text-sm' />
         Award Points
       </button>
     </div>
@@ -182,7 +184,7 @@ const SessionCard = ({ title, date, link, isUpcoming = false }) => {
         <p className="text-xs text-slate-500 mb-2">{time}</p>
         {link && (
           <a href={link} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
-            <span className="material-symbols-outlined text-[12px]">link</span>
+            <Icon name='link' className='text-[12px]' />
             Join Session
           </a>
         )}
@@ -200,7 +202,7 @@ const SessionCard = ({ title, date, link, isUpcoming = false }) => {
 const EmptyEagletsState = () => (
   <div className="flex flex-col items-center text-center px-4 max-w-sm mx-auto">
     <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
-      <span className="material-symbols-outlined text-primary text-2xl">groups</span>
+      <Icon name='groups' className='text-primary text-2xl' />
     </div>
     <p className="text-sm font-semibold text-slate-900 mb-1">No eaglets yet</p>
     <p className="text-xs text-slate-500 mb-4">
@@ -211,14 +213,14 @@ const EmptyEagletsState = () => (
         to="/eagle/nests"
         className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors"
       >
-        <span className="material-symbols-outlined text-base">add_home</span>
+        <Icon name='add_home' className='text-base' />
         Set up your nest
       </Link>
       <Link
         to="/eagle/content"
         className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors"
       >
-        <span className="material-symbols-outlined text-base">upload_file</span>
+        <Icon name='upload_file' className='text-base' />
         Add content
       </Link>
     </div>
@@ -332,7 +334,7 @@ const EagleDashboardPage = () => {
             onClick={() => navigate('/eagle/content/upload')}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
           >
-            <span className="material-symbols-outlined text-lg">cloud_upload</span>
+            <Icon name='cloud_upload' className='text-lg' />
             Upload Content
           </button>
         </div>
@@ -375,7 +377,7 @@ const EagleDashboardPage = () => {
               {/* Points Awarded Over Time */}
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="material-symbols-outlined text-base text-emerald-500">military_tech</span>
+                  <Icon name='military_tech' className='text-base text-emerald-500' />
                   <h3 className="font-bold text-slate-800 text-sm">Points Awarded</h3>
                 </div>
                 <p className="text-xs text-slate-400 mb-4">Last 8 weeks across all nests</p>
@@ -400,7 +402,7 @@ const EagleDashboardPage = () => {
               {/* Eaglet Progress Overview */}
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="material-symbols-outlined text-base text-blue-500">trending_up</span>
+                  <Icon name='trending_up' className='text-base text-blue-500' />
                   <h3 className="font-bold text-slate-800 text-sm">Eaglet Progress</h3>
                 </div>
                 <p className="text-xs text-slate-400 mb-4">Avg completion % over time</p>
@@ -440,7 +442,7 @@ const EagleDashboardPage = () => {
                     title="Coming soon"
                     className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg opacity-60 cursor-not-allowed"
                   >
-                    <span className="material-symbols-outlined text-sm">sort</span>
+                    <Icon name='sort' className='text-sm' />
                     Sort by
                   </button>
                   <button
@@ -448,7 +450,7 @@ const EagleDashboardPage = () => {
                     title="Coming soon"
                     className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg opacity-60 cursor-not-allowed"
                   >
-                    <span className="material-symbols-outlined text-sm">filter_list</span>
+                    <Icon name='filter_list' className='text-sm' />
                     Filter
                   </button>
                 </div>
@@ -509,11 +511,11 @@ const EagleDashboardPage = () => {
                 <h2 className="text-lg font-bold text-slate-900">Calendar</h2>
                 <div className="flex items-center gap-2">
                   <button onClick={handlePrevMonth} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
-                    <span className="material-symbols-outlined text-sm text-slate-400">chevron_left</span>
+                    <Icon name='chevron_left' className='text-sm text-slate-400' />
                   </button>
                   <span className="text-sm font-semibold text-slate-900">{currentMonthDisplay}</span>
                   <button onClick={handleNextMonth} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
-                    <span className="material-symbols-outlined text-sm text-slate-400">chevron_right</span>
+                    <Icon name='chevron_right' className='text-sm text-slate-400' />
                   </button>
                 </div>
               </div>
@@ -564,7 +566,7 @@ const EagleDashboardPage = () => {
 
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-3 text-amber-300 font-medium text-xs uppercase tracking-wide">
-                  <span className="material-symbols-outlined text-sm">star</span>
+                  <Icon name='star' className='text-sm' />
                   New Resource
                 </div>
                 <h3 className="font-bold text-xl mb-2">Leading with Faith</h3>

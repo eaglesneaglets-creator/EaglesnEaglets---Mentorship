@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function MessageInput({ onSend, disabled }) {
     const [text, setText] = useState('');
     const handleSend = () => {
@@ -34,7 +36,7 @@ export default function MessageInput({ onSend, disabled }) {
                     disabled={!text.trim() || disabled}
                     className="w-10 h-10 rounded-xl bg-primary hover:bg-primary/90 text-white flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 mb-0.5 shadow-sm shadow-primary/20"
                 >
-                    <span className="material-symbols-outlined text-xl">send</span>
+                    <Icon name='send' className='text-xl' />
                 </motion.button>
             </div>
         </div>

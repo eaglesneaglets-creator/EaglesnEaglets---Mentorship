@@ -12,6 +12,8 @@
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
+import Icon from '@shared/components/ui/Icon';
+
 const FEATURE_LABELS = {
     assignments: 'Assignments',
     messages: 'Messages',
@@ -34,7 +36,7 @@ export function LockedFeatureModal({ open, featureKey, onClose: _onClose }) {
         >
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6 sm:p-8 text-center">
                 <div className="mx-auto w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                    <span className="material-symbols-outlined text-primary text-3xl">lock</span>
+                    <Icon name='lock' className='text-primary text-3xl' />
                 </div>
                 <h2
                     id="locked-feature-title"
@@ -53,7 +55,7 @@ export function LockedFeatureModal({ open, featureKey, onClose: _onClose }) {
                     onClick={() => navigate('/eaglet/nest')}
                     className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-md hover:bg-primary-dark transition active:scale-95"
                 >
-                    <span className="material-symbols-outlined text-lg">flight_takeoff</span>
+                    <Icon name='flight_takeoff' className='text-lg' />
                     Go to Nest
                 </button>
             </div>

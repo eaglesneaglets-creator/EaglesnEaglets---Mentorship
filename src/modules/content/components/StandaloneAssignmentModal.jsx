@@ -2,6 +2,8 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCreateStandaloneAssignment } from '../hooks/useStandaloneAssignment';
 
+import Icon from '@shared/components/ui/Icon';
+
 const inputClass = "w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all";
 
 const StandaloneAssignmentModal = ({ isOpen, onClose, nestId }) => {
@@ -61,7 +63,7 @@ const StandaloneAssignmentModal = ({ isOpen, onClose, nestId }) => {
                     <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex items-center justify-between">
                         <h2 className="text-xl font-black text-slate-900">Send Assignment to Nest</h2>
                         <button onClick={onClose} className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors">
-                            <span className="material-symbols-outlined text-slate-500">close</span>
+                            <Icon name='close' className='text-slate-500' />
                         </button>
                     </div>
 
@@ -96,16 +98,16 @@ const StandaloneAssignmentModal = ({ isOpen, onClose, nestId }) => {
                                     onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])} />
                                 {file ? (
                                     <div className="flex items-center gap-3">
-                                        <span className="material-symbols-outlined text-primary">description</span>
+                                        <Icon name='description' className='text-primary' />
                                         <span className="text-sm font-medium text-slate-700 truncate max-w-[200px]">{file.name}</span>
                                         <button type="button" onClick={(e) => { e.stopPropagation(); setFile(null); }}
                                             className="text-slate-400 hover:text-red-500 transition-colors">
-                                            <span className="material-symbols-outlined text-[16px]">close</span>
+                                            <Icon name='close' className='text-[16px]' />
                                         </button>
                                     </div>
                                 ) : (
                                     <>
-                                        <span className="material-symbols-outlined text-slate-400 text-2xl mb-1">upload_file</span>
+                                        <Icon name='upload_file' className='text-slate-400 text-2xl mb-1' />
                                         <p className="text-xs text-slate-500 font-medium">PDF, DOC, PPTX supported</p>
                                         <p className="text-xs text-slate-400">Drag & drop or click to browse</p>
                                     </>

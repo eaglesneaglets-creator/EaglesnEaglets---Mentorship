@@ -5,6 +5,8 @@
  */
 import PropTypes from 'prop-types';
 
+import Icon from '@shared/components/ui/Icon';
+
 const RequestSentSuccess = ({ nestName, mentorName, onClose }) => {
     const now = new Date();
     const formattedDate = now.toLocaleDateString('en-US', {
@@ -38,12 +40,10 @@ const RequestSentSuccess = ({ nestName, mentorName, onClose }) => {
                             className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shadow-lg shadow-primary/30"
                             style={{ animation: 'checkBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both' }}
                         >
-                            <span
-                                className="material-symbols-outlined text-white text-4xl"
-                                style={{ animation: 'checkDraw 0.4s ease-out 0.5s both' }}
-                            >
-                                check
-                            </span>
+                            <Icon
+                                name='check'
+                                className='text-white text-4xl'
+                                style={{ animation: 'checkDraw 0.4s ease-out 0.5s both' }} />
                         </div>
                     </div>
 

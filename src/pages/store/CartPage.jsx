@@ -6,6 +6,8 @@ import { toast } from '@shared/components/ui/toast-utils';
 import StoreHeader from '../../modules/store/components/StoreHeader';
 import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
+import Icon from '@shared/components/ui/Icon';
+
 const CartPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -63,14 +65,14 @@ const CartPage = () => {
 
                 {items.length === 0 ? (
                     <div className="text-center py-20">
-                        <span className="material-symbols-outlined text-7xl text-slate-200">shopping_bag</span>
+                        <Icon name='shopping_bag' className='text-7xl text-slate-200' />
                         <h2 className="text-xl font-bold text-slate-700 mt-4">Your cart is empty</h2>
                         <p className="text-slate-500 text-sm mt-2">Add some products to get started</p>
                         <Link
                             to="/store"
                             className="mt-5 inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-2xl hover:bg-primary/90 transition-colors text-sm"
                         >
-                            <span className="material-symbols-outlined text-base">storefront</span>
+                            <Icon name='storefront' className='text-base' />
                             Browse Store
                         </Link>
                     </div>
@@ -89,7 +91,7 @@ const CartPage = () => {
                                                 <img src={sanitizeImageUrl(item.primary_image)} alt={item.product_name} className="w-full h-full object-cover" />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center">
-                                                    <span className="material-symbols-outlined text-slate-300 text-2xl">shopping_bag</span>
+                                                    <Icon name='shopping_bag' className='text-slate-300 text-2xl' />
                                                 </div>
                                             )}
                                         </div>
@@ -110,7 +112,7 @@ const CartPage = () => {
                                                 disabled={item.quantity <= 1 || isUpdating}
                                                 className="w-9 h-9 flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-colors"
                                             >
-                                                <span className="material-symbols-outlined text-base">remove</span>
+                                                <Icon name='remove' className='text-base' />
                                             </button>
                                             <span className="w-9 text-center text-sm font-semibold text-slate-900">{item.quantity}</span>
                                             <button
@@ -118,14 +120,16 @@ const CartPage = () => {
                                                 disabled={isUpdating}
                                                 className="w-9 h-9 flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-colors"
                                             >
-                                                <span className="material-symbols-outlined text-base">add</span>
+                                                <Icon name='add' className='text-base' />
                                             </button>
                                         </div>
                                         <button
                                             onClick={() => handleRemove(item.id)}
                                             className="p-2 rounded-lg hover:bg-red-50 transition-colors group"
                                         >
-                                            <span className="material-symbols-outlined text-base text-slate-400 group-hover:text-red-500 transition-colors">delete</span>
+                                            <Icon
+                                                name='delete'
+                                                className='text-base text-slate-400 group-hover:text-red-500 transition-colors' />
                                         </button>
                                     </div>
                                 </div>

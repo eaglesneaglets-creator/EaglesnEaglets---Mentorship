@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import BrandLogo from '../../shared/components/ui/BrandLogo';
 
+import Icon from '@shared/components/ui/Icon';
+
 const SUPPORT_EMAIL = 'info.eaglesandeaglets@gmail.com';
 
 /**
@@ -29,9 +31,7 @@ const SuspendedPage = () => (
 
         <div className="p-8 text-center">
           <div className="w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-5">
-            <span className="material-symbols-outlined text-amber-500 text-3xl" aria-hidden="true">
-              lock
-            </span>
+            <Icon name='lock' className='text-amber-500 text-3xl' aria-hidden="true" />
           </div>
 
           <h1 className="text-xl font-bold text-slate-900 mb-2">
@@ -48,7 +48,7 @@ const SuspendedPage = () => (
             href={`mailto:${SUPPORT_EMAIL}?subject=Account%20suspension%20appeal`}
             className="inline-flex w-full items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl shadow-sm hover:bg-primary-dark hover:shadow-md transition-all duration-300 active:scale-[0.98]"
           >
-            <span className="material-symbols-outlined text-lg" aria-hidden="true">mail</span>
+            <Icon name='mail' className='text-lg' aria-hidden="true" />
             Contact support
           </a>
 
