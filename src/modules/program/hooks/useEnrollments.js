@@ -2,7 +2,7 @@
  * useEnrollments — React Query hooks for ProgramEnrollment + exit requests (plan 14-06 T1).
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import { ProgramService } from '../services/program-service';
 
 const enrollKey = (params) => ['enrollments', params || {}];

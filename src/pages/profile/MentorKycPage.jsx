@@ -4,7 +4,7 @@ import { profileService } from '../../modules/profile/services/profile-service';
 import KycFlow from '../../modules/kyc/KycFlow';
 import { useKycRouteGuard } from '../../modules/kyc/hooks/useKycRouteGuard';
 import { MENTOR_CONDUCT_VERSION, MENTOR_CONDUCT_PLAINTEXT } from '../legal/MentorCodeOfConductPage';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 
 export default function MentorKycPage() {
     const { user } = useAuthStore();

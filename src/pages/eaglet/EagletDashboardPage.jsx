@@ -1,9 +1,9 @@
 import React, { useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
-import { useAuthStore } from '@store';
+import { useAuthStore, useHasActiveProgram } from '@store';
 import { useEagletDashboardStats, useCheckIn } from '../../modules/analytics/hooks/useAnalytics';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import StatCard from '../../shared/components/ui/StatCard';
 import AnimatedContentItem from '../../shared/components/ui/AnimatedContentItem';
 import BadgeShelf from '../../shared/components/ui/BadgeShelf';
@@ -68,7 +68,12 @@ const EagletDashboardPage = () => {
   // program and no content. In that state "Resume Learning" is meaningless, so
   // we swap the header CTA (and the empty content state) for a prompt that
   // actually moves them forward: find a mentor.
-  const hasActiveProgram = Boolean(dashboardData?.active_program || dashboardData?.has_active_program);
+  // Enrollment truth lives in access_status (auth store). The analytics
+  // dashboard payload does not carry active_program, so relying on it alone
+  // told every ENROLLED mentee to "Find your first mentor".
+  const hasActiveProgramFromAccess = useHasActiveProgram();
+  const hasActiveProgram = hasActiveProgramFromAccess
+    || Boolean(dashboardData?.active_program || dashboardData?.has_active_program);
 
   const handleCheckIn = () => {
     if (checkInLockRef.current) return;
@@ -102,7 +107,7 @@ const EagletDashboardPage = () => {
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Welcome Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div className="pl-3 border-l-4 border-primary/40 sm:pl-0 sm:border-l-0">
+          <div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               Welcome back, {user?.first_name || 'Eaglet'}!
             </h1>
@@ -113,7 +118,7 @@ const EagletDashboardPage = () => {
               onClick={() => navigate('/eaglet/assignments')}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
             >
-              <span className="material-symbols-outlined text-lg group-hover:animate-bounce">play_arrow</span>
+              <span className="material-symbols-outlined text-lg transition-transform duration-200 group-hover:translate-x-0.5">play_arrow</span>
               Resume Learning
             </button>
           ) : (

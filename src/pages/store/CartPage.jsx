@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useCart, useRemoveFromCart, useUpdateCartItem } from '../../modules/store/hooks/useCart';
 import { useCreateOrder } from '../../modules/store/hooks/useOrders';
 import { useAuthStore } from '@store';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import StoreHeader from '../../modules/store/components/StoreHeader';
 import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 

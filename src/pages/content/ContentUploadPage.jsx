@@ -5,7 +5,7 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useCreateModule, useCreateItem, useModules } from '../../modules/content/hooks/useContent';
 import { useNests } from '../../modules/nest/hooks/useNests';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
 /* ─── Constants ─── */

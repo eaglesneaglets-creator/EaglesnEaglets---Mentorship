@@ -16,7 +16,7 @@ import Avatar from '../../shared/components/ui/Avatar';
 import { ConfirmModal } from '../../shared/components/ui/ConfirmModal';
 import { adminService } from '../../modules/auth/services/auth-service';
 import { formatRelativeTime } from '../../shared/utils';
-import { toast } from 'sonner'; // H19: standardise on sonner (was react-hot-toast)
+import { toast } from '@shared/components/ui/toast-utils';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

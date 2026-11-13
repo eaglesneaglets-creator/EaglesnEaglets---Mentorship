@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Plane, Loader2, ShieldCheck, Lightbulb, BadgeCheck, LogOut } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import { useAuthStore } from '@store';
 
 import { mentorKycSchema, menteeKycSchema } from './schemas/kyc-schemas';

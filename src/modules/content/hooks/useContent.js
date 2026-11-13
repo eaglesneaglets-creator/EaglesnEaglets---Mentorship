@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ContentService from '../services/content-service';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import { analyticsKeys } from '../../analytics/hooks/useAnalytics';
 
 export const contentKeys = {

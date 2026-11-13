@@ -3,7 +3,7 @@ import { useAuthStore } from '@store';
 import { profileService } from '../../modules/profile/services/profile-service';
 import KycFlow from '../../modules/kyc/KycFlow';
 import { useKycRouteGuard } from '../../modules/kyc/hooks/useKycRouteGuard';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 
 export default function MenteeKycPage() {
     const { user } = useAuthStore();

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import { useCreateItem } from '../hooks/useContent';
 import { sanitizeImageUrl } from '../../../shared/utils/sanitize';
 import { directUpload } from '../../../shared/utils/direct-upload';
