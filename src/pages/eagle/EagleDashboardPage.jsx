@@ -15,7 +15,6 @@ import Avatar from '../../shared/components/ui/Avatar';
 import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
 import { SkeletonCard } from '../../shared/components/ui/LoadingSkeleton';
 import { getEagletStatus } from '../../shared/utils/eagletStatus';
-import WelcomeTourHost from '../../shared/components/onboarding/WelcomeTourHost';
 
 import Icon from '@shared/components/ui/Icon';
 
@@ -318,7 +317,6 @@ const EagleDashboardPage = () => {
 
   return (
     <DashboardLayout variant="eagle">
-      <WelcomeTourHost />
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">

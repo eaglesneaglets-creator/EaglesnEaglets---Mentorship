@@ -70,6 +70,8 @@ export default defineConfig([
     files: ['src/components/ui/**/*.jsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
+      // SidebarMenuSkeleton picks a random width with Math.random (upstream).
+      'react-hooks/purity': 'off',
     },
   },
   {

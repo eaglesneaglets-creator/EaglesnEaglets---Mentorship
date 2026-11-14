@@ -105,6 +105,8 @@ describe('Avatar sweep guard (Phase 32-03)', () => {
     const ALLOWED = [
       'shared/components/layout/DashboardLayout.jsx',
       'shared/components/layout/RoleSwitcher.jsx',
+      // Sidebar footer account menu (shadcn shell) — visible at first paint.
+      'shared/components/layout/UserMenu.jsx',
       'shared/components/layout/FloatingNavbarAuth.jsx',
     ];
 

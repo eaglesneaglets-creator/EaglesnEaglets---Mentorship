@@ -1,155 +1,54 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { useAuthStore, useLockedFeatures, useCurrentMode, useIsStackedAdmin } from '@store';
+import { useAuthStore, useLockedFeatures, useCurrentMode, useIsStackedAdmin, useHasActiveProgram } from '@store';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { LockedFeatureModal } from '@shared/components/feature-lock/LockedFeatureModal';
-import RoleSwitcher from './RoleSwitcher';
-import { buildAdminNav } from './admin-nav';
 import { refreshAccessToken } from '../../../api';
 import { adminService } from '../../../modules/auth/services/auth-service';
-import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, useNotificationSocket } from '../../../modules/notifications/hooks/useNotifications';
+import {
+  useNotifications,
+  useUnreadCount,
+  useMarkAsRead,
+  useMarkAllAsRead,
+  useNotificationSocket,
+} from '../../../modules/notifications/hooks/useNotifications';
 import { resolveNotificationUrl } from '../../../modules/notifications/utils/resolve-notification-url';
 import { useTotalUnread } from '../../../modules/chat/hooks/useChat';
-const Logo = '/logo.webp';
-
-import { formatRelativeTime } from '../../../shared/utils';
-import Avatar from '../ui/Avatar';
-
-import Icon from '@shared/components/ui/Icon';
+import ProductTour from '../onboarding/ProductTour';
+import useProductTour from '../onboarding/useProductTour';
+import AppSidebar from './AppSidebar';
+import CommandMenu, { CommandMenuTrigger } from './CommandMenu';
+import MobileTabBar from './MobileTabBar';
+import NotificationsMenu from './NotificationsMenu';
+import RoleSwitcher from './RoleSwitcher';
+import UserMenu from './UserMenu';
+import { MOBILE_TABS, flattenNav, getNavGroups } from './app-nav';
 
 const EMPTY_LOCKED_FEATURES = [];
+const SIDEBAR_KEY = 'ee_sidebar_open';
 
-/**
- * Animated Background Component
- * Creates subtle floating particles and gradient animations
- */
-const AnimatedBackground = ({ variant = 'default' }) => {
-  const variants = {
-    admin: 'from-blue-50 via-indigo-50/30 to-slate-50',
-    eagle: 'from-amber-50 via-orange-50/30 to-slate-50',
-    eaglet: 'from-emerald-50 via-emerald-50/30 to-slate-50',
-    default: 'from-slate-50 via-white to-gray-50/40',
-  };
-
-  const dotColors = {
-    eaglet: 'rgba(16, 185, 129, 0.06)',
-    eagle:  'rgba(245, 158, 11, 0.06)',
-    admin:  'rgba(99, 102, 241, 0.06)',
-    default: 'rgba(100, 116, 139, 0.05)',
-  };
-  const dotColor = dotColors[variant] || dotColors.default;
-
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      {/* Gradient Background */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${variants[variant]} animate-gradient`} />
-
-      {/* Animated dot-grid — subtle diagonal drift */}
-      <div
-        className="absolute inset-0 animate-dot-grid"
-        style={{
-          backgroundImage: `radial-gradient(circle, ${dotColor} 1px, transparent 1px)`,
-          backgroundSize: '32px 32px',
-        }}
-      />
-
-      {/* Floating Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float-slow opacity-80" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl animate-float-medium opacity-60" />
-
-      {/* Grid Pattern — subtle structural lines */}
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`,
-          backgroundSize: '80px 80px',
-        }}
-      />
-    </div>
-  );
-};
-
-AnimatedBackground.propTypes = {
-  variant: PropTypes.oneOf(['admin', 'eagle', 'eaglet', 'default']),
+const readSidebarOpen = () => {
+  try {
+    const stored = localStorage.getItem(SIDEBAR_KEY);
+    return stored === null ? true : stored === 'true';
+  } catch {
+    return true;
+  }
 };
 
 /**
- * Navigation Item Component
- */
-const NavItem = React.memo(({ to, icon, label, isActive, badge, isCollapsed, onClick, isLocked }) => {
-  const handleClick = (e) => {
-    if (isLocked) {
-      e.preventDefault();
-    }
-    onClick?.(e);
-  };
-
-  return (
-    <Link
-      to={isLocked ? '#' : to}
-      onClick={handleClick}
-      title={isCollapsed ? label : undefined}
-      aria-disabled={isLocked || undefined}
-      className={`
-        group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative
-        ${isCollapsed ? 'justify-center' : ''}
-        ${isActive
-          ? 'bg-primary text-white shadow-lg shadow-primary/25'
-          : isLocked
-            ? 'text-slate-400 hover:bg-slate-50'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-        }
-      `}
-    >
-      <Icon
-        name={icon}
-        className={`text-xl transition-transform duration-300 ${isActive ? '' : 'group-hover:scale-110'} ${isCollapsed ? '' : ''}`} />
-      {!isCollapsed && (
-        <>
-          <span className="text-sm font-medium flex-1 whitespace-nowrap overflow-hidden">{label}</span>
-          {isLocked && (
-            <Icon name='lock' className='text-base text-slate-400' aria-label="Locked" />
-          )}
-          {badge && !isLocked && (
-            <span className={`
-              px-2 py-0.5 text-xs font-bold rounded-full transition-all duration-300
-              ${isActive ? 'bg-white/20 text-white' : 'bg-emerald-500 text-white'}
-            `}>
-              {badge}
-            </span>
-          )}
-        </>
-      )}
-      {isCollapsed && isLocked && (
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-slate-300 rounded-full flex items-center justify-center">
-          <Icon name='lock' className='text-[10px] text-white' />
-        </span>
-      )}
-      {isCollapsed && badge && !isLocked && (
-        <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-          {badge}
-        </span>
-      )}
-    </Link>
-  );
-});
-
-NavItem.displayName = 'NavItem';
-
-NavItem.propTypes = {
-  to: PropTypes.string.isRequired,
-  icon: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-  isActive: PropTypes.bool,
-  badge: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  isCollapsed: PropTypes.bool,
-  onClick: PropTypes.func,
-  isLocked: PropTypes.bool,
-};
-
-/**
- * DashboardLayout Component
- * Shared layout with animated sidebar and background
+ * DashboardLayout — the authenticated app shell (shadcn Sidebar).
+ *
+ * - Sidebar: grouped, role-aware nav; collapses to an icon rail (⌘/Ctrl+B or
+ *   the rail); becomes a sheet below lg. Collapse state persists.
+ * - Header: sidebar toggle, ⌘K command menu, notifications, help.
+ * - Mobile: bottom tab bar with four destinations plus "More".
+ * - Guided tour: starts once on the role dashboard; replay from the account
+ *   menu or ⌘K.
+ * - Skip link to the page content for keyboard and screen-reader users.
  */
 const DashboardLayout = ({
   children,
@@ -157,658 +56,242 @@ const DashboardLayout = ({
   fullWidth = false,
   noPadding = false,
   hideHeader = false,
-  fullHeight = false
+  fullHeight = false,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  // Role-switcher mode (plan 18-03). Drives sidebar nav swap + amber stripe.
   const currentMode = useCurrentMode();
   const isStackedAdmin = useIsStackedAdmin();
-  // Persist sidebar collapse across route changes. Each page mounts its own
-  // DashboardLayout instance, so without persistence the sidebar resets to
-  // expanded on every nav click. Read once on mount, write on every toggle.
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
-    try {
-      const stored = localStorage.getItem('ee_sidebar_open');
-      return stored === null ? true : stored === 'true';
-    } catch {
-      return true;
-    }
-  });
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => {
-      const next = !prev;
-      try { localStorage.setItem('ee_sidebar_open', String(next)); } catch { /* ignore */ }
-      return next;
-    });
-  };
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [pendingKycCount, setPendingKycCount] = useState(0);
-  const notifRef = useRef(null);
+  const hasActiveProgram = useHasActiveProgram();
 
-  // Rehydrate access token on page refresh.
-  // The browser sends the httpOnly refresh cookie.
-  // This MUST run before any authenticated React Query hooks fire.
+  const [sidebarOpen, setSidebarOpen] = useState(readSidebarOpen);
+  const onSidebarOpenChange = (next) => {
+    setSidebarOpen(next);
+    try { localStorage.setItem(SIDEBAR_KEY, String(next)); } catch { /* ignore */ }
+  };
+
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [pendingKycCount, setPendingKycCount] = useState(0);
+  const [lockModalKey, setLockModalKey] = useState(null);
+
+  // Rehydrate the access token on refresh (httpOnly refresh cookie). Must run
+  // before authenticated React Query hooks fire.
   const { accessToken, setAccessToken } = useAuthStore();
   const [tokenReady, setTokenReady] = useState(!!accessToken);
   useEffect(() => {
-    if (!accessToken) {
-      refreshAccessToken()
-        .then((token) => {
-          if (token) {
-            setAccessToken(token);
-          }
-          setTokenReady(true);
-        })
-        .catch(() => {
-          setTokenReady(true); // session expired — AuthGuard will redirect
-        });
-    } else {
+    if (accessToken) {
       setTokenReady(true);
+      return;
     }
+    refreshAccessToken()
+      .then((token) => { if (token) setAccessToken(token); })
+      .catch(() => { /* session expired — AuthGuard redirects */ })
+      .finally(() => setTokenReady(true));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Refresh access_status on mount + window focus so sidebar lock visuals
-  // reflect mentor approvals + KYC state changes without requiring a logout.
+  // Keep access_status (locks, enrolment) fresh on mount and window focus.
   const refreshAccessStatus = useAuthStore((s) => s.refreshAccessStatus);
   useEffect(() => {
-    if (!tokenReady || !refreshAccessStatus) return;
+    if (!tokenReady || !refreshAccessStatus) return undefined;
     refreshAccessStatus();
     const onFocus = () => refreshAccessStatus();
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
   }, [tokenReady, refreshAccessStatus]);
 
-  // Real unread chat count for sidebar badge.
-  // Gate on tokenReady (no 401 on refresh) AND on chat being unlocked
-  // (eaglets without active program get 403 NoActiveProgramDenied on chat APIs).
-  const accessStatusForChat = useAuthStore((s) => s.accessStatus);
-  const lockedFeaturesEarly = useAuthStore(
-    (s) => s.accessStatus?.locked_features ?? EMPTY_LOCKED_FEATURES
-  );
-  const accessStatusLoaded = accessStatusForChat !== null && accessStatusForChat !== undefined;
+  // Chat unread badge — only when chat is unlocked (locked mentees get 403s).
+  const accessStatus = useAuthStore((s) => s.accessStatus);
+  const lockedFeatures = useLockedFeatures() || EMPTY_LOCKED_FEATURES;
+  const accessStatusLoaded = accessStatus !== null && accessStatus !== undefined;
   const chatUnlocked =
-    !user ||
-    user.role !== 'eaglet' ||
-    (accessStatusLoaded && !lockedFeaturesEarly.includes('messages'));
+    !user || user.role !== 'eaglet' || (accessStatusLoaded && !lockedFeatures.includes('messages'));
   const chatUnread = useTotalUnread({ enabled: tokenReady && chatUnlocked });
   const chatBadge = chatUnread > 0 ? chatUnread : undefined;
 
-
-  // Real notification hooks — work for all roles, gated on tokenReady
+  // Notifications (all roles) + live socket.
   const { data: notificationsData } = useNotifications(undefined, { enabled: tokenReady });
   const { data: unreadData } = useUnreadCount({ enabled: tokenReady });
   const markAsReadMutation = useMarkAsRead();
   const markAllAsReadMutation = useMarkAllAsRead();
-
-  // Mount WS connection — gated on tokenReady so the cookie is fresh before connecting
   const { retryCount: wsRetryCount } = useNotificationSocket({ enabled: tokenReady });
-
   const notifications = notificationsData?.data?.results || notificationsData?.data || [];
   const unreadCount = unreadData?.data?.count ?? unreadData?.data?.unread_count ?? 0;
 
-  const NOTIF_TYPE_META = {
-    mentorship_request: { icon: 'person_add', bg: 'bg-blue-100 text-blue-600' },
-    mentorship_approved: { icon: 'check_circle', bg: 'bg-emerald-100 text-emerald-600' },
-    mentorship_rejected: { icon: 'cancel', bg: 'bg-red-100 text-red-600' },
-    content_published: { icon: 'library_books', bg: 'bg-purple-100 text-purple-600' },
-    points_awarded: { icon: 'stars', bg: 'bg-amber-100 text-amber-600' },
-    badge_earned: { icon: 'military_tech', bg: 'bg-yellow-100 text-yellow-700' },
-    nest_post: { icon: 'forum', bg: 'bg-cyan-100 text-cyan-600' },
-    assignment_graded: { icon: 'grading', bg: 'bg-indigo-100 text-indigo-600' },
-    post_like: { icon: 'favorite', bg: 'bg-red-100 text-red-500' },
-    post_comment: { icon: 'chat_bubble', bg: 'bg-blue-100 text-blue-600' },
-    general: { icon: 'notifications', bg: 'bg-slate-100 text-slate-600' },
-  };
-
+  // Nudge the bell when a new notification arrives.
   const [bellShaking, setBellShaking] = useState(false);
   const prevUnreadRef = useRef(unreadCount);
-
   useEffect(() => {
     if (unreadCount > prevUnreadRef.current) {
-      const t = setTimeout(() => {
-        setBellShaking(true);
-        setTimeout(() => setBellShaking(false), 600);
-      }, 0);
+      setBellShaking(true);
+      const t = setTimeout(() => setBellShaking(false), 600);
       prevUnreadRef.current = unreadCount;
       return () => clearTimeout(t);
     }
     prevUnreadRef.current = unreadCount;
+    return undefined;
   }, [unreadCount]);
 
-  const handleNotifClick = (notif) => {
-    if (!notif.is_read) {
-      markAsReadMutation.mutate(notif.id);
-    }
-    // Resolver rewrites legacy action_urls (e.g. /points/badges → 404) and
-    // derives a target by notification_type when action_url is empty.
-    const target = resolveNotificationUrl(notif, user?.role);
-    if (target) {
-      navigate(target);
-    }
-    setShowNotifications(false);
+  const handleNotificationSelect = (notification) => {
+    if (!notification.is_read) markAsReadMutation.mutate(notification.id);
+    const target = resolveNotificationUrl(notification, user?.role);
+    setNotificationsOpen(false);
+    if (target) navigate(target);
   };
 
-  // Close mobile menu on route change
-  const [prevPathname, setPrevPathname] = useState(location.pathname);
-  if (prevPathname !== location.pathname) {
-    setPrevPathname(location.pathname);
-    setIsMobileMenuOpen(false);
-  }
-
-  // Fetch admin KYC badge count only
+  // Admin: pending KYC count for the People badge.
   useEffect(() => {
+    if (user?.role !== 'admin') return undefined;
     let active = true;
-    const fetchStats = async () => {
-      if (user?.role !== 'admin') return;
-      try {
-        const response = await adminService.getStats();
-        if (response.success && active) {
-          setPendingKycCount(response.data.kyc?.total_pending || 0);
-        }
-      } catch {
-        // Silently fail
-      }
-    };
-    fetchStats();
+    adminService.getStats()
+      .then((response) => {
+        if (response.success && active) setPendingKycCount(response.data.kyc?.total_pending || 0);
+      })
+      .catch(() => {});
     return () => { active = false; };
   }, [user?.role]);
-
-  // Close notification dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) {
-        setShowNotifications(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
   };
 
-  // Navigation items based on role + current mode (plan 18-03).
-  // For stacked-admin users, mode drives which nav set renders so the
-  // sidebar swaps entirely between mentor and admin views.
-  // Stacked admin (eagle OR eaglet + is_platform_staff — plan 22-02) —
-  // `currentMode` decides which nav set to render. Pure admins
-  // (role='admin') always see the admin nav. Computed once so the desktop
-  // sidebar and the mobile tab bar can never disagree about the nav set.
+  // Nav set: pure admins always get admin nav; dual-role users by mode.
   const navRole = user?.role || 'eaglet';
-  const isStackedAdminUser =
-    (navRole === 'eagle' || navRole === 'eaglet') && user?.is_platform_staff === true;
-  const showAdminNav =
-    navRole === 'admin' || (isStackedAdminUser && currentMode === 'admin');
+  const isStackedAdminUser = (navRole === 'eagle' || navRole === 'eaglet') && user?.is_platform_staff === true;
+  const showAdminNav = navRole === 'admin' || (isStackedAdminUser && currentMode === 'admin');
+  const view = showAdminNav ? 'admin' : navRole === 'eagle' ? 'eagle' : 'eaglet';
+  const isMentee = user?.role === 'eaglet';
 
-  const getNavItems = () => {
-    const role = navRole;
-
-    if (showAdminNav) {
-      // Tiered admin nav: superadmin-only surfaces (Nests, Donations) are
-      // hidden from scoped (dual-role) admins. Backend independently enforces
-      // the same boundary — see core.permissions.IsSuperAdmin. See buildAdminNav.
-      return buildAdminNav({
-        isSuperAdmin: Boolean(user?.is_superuser),
-        pendingKycCount,
-        chatBadge,
-      });
-    }
-
-    if (role === 'eagle') {
-      return [
-        { to: '/', icon: 'home', label: 'Home' },
-        { to: '/eagle/dashboard', icon: 'dashboard', label: 'Dashboard' },
-        // 'My Eaglets' moved into NestCommunityHubPage as a tab.
-        // Standalone /eagle/eaglets route kept for deep links / back-compat.
-        { to: '/eagle/nests', icon: 'diversity_3', label: 'My Nest' },
-        { to: '/eagle/grading', icon: 'grading', label: 'Grading Center' },
-        { to: '/eagle/content', icon: 'upload_file', label: 'Content' },
-        { to: '/eagle/messages', icon: 'chat', label: 'Messages', badge: chatBadge },
-        { to: '/eagle/resources', icon: 'library_books', label: 'Resources' },
-        { to: '/settings', icon: 'settings', label: 'Settings' },
-      ];
-    }
-
-    // Eaglet (mentee). My Requests dropped — moved into Nest page Requests tab (plan 14-05).
-    // featureKey marks items gated by access_status.locked_features.
-    return [
-      { to: '/', icon: 'home', label: 'Home' },
-      { to: '/eaglet/dashboard', icon: 'dashboard', label: 'Dashboard' },
-      { to: '/eaglet/nest', icon: 'nest_eco_leaf', label: 'Nest' },
-      { to: '/eaglet/assignments', icon: 'assignment', label: 'Assignments', featureKey: 'assignments' },
-      { to: '/eaglet/messages', icon: 'chat', label: 'Messages', badge: chatBadge, featureKey: 'messages' },
-      { to: '/eaglet/leaderboard', icon: 'leaderboard', label: 'Leaderboard', featureKey: 'leaderboard' },
-      { to: '/eaglet/resources', icon: 'library_books', label: 'Resources', featureKey: 'resources' },
-      { to: '/settings', icon: 'settings', label: 'Settings' },
-    ];
-  };
-
-  const navItems = getNavItems();
-
-  // Mobile uses four stable role-specific destinations plus a More entry.
-  // Desktop keeps the complete sidebar navigation.
-  const mobilePreferredPaths = {
-    admin: ['/admin/dashboard', '/admin/users', '/admin/content', '/admin/messages'],
-    eagle: ['/eagle/dashboard', '/eagle/nests', '/eagle/content', '/eagle/messages'],
-    eaglet: ['/eaglet/dashboard', '/eaglet/nest', '/eaglet/assignments', '/eaglet/messages'],
-  };
-  const mobileRole = showAdminNav ? 'admin' : navRole === 'eagle' ? 'eagle' : 'eaglet';
-  const mobileNavItems = (mobilePreferredPaths[mobileRole] || mobilePreferredPaths.eaglet)
-    .map((path) => navItems.find((item) => item.to === path))
+  const groups = getNavGroups({
+    role: navRole,
+    showAdminNav,
+    isSuperAdmin: Boolean(user?.is_superuser),
+    pendingKycCount,
+    chatBadge,
+  });
+  const flatNav = flattenNav(groups);
+  const mobileItems = (MOBILE_TABS[view] || MOBILE_TABS.eaglet)
+    .map((path) => flatNav.find((item) => item.to === path))
     .filter(Boolean);
 
-  const isNavItemActive = (item) =>
-    location.pathname === item.to ||
-    (!item.exact && location.pathname.startsWith(item.to + '/')) ||
-    (item.aliases || []).some((alias) =>
-      location.pathname === alias || location.pathname.startsWith(alias + '/'),
-    );
+  const { tour, open: tourOpen, start: startTour, finish: finishTour } = useProductTour({
+    view,
+    hasActiveProgram,
+    isSuperAdmin: Boolean(user?.is_superuser),
+    pathname: location.pathname,
+    ready: tokenReady && Boolean(user),
+  });
 
-  // Plan 14-05: compute per-item lock state from access_status. Eagles + admins
-  // never see locks. Clicking a locked item opens the modal instead of routing.
-  const lockedFeatures = useLockedFeatures();
-  const isEagletRole = user?.role === 'eaglet';
-  const [lockModalKey, setLockModalKey] = useState(null);
-  const closeLockModal = () => setLockModalKey(null);
-
-  const roleDisplay = {
-    admin: 'Administrator',
-    eagle: 'Eagle (Mentor)',
-    eaglet: 'Eaglet (Mentee)',
-  };
+  const userMenu = isStackedAdmin ? (
+    <RoleSwitcher user={user} onLogout={handleLogout} onStartTour={startTour} side="right" align="end" />
+  ) : (
+    <UserMenu
+      user={user}
+      onNavigate={(path) => navigate(path)}
+      onStartTour={startTour}
+      onLogout={handleLogout}
+      side="right"
+      align="end"
+    />
+  );
 
   return (
-    <div className="ios-app-shell h-screen flex overflow-hidden">
-      {/* Animated Background */}
-      <AnimatedBackground variant={variant} />
-
-      {/* Mobile Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden animate-fade-in"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed lg:static inset-y-0 left-0 h-full z-50
-          bg-white/90 backdrop-blur-xl border-r border-slate-200/50
-          flex flex-col transition-all duration-300 ease-out
-          ${isSidebarOpen ? 'w-[85vw] sm:w-72 lg:w-72' : 'w-[85vw] sm:w-72 lg:w-[72px]'}
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        `}
+    <TooltipProvider delayDuration={300}>
+      <SidebarProvider
+        open={sidebarOpen}
+        onOpenChange={onSidebarOpenChange}
+        className="ios-app-shell h-svh overflow-hidden"
+        data-variant={variant}
       >
-        {/* Admin-mode accent stripe (plan 18-03) — passive cue that
-            elevated privileges are active. Rendered as a natural-flow first
-            child of the flex column so it doesn't need a relative ancestor
-            (which would conflict with the `fixed lg:static` aside positioning). */}
-        {currentMode === 'admin' && (
-          <div
-            aria-hidden
-            className="w-full h-[2px] flex-shrink-0 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-300"
-          />
-        )}
-        {/* Header with Logo and Collapse Toggle */}
-        <div className={`h-16 flex items-center border-b border-slate-200/50 ${isSidebarOpen ? 'px-4 justify-between' : 'px-2 justify-center'}`}>
-          <Link to="/" className={`flex items-center gap-3 ${isSidebarOpen ? '' : 'justify-center'}`}>
-            <div className="relative group flex-shrink-0">
-              <img
-                src={Logo}
-                alt="Eagles & Eaglets"
-                className={`rounded-xl shadow-md transition-transform duration-300 group-hover:scale-105 ${isSidebarOpen ? 'h-10 w-10' : 'h-10 w-10'}`}
-              />
-            </div>
-            {isSidebarOpen && (
-              <div className="flex flex-col overflow-hidden">
-                <h1 className="font-bold text-slate-900 text-base leading-tight truncate">Eagles & Eaglets</h1>
-                <p className="text-[10px] text-slate-500 truncate">Mentorship Platform</p>
-              </div>
-            )}
-          </Link>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lg focus:ring-2 focus:ring-ring"
+        >
+          Skip to main content
+        </a>
 
-          {/* Collapse Toggle Button */}
-          <button
-            onClick={toggleSidebar}
-            className={`hidden lg:flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-all duration-300 flex-shrink-0 ${isSidebarOpen ? '' : 'absolute -right-3.5 top-4 bg-white shadow-md border border-slate-200'}`}
-          >
-            <Icon
-              name='chevron_left'
-              className={`text-lg transition-transform duration-300 ${isSidebarOpen ? '' : 'rotate-180'}`} />
-          </button>
-        </div>
+        <AppSidebar
+          groups={groups}
+          lockedFeatures={lockedFeatures}
+          isMentee={isMentee}
+          adminView={showAdminNav}
+          userMenu={userMenu}
+          onLockedClick={setLockModalKey}
+        />
 
-        {/* User Profile Section */}
-        <div className={`border-b border-slate-200/50 ${isSidebarOpen ? 'px-4 py-4' : 'px-2 py-3'}`}>
-          {isStackedAdmin ? (
-            // Stacked admins get the role-switcher dropdown (plan 18-03).
-            <RoleSwitcher
-              user={user}
-              onClose={() => setIsMobileMenuOpen(false)}
-              onLogout={handleLogout}
-              variant={isSidebarOpen ? 'expanded' : 'collapsed'}
-            />
-          ) : (
-            // Single-role users see the existing static pill.
-            <div className={`flex items-center rounded-xl transition-all duration-300 ${isSidebarOpen ? 'gap-3 p-3 bg-slate-50/80' : 'justify-center p-2'}`}>
-              <div className="relative flex-shrink-0">
-                {/* Phase 32-03: <Avatar> replaces the manual img/div pair — that
-                    version read only `user.avatar` (missing avatar_url) and did
-                    DOM-mutating onError show/hide. Kept rounded-xl, not a circle. */}
-                <Avatar
-                  user={user}
-                  size="md"
-                  eager
-                  className="!rounded-xl shadow-lg"
+        <SidebarInset className="flex h-svh min-w-0 flex-col overflow-hidden bg-background">
+          {!hideHeader && (
+            <header className="ios-app-header z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background/85 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:px-4 lg:px-6">
+              <SidebarTrigger className="-ml-1 size-9" aria-label="Toggle navigation" />
+              <Separator orientation="vertical" className="mr-1 hidden h-5 lg:block" />
+              <CommandMenuTrigger onOpen={() => setCommandOpen(true)} className="max-sm:max-w-none" />
+              <div className="ml-auto flex items-center gap-1">
+                <NotificationsMenu
+                  open={notificationsOpen}
+                  onOpenChange={setNotificationsOpen}
+                  notifications={notifications}
+                  unreadCount={unreadCount}
+                  onSelect={handleNotificationSelect}
+                  onMarkAllRead={() => markAllAsReadMutation.mutate()}
+                  markingAll={markAllAsReadMutation.isPending}
+                  shaking={bellShaking}
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
               </div>
-              {isSidebarOpen && (
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <p className="font-semibold text-slate-900 text-sm truncate">
-                    {user?.first_name} {user?.last_name}
-                  </p>
-                  <p className="text-xs text-slate-500 truncate">
-                    {roleDisplay[user?.role] || user?.role}
-                  </p>
-                </div>
-              )}
+            </header>
+          )}
+
+          {wsRetryCount > 0 && (
+            <div role="status" className="flex items-center justify-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs font-medium text-amber-900">
+              <span className="size-2 shrink-0 animate-pulse rounded-full bg-amber-500" aria-hidden="true" />
+              Reconnecting to live updates… (attempt {wsRetryCount})
             </div>
           )}
-        </div>
 
-        {/* Navigation */}
-        <nav className={`flex-1 overflow-y-auto py-4 space-y-1 ${isSidebarOpen ? 'px-3' : 'px-2'}`}>
-          {navItems.map((item) => {
-            const itemLocked =
-              isEagletRole && item.featureKey && lockedFeatures.includes(item.featureKey);
-            return (
-              <NavItem
-                key={item.to}
-                {...item}
-                isCollapsed={!isSidebarOpen}
-                isActive={
-                  location.pathname === item.to ||
-                  (!item.exact && location.pathname.startsWith(item.to + '/')) ||
-                  // SectionTabs consolidation: a sidebar item can keep its
-                  // highlight when the user is on one of its sub-section
-                  // routes that lives under a different path prefix.
-                  (item.aliases || []).some((alias) =>
-                    location.pathname === alias ||
-                    location.pathname.startsWith(alias + '/'),
-                  )
-                }
-                isLocked={itemLocked}
-                onClick={() => {
-                  if (itemLocked) {
-                    setLockModalKey(item.featureKey);
-                    return;
-                  }
-                  setIsMobileMenuOpen(false);
-                }}
-              />
-            );
-          })}
-        </nav>
-
-        {/* Bottom Actions */}
-        <div className={`border-t border-slate-200/50 ${isSidebarOpen ? 'p-3' : 'p-2'}`}>
-          <button
-            onClick={handleLogout}
-            title={!isSidebarOpen ? 'Log Out' : undefined}
-            className={`w-full flex items-center rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all duration-300 group ${isSidebarOpen ? 'gap-3 px-4 py-3' : 'justify-center p-3'}`}
+          <div
+            id="main-content"
+            tabIndex={-1}
+            className={`ios-page-content flex-1 overflow-x-hidden overflow-y-auto outline-none ${noPadding ? '' : 'p-4 sm:p-6 lg:p-8'}`}
           >
-            <Icon
-              name='logout'
-              className='text-xl transition-transform duration-300 group-hover:rotate-12' />
-            {isSidebarOpen && <span className="text-sm font-medium">Log Out</span>}
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden transition-all duration-300">
-        {/* Top Header */}
-        {!hideHeader && (
-          <header className="ios-app-header flex-shrink-0 z-30 h-16 flex items-center justify-between px-4 lg:px-8 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="ios-mobile-brand lg:hidden min-h-[44px] rounded-lg hover:bg-slate-100 transition-colors"
-              aria-label="Open all navigation"
-            >
-              <img src={Logo} alt="" className="w-8 h-8 rounded-lg" />
-              <span>
-                <strong>E&amp;E</strong>
-                <small>{roleDisplay[mobileRole] || 'Platform'}</small>
-              </span>
-            </button>
-
-            {/* Search Bar */}
-            <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
-              <div className="w-full relative group">
-                <Icon
-                  name='search'
-                  className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl transition-colors group-focus-within:text-primary' />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full h-10 pl-10 pr-4 rounded-xl bg-slate-100/80 border-none text-sm placeholder-slate-400 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all duration-300"
-                />
-              </div>
+            <div className={`${fullWidth ? 'w-full max-w-none' : 'mx-auto max-w-7xl'} ${fullHeight ? 'ios-page-fill' : 'ios-page-flow'} h-full min-w-0`}>
+              {children}
             </div>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-2">
-              {/* Notification Bell + Dropdown */}
-              <div className="relative" ref={notifRef}>
-                <button
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="relative p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group"
-                >
-                  <Icon
-                    name='notifications'
-                    className={`text-slate-600 group-hover:text-primary transition-colors ${bellShaking ? 'animate-wiggle' : ''}`} />
-                  {unreadCount > 0 && (
-                    <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white animate-pulse">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* Dropdown */}
-                {showNotifications && (
-                  <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-fade-in">
-                    <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                      <h4 className="font-bold text-slate-900 text-sm">Notifications</h4>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={() => markAllAsReadMutation.mutate()}
-                          disabled={markAllAsReadMutation.isPending}
-                          className="text-xs text-primary hover:text-primary/80 font-medium transition-colors disabled:opacity-50"
-                        >
-                          Mark all read
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
-                      {notifications.length > 0 ? notifications.slice(0, 8).map((n) => {
-                        const meta = NOTIF_TYPE_META[n.notification_type] || NOTIF_TYPE_META.general;
-                        return (
-                          <div
-                            key={n.id}
-                            onClick={() => handleNotifClick(n)}
-                            className={`flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer ${!n.is_read ? 'bg-primary/[0.03]' : ''}`}
-                          >
-                            <div className={`w-8 h-8 rounded-lg ${meta.bg} flex items-center justify-center flex-shrink-0`}>
-                              <Icon name={meta.icon} className='text-sm' />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className={`text-xs text-slate-900 ${!n.is_read ? 'font-bold' : 'font-semibold'}`}>{n.title}</p>
-                              <p className="text-xs text-slate-500 truncate">{n.message}</p>
-                            </div>
-                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                              <span className="text-[10px] text-slate-400 whitespace-nowrap">{formatRelativeTime(n.created_at)}</span>
-                              {!n.is_read && <span className="w-2 h-2 rounded-full bg-primary" />}
-                            </div>
-                          </div>
-                        );
-                      }) : (
-                        <div className="px-4 py-8 text-center">
-                          <Icon name='notifications_off' className='text-2xl text-slate-300' />
-                          <p className="text-xs text-slate-400 mt-1">No notifications yet</p>
-                        </div>
-                      )}
-                    </div>
-                    {notifications.length > 0 && (
-                      <Link
-                        to="/notifications"
-                        onClick={() => setShowNotifications(false)}
-                        className="block px-4 py-2.5 text-center text-xs font-medium text-primary hover:bg-primary/5 border-t border-slate-100 transition-colors"
-                      >
-                        View all notifications
-                      </Link>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <Link
-                to="/faq"
-                aria-label="Frequently asked questions"
-                title="FAQs"
-                className="p-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-100 transition-all duration-300 group hidden sm:flex items-center justify-center"
-              >
-                <Icon
-                  name='help'
-                  className='text-slate-600 group-hover:text-primary transition-colors' />
-              </Link>
-
-              {/* Logout button — visible on mobile where sidebar bottom is hidden */}
-            </div>
-          </header>
-        )}
-
-        {/* WebSocket Reconnecting Banner — only shows after first drop (retryCount > 0) */}
-        {wsRetryCount > 0 && (
-          <div className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-800 text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-            Reconnecting to real-time updates… (attempt {wsRetryCount})
           </div>
-        )}
+        </SidebarInset>
 
-        {/* Page Content — sole scroll container so sidebar/header stay fixed */}
-        <main className={`ios-page-content flex-1 overflow-y-auto overflow-x-hidden ${noPadding ? '' : 'p-3 sm:p-4 lg:p-8'}`}>
-          <div className={`${fullWidth ? 'max-w-none w-full' : 'max-w-7xl mx-auto'} ${fullHeight ? 'ios-page-fill' : 'ios-page-flow'} animate-fade-in-up h-full min-w-0`}>
-            {children}
-          </div>
-        </main>
-      </div>
-
-      <nav
-        className="ios-mobile-tabbar lg:hidden"
-        aria-label="Primary navigation"
-        aria-hidden={isMobileMenuOpen || undefined}
-        inert={isMobileMenuOpen}
-      >
-        {mobileNavItems.map((item) => {
-          const itemLocked = isEagletRole && item.featureKey && lockedFeatures.includes(item.featureKey);
-          const active = isNavItemActive(item);
-          return (
-            <Link
-              key={item.to}
-              to={itemLocked ? '#' : item.to}
-              aria-current={active ? 'page' : undefined}
-              aria-disabled={itemLocked || undefined}
-              className={active ? 'is-active' : ''}
-              onClick={(event) => {
-                if (itemLocked) {
-                  event.preventDefault();
-                  setLockModalKey(item.featureKey);
-                }
-              }}
-            >
-              <span className="ios-tab-icon">
-                <Icon name={item.icon} />
-                {item.badge && <i>{Number(item.badge) > 9 ? '9+' : item.badge}</i>}
-                {itemLocked && <i className="is-lock"><Icon name='lock' /></i>}
-              </span>
-              <small>{item.label === 'Dashboard' ? 'Home' : item.label}</small>
-            </Link>
-          );
-        })}
-        <button type="button" onClick={() => setIsMobileMenuOpen(true)} aria-label="More navigation">
-          <span className="ios-tab-icon"><Icon name='apps' /></span>
-          <small>More</small>
-        </button>
-      </nav>
-
-      {/* Global Styles for Animations */}
-      <style>{`
-        @keyframes float-slow {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(5deg); }
-          66% { transform: translate(-20px, 20px) rotate(-5deg); }
-        }
-        @keyframes float-medium {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          50% { transform: translate(-40px, -20px) rotate(-10deg); }
-        }
-        @keyframes float-fast {
-          0%, 100% { transform: translate(0, 0); }
-          25% { transform: translate(20px, -20px); }
-          50% { transform: translate(0, -40px); }
-          75% { transform: translate(-20px, -20px); }
-        }
-        @keyframes gradient {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-float-slow { animation: float-slow 20s ease-in-out infinite; }
-        .animate-float-medium { animation: float-medium 15s ease-in-out infinite; }
-        .animate-float-fast { animation: float-fast 10s ease-in-out infinite; }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 15s ease infinite;
-        }
-        .animate-fade-in { animation: fade-in 0.3s ease-out; }
-        .animate-fade-in-up { animation: fade-in-up 0.5s ease-out; }
-        @keyframes drift-grid {
-          0%   { background-position: 0px 0px; }
-          100% { background-position: 32px 32px; }
-        }
-        .animate-dot-grid { animation: drift-grid 12s linear infinite; }
-      `}</style>
-
-      {/* Plan 14-05: locked sidebar item modal */}
-      {lockModalKey && (
-        <LockedFeatureModal
-          open={!!lockModalKey}
-          featureKey={lockModalKey}
-          onClose={closeLockModal}
+        <MobileTabBar
+          items={mobileItems}
+          lockedFeatures={lockedFeatures}
+          isMentee={isMentee}
+          onLockedClick={setLockModalKey}
         />
-      )}
-    </div>
+
+        <CommandMenu
+          open={commandOpen}
+          onOpenChange={setCommandOpen}
+          groups={groups}
+          lockedFeatures={lockedFeatures}
+          isMentee={isMentee}
+          onNavigate={(path) => navigate(path)}
+          onStartTour={startTour}
+          onLogout={handleLogout}
+        />
+
+        {tourOpen && <ProductTour key={tour.id} tour={tour} open onFinish={finishTour} />}
+
+        {lockModalKey && (
+          <LockedFeatureModal open featureKey={lockModalKey} onClose={() => setLockModalKey(null)} />
+        )}
+      </SidebarProvider>
+    </TooltipProvider>
   );
 };
 
 DashboardLayout.propTypes = {
   children: PropTypes.node.isRequired,
+  /** Kept for API compatibility; exposed as data-variant on the shell. */
   variant: PropTypes.oneOf(['admin', 'eagle', 'eaglet', 'default']),
   fullWidth: PropTypes.bool,
   noPadding: PropTypes.bool,

@@ -10,7 +10,6 @@ import AnimatedContentItem from '../../shared/components/ui/AnimatedContentItem'
 import BadgeShelf from '../../shared/components/ui/BadgeShelf';
 import ActiveProgramCard from '../../shared/components/dashboard/ActiveProgramCard';
 import MenteeLevelCard from '../../shared/components/dashboard/MenteeLevelCard';
-import WelcomeTourHost from '../../shared/components/onboarding/WelcomeTourHost';
 
 import Icon from '@shared/components/ui/Icon';
 
@@ -106,7 +105,6 @@ const EagletDashboardPage = () => {
 
   return (
     <DashboardLayout variant="eaglet">
-      <WelcomeTourHost />
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Welcome Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
