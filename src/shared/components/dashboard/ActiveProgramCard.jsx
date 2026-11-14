@@ -1,93 +1,95 @@
 /**
- * ActiveProgramCard — dashboard widget showing mentee's program state (plan 14-05 T6).
+ * ActiveProgramCard — the mentee's program state (shadcn Card).
  *
  * Three states from access_status:
- *   - active program  -> name + nest + objectives count + Go to Nest CTA
- *   - pending request -> amber banner with View link
- *   - empty           -> Browse Communities CTA
+ *   - active program  -> name, nest, objectives progress, Open nest
+ *   - pending request -> waiting on mentor approval
+ *   - empty           -> browse communities
  */
 import { Link } from 'react-router-dom';
+import { ArrowRight, Clock, Compass, Flag } from 'lucide-react';
 import { useActiveProgram, usePendingProgramRequest } from '@store';
-
-import Icon from '@shared/components/ui/Icon';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { formatCount } from '@shared/utils/format';
 
 export default function ActiveProgramCard() {
-    const active = useActiveProgram();
-    const pending = usePendingProgramRequest();
+  const active = useActiveProgram();
+  const pending = usePendingProgramRequest();
 
-    if (active) {
-        return (
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white p-6 shadow-lg shadow-emerald-500/20">
-                <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-                <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Icon name='workspaces' />
-                        <span className="text-xs font-bold uppercase tracking-wider opacity-90">Active Program</span>
-                    </div>
-                    <h3 className="text-xl font-extrabold mb-1">{active.name || 'Your Program'}</h3>
-                    {active.nest_name && (
-                        <p className="text-sm text-emerald-50 mb-3">in {active.nest_name}</p>
-                    )}
-                    <div className="flex items-center gap-4 mb-4 text-xs">
-                        <span className="flex items-center gap-1">
-                            <Icon name='flag' className='text-sm' />
-                            {active.objectives_count ?? 0} objectives
-                        </span>
-                        {active.objectives_completed !== undefined && (
-                            <span className="flex items-center gap-1">
-                                <Icon name='check_circle' className='text-sm' />
-                                {active.objectives_completed} done
-                            </span>
-                        )}
-                    </div>
-                    <Link to="/eaglet/nest"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur text-white text-sm font-semibold rounded-xl transition-colors">
-                        Open Nest
-                        <Icon name='arrow_forward' className='text-base' />
-                    </Link>
-                </div>
-            </div>
-        );
-    }
-
-    if (pending) {
-        return (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-                <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                        <Icon name='schedule' className='text-amber-600' />
-                    </div>
-                    <div className="flex-1">
-                        <h3 className="text-base font-bold text-amber-900">Application Pending</h3>
-                        <p className="text-sm text-amber-800 mt-1">
-                            {pending.nest_name ? `Awaiting approval from ${pending.nest_name}.` : 'Your application is awaiting mentor approval.'}
-                        </p>
-                    </div>
-                </div>
-                <Link to="/eaglet/nest"
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-amber-900 hover:text-amber-700">
-                    View request →
-                </Link>
-            </div>
-        );
-    }
-
+  if (active) {
+    const total = active.objectives_count ?? 0;
+    const done = active.objectives_completed ?? 0;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
     return (
-        <div className="bg-blue-50/80 border border-blue-200/50 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-                <h3 className="text-slate-900 font-bold text-lg mb-1 flex items-center gap-2">
-                    <Icon name='diversity_3' className='text-primary' />
-                    Join a Community
-                </h3>
-                <p className="text-slate-500 text-sm">
-                    Apply to a mentor program to unlock assignments, messages, and resources.
-                </p>
-            </div>
-            <Link to="/eaglet/nest"
-                className="whitespace-nowrap inline-flex items-center gap-2 px-5 py-3 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors">
-                <Icon name='explore' className='text-base' />
-                Browse Communities
+      <Card>
+        <CardHeader>
+          <CardDescription>Your program</CardDescription>
+          <CardTitle className="text-xl">{active.name || 'Your program'}</CardTitle>
+          {active.nest_name && <p className="text-sm text-muted-foreground">in {active.nest_name}</p>}
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+              <Flag className="size-4" aria-hidden="true" />
+              {formatCount(total, 'objective')}
+            </span>
+            {active.objectives_completed !== undefined && (
+              <span className="font-medium text-foreground">{done} done</span>
+            )}
+          </div>
+          {total > 0 && <Progress value={pct} aria-label={`${pct}% of objectives complete`} />}
+        </CardContent>
+        <CardFooter>
+          <Button asChild variant="outline">
+            <Link to="/eaglet/nest">
+              Open nest <ArrowRight aria-hidden="true" />
             </Link>
-        </div>
+          </Button>
+        </CardFooter>
+      </Card>
     );
+  }
+
+  if (pending) {
+    return (
+      <Card className="border-amber-200 bg-amber-50/60">
+        <CardHeader className="flex flex-row items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-800">
+            <Clock className="size-5" aria-hidden="true" />
+          </span>
+          <div className="space-y-1">
+            <CardTitle className="text-base text-amber-950">Application pending</CardTitle>
+            <CardDescription className="text-amber-900">
+              {pending.nest_name
+                ? `Awaiting approval from ${pending.nest_name}. You’ll be notified as soon as your mentor responds.`
+                : 'Your application is awaiting mentor approval.'}
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardFooter>
+          <Button asChild variant="link" className="h-auto p-0 text-amber-950">
+            <Link to="/eaglet/nest">View request <ArrowRight aria-hidden="true" /></Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Join a community</CardTitle>
+        <CardDescription>
+          Apply to a mentor’s program to unlock assignments, messages and resources.
+        </CardDescription>
+      </CardHeader>
+      <CardFooter>
+        <Button asChild>
+          <Link to="/eaglet/nest"><Compass aria-hidden="true" /> Browse communities</Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
 }

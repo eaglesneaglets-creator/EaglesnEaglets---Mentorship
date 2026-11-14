@@ -1,78 +1,226 @@
-import React, { useRef, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useMemo, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Check, Compass, Flame, Play, Quote, Sparkles } from 'lucide-react';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
+import PageHeader from '../../shared/components/layout/PageHeader';
 import { useAuthStore, useHasActiveProgram } from '@store';
 import { formatCount } from '@shared/utils/format';
 import { useEagletDashboardStats, useCheckIn } from '../../modules/analytics/hooks/useAnalytics';
 import { toast } from '@shared/components/ui/toast-utils';
-import StatCard from '../../shared/components/ui/StatCard';
-import AnimatedContentItem from '../../shared/components/ui/AnimatedContentItem';
 import BadgeShelf from '../../shared/components/ui/BadgeShelf';
 import ActiveProgramCard from '../../shared/components/dashboard/ActiveProgramCard';
 import MenteeLevelCard from '../../shared/components/dashboard/MenteeLevelCard';
-
 import Icon from '@shared/components/ui/Icon';
-
-/**
- * Quick Action Button
- */
-const QuickAction = ({ icon, iconColor, label }) => (
-  <button className="flex flex-col items-center justify-center gap-2 p-4 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-xl hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300 group hover:-translate-y-1">
-    <Icon
-      name={icon}
-      className={`text-2xl ${iconColor} transition-transform duration-300 group-hover:scale-110`} />
-    <span className="text-xs font-bold text-slate-900 text-center">{label}</span>
-  </button>
-);
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 const DAILY_VERSES = [
-  { text: "But those who hope in the Lord will renew their strength. They will soar on wings like eagles...", ref: "Isaiah 40:31" },
-  { text: "I can do all this through him who gives me strength.", ref: "Philippians 4:13" },
-  { text: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you.", ref: "Jeremiah 29:11" },
-  { text: "Trust in the Lord with all your heart and lean not on your own understanding.", ref: "Proverbs 3:5" },
-  { text: "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you.", ref: "Joshua 1:9" },
-  { text: "The Lord is my shepherd, I lack nothing.", ref: "Psalm 23:1" },
-  { text: "And we know that in all things God works for the good of those who love him.", ref: "Romans 8:28" },
-  { text: "Do not conform to the pattern of this world, but be transformed by the renewing of your mind.", ref: "Romans 12:2" },
-  { text: "Commit to the Lord whatever you do, and he will establish your plans.", ref: "Proverbs 16:3" },
-  { text: "The steadfast love of the Lord never ceases; his mercies never come to an end.", ref: "Lamentations 3:22" },
-  { text: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7" },
-  { text: "Let your light shine before others, that they may see your good deeds.", ref: "Matthew 5:16" },
-  { text: "No good thing does he withhold from those whose walk is blameless.", ref: "Psalm 84:11" },
-  { text: "He gives strength to the weary and increases the power of the weak.", ref: "Isaiah 40:29" },
+  { text: 'But those who hope in the Lord will renew their strength. They will soar on wings like eagles.', ref: 'Isaiah 40:31' },
+  { text: 'I can do all this through him who gives me strength.', ref: 'Philippians 4:13' },
+  { text: 'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you.', ref: 'Jeremiah 29:11' },
+  { text: 'Trust in the Lord with all your heart and lean not on your own understanding.', ref: 'Proverbs 3:5' },
+  { text: 'Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you.', ref: 'Joshua 1:9' },
+  { text: 'The Lord is my shepherd, I lack nothing.', ref: 'Psalm 23:1' },
+  { text: 'And we know that in all things God works for the good of those who love him.', ref: 'Romans 8:28' },
+  { text: 'Do not conform to the pattern of this world, but be transformed by the renewing of your mind.', ref: 'Romans 12:2' },
+  { text: 'Commit to the Lord whatever you do, and he will establish your plans.', ref: 'Proverbs 16:3' },
+  { text: 'The steadfast love of the Lord never ceases; his mercies never come to an end.', ref: 'Lamentations 3:22' },
+  { text: 'Cast all your anxiety on him because he cares for you.', ref: '1 Peter 5:7' },
+  { text: 'Let your light shine before others, that they may see your good deeds.', ref: 'Matthew 5:16' },
+  { text: 'No good thing does he withhold from those whose walk is blameless.', ref: 'Psalm 84:11' },
+  { text: 'He gives strength to the weary and increases the power of the weak.', ref: 'Isaiah 40:29' },
 ];
 
-function getDailyVerse() {
-  const now = new Date();
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function getDailyVerse(now = new Date()) {
   const start = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now - start) / 86400000);
   return DAILY_VERSES[dayOfYear % DAILY_VERSES.length];
 }
 
+function greeting(now = new Date()) {
+  const h = now.getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+const CONTENT_META = {
+  link: { icon: 'link', label: 'Link' },
+  document: { icon: 'description', label: 'Document' },
+  file: { icon: 'attachment', label: 'File' },
+  video: { icon: 'play_circle', label: 'Video' },
+};
+
+/** Check-in + week strip + verse: the daily rhythm, in one card. */
+function TodayCard({ streak, checkedIn, week, checkingIn, onCheckIn, verse }) {
+  const todayIdx = new Date().getDay();
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Today</CardTitle>
+        <CardDescription>
+          {checkedIn ? 'You’ve checked in. See you tomorrow.' : 'Check in to keep your streak going and earn 10 points.'}
+        </CardDescription>
+        <CardAction>
+          <Badge variant="secondary" className="gap-1 bg-orange-50 text-orange-800">
+            <Flame className="size-3.5" aria-hidden="true" /> {formatCount(streak, 'day')}
+          </Badge>
+        </CardAction>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <ol className="flex gap-1.5" aria-label="This week’s check-ins">
+            {WEEKDAYS.map((day, i) => {
+              const done = Boolean(week[i]);
+              return (
+                <li
+                  key={day}
+                  className={cn(
+                    'grid size-9 place-items-center rounded-full text-xs font-semibold',
+                    done ? 'bg-emerald-700 text-white' : 'bg-muted text-muted-foreground',
+                    i === todayIdx && !done && 'ring-2 ring-emerald-700/40',
+                  )}
+                  aria-label={`${day}: ${done ? 'checked in' : 'not checked in'}${i === todayIdx ? ' (today)' : ''}`}
+                >
+                  {done ? <Check className="size-4" aria-hidden="true" /> : <span aria-hidden="true">{day[0]}</span>}
+                </li>
+              );
+            })}
+          </ol>
+          <Button onClick={onCheckIn} disabled={checkedIn || checkingIn} className="sm:min-w-36">
+            {checkedIn ? (<><Check aria-hidden="true" /> Checked in</>) : checkingIn ? 'Checking in…' : 'Check in'}
+          </Button>
+        </div>
+
+        <Separator />
+
+        <figure className="space-y-2">
+          <Quote className="size-5 text-emerald-700" aria-hidden="true" />
+          <blockquote className="text-base leading-relaxed text-foreground italic">
+            “{verse.text}”
+          </blockquote>
+          <figcaption className="text-sm font-medium text-muted-foreground">{verse.ref}</figcaption>
+        </figure>
+      </CardContent>
+    </Card>
+  );
+}
+
+function NewContentCard({ items, loading, hasActiveProgram }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">New from your mentor</CardTitle>
+        <CardDescription>Lessons and resources shared with your nest.</CardDescription>
+        {items.length > 0 && (
+          <CardAction>
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/eaglet/resources">View all <ArrowRight aria-hidden="true" /></Link>
+            </Button>
+          </CardAction>
+        )}
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <div className="space-y-3" aria-hidden="true">
+            {[0, 1, 2].map((i) => <Skeleton key={i} className="h-12 w-full" />)}
+          </div>
+        ) : items.length > 0 ? (
+          <ul className="divide-y rounded-lg border">
+            {items.map((item, index) => {
+              const meta = CONTENT_META[item.type] || { icon: 'article', label: item.type };
+              return (
+                <li key={item.id || index} className="flex items-center gap-3 p-3">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-md bg-sky-50 text-sky-800">
+                    <Icon name={meta.icon} className="text-base" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-foreground">{item.title}</span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {[item.nestName, meta.label].filter(Boolean).join(' · ')}
+                    </span>
+                  </span>
+                  <Badge variant="outline">New</Badge>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-10 text-center">
+            <Compass className="size-6 text-muted-foreground" aria-hidden="true" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium">{hasActiveProgram ? 'Nothing new yet' : 'Join a nest to start learning'}</p>
+              <p className="text-sm text-muted-foreground">
+                {hasActiveProgram
+                  ? 'Your mentor will share lessons here as your program progresses.'
+                  : 'Find a mentor whose nest matches your goals. Their lessons will show up here.'}
+              </p>
+            </div>
+            {!hasActiveProgram && (
+              <Button asChild size="sm">
+                <Link to="/eaglet/nest">Discover mentors</Link>
+              </Button>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ProgressSummary({ points, modules, streak, loading }) {
+  const rows = [
+    { label: 'Growth points', value: points.toLocaleString(), icon: <Sparkles className="size-4 text-emerald-700" aria-hidden="true" /> },
+    { label: 'Modules completed', value: modules.toLocaleString(), icon: <Icon name="school" className="text-base text-sky-700" /> },
+    { label: 'Current streak', value: formatCount(streak, 'day'), icon: <Flame className="size-4 text-orange-600" aria-hidden="true" /> },
+  ];
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Your progress</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <dl className="divide-y">
+          {rows.map((row) => (
+            <div key={row.label} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+              <dt className="flex items-center gap-2 text-sm text-muted-foreground">{row.icon}{row.label}</dt>
+              <dd className="text-sm font-semibold tabular-nums text-foreground">
+                {loading ? <Skeleton className="h-4 w-10" /> : row.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </CardContent>
+    </Card>
+  );
+}
+
 /**
- * Eaglet Dashboard Page
+ * Eaglet home — "Today": the daily rhythm first (check in, verse), then the
+ * program and what's new, with progress and badges alongside.
  */
 const EagletDashboardPage = () => {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { data: dashboardData } = useEagletDashboardStats();
-  const { mutate: checkIn, isLoading: isCheckingIn } = useCheckIn();
+  const { data: dashboardData, isLoading } = useEagletDashboardStats();
+  const { mutate: checkIn, isPending: isCheckingIn } = useCheckIn();
   const checkInLockRef = useRef(false);
-  const dailyVerse = useMemo(() => getDailyVerse(), []);
+  const verse = useMemo(() => getDailyVerse(), []);
 
   const points = dashboardData?.points || 0;
   const modulesCompleted = dashboardData?.modules_completed || 0;
   const streak = dashboardData?.streak || 0;
   const hasCheckedInToday = dashboardData?.has_checked_in_today || false;
   const weeklyCheckins = dashboardData?.weekly_checkins || [false, false, false, false, false, false, false];
+  const recentContent = (dashboardData?.recent_content || []).slice(0, 4);
 
-  // A brand-new eaglet hasn't joined a nest yet — the API returns no active
-  // program and no content. In that state "Resume Learning" is meaningless, so
-  // we swap the header CTA (and the empty content state) for a prompt that
-  // actually moves them forward: find a mentor.
-  // Enrollment truth lives in access_status (auth store). The analytics
-  // dashboard payload does not carry active_program, so relying on it alone
-  // told every ENROLLED mentee to "Find your first mentor".
+  // Enrollment truth lives in access_status (auth store); the analytics
+  // payload does not carry active_program.
   const hasActiveProgramFromAccess = useHasActiveProgram();
   const hasActiveProgram = hasActiveProgramFromAccess
     || Boolean(dashboardData?.active_program || dashboardData?.has_active_program);
@@ -81,235 +229,55 @@ const EagletDashboardPage = () => {
     if (checkInLockRef.current) return;
     checkInLockRef.current = true;
     checkIn(null, {
-      onSuccess: () => {
-        toast.success('Awesome! You earned 10 points for checking in.');
-      },
-      onError: (error) => {
-        toast.error(error.message || 'Check-in failed');
-      },
-      onSettled: () => {
-        checkInLockRef.current = false;
-      },
+      onSuccess: () => toast.success('Checked in. You earned 10 points.'),
+      onError: (error) => toast.error(error.message || 'Check-in didn’t go through. Please try again.'),
+      onSettled: () => { checkInLockRef.current = false; },
     });
   };
 
-  // Use dynamic or fallback
-  const stats = [
-    { icon: 'psychiatry', iconColor: 'text-emerald-500', label: 'Growth Points', value: points.toLocaleString(), subValue: 'Keep earning!', progress: Math.min((points % 1000) / 10, 100) },
-    { icon: 'school', iconColor: 'text-blue-500', label: 'Modules Completed', value: modulesCompleted.toString(), subValue: 'Total completed', subColor: 'text-slate-400' },
-    { icon: 'local_fire_department', iconColor: 'text-orange-500', label: 'Learning Streak', value: formatCount(streak, 'day'), subValue: 'Keep it going!', subColor: 'text-emerald-600' },
-  ];
-
-  const recentContent = dashboardData?.recent_content || [];
-  const recentContentPreview = recentContent.slice(0, 3);
+  const today = new Intl.DateTimeFormat('en-GH', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
 
   return (
     <DashboardLayout variant="eaglet">
-      <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
-        {/* Welcome Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-              Welcome back, {user?.first_name || 'Eaglet'}!
-            </h1>
-            <p className="text-slate-500 mt-1 text-sm">Ready to continue your growth journey today?</p>
-          </div>
-          {hasActiveProgram ? (
-            <button
-              onClick={() => navigate('/eaglet/assignments')}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-              <Icon
-                name='play_arrow'
-                className='text-lg transition-transform duration-200 group-hover:translate-x-0.5' />
-              Resume Learning
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate('/eaglet/nest')}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-              <Icon
-                name='travel_explore'
-                className='text-lg group-hover:translate-x-0.5 transition-transform' />
-              Find your first mentor
-            </button>
-          )}
+      <PageHeader
+        title={`${greeting()}, ${user?.first_name || 'friend'}`}
+        description={today}
+        actions={hasActiveProgram ? (
+          <Button asChild size="lg">
+            <Link to="/eaglet/assignments"><Play aria-hidden="true" /> Continue learning</Link>
+          </Button>
+        ) : (
+          <Button asChild size="lg">
+            <Link to="/eaglet/nest"><Compass aria-hidden="true" /> Find a mentor</Link>
+          </Button>
+        )}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="flex flex-col gap-6 lg:col-span-2">
+          <TodayCard
+            streak={streak}
+            checkedIn={hasCheckedInToday}
+            week={weeklyCheckins}
+            checkingIn={isCheckingIn}
+            onCheckIn={handleCheckIn}
+            verse={verse}
+          />
+          <ActiveProgramCard />
+          <NewContentCard items={recentContent} loading={isLoading} hasActiveProgram={hasActiveProgram} />
         </div>
 
-        {/* Badges */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-3 md:p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-slate-700">My Badges</h3>
-          </div>
-          <BadgeShelf />
-        </div>
-
-        {/* Stats Row — 3 cards since Recent Action was removed; sm:3-up keeps
-            the row balanced (2+1 stack only on the narrowest screens). */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-4">
-          {stats.map((stat, index) => (
-            <StatCard key={stat.label} {...stat} delay={index * 75} />
-          ))}
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-          <div className="lg:col-span-2 flex flex-col gap-4 md:gap-6">
-            <ActiveProgramCard />
-
-            {/* Recent Content Section */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900">Recent Content</h2>
-                <Link
-                  to="/eaglet/resources"
-                  className="text-primary text-sm font-medium hover:underline flex items-center gap-1 group"
-                >
-                  View All
-                  <Icon
-                    name='arrow_forward'
-                    className='text-sm transition-transform duration-300 group-hover:translate-x-1' />
-                </Link>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {recentContentPreview.length > 0 ? (
-                  recentContentPreview.map((item, index) => {
-                    const iconMap = {
-                      link: 'link',
-                      document: 'description',
-                      file: 'attachment',
-                      video: 'play_circle',
-                    };
-                    const typeLabels = {
-                      link: 'Resource Link',
-                      document: 'Document',
-                      file: 'File Attachment',
-                      video: 'Video Resource',
-                    };
-
-                    return (
-                      <AnimatedContentItem
-                        key={item.id || index}
-                        icon={iconMap[item.type] || 'article'}
-                        iconBg="bg-blue-50 text-blue-600"
-                        title={item.title}
-                        subtitle={`${item.nestName} • ${typeLabels[item.type] || item.type}`}
-                        rightElement={
-                          <span className="text-[10px] font-bold text-blue-600 uppercase">New</span>
-                        }
-                        delay={index * 75}
-                      />
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-8 px-4 border border-dashed border-slate-200 rounded-xl">
-                    <Icon name='explore' className='text-3xl text-slate-300 mb-2' />
-                    <p className="text-slate-600 text-sm font-medium mb-1">
-                      {hasActiveProgram ? 'No new content yet' : 'Join a nest to start learning'}
-                    </p>
-                    <p className="text-slate-400 text-xs mb-4">
-                      {hasActiveProgram
-                        ? 'Your mentor will share resources here as your program progresses.'
-                        : 'Find a mentor whose nest matches your goals — their content shows up right here.'}
-                    </p>
-                    {!hasActiveProgram && (
-                      <Link
-                        to="/eaglet/nest"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
-                      >
-                        <Icon name='travel_explore' className='text-base' />
-                        Discover mentors
-                      </Link>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar Section */}
-          <div className="flex flex-col gap-6">
-            <MenteeLevelCard />
-
-            {/* Streak Widget */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-900">Daily Check-in</h3>
-                <div className="flex items-center gap-1 text-emerald-600">
-                  <Icon name='local_fire_department' className='text-sm' />
-                  <span className="text-sm font-bold">{streak} day streak</span>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center gap-2">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => {
-                  const isChecked = weeklyCheckins[i];
-                  return (
-                    <div key={`${day}-${i}`} className="flex flex-col items-center gap-1.5">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${isChecked
-                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-110'
-                        : 'bg-slate-100 text-slate-400'
-                        }`}>
-                        {isChecked ? (
-                          <Icon name='check' className='text-sm' />
-                        ) : day}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Daily Verse Widget */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-6 shadow-xl shadow-emerald-500/20 group">
-              {/* Decorative Elements */}
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full blur-xl transition-transform duration-500 group-hover:scale-150" />
-              <div className="absolute bottom-0 left-0 -mb-6 -ml-6 w-32 h-32 bg-emerald-500/30 rounded-full blur-2xl" />
-
-              <div className="relative z-10">
-                <div className="flex items-start gap-2 mb-3">
-                  <Icon name='format_quote' className='opacity-80' />
-                  <p className="text-xs font-medium opacity-80 uppercase tracking-widest">Daily Verse</p>
-                </div>
-                <p className="text-sm italic font-medium leading-relaxed mb-4">
-                  "{dailyVerse.text}"
-                </p>
-                <p className="text-xs font-bold text-right opacity-90">— {dailyVerse.ref}</p>
-              </div>
-
-              {/* Shine Effect */}
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-            </div>
-
-            {/* Check-In Card */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 group">
-              <div className="flex items-center gap-4">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${hasCheckedInToday ? 'from-emerald-400 to-emerald-600' : 'from-amber-400 to-orange-500'} flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
-                  <Icon
-                    name={hasCheckedInToday ? 'verified' : 'schedule'}
-                    className='text-white text-2xl' />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-slate-900">Daily Check-In</h4>
-                  <p className="text-xs text-slate-500">
-                    {hasCheckedInToday ? "You're all set for today!" : "Don't forget to check in today"}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={handleCheckIn}
-                disabled={hasCheckedInToday || isCheckingIn}
-                className={`w-full mt-4 py-3 rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] ${hasCheckedInToday
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
-                  : 'bg-primary text-white shadow-primary/25 hover:shadow-primary/30'
-                  }`}
-              >
-                {isCheckingIn ? 'Checking in...' : hasCheckedInToday ? 'Checked In' : 'Check In Now'}
-              </button>
-            </div>
-          </div>
+        <div className="flex flex-col gap-6">
+          <ProgressSummary points={points} modules={modulesCompleted} streak={streak} loading={isLoading} />
+          <MenteeLevelCard />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Badges</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BadgeShelf />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </DashboardLayout>

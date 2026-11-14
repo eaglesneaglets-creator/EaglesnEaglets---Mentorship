@@ -14,6 +14,8 @@ import {
 } from '@store';
 
 import Icon from '@shared/components/ui/Icon';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
 function MentorApplicationStrip() {
     const eligible = useMentorApplicationEligible();
@@ -125,47 +127,39 @@ export default function MenteeLevelCard() {
     const requiresEnrollment = level.requires_enrollment === true;
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div className="flex items-start justify-between mb-4">
-                <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Mentee Level</p>
-                    <p className="text-3xl font-extrabold text-slate-900 mt-1">
-                        Level {current}<span className="text-slate-400 text-lg font-bold"> / 5</span>
+        <Card>
+            <CardHeader>
+                <CardDescription>Mentee level</CardDescription>
+                <CardTitle className="text-3xl font-bold tabular-nums">
+                    Level {current}<span className="text-lg font-semibold text-muted-foreground"> / 5</span>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                {requiresEnrollment ? (
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                        Levels are earned through program participation. Join a community
+                        to start earning level points. Your Growth Points are tracked
+                        separately.
                     </p>
-                </div>
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md">
-                    <Icon name='trending_up' className='text-white' />
-                </div>
-            </div>
+                ) : (
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{points.toLocaleString()} pts</span>
+                            {next != null && current < 5 && (
+                                <span>Next: {next.toLocaleString()} pts</span>
+                            )}
+                        </div>
+                        <Progress
+                            value={Math.min(100, Math.max(0, progress))}
+                            aria-label={`${Math.round(progress)}% of the way to the next level`}
+                        />
+                    </div>
+                )}
 
-            {requiresEnrollment ? (
-                <p className="text-xs text-slate-500 leading-relaxed">
-                    Levels are earned through program participation. Join a community
-                    to start earning level points — your Growth Points are tracked
-                    separately.
-                </p>
-            ) : (
-              <>
-                <div className="mb-2 flex items-center justify-between text-xs text-slate-500">
-                    <span>{points.toLocaleString()} pts</span>
-                    {next != null && current < 5 && (
-                        <span>Next: {next.toLocaleString()} pts</span>
-                    )}
-                </div>
-                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                        className="h-full bg-gradient-to-r from-indigo-400 to-purple-500 transition-all duration-500"
-                        style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-                    />
-                </div>
-              </>
-            )}
-
-            {/* Mentor-application state strip — supersedes the old eligibility-only banner.
-                Render unconditionally; the strip's own guard returns null when neither
-                eligible nor any application status exists. This ensures users who lose
-                eligibility after applying still see their pending/approved/rejected status. */}
-            <MentorApplicationStrip />
-        </div>
+                {/* Mentor-application state strip: renders unconditionally; it
+                    returns null when neither eligible nor any application exists. */}
+                <MentorApplicationStrip />
+            </CardContent>
+        </Card>
     );
 }

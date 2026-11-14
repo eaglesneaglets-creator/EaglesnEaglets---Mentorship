@@ -3,6 +3,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* shadcn/ui base: default border + focus-ring colours. Without this, Tailwind 4
+   borders fall back to currentColor (black). In the base layer, so any explicit
+   border-* utility on existing pages still wins. */
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-border);
+    outline-color: color-mix(in oklab, var(--color-ring) 50%, transparent);
+  }
+}
+
 /* =============================================================================
    EAGLES & EAGLETS DESIGN SYSTEM
    Color Theme based on Logo (Green Eagle)
