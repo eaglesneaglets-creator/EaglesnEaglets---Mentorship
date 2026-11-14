@@ -41,11 +41,22 @@ export default function useProductTour({ view, hasActiveProgram, isSuperAdmin, p
     user?.id && (user.completed_tours?.includes(tour.id) || seenLocally(user.id, tour.id)),
   );
 
-  // Auto-start once, only on the role's own dashboard (never mid-task).
+  // Auto-start once, only on the role's own dashboard (never mid-task), and
+  // never on top of something the user already opened (a dialog, menu or
+  // sheet): wait for the screen to be clear, giving up after ~20s.
   useEffect(() => {
     if (!ready || !user?.id || completed || !AUTO_START_PATHS.includes(pathname)) return undefined;
-    const t = setTimeout(() => setOpen(true), 700);
-    return () => clearTimeout(t);
+    let tries = 0;
+    let timer;
+    const busy = () => Boolean(document.querySelector(
+      '[role="dialog"][data-state="open"], [role="alertdialog"], [role="menu"][data-state="open"], [data-slot="sheet-content"]',
+    ));
+    const attempt = () => {
+      if (!busy()) { setOpen(true); return; }
+      if (++tries < 10) timer = setTimeout(attempt, 2000);
+    };
+    timer = setTimeout(attempt, 900);
+    return () => clearTimeout(timer);
   }, [ready, user?.id, completed, pathname]);
 
   const finish = useCallback(() => {

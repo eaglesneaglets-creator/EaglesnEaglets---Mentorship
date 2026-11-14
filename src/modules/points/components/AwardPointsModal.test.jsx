@@ -75,7 +75,7 @@ describe('AwardPointsModal — policy budget (31-02)', () => {
 
     await user.selectOptions(screen.getByRole('combobox'), 'e1');
     await user.type(screen.getByLabelText(/Points to Award/i), '26');
-    await user.type(screen.getByPlaceholderText(/Excellent submission/i), 'Good work this week');
+    await user.type(screen.getByLabelText(/^Reason/i), 'Good work this week');
     await user.click(screen.getByRole('button', { name: /Award Points/i }));
 
     // Message names 25 (from the API), never the old hardcoded 1000.
@@ -90,7 +90,7 @@ describe('AwardPointsModal — policy budget (31-02)', () => {
 
     await user.selectOptions(screen.getByRole('combobox'), 'e1');
     await user.type(screen.getByLabelText(/Points to Award/i), '50');
-    await user.type(screen.getByPlaceholderText(/Excellent submission/i), 'Excellent leadership work');
+    await user.type(screen.getByLabelText(/^Reason/i), 'Excellent leadership work');
     await user.click(screen.getByRole('button', { name: /Award Points/i }));
 
     expect(mockMutate).toHaveBeenCalled();
@@ -117,7 +117,7 @@ describe('AwardPointsModal — policy budget (31-02)', () => {
     // And no upper bound is applied.
     await user.selectOptions(screen.getByRole('combobox'), 'e1');
     await user.type(screen.getByLabelText(/Points to Award/i), '900');
-    await user.type(screen.getByPlaceholderText(/Excellent submission/i), 'Admin correction applied');
+    await user.type(screen.getByLabelText(/^Reason/i), 'Admin correction applied');
     await user.click(screen.getByRole('button', { name: /Award Points/i }));
 
     expect(mockMutate).toHaveBeenCalled();

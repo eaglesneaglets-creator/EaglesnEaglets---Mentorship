@@ -3,12 +3,17 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import PropTypes from 'prop-types';
-import Button from '../../../shared/components/ui/Button';
-import Input from '../../../shared/components/ui/Input';
+import { Award, Loader2, Wallet } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
+import { Textarea } from '@/components/ui/textarea';
 import { useOwnedNests } from '../../nest/hooks/useNests';
 import { useEagletsByNest, useAwardManualPoints, useAwardBudget } from '../hooks/usePoints';
 
-import Icon from '@shared/components/ui/Icon';
 
 const descriptionRule = z.string()
     .min(5, 'Description must be at least 5 characters')
@@ -91,168 +96,122 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
         );
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                onClick={handleClose}
-            />
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                        <Award className="size-5 text-emerald-700" aria-hidden="true" />
+                        Award points
+                    </DialogTitle>
+                    <DialogDescription>Recognise an eaglet’s effort. They’ll be notified straight away.</DialogDescription>
+                </DialogHeader>
 
-            {/* Modal */}
-            <div className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-6 z-10">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                            <Icon name='military_tech' className='text-emerald-600' />
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-bold text-slate-900">Award Points</h2>
-                            <p className="text-xs text-slate-500">Reward your eaglet&apos;s progress</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={handleClose}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                    >
-                        <Icon name='close' className='text-lg' />
-                    </button>
-                </div>
-
-                {/* Daily budget banner — only for users the policy applies to.
-                    Admins (is_enforced=false) see nothing. */}
+                {/* Daily budget: only for users the policy applies to (admins see nothing). */}
                 {isLimited && (
-                    <div
-                        className={`mb-4 rounded-xl border px-3 py-2.5 text-xs ${
-                            budgetExhausted
-                                ? 'bg-amber-50 border-amber-200 text-amber-800'
-                                : 'bg-slate-50 border-slate-200 text-slate-600'
-                        }`}
-                    >
-                        <Icon
-                            name={budgetExhausted ? 'error' : 'account_balance_wallet'}
-                            className='text-sm align-middle mr-1' />
-                        {budgetExhausted ? (
-                            <span>
-                                <strong>Daily limit reached.</strong> You&apos;ve awarded all{' '}
-                                {budget.daily_limit} of today&apos;s points. Your budget resets tomorrow.
-                            </span>
-                        ) : (
-                            <span>
-                                <strong>{remaining}</strong> of {budget.daily_limit} points left today
-                                {budget.max_per_award != null && (
-                                    <> · max <strong>{budget.max_per_award}</strong> per award</>
-                                )}
-                            </span>
-                        )}
-                    </div>
+                    <Alert variant={budgetExhausted ? 'destructive' : 'default'} className={budgetExhausted ? '' : 'bg-muted/50'}>
+                        <Wallet aria-hidden="true" />
+                        <AlertDescription>
+                            {budgetExhausted ? (
+                                <span>
+                                    <strong>Daily limit reached.</strong> You’ve awarded all {budget.daily_limit} of
+                                    today’s points. Your budget resets tomorrow.
+                                </span>
+                            ) : (
+                                <span>
+                                    <strong>{remaining}</strong> of {budget.daily_limit} points left today
+                                    {budget.max_per_award != null && (<> · max <strong>{budget.max_per_award}</strong> per award</>)}
+                                </span>
+                            )}
+                        </AlertDescription>
+                    </Alert>
                 )}
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                    {/* Nest selector — hidden when pre-filled from dashboard row */}
+                <form id="award-points-form" onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
                     {!prefillNestId && (
-                        <div className="flex flex-col gap-1">
-                            <label className="text-sm font-medium text-slate-700">
-                                Select Nest
-                            </label>
-                            <select
+                        <div className="grid gap-2">
+                            <Label htmlFor="award-nest">Nest</Label>
+                            <NativeSelect
+                                id="award-nest"
                                 value={selectedNestId}
-                                onChange={(e) => {
-                                    setSelectedNestId(e.target.value);
-                                    setSelectedEagletId('');
-                                }}
-                                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
+                                onChange={(e) => { setSelectedNestId(e.target.value); setSelectedEagletId(''); }}
+                                wrapperClassName="w-full"
                             >
-                                <option value="">Choose a Nest...</option>
+                                <NativeSelectOption value="">Choose a nest…</NativeSelectOption>
                                 {nests.map((nest) => (
-                                    <option key={nest.id} value={nest.id}>{nest.name}</option>
+                                    <NativeSelectOption key={nest.id} value={nest.id}>{nest.name}</NativeSelectOption>
                                 ))}
-                            </select>
+                            </NativeSelect>
                         </div>
                     )}
 
-                    {/* Eaglet selector — disabled until nest is chosen */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-slate-700">
-                            Select Eaglet
-                        </label>
-                        <select
+                    <div className="grid gap-2">
+                        <Label htmlFor="award-eaglet">Eaglet</Label>
+                        <NativeSelect
+                            id="award-eaglet"
                             value={selectedEagletId}
                             onChange={(e) => setSelectedEagletId(e.target.value)}
                             disabled={(!selectedNestId && !prefillNestId) || eagletsLoading}
-                            className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-describedby={!selectedNestId && !prefillNestId ? 'award-eaglet-hint' : undefined}
+                            wrapperClassName="w-full"
                         >
-                            <option value="">
-                                {eagletsLoading ? 'Loading eaglets...' : 'Choose an eaglet...'}
-                            </option>
+                            <NativeSelectOption value="">{eagletsLoading ? 'Loading eaglets…' : 'Choose an eaglet…'}</NativeSelectOption>
                             {eaglets.map((e) => (
-                                <option key={e.id} value={e.id}>
+                                <NativeSelectOption key={e.id} value={e.id}>
                                     {e.full_name || `${e.first_name} ${e.last_name}`}
-                                </option>
+                                </NativeSelectOption>
                             ))}
-                        </select>
+                        </NativeSelect>
                         {!selectedNestId && !prefillNestId && (
-                            <p className="text-xs text-slate-400">Select a Nest first</p>
+                            <p id="award-eaglet-hint" className="text-xs text-muted-foreground">Choose a nest first.</p>
                         )}
                     </div>
 
-                    {/* Points input */}
-                    <Input
-                        label="Points to Award"
-                        type="number"
-                        placeholder={isLimited && budget.max_per_award != null
-                            ? `Up to ${budget.max_per_award}`
-                            : 'e.g. 10'}
-                        error={errors.points?.message}
-                        disabled={budgetExhausted}
-                        {...register('points', { valueAsNumber: true })}
-                    />
+                    <div className="grid gap-2">
+                        <Label htmlFor="award-points">Points to award</Label>
+                        <Input
+                            id="award-points"
+                            type="number"
+                            inputMode="numeric"
+                            min={1}
+                            placeholder={isLimited && budget.max_per_award != null ? `Up to ${budget.max_per_award}` : 'e.g. 10'}
+                            disabled={budgetExhausted}
+                            aria-invalid={Boolean(errors.points) || undefined}
+                            aria-describedby={errors.points ? 'award-points-error' : undefined}
+                            {...register('points', { valueAsNumber: true })}
+                        />
+                        {errors.points && <p id="award-points-error" className="text-xs text-destructive">{errors.points.message}</p>}
+                    </div>
 
-                    {/* Description */}
-                    <div className="flex flex-col gap-1">
-                        <label className="text-sm font-medium text-slate-700">
-                            Reason <span className="text-slate-400 font-normal">(required)</span>
-                        </label>
-                        <textarea
-                            placeholder="e.g. Excellent submission on the leadership module..."
+                    <div className="grid gap-2">
+                        <Label htmlFor="award-reason">Reason</Label>
+                        <Textarea
+                            id="award-reason"
                             rows={3}
-                            className={`w-full border rounded-lg px-3 py-2.5 text-sm text-slate-900 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 ${
-                                errors.description ? 'border-red-300' : 'border-slate-200'
-                            }`}
+                            placeholder="e.g. Thoughtful submission on the leadership module"
+                            aria-invalid={Boolean(errors.description) || undefined}
+                            aria-describedby={errors.description ? 'award-reason-error' : 'award-reason-hint'}
                             {...register('description')}
                         />
-                        {errors.description && (
-                            <p className="text-xs text-red-500">{errors.description.message}</p>
-                        )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-3 pt-2">
-                        <Button
-                            variant="outline"
-                            onClick={handleClose}
-                            type="button"
-                            className="flex-1"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="success"
-                            loading={awardMutation.isPending}
-                            disabled={!selectedEagletId || budgetExhausted}
-                            title={budgetExhausted ? 'Daily points budget exhausted' : undefined}
-                            className="flex-1"
-                        >
-                            Award Points
-                        </Button>
+                        {errors.description
+                            ? <p id="award-reason-error" className="text-xs text-destructive">{errors.description.message}</p>
+                            : <p id="award-reason-hint" className="text-xs text-muted-foreground">The eaglet sees this with their points.</p>}
                     </div>
                 </form>
-            </div>
-        </div>
+
+                <DialogFooter>
+                    <Button type="button" variant="outline" onClick={handleClose}>Cancel</Button>
+                    <Button
+                        type="submit"
+                        form="award-points-form"
+                        disabled={!selectedEagletId || budgetExhausted || awardMutation.isPending}
+                    >
+                        {awardMutation.isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Award aria-hidden="true" />}
+                        {awardMutation.isPending ? 'Awarding…' : 'Award points'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 

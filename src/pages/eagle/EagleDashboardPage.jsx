@@ -1,594 +1,342 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-  ResponsiveContainer,
-  AreaChart, Area,
-  BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip,
-} from 'recharts';
+import { Link } from 'react-router-dom';
+import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { ArrowRight, Award, CalendarDays, ClipboardCheck, Upload, UserPlus, Users } from 'lucide-react';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
+import PageHeader from '../../shared/components/layout/PageHeader';
 import { useAuthStore } from '@store';
 import { useEagleDashboardStats } from '../../modules/analytics/hooks/useAnalytics';
 import LoadError from '../../shared/components/ui/LoadError';
-import StatCard from '../../shared/components/ui/StatCard';
 import Avatar from '../../shared/components/ui/Avatar';
 import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
-import { SkeletonCard } from '../../shared/components/ui/LoadingSkeleton';
 import { getEagletStatus } from '../../shared/utils/eagletStatus';
+import { formatCount, formatDate } from '@shared/utils/format';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 
-import Icon from '@shared/components/ui/Icon';
+const CHART = { color: '#047857', grid: '#E7E5E4', tick: { fontSize: 11, fill: '#78716C' } };
+const TOOLTIP = { background: '#1C1917', border: 'none', borderRadius: 8, fontSize: 12, color: '#fff' };
 
-/**
- * Eaglet Performance Row
- */
-const EagletRow = ({ eaglet, delay = 0, onAwardPoints }) => {
-  const config = getEagletStatus(eaglet.status);
+function greeting(now = new Date()) {
+  const h = now.getHours();
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
 
+function StatusBadge({ status }) {
+  const config = getEagletStatus(status);
+  return <Badge variant="secondary" className={cn('font-medium', config.bg, config.text)}>{config.label}</Badge>;
+}
+
+/** The mentor's to-do list: the reason to open the dashboard. */
+function NeedsAttention({ pendingRequests, nextSession }) {
+  const rows = [
+    {
+      icon: UserPlus,
+      tone: 'bg-amber-50 text-amber-800',
+      title: pendingRequests > 0 ? `${formatCount(pendingRequests, 'join request')} waiting` : 'No join requests',
+      detail: pendingRequests > 0 ? 'Eaglets are waiting for your answer.' : 'You’re up to date.',
+      action: pendingRequests > 0 ? { label: 'Review', to: '/eagle/nests' } : null,
+    },
+    {
+      icon: ClipboardCheck,
+      tone: 'bg-sky-50 text-sky-800',
+      title: 'Grade submitted work',
+      detail: 'Scores and feedback reach eaglets straight away.',
+      action: { label: 'Open grading', to: '/eagle/grading' },
+    },
+    {
+      icon: CalendarDays,
+      tone: 'bg-emerald-50 text-emerald-800',
+      title: nextSession ? nextSession.title : 'No sessions scheduled',
+      detail: nextSession ? formatDate(nextSession.date, { withTime: true }) : 'Schedule a session to keep your nest connected.',
+      action: nextSession?.link
+        ? { label: 'Join', href: nextSession.link }
+        : { label: nextSession ? 'View' : 'Schedule', to: '/eagle/nests' },
+    },
+  ];
   return (
-    <tr
-      className="group hover:bg-slate-50/60 transition-colors duration-500"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <td className="py-4 px-2">
-        <div className="flex items-center gap-3 transition-transform duration-500 ease-out group-hover:translate-x-1">
-          {/* Phase 32-03 */}
-          <Avatar
-            user={eaglet}
-            name={eaglet.name}
-            size="sm"
-            className="!w-9 !h-9 ring-2 ring-white shadow-sm transition-transform duration-500 group-hover:scale-105"
-          />
-          <div>
-            <p className="font-semibold text-sm text-slate-900 group-hover:text-primary transition-colors duration-300">{eaglet.name}</p>
-            <p className="text-xs text-slate-500">{eaglet.nest_name || 'No Nest'}</p>
-          </div>
-        </div>
-      </td>
-      <td className="py-4">
-        <p className="text-sm text-slate-900 font-medium transition-transform duration-500 ease-out group-hover:translate-x-1">{eaglet.module || 'In progress'}</p>
-      </td>
-      <td className="py-4">
-        <div className="w-full max-w-[120px] transition-transform duration-500 ease-out group-hover:translate-x-1">
-          <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-            <div
-              className={`h-1.5 rounded-full transition-all duration-[1500ms] ease-out ${eaglet.progress >= 75 ? 'bg-primary/80' : eaglet.progress >= 50 ? 'bg-amber-400' : 'bg-emerald-400'
-                }`}
-              style={{ width: `${eaglet.progress}%` }}
-            />
-          </div>
-          <p className="text-xs font-medium text-slate-500 mt-1.5 text-right">{eaglet.progress}%</p>
-        </div>
-      </td>
-      <td className="py-4 text-right pr-2">
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all duration-500 ${config.bg} ${config.text} group-hover:shadow-sm`}>
-          {config.label}
-        </span>
-      </td>
-      <td className="py-4 text-right pr-4">
-        <button
-          onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}
-          className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-all duration-300"
-        >
-          <Icon name='military_tech' className='text-sm' />
-          Award
-        </button>
-      </td>
-    </tr>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Needs you today</CardTitle>
+        <CardDescription>Requests, grading and your next session.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="divide-y rounded-lg border">
+          {rows.map(({ icon: RowIcon, tone, title, detail, action }) => (
+            <li key={title} className="flex items-center gap-3 p-3">
+              <span className={cn('grid size-9 shrink-0 place-items-center rounded-md', tone)}>
+                <RowIcon className="size-4" aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-foreground">{title}</span>
+                <span className="block truncate text-xs text-muted-foreground">{detail}</span>
+              </span>
+              {action && (
+                <Button asChild size="sm" variant="outline">
+                  {action.href
+                    ? <a href={action.href} target="_blank" rel="noopener noreferrer">{action.label}</a>
+                    : <Link to={action.to}>{action.label}</Link>}
+                </Button>
+              )}
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
-};
-/**
- * Eaglet Mobile Card - shown on small screens instead of table
- */
-const EagletMobileCard = ({ eaglet, delay = 0, onAwardPoints }) => {
-  const config = getEagletStatus(eaglet.status);
+}
 
+function EagletsCard({ eaglets, onAward }) {
   return (
-    <div
-      className="bg-white rounded-xl border border-slate-100 p-4 flex flex-col gap-3"
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Phase 32-03 */}
-          <Avatar user={eaglet} name={eaglet.name} size="md" className="ring-2 ring-white shadow-sm" />
-          <div>
-            <p className="font-semibold text-sm text-slate-900">{eaglet.name}</p>
-            <p className="text-xs text-slate-500">{eaglet.nest_name || 'No Nest'}</p>
-          </div>
-        </div>
-        <span
-          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold ${config.bg} ${config.text}`}
-        >
-          {config.label}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <p className="text-xs text-slate-500 flex-shrink-0">Module:</p>
-        <p className="text-sm text-slate-900 font-medium truncate">
-          {eaglet.module || 'In progress'}
-        </p>
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <p className="text-xs text-slate-500">Progress</p>
-          <p className="text-xs font-bold text-slate-700">{eaglet.progress}%</p>
-        </div>
-        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-          <div
-            className={`h-2 rounded-full transition-all duration-1000 ${
-              eaglet.progress >= 75
-                ? 'bg-primary/80'
-                : eaglet.progress >= 50
-                ? 'bg-amber-400'
-                : 'bg-emerald-400'
-            }`}
-            style={{ width: `${eaglet.progress}%` }}
-          />
-        </div>
-      </div>
-
-      <button
-        onClick={() => onAwardPoints({ eagletId: eaglet.id, nestId: eaglet.nest_id || null })}
-        className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 active:bg-emerald-200 transition-all"
-      >
-        <Icon name='military_tech' className='text-sm' />
-        Award Points
-      </button>
-    </div>
-  );
-};
-
-/**
- * Calendar Day Component
- */
-const CalendarDay = ({ day, isCurrentMonth = true, isToday = false, hasEvent = false }) => (
-  <div className={`flex items-center justify-center py-2 relative ${!isCurrentMonth ? 'text-slate-300' : ''}`}>
-    {isToday ? (
-      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-primary/30 animate-pulse">
-        {day}
-      </div>
-    ) : (
-      <span className={`text-sm ${isCurrentMonth ? 'text-slate-900 hover:bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors' : ''}`}>
-        {day}
-      </span>
-    )}
-    {hasEvent && !isToday && (
-      <div className="absolute bottom-1 w-1.5 h-1.5 bg-amber-500 rounded-full" />
-    )}
-  </div>
-);
-
-/**
- * Session Card Component
- */
-const SessionCard = ({ title, date, link, isUpcoming = false }) => {
-  const d = new Date(date);
-  const day = d.getDate();
-  const month = d.toLocaleDateString('default', { month: 'short' });
-  const time = d.toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' });
-
-  return (
-    <div className={`flex gap-4 items-start p-4 rounded-xl transition-all duration-300 ${isUpcoming
-      ? 'bg-slate-50 border-l-4 border-primary shadow-sm'
-      : 'bg-white hover:bg-slate-50 border border-transparent hover:border-slate-200'
-      }`}>
-      <div className="flex flex-col items-center min-w-[3rem]">
-        <span className="text-xs font-bold text-slate-500 uppercase">{month}</span>
-        <span className="text-2xl font-bold text-slate-900">{day}</span>
-      </div>
-      <div className="flex-1">
-        <h4 className="font-bold text-sm text-slate-900">{title}</h4>
-        <p className="text-xs text-slate-500 mb-2">{time}</p>
-        {link && (
-          <a href={link} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
-            <Icon name='link' className='text-[12px]' />
-            Join Session
-          </a>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Your eaglets</CardTitle>
+        <CardDescription>Where each eaglet is in their program.</CardDescription>
+        {eaglets.length > 0 && (
+          <CardAction>
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/eagle/eaglets">View all <ArrowRight aria-hidden="true" /></Link>
+            </Button>
+          </CardAction>
         )}
+      </CardHeader>
+      <CardContent>
+        {eaglets.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-10 text-center">
+            <Users className="size-6 text-muted-foreground" aria-hidden="true" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium">No eaglets yet</p>
+              <p className="text-sm text-muted-foreground">
+                Share your nest so mentees can request to join, then add lessons for them.
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button asChild size="sm"><Link to="/eagle/nests">Open my nest</Link></Button>
+              <Button asChild size="sm" variant="outline"><Link to="/eagle/content">Add content</Link></Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Phones: list */}
+            <ul className="divide-y rounded-lg border md:hidden">
+              {eaglets.map((e) => (
+                <li key={e.id} className="space-y-2 p-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar user={e} name={e.name} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{e.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{e.module || 'In progress'}</p>
+                    </div>
+                    <StatusBadge status={e.status} />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Progress value={e.progress} className="flex-1" aria-label={`${e.name}: ${e.progress}% complete`} />
+                    <span className="w-9 text-right text-xs tabular-nums text-muted-foreground">{e.progress}%</span>
+                    <Button size="sm" variant="ghost" onClick={() => onAward(e)} aria-label={`Award points to ${e.name}`}>
+                      <Award aria-hidden="true" />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {/* Tablet and up: table */}
+            <div className="hidden rounded-lg border md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Eaglet</TableHead>
+                    <TableHead>Current module</TableHead>
+                    <TableHead className="w-44">Progress</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="w-24 text-right"><span className="sr-only">Actions</span></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {eaglets.map((e) => (
+                    <TableRow key={e.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar user={e} name={e.name} size="sm" />
+                          <div className="min-w-0">
+                            <p className="truncate font-medium">{e.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">{e.nest_name || 'No nest'}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{e.module || 'In progress'}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Progress value={e.progress} aria-label={`${e.name}: ${e.progress}% complete`} />
+                          <span className="w-9 text-right text-xs tabular-nums text-muted-foreground">{e.progress}%</span>
+                        </div>
+                      </TableCell>
+                      <TableCell><StatusBadge status={e.status} /></TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="ghost" onClick={() => onAward(e)}>
+                          <Award aria-hidden="true" /> Award
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ChartCard({ title, description, children }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="grid gap-6 lg:grid-cols-3" aria-busy="true" aria-label="Loading your dashboard">
+      <div className="space-y-6 lg:col-span-2">
+        <Skeleton className="h-56 w-full rounded-xl" />
+        <Skeleton className="h-72 w-full rounded-xl" />
+      </div>
+      <div className="space-y-6">
+        <Skeleton className="h-40 w-full rounded-xl" />
+        <Skeleton className="h-52 w-full rounded-xl" />
       </div>
     </div>
   );
-};
+}
 
 /**
- * EmptyEagletsState — shown to a mentor with no eaglets yet. A new Eagle's
- * first job is to get mentees into their nest, so instead of a dead "No eaglets"
- * line we point them at the two actions that start that: create/share a nest
- * and approve join requests.
- */
-const EmptyEagletsState = () => (
-  <div className="flex flex-col items-center text-center px-4 max-w-sm mx-auto">
-    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
-      <Icon name='groups' className='text-primary text-2xl' />
-    </div>
-    <p className="text-sm font-semibold text-slate-900 mb-1">No eaglets yet</p>
-    <p className="text-xs text-slate-500 mb-4">
-      Set up your nest and share it — eaglets who join will show up here for you to mentor and award points.
-    </p>
-    <div className="flex flex-wrap items-center justify-center gap-2">
-      <Link
-        to="/eagle/nests"
-        className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors"
-      >
-        <Icon name='add_home' className='text-base' />
-        Set up your nest
-      </Link>
-      <Link
-        to="/eagle/content"
-        className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors"
-      >
-        <Icon name='upload_file' className='text-base' />
-        Add content
-      </Link>
-    </div>
-  </div>
-);
-
-/**
- * Eagle Dashboard Page
+ * Mentor home — workload first: what needs the mentor now, then how the
+ * eaglets are doing, with nest trends alongside.
  */
 const EagleDashboardPage = () => {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { data: dashboardData, isLoading, isError, refetch } = useEagleDashboardStats();
+  const { data, isLoading, isError, refetch } = useEagleDashboardStats();
+  const [award, setAward] = useState({ open: false, eagletId: null, nestId: null });
 
-  const [awardModal, setAwardModal] = useState({ open: false, eagletId: null, nestId: null });
-  const openAwardModal = ({ eagletId, nestId }) => setAwardModal({ open: true, eagletId, nestId });
-  const closeAwardModal = () => setAwardModal({ open: false, eagletId: null, nestId: null });
+  const totalEaglets = data?.total_eaglets || 0;
+  const pendingRequests = data?.pending_requests || 0;
+  const pointsAwarded = data?.points_awarded || 0;
+  const eaglets = (data?.eaglets || []).slice(0, 6);
+  const sessions = (data?.upcoming_sessions || []).filter((s) => new Date(s.date) >= new Date()).slice(0, 3);
 
-  const totalEaglets = dashboardData?.total_eaglets || 0;
-  const pendingRequests = dashboardData?.pending_requests || 0;
-  const pointsAwarded = dashboardData?.points_awarded || 0;
-  const eaglets = dashboardData?.eaglets || [];
-  const eagletsPreview = eaglets.slice(0, 3);
-  const sessions = dashboardData?.upcoming_sessions || [];
-  const sessionsPreview = sessions.slice(0, 3);
-
-  // Real Calendar days logic
-  const today = new Date();
-
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  const currentMonthDisplay = currentDate.toLocaleDateString('default', { month: 'short', year: 'numeric' });
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-
-  const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
-  const getFirstDayOfMonth = (y, m) => new Date(y, m, 1).getDay();
-
-  const daysInMonth = getDaysInMonth(year, month);
-  const firstDay = getFirstDayOfMonth(year, month);
-  const prevMonthDays = getDaysInMonth(year, month - 1);
-
-  const calendarDays = [];
-
-  for (let i = firstDay - 1; i >= 0; i--) {
-    calendarDays.push({ day: prevMonthDays - i, isCurrentMonth: false });
-  }
-
-  for (let i = 1; i <= daysInMonth; i++) {
-    const isThisMonth = year === today.getFullYear() && month === today.getMonth();
-    // Basic event check (assuming session.date is an ISO date string, or we fallback)
-    const hasEvent = sessions.some(s => {
-      if (!s.date) return false;
-      const d = new Date(s.date);
-      return d.getDate() === i && d.getMonth() === month && d.getFullYear() === year;
-    });
-
-    calendarDays.push({
-      day: i,
-      isCurrentMonth: true,
-      isToday: isThisMonth && i === today.getDate(),
-      hasEvent: hasEvent,
-    });
-  }
-
-  const handlePrevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
-  const handleNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
-
-  if (isLoading) {
-    return (
-      <DashboardLayout variant="eagle">
-        <div className="flex h-64 items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-500 font-medium">Loading your dashboard...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  if (isError) {
-    return (
-      <DashboardLayout variant="eagle">
-        <LoadError
-          variant="page"
-          title="Failed to load dashboard data"
-          retryLabel="Try again"
-          onRetry={() => refetch()}
-        />
-      </DashboardLayout>
-    );
-  }
+  const openAward = (e) => setAward({ open: true, eagletId: e?.id ?? null, nestId: e?.nest_id ?? null });
 
   return (
     <DashboardLayout variant="eagle">
-      <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-              Welcome back, {user?.first_name || 'Mentor'}
-            </h1>
-            <p className="text-slate-500 mt-1 text-sm">
-              Here is an overview of your mentorship activities and eaglet progress.
-            </p>
-          </div>
-          <button
-            onClick={() => navigate('/eagle/content/upload')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
-          >
-            <Icon name='cloud_upload' className='text-lg' />
-            Upload Content
-          </button>
-        </div>
+      <PageHeader
+        title={`${greeting()}, ${user?.first_name || 'mentor'}`}
+        description="Here’s what needs you today and how your eaglets are doing."
+        actions={(
+          <>
+            <Button variant="outline" onClick={() => openAward(null)}><Award aria-hidden="true" /> Award points</Button>
+            <Button asChild><Link to="/eagle/content/upload"><Upload aria-hidden="true" /> Upload lesson</Link></Button>
+          </>
+        )}
+      />
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 lg:gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-8 flex flex-col gap-4 md:gap-6 lg:gap-8">
-            {/* Stats Row */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
-              <StatCard
-                icon="group"
-                iconBg="bg-blue-50 text-primary"
-                label="Total Eaglets"
-                value={totalEaglets}
-                hoverBorder="primary"
-                delay={0}
-              />
-              <StatCard
-                icon="person_add"
-                iconBg="bg-amber-50 text-amber-600"
-                label="Pending Requests"
-                value={pendingRequests}
-                hoverBorder="amber-500"
-                delay={100}
-              />
-              <StatCard
-                icon="military_tech"
-                iconBg="bg-emerald-50 text-emerald-600"
-                label="Points Awarded"
-                value={pointsAwarded}
-                hoverBorder="emerald-500"
-                delay={200}
-              />
-            </div>
-
-            {/* Analytics Charts */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-              {/* Points Awarded Over Time */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-                <div className="flex items-center gap-2 mb-1">
-                  <Icon name='military_tech' className='text-base text-emerald-500' />
-                  <h3 className="font-bold text-slate-800 text-sm">Points Awarded</h3>
-                </div>
-                <p className="text-xs text-slate-400 mb-4">Last 8 weeks across all nests</p>
-                {isLoading ? (
-                  <SkeletonCard className="h-36" />
-                ) : (
-                  <ResponsiveContainer width="100%" height={140}>
-                    <BarChart data={dashboardData?.points_by_week ?? []} barSize={16}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                      <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={28} />
-                      <Tooltip
-                        contentStyle={{ background: '#0f172a', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }}
-                        cursor={{ fill: '#f0fdf4' }}
-                      />
-                      <Bar dataKey="points" fill="#10b981" radius={[4, 4, 0, 0]} name="Points" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-
-              {/* Eaglet Progress Overview */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-                <div className="flex items-center gap-2 mb-1">
-                  <Icon name='trending_up' className='text-base text-blue-500' />
-                  <h3 className="font-bold text-slate-800 text-sm">Eaglet Progress</h3>
-                </div>
-                <p className="text-xs text-slate-400 mb-4">Avg completion % over time</p>
-                {isLoading ? (
-                  <SkeletonCard className="h-36" />
-                ) : (
-                  <ResponsiveContainer width="100%" height={140}>
-                    <AreaChart data={dashboardData?.completion_by_week ?? []}>
-                      <defs>
-                        <linearGradient id="eagleGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
-                          <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                      <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={28} domain={[0, 100]} unit="%" />
-                      <Tooltip
-                        contentStyle={{ background: '#0f172a', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }}
-                        formatter={(v) => [`${v}%`, 'Avg Completion']}
-                      />
-                      <Area type="monotone" dataKey="completion" stroke="#10b981" strokeWidth={2} fill="url(#eagleGrad)" dot={false} name="Completion" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-
-            </div>
-
-            {/* Eaglet Performance Table */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-500">
-              <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-                <h2 className="text-xl font-bold text-slate-900">Eaglet Performance</h2>
-                <div className="flex gap-2">
-                  <button
-                    disabled
-                    title="Coming soon"
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg opacity-60 cursor-not-allowed"
-                  >
-                    <Icon name='sort' className='text-sm' />
-                    Sort by
-                  </button>
-                  <button
-                    disabled
-                    title="Coming soon"
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg opacity-60 cursor-not-allowed"
-                  >
-                    <Icon name='filter_list' className='text-sm' />
-                    Filter
-                  </button>
-                </div>
-              </div>
-              {/* Mobile Card View */}
-              <div className="sm:hidden p-3 flex flex-col gap-3">
-                {eagletsPreview.length > 0 ? (
-                  eagletsPreview.map((eaglet, index) => (
-                    <EagletMobileCard key={eaglet.id} eaglet={eaglet} delay={index * 50} onAwardPoints={openAwardModal} />
-                  ))
-                ) : (
-                  <EmptyEagletsState />
-                )}
-              </div>
-              {/* Desktop Table View */}
-              <div className="hidden sm:block overflow-x-auto">
-                <table className="w-full min-w-[600px]">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="pb-3 pt-4 px-3 sm:px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Eaglet</th>
-                      <th className="pb-3 pt-4 px-3 sm:px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Module</th>
-                      <th className="pb-3 pt-4 px-3 sm:px-6 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/4">Progress</th>
-                      <th className="pb-3 pt-4 px-3 sm:px-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                      <th className="pb-3 pt-4 px-3 sm:px-6 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {eagletsPreview.length > 0 ? (
-                      eagletsPreview.map((eaglet, index) => (
-                        <EagletRow key={eaglet.id} eaglet={eaglet} delay={index * 50} onAwardPoints={openAwardModal} />
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="5" className="py-8">
-                          <EmptyEagletsState />
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <div className="p-4 text-center border-t border-slate-100">
-                <Link
-                  to="/eagle/eaglets"
-                  className="text-sm font-semibold text-primary hover:underline"
-                >
-                  View All Eaglets
-                </Link>
-              </div>
-            </div>
+      {isLoading ? (
+        <DashboardSkeleton />
+      ) : isError ? (
+        <LoadError variant="page" title="We couldn’t load your dashboard" retryLabel="Try again" onRetry={() => refetch()} />
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
+            <NeedsAttention pendingRequests={pendingRequests} nextSession={sessions[0]} />
+            <EagletsCard eaglets={eaglets} onAward={openAward} />
           </div>
 
-          {/* Right Column - Calendar & Widgets */}
-          <div className="lg:col-span-4 flex flex-col gap-4 md:gap-6">
-            {/* Calendar Widget */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm p-6 hover:shadow-lg transition-shadow duration-500">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-slate-900">Calendar</h2>
-                <div className="flex items-center gap-2">
-                  <button onClick={handlePrevMonth} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
-                    <Icon name='chevron_left' className='text-sm text-slate-400' />
-                  </button>
-                  <span className="text-sm font-semibold text-slate-900">{currentMonthDisplay}</span>
-                  <button onClick={handleNextMonth} className="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
-                    <Icon name='chevron_right' className='text-sm text-slate-400' />
-                  </button>
-                </div>
-              </div>
+          <div className="flex min-w-0 flex-col gap-6">
+            <Card>
+              <CardHeader><CardTitle className="text-lg">Your nest</CardTitle></CardHeader>
+              <CardContent>
+                <dl className="divide-y">
+                  {[
+                    ['Eaglets', totalEaglets.toLocaleString()],
+                    ['Join requests', pendingRequests.toLocaleString()],
+                    ['Points awarded', pointsAwarded.toLocaleString()],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                      <dt className="text-sm text-muted-foreground">{label}</dt>
+                      <dd className="text-sm font-semibold tabular-nums">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </CardContent>
+            </Card>
 
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 mb-2">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                  <div key={`${day}-${i}`} className="text-xs font-medium text-slate-400 text-center py-2">
-                    {day}
-                  </div>
-                ))}
-                {calendarDays.map((day, i) => (
-                  <CalendarDay key={i} {...day} />
-                ))}
-              </div>
+            <ChartCard title="Average completion" description="Across your eaglets, last 8 weeks">
+              <ResponsiveContainer width="100%" height={150}>
+                <AreaChart data={data?.completion_by_week ?? []} margin={{ left: 0, right: 4 }}>
+                  <defs>
+                    <linearGradient id="eagleCompletion" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={CHART.color} stopOpacity={0.18} />
+                      <stop offset="95%" stopColor={CHART.color} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
+                  <XAxis dataKey="week" tick={CHART.tick} axisLine={false} tickLine={false} />
+                  <YAxis tick={CHART.tick} axisLine={false} tickLine={false} width={44} domain={[0, 100]} unit="%" />
+                  <Tooltip contentStyle={TOOLTIP} formatter={(v) => [`${v}%`, 'Average completion']} />
+                  <Area type="monotone" dataKey="completion" stroke={CHART.color} strokeWidth={2} fill="url(#eagleCompletion)" dot={false} name="Completion" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </ChartCard>
 
-              <hr className="border-slate-100 my-4" />
+            <ChartCard title="Points awarded" description="Per week, all nests">
+              <ResponsiveContainer width="100%" height={150}>
+                <BarChart data={data?.points_by_week ?? []} barSize={14} margin={{ left: 0, right: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
+                  <XAxis dataKey="week" tick={CHART.tick} axisLine={false} tickLine={false} />
+                  <YAxis tick={CHART.tick} axisLine={false} tickLine={false} width={44} allowDecimals={false} />
+                  <Tooltip contentStyle={TOOLTIP} cursor={{ fill: '#ECFDF5' }} />
+                  <Bar dataKey="points" fill={CHART.color} radius={[4, 4, 0, 0]} name="Points" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
 
-              {/* Upcoming Sessions */}
-              <h3 className="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wider">
-                Upcoming Sessions
-              </h3>
-              <div className="flex flex-col gap-3">
-                {sessionsPreview.length > 0 ? (
-                  sessionsPreview.map((session) => (
-                    <SessionCard key={session.id} {...session} />
-                  ))
-                ) : (
-                  <div className="text-center py-4 border border-dashed border-slate-200 rounded-xl">
-                    <p className="text-slate-500 text-sm">No upcoming sessions.</p>
-                  </div>
-                )}
-              </div>
-              {sessions.length > 3 && (
-                <div className="mt-3 pt-3 border-t border-slate-100 text-right">
-                  <Link to="/eagle/nests" className="text-xs font-semibold text-primary hover:underline">
-                    See more sessions
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Featured Resource */}
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-white p-6 shadow-xl shadow-primary/20 group">
-              {/* Decorative Blur */}
-              <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-amber-500/30 rounded-full blur-2xl transition-transform duration-500 group-hover:scale-150" />
-              <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-emerald-500/20 rounded-full blur-2xl" />
-
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3 text-amber-300 font-medium text-xs uppercase tracking-wide">
-                  <Icon name='star' className='text-sm' />
-                  New Resource
-                </div>
-                <h3 className="font-bold text-xl mb-2">Leading with Faith</h3>
-                <p className="text-blue-100 text-sm mb-5 leading-relaxed">
-                  A new guide to help your eaglets integrate faith into their professional lives.
-                </p>
-                <button
-                  disabled
-                  title="Coming soon"
-                  className="w-full bg-white text-primary text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg opacity-50 cursor-not-allowed"
-                >
-                  Share with Nests
-                </button>
-              </div>
-            </div>
+            {sessions.length > 1 && (
+              <Card>
+                <CardHeader><CardTitle className="text-lg">Upcoming sessions</CardTitle></CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {sessions.map((s) => (
+                      <li key={`${s.title}-${s.date}`} className="flex items-start gap-3">
+                        <CalendarDays className="mt-0.5 size-4 shrink-0 text-emerald-700" aria-hidden="true" />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium">{s.title}</p>
+                          <p className="text-xs text-muted-foreground">{formatDate(s.date, { withTime: true })}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
-      </div>
+      )}
 
       <AwardPointsModal
-        isOpen={awardModal.open}
-        onClose={closeAwardModal}
-        prefillEagletId={awardModal.eagletId}
-        prefillNestId={awardModal.nestId}
+        isOpen={award.open}
+        onClose={() => setAward({ open: false, eagletId: null, nestId: null })}
+        prefillEagletId={award.eagletId}
+        prefillNestId={award.nestId}
       />
     </DashboardLayout>
   );
