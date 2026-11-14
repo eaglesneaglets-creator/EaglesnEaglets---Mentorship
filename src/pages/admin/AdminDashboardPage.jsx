@@ -1,64 +1,35 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ResponsiveContainer,
-  BarChart, Bar,
-  LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip,
-} from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { ArrowRight, BadgeCheck, FileText, HandHeart, ShieldCheck, Users } from 'lucide-react';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
+import PageHeader from '../../shared/components/layout/PageHeader';
 import { useAuthStore } from '@store';
 import { useAdminDashboardStats } from '../../modules/analytics/hooks/useAnalytics';
 import LoadError from '../../shared/components/ui/LoadError';
 import { formatRelativeTime } from '../../shared/utils';
-import StatCard from '../../shared/components/ui/StatCard';
-
+import { formatCount } from '@shared/utils/format';
 import Icon from '@shared/components/ui/Icon';
+import { Button } from '@/components/ui/button';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
-// ─── Custom Tooltip ──────────────────────────────────────────────────────────
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-slate-800 text-white text-xs py-2 px-3 rounded-xl shadow-xl">
-      <p className="font-semibold text-slate-300 mb-0.5">{label}</p>
-      <p className="font-bold">{payload[0].value} user{payload[0].value !== 1 ? 's' : ''}</p>
-    </div>
-  );
-};
+const CHART = { color: '#047857', grid: '#E7E5E4', tick: { fontSize: 11, fill: '#78716C' } };
 
-// ─── Activity Item ──────────────────────────────────────────────────────────
-const ActivityItem = ({ icon, icon_bg, iconBg, title, description, time, timestamp }) => (
-  <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-slate-50/80 transition-all duration-500 ease-out group cursor-pointer hover:shadow-sm hover:border-slate-200/50 border border-transparent">
-    <div className={`w-10 h-10 rounded-xl ${icon_bg || iconBg} flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3`}>
-      <Icon
-        name={icon}
-        className='text-lg transition-transform duration-500 group-hover:-translate-y-0.5' />
-    </div>
-    <div className="flex-1 min-w-0 transition-transform duration-500 ease-out group-hover:translate-x-1">
-      <p className="font-semibold text-slate-900 text-sm">{title}</p>
-      <p className="text-xs text-slate-500 truncate">{description}</p>
-    </div>
-    <span className="text-xs text-slate-400 whitespace-nowrap transition-transform duration-500 group-hover:-translate-x-1">{time || formatRelativeTime(timestamp)}</span>
-  </div>
-);
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN
-// ═══════════════════════════════════════════════════════════════════════════════
+/**
+ * Admin home — the work queue first (verifications waiting on an admin),
+ * then membership, sign-up trend and recent activity.
+ */
 const AdminDashboardPage = () => {
   const { user } = useAuthStore();
-  // Donations is superadmin-only (backend 403s + SuperAdminRoute redirects);
-  // hide its quick-action so scoped admins don't see a dead link.
+  // Donations is superadmin-only (backend 403s + SuperAdminRoute redirects).
   const isSuperAdmin = Boolean(user?.is_superuser);
   const [chartPeriod, setChartPeriod] = useState('weekly');
-  const [chartType, setChartType] = useState('bar');
 
   const { data: stats, isLoading, isError, isFetching, refetch } = useAdminDashboardStats(chartPeriod);
   const chartLoading = isFetching && !isLoading;
-
-  const handlePeriodChange = (newPeriod) => {
-    if (newPeriod !== chartPeriod) setChartPeriod(newPeriod);
-  };
 
   // Helper: format date as YYYY-MM-DD using local timezone (matches backend TruncDate)
   const toLocalDateStr = (date) => {
@@ -133,338 +104,188 @@ const AdminDashboardPage = () => {
     }));
   }, [stats, chartPeriod]);
 
-  // Total registrations for the period
-  const totalChartRegistrations = useMemo(() => {
-    return chartData.reduce((sum, d) => sum + d.value, 0);
-  }, [chartData]);
+  const totalRegistrations = useMemo(() => chartData.reduce((sum, d) => sum + d.value, 0), [chartData]);
 
-  // Derived values
   const totalUsers = stats?.users?.total || 0;
   const totalEagles = stats?.users?.eagles || 0;
   const totalEaglets = stats?.users?.eaglets || 0;
+  const suspended = stats?.users?.suspended || 0;
   const pendingKYC = stats?.kyc?.total_pending || 0;
-  const recentActivity = stats?.recent_activity || [];
-  const recentActivityPreview = recentActivity.slice(0, 3);
+  const recentActivity = (stats?.recent_activity || []).slice(0, 5);
 
   if (isError) {
     return (
       <DashboardLayout variant="admin">
-        <LoadError
-          variant="page"
-          title="Failed to load dashboard data"
-          retryLabel="Try again"
-          onRetry={() => refetch()}
-        />
+        <LoadError variant="page" title="We couldn’t load the dashboard" retryLabel="Try again" onRetry={() => refetch()} />
       </DashboardLayout>
     );
   }
 
+  const queue = [
+    {
+      icon: ShieldCheck,
+      tone: 'bg-amber-50 text-amber-800',
+      title: pendingKYC > 0 ? `${formatCount(pendingKYC, 'identity check')} waiting` : 'No identity checks waiting',
+      detail: pendingKYC > 0 ? 'Mentors and mentees can’t start until they’re verified.' : 'Verification queue is clear.',
+      to: '/admin/kyc',
+      cta: pendingKYC > 0 ? 'Review' : 'Open',
+    },
+    {
+      icon: BadgeCheck,
+      tone: 'bg-sky-50 text-sky-800',
+      title: 'Mentor applications',
+      detail: 'Mentees asking to become mentors.',
+      to: '/admin/mentor-applications',
+      cta: 'Open',
+    },
+  ];
+
+  const membership = [
+    ['Members', totalUsers],
+    ['Mentors', totalEagles],
+    ['Mentees', totalEaglets],
+    ['Suspended', suspended],
+  ];
+
+  const quickLinks = [
+    { to: '/admin/users', icon: Users, label: 'Manage people' },
+    { to: '/admin/content', icon: FileText, label: 'Manage content' },
+    ...(isSuperAdmin ? [{ to: '/admin/donations', icon: HandHeart, label: 'Donations' }] : []),
+  ];
+
   return (
     <DashboardLayout variant="admin">
-      <div className="flex flex-col gap-6">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Platform Overview</h1>
-            <p className="text-slate-500 mt-1 text-sm">
-              Welcome back, {user?.first_name || 'Admin'}. Here&apos;s what&apos;s happening today.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              disabled
-              title="Coming soon"
-              className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 opacity-60 cursor-not-allowed flex items-center gap-2"
-            >
-              <Icon name='download' className='text-lg' />
-              <span className="hidden sm:inline">Export</span>
-            </button>
-          </div>
-        </div>
+      <PageHeader
+        title="Platform overview"
+        description={`Welcome back, ${user?.first_name || 'admin'}. Here’s what needs an admin today.`}
+        actions={pendingKYC > 0 ? (
+          <Button asChild><Link to="/admin/kyc"><ShieldCheck aria-hidden="true" /> Review {pendingKYC} pending</Link></Button>
+        ) : null}
+      />
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <StatCard
-            icon="group"
-            iconBg="bg-white/20 text-white"
-            gradient="bg-gradient-to-br from-blue-500 to-indigo-600"
-            label="Total Users"
-            value={isLoading ? '...' : totalUsers.toLocaleString()}
-            delay={0}
-          />
-          <StatCard
-            icon="school"
-            iconBg="bg-white/20 text-white"
-            gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
-            label="Eagles (Mentors)"
-            value={isLoading ? '...' : totalEagles.toLocaleString()}
-            delay={100}
-          />
-          <StatCard
-            icon="person"
-            iconBg="bg-white/20 text-white"
-            gradient="bg-gradient-to-br from-amber-500 to-orange-600"
-            label="Eaglets (Mentees)"
-            value={isLoading ? '...' : totalEaglets.toLocaleString()}
-            delay={200}
-          />
-          <Link to="/admin/kyc" className="block">
-            <StatCard
-              icon="pending_actions"
-              iconBg="bg-white/20 text-white"
-              gradient="bg-gradient-to-br from-rose-500 to-pink-600"
-              label="Pending KYC Reviews"
-              value={isLoading ? '...' : pendingKYC}
-              delay={300}
-            />
-          </Link>
-        </div>
-
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* User Growth Chart */}
-          <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-4 md:p-6 shadow-sm hover:shadow-lg transition-shadow duration-500">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 md:mb-6 gap-2 sm:gap-3">
-              <div>
-                <h3 className="text-sm md:text-lg font-bold text-slate-900">User Growth Analytics</h3>
-                <p className="text-xs text-slate-500">
-                  {chartPeriod === 'weekly' ? 'New registrations this week' : 'New registrations this month'}
-                  {!isLoading && !chartLoading && (
-                    <span className="ml-1 font-semibold text-primary">
-                      ({totalChartRegistrations} total)
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="flex min-w-0 flex-col gap-6 lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Waiting on an admin</CardTitle>
+              <CardDescription>Decisions that unblock members.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="divide-y rounded-lg border">
+                {queue.map(({ icon: RowIcon, tone, title, detail, to, cta }) => (
+                  <li key={to} className="flex items-center gap-3 p-3">
+                    <span className={cn('grid size-9 shrink-0 place-items-center rounded-md', tone)}>
+                      <RowIcon className="size-4" aria-hidden="true" />
                     </span>
-                  )}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-                {/* Chart type toggle */}
-                <div className="flex bg-slate-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setChartType('bar')}
-                    title="Bar chart"
-                    className={`px-2.5 py-1.5 rounded-md transition-all duration-300 ${chartType === 'bar' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
-                  >
-                    <Icon name='bar_chart' className='text-base leading-none' />
-                  </button>
-                  <button
-                    onClick={() => setChartType('line')}
-                    title="Line chart"
-                    className={`px-2.5 py-1.5 rounded-md transition-all duration-300 ${chartType === 'line' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
-                  >
-                    <Icon name='show_chart' className='text-base leading-none' />
-                  </button>
-                </div>
-                {/* Period toggle */}
-                <div className="flex bg-slate-100 rounded-lg p-1">
-                  <button
-                    onClick={() => handlePeriodChange('weekly')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'weekly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    Weekly
-                  </button>
-                  <button
-                    onClick={() => handlePeriodChange('monthly')}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-300 ${chartPeriod === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    Monthly
-                  </button>
-                </div>
-              </div>
-            </div>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">{isLoading ? <Skeleton className="h-4 w-40" /> : title}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{detail}</span>
+                    </span>
+                    <Button asChild size="sm" variant="outline"><Link to={to}>{cta}</Link></Button>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
 
-            {/* Chart */}
-            <div className="h-44 md:h-52 w-full">
-              {chartLoading ? (
-                <div className="h-full flex items-center justify-center">
-                  <Icon name='progress_activity' className='text-2xl animate-spin text-slate-400' />
-                </div>
-              ) : chartType === 'bar' ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }} barCategoryGap="30%">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                    <YAxis allowDecimals={false} domain={[0, (dataMax) => Math.max(dataMax, 3)]} tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f5f9', radius: 4 }} />
-                    <Bar dataKey="value" fill="#10b981" radius={[6, 6, 0, 0]} maxBarSize={48} minPointSize={totalChartRegistrations === 0 ? 0 : 2} />
-                  </BarChart>
-                </ResponsiveContainer>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">New members</CardTitle>
+              <CardDescription>
+                {isLoading ? 'Loading…' : `${formatCount(totalRegistrations, 'sign-up')} ${chartPeriod === 'weekly' ? 'in the last 7 days' : 'in the last 4 weeks'}`}
+              </CardDescription>
+              <CardAction>
+                <Tabs value={chartPeriod} onValueChange={setChartPeriod}>
+                  <TabsList aria-label="Chart period">
+                    <TabsTrigger value="weekly">7 days</TabsTrigger>
+                    <TabsTrigger value="monthly">4 weeks</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </CardAction>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <Skeleton className="h-56 w-full" />
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                    <YAxis allowDecimals={false} domain={[0, (dataMax) => Math.max(dataMax, 3)]} tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke="#10b981"
-                      strokeWidth={2.5}
-                      dot={{ fill: '#10b981', r: 4, strokeWidth: 0 }}
-                      activeDot={{ r: 6, fill: '#059669' }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className={cn('transition-opacity', chartLoading && 'opacity-50')} aria-busy={chartLoading || undefined}>
+                  <ResponsiveContainer width="100%" height={224}>
+                    <BarChart data={chartData} barSize={chartPeriod === 'weekly' ? 28 : 40} margin={{ left: 0, right: 4 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
+                      <XAxis dataKey="day" tick={CHART.tick} axisLine={false} tickLine={false} />
+                      <YAxis tick={CHART.tick} axisLine={false} tickLine={false} width={32} allowDecimals={false} />
+                      <Tooltip
+                        cursor={{ fill: '#ECFDF5' }}
+                        contentStyle={{ background: '#1C1917', border: 'none', borderRadius: 8, fontSize: 12, color: '#fff' }}
+                        formatter={(v) => [formatCount(v, 'new member'), '']}
+                        separator=""
+                      />
+                      <Bar dataKey="value" fill={CHART.color} radius={[4, 4, 0, 0]} name="Sign-ups" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               )}
-            </div>
-          </div>
-
-          {/* Platform Stats */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-4 md:p-6 shadow-sm hover:shadow-lg transition-shadow duration-500 flex flex-col">
-            <h3 className="text-base md:text-lg font-bold text-slate-900 mb-4">Platform Stats</h3>
-            <div className="flex-1 flex flex-col gap-4">
-              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Icon name='school' className='text-blue-600' />
-                  </div>
-                  <span className="font-medium text-slate-700">Eagles</span>
-                </div>
-                <span className="text-xl font-bold text-slate-900">
-                  {isLoading ? '...' : totalEagles.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <Icon name='person' className='text-emerald-600' />
-                  </div>
-                  <span className="font-medium text-slate-700">Eaglets</span>
-                </div>
-                <span className="text-xl font-bold text-slate-900">
-                  {isLoading ? '...' : totalEaglets.toLocaleString()}
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                    <Icon name='block' className='text-red-600' />
-                  </div>
-                  <span className="font-medium text-slate-700">Suspended</span>
-                </div>
-                <span className="text-xl font-bold text-slate-900">
-                  {isLoading ? '...' : (stats?.users?.suspended || 0).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Recent Activity & Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Recent Activity */}
-          <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-500">
-            <div className="p-6 border-b border-slate-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-slate-900">Recent Activity</h3>
-              </div>
-            </div>
-            <div className="divide-y divide-slate-100">
+        <div className="flex min-w-0 flex-col gap-6">
+          <Card>
+            <CardHeader><CardTitle className="text-lg">Membership</CardTitle></CardHeader>
+            <CardContent>
+              <dl className="divide-y">
+                {membership.map(([label, value]) => (
+                  <div key={label} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                    <dt className="text-sm text-muted-foreground">{label}</dt>
+                    <dd className="text-sm font-semibold tabular-nums">
+                      {isLoading ? <Skeleton className="h-4 w-8" /> : value.toLocaleString()}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Recent activity</CardTitle>
+              <CardAction>
+                <Button asChild variant="ghost" size="sm"><Link to="/admin/users">People <ArrowRight aria-hidden="true" /></Link></Button>
+              </CardAction>
+            </CardHeader>
+            <CardContent>
               {isLoading ? (
-                <div className="p-8 text-center text-slate-400">
-                  <Icon name='progress_activity' className='text-3xl animate-spin mb-2' />
-                  <p className="text-sm">Loading activity...</p>
-                </div>
-              ) : recentActivityPreview.length > 0 ? (
-                recentActivityPreview.map((activity, index) => (
-                  <ActivityItem key={index} {...activity} />
-                ))
+                <div className="space-y-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-10 w-full" />)}</div>
+              ) : recentActivity.length > 0 ? (
+                <ul className="space-y-4">
+                  {recentActivity.map((a, index) => (
+                    <li key={`${a.title}-${index}`} className="flex items-start gap-3">
+                      <span className={cn('grid size-8 shrink-0 place-items-center rounded-md', a.icon_bg || a.iconBg || 'bg-muted')}>
+                        <Icon name={a.icon} className="text-sm" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">{a.title}</span>
+                        <span className="block truncate text-xs text-muted-foreground">{a.description}</span>
+                      </span>
+                      <span className="whitespace-nowrap text-xs text-muted-foreground">{a.time || formatRelativeTime(a.timestamp)}</span>
+                    </li>
+                  ))}
+                </ul>
               ) : (
-                <div className="p-8 text-center text-slate-400">
-                  <Icon name='inbox' className='text-3xl text-slate-300 mb-2' />
-                  <p className="text-sm">No recent activity</p>
-                </div>
+                <p className="text-sm text-muted-foreground">No activity yet. New sign-ups and reviews will appear here.</p>
               )}
-            </div>
-            {!isLoading && recentActivity.length > 3 && (
-              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/60 text-right">
-                <Link
-                  to="/admin/users"
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
-                >
-                  See more activity
-                  <Icon name='arrow_forward' className='text-base' />
-                </Link>
-              </div>
-            )}
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Quick Actions */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-6 shadow-sm hover:shadow-lg transition-shadow duration-500">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <Link
-                to="/admin/kyc"
-                className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-primary/5 overflow-hidden"
-              >
-                <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
-                <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
-                  <Icon name='verified_user' />
-                </div>
-                <div className="flex-1 z-10">
-                  <p className="font-semibold text-slate-900 group-hover:text-primary transition-colors duration-300">Review KYC Applications</p>
-                  <p className="text-xs text-slate-500">{pendingKYC} pending reviews</p>
-                </div>
-                <Icon
-                  name='arrow_forward'
-                  className='text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1' />
-              </Link>
-
-              <Link
-                to="/admin/users"
-                className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-blue-500/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-blue-500/5 overflow-hidden"
-              >
-                <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
-                <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
-                  <Icon name='group' />
-                </div>
-                <div className="flex-1 z-10">
-                  <p className="font-semibold text-slate-900 group-hover:text-blue-500 transition-colors duration-300">Manage Users</p>
-                  <p className="text-xs text-slate-500">{totalUsers} total users</p>
-                </div>
-                <Icon
-                  name='arrow_forward'
-                  className='text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1' />
-              </Link>
-
-              <Link
-                to="/admin/content"
-                className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-purple-500/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-purple-500/5 overflow-hidden"
-              >
-                <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
-                <div className="w-10 h-10 bg-purple-500/10 text-purple-500 rounded-xl flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 z-10">
-                  <Icon name='library_books' />
-                </div>
-                <div className="flex-1 z-10">
-                  <p className="font-semibold text-slate-900 group-hover:text-purple-500 transition-colors duration-300">Manage Content</p>
-                  <p className="text-xs text-slate-500">Videos, courses & resources</p>
-                </div>
-                <Icon
-                  name='arrow_forward'
-                  className='text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1' />
-              </Link>
-
-              {isSuperAdmin && (
-                <Link
-                  to="/admin/donations"
-                  className="relative flex items-center gap-4 p-4 rounded-xl bg-white/60 backdrop-blur-md border border-slate-200/50 hover:bg-white/90 hover:border-amber-500/30 hover:-translate-y-0.5 transition-all duration-300 group hover:shadow-xl hover:shadow-amber-500/5 overflow-hidden"
-                >
-                  <div className="absolute inset-0 -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
-                  <div className="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 z-10">
-                    <Icon name='volunteer_activism' />
-                  </div>
-                  <div className="flex-1 z-10">
-                    <p className="font-semibold text-slate-900 group-hover:text-amber-500 transition-colors duration-300">View Donations</p>
-                    <p className="text-xs text-slate-500">Track donation activity</p>
-                  </div>
-                  <Icon
-                    name='arrow_forward'
-                    className='text-slate-400 group-hover:translate-x-1 transition-transform duration-300 z-10 bg-white/50 backdrop-blur rounded-lg p-1' />
-                </Link>
-              )}
-            </div>
-          </div>
+          <Card>
+            <CardHeader><CardTitle className="text-lg">Shortcuts</CardTitle></CardHeader>
+            <CardContent className="grid gap-2">
+              {quickLinks.map(({ to, icon: LinkIcon, label }) => (
+                <Button key={to} asChild variant="outline" className="justify-start">
+                  <Link to={to}><LinkIcon aria-hidden="true" /> {label}</Link>
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </DashboardLayout>

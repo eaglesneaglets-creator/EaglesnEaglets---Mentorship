@@ -77,7 +77,8 @@ function adminGroups({ isSuperAdmin, pendingKycCount, chatBadge }) {
     .map((item) => ({ ...item, tour: item.to.split('/').pop() }));
   return ADMIN_SECTION_ORDER.map((label) => ({
     label,
-    items: items.filter((item) => (ADMIN_SECTION[item.to] ?? 'Platform') === label),
+    // `in`, not `??`: null is a real value here (the un-labelled top group).
+    items: items.filter((item) => (item.to in ADMIN_SECTION ? ADMIN_SECTION[item.to] : 'Platform') === label),
   })).filter((group) => group.items.length);
 }
 
