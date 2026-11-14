@@ -8,6 +8,8 @@ import Input from '../../../shared/components/ui/Input';
 import { useOwnedNests } from '../../nest/hooks/useNests';
 import { useEagletsByNest, useAwardManualPoints, useAwardBudget } from '../hooks/usePoints';
 
+import Icon from '@shared/components/ui/Icon';
+
 const descriptionRule = z.string()
     .min(5, 'Description must be at least 5 characters')
     .max(250, 'Description must be under 250 characters');
@@ -105,7 +107,7 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-emerald-600">military_tech</span>
+                            <Icon name='military_tech' className='text-emerald-600' />
                         </div>
                         <div>
                             <h2 className="text-lg font-bold text-slate-900">Award Points</h2>
@@ -116,7 +118,7 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
                         onClick={handleClose}
                         className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
                     >
-                        <span className="material-symbols-outlined text-lg">close</span>
+                        <Icon name='close' className='text-lg' />
                     </button>
                 </div>
 
@@ -130,9 +132,9 @@ const AwardPointsModal = ({ isOpen, onClose, prefillEagletId = null, prefillNest
                                 : 'bg-slate-50 border-slate-200 text-slate-600'
                         }`}
                     >
-                        <span className="material-symbols-outlined text-sm align-middle mr-1">
-                            {budgetExhausted ? 'error' : 'account_balance_wallet'}
-                        </span>
+                        <Icon
+                            name={budgetExhausted ? 'error' : 'account_balance_wallet'}
+                            className='text-sm align-middle mr-1' />
                         {budgetExhausted ? (
                             <span>
                                 <strong>Daily limit reached.</strong> You&apos;ve awarded all{' '}

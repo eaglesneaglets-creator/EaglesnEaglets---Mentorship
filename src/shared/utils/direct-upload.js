@@ -60,7 +60,14 @@ export const directUpload = async (file, { context, onProgress, signal } = {}) =
   // 1. Ask BE for signed params + the rules for client-side validation.
   let signed;
   try {
-    const resp = await apiClient.post('/uploads/sign/', { context });
+    // name/type/size are only used by the S3 bucket backend, which bakes
+    // them into the signature; the Cloudinary backend ignores them.
+    const resp = await apiClient.post('/uploads/sign/', {
+      context,
+      filename: file?.name,
+      content_type: file?.type,
+      size: file?.size,
+    });
     signed = resp?.data || resp;
   } catch (err) {
     throw new DirectUploadError(
@@ -79,14 +86,28 @@ export const directUpload = async (file, { context, onProgress, signal } = {}) =
     const form = new FormData();
     form.append('file', file);
     form.append('api_key', signed.api_key);
-    form.append('timestamp', String(signed.timestamp));
     form.append('signature', signed.signature);
-    form.append('folder', signed.folder);
-    form.append('use_filename', 'true');
-    form.append('unique_filename', 'true');
+    if (signed.signed_params && typeof signed.signed_params === 'object') {
+      // Send back exactly what the server signed (timestamp, folder,
+      // allowed_formats, …). Any extra/missing param breaks the signature.
+      Object.entries(signed.signed_params).forEach(([key, value]) => {
+        form.append(key, String(value));
+      });
+    } else {
+      // Legacy server response shape.
+      form.append('timestamp', String(signed.timestamp));
+      form.append('folder', signed.folder);
+      form.append('use_filename', 'true');
+      form.append('unique_filename', 'true');
+    }
 
+    const isBucket = signed.provider === 's3';
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', signed.upload_url, true);
+    xhr.open(isBucket ? (signed.method || 'PUT') : 'POST', signed.upload_url, true);
+    if (isBucket) {
+      // Signed headers must match exactly what the server signed.
+      Object.entries(signed.headers || {}).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+    }
 
     if (typeof onProgress === 'function') {
       xhr.upload.onprogress = (e) => {
@@ -97,6 +118,19 @@ export const directUpload = async (file, { context, onProgress, signal } = {}) =
     }
 
     xhr.onload = () => {
+      if (isBucket && xhr.status >= 200 && xhr.status < 300) {
+        // The bucket returns an empty body; the stable URL came from the server.
+        resolve({
+          secureUrl: signed.file_url,
+          url: signed.file_url,
+          publicId: signed.key,
+          bytes: file.size,
+          resourceType: signed.resource_type,
+          format: (file.name || '').split('.').pop()?.toLowerCase() || '',
+          raw: { key: signed.key },
+        });
+        return;
+      }
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           const data = JSON.parse(xhr.responseText);
@@ -147,7 +181,7 @@ export const directUpload = async (file, { context, onProgress, signal } = {}) =
       }, { once: true });
     }
 
-    xhr.send(form);
+    xhr.send(isBucket ? file : form);
   });
 };
 

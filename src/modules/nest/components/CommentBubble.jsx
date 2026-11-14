@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAddReply } from '../hooks/useAddReply';
 import Avatar from '@shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * Renders a single top-level comment with inline reply input and collapsible reply list.
  * Replies cannot themselves be replied to (one level only).
@@ -102,7 +104,7 @@ const CommentBubble = ({ comment, postId, nestId }) => {
                 disabled={!replyText.trim() || isPending}
                 className="p-2 bg-primary text-white rounded-xl hover:bg-primary/90 disabled:opacity-40 transition-all flex-shrink-0"
               >
-                <span className="material-symbols-outlined text-sm">send</span>
+                <Icon name='send' className='text-sm' />
               </button>
             </motion.div>
           )}

@@ -7,6 +7,8 @@ import { useModules, useMyProgress } from '../../modules/content/hooks/useConten
 import { validateRedirectUrl } from '../../shared/utils/sanitize';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ─── Soft animated background ─── */
 
 /* ─── Type config ─── */
@@ -38,7 +40,7 @@ const FeaturedCard = ({ item, module, onClick, delay = 0 }) => {
                     <img src={module.thumbnail_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-5xl text-slate-300">{config.icon}</span>
+                        <Icon name={config.icon} className='text-5xl text-slate-300' />
                     </div>
                 )}
                 {/* Type badge */}
@@ -82,7 +84,7 @@ const CompactItem = ({ item, onClick, delay = 0 }) => {
         >
             {/* Icon */}
             <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-primary text-xl">{config.icon}</span>
+                <Icon name={config.icon} className='text-primary text-xl' />
             </div>
             {/* Info */}
             <div className="flex-1 min-w-0">
@@ -98,9 +100,9 @@ const CompactItem = ({ item, onClick, delay = 0 }) => {
             </div>
             {/* Action arrow / download */}
             <button className="w-9 h-9 rounded-lg bg-slate-50 group-hover:bg-primary/10 flex items-center justify-center flex-shrink-0 transition-colors">
-                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary text-lg transition-colors">
-                    {type === 'document' ? 'download' : type === 'reading' ? 'open_in_new' : 'chevron_right'}
-                </span>
+                <Icon
+                    name={type === 'document' ? 'download' : type === 'reading' ? 'open_in_new' : 'chevron_right'}
+                    className='text-slate-400 group-hover:text-primary text-lg transition-colors' />
             </button>
         </motion.div>
     );
@@ -115,11 +117,13 @@ const LinkItem = ({ item, onClick, delay = 0 }) => (
         onClick={onClick}
         className="group flex items-center gap-3 px-5 py-4 hover:bg-slate-50 cursor-pointer transition-all border-b border-slate-100 last:border-b-0"
     >
-        <span className="material-symbols-outlined text-slate-400 text-xl">language</span>
+        <Icon name='language' className='text-slate-400 text-xl' />
         <span className="flex-1 text-sm font-medium text-slate-700 group-hover:text-primary transition-colors truncate">
             {item?.title || 'Untitled Link'}
         </span>
-        <span className="material-symbols-outlined text-slate-300 text-lg group-hover:text-primary transition-colors">open_in_new</span>
+        <Icon
+            name='open_in_new'
+            className='text-slate-300 text-lg group-hover:text-primary transition-colors' />
     </motion.div>
 );
 
@@ -293,7 +297,9 @@ const ResourceCenterPage = () => {
                     </h1>
                     <div className="flex items-center gap-2 sm:gap-3">
                         <div className="relative flex-1 sm:flex-none">
-                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">search</span>
+                            <Icon
+                                name='search'
+                                className='absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400' />
                             <input
                                 type="text"
                                 placeholder="Search resources..."
@@ -306,7 +312,7 @@ const ResourceCenterPage = () => {
                             onClick={() => navigate('/notifications')}
                             className="w-10 h-10 flex-shrink-0 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm relative"
                         >
-                            <span className="material-symbols-outlined text-xl">notifications</span>
+                            <Icon name='notifications' className='text-xl' />
                         </button>
                     </div>
                 </motion.div>
@@ -347,7 +353,7 @@ const ResourceCenterPage = () => {
 
                             {featured.length === 0 ? (
                                 <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-12 text-center">
-                                    <span className="material-symbols-outlined text-4xl text-slate-300 block mb-3">library_books</span>
+                                    <Icon name='library_books' className='text-4xl text-slate-300 block mb-3' />
                                     <p className="text-sm font-bold text-slate-700 mb-1">No resources yet</p>
                                     <p className="text-xs text-slate-400">
                                         {searchQuery
@@ -382,7 +388,7 @@ const ResourceCenterPage = () => {
                                 transition={{ delay: 0.15 }}
                             >
                                 <h2 className="text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
-                                    <span className="material-symbols-outlined text-primary">play_circle</span>
+                                    <Icon name='play_circle' className='text-primary' />
                                     Videos
                                 </h2>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -407,7 +413,7 @@ const ResourceCenterPage = () => {
                                 transition={{ delay: 0.2 }}
                             >
                                 <h2 className="text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
-                                    <span className="material-symbols-outlined text-emerald-600">description</span>
+                                    <Icon name='description' className='text-emerald-600' />
                                     Documents
                                 </h2>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -432,7 +438,7 @@ const ResourceCenterPage = () => {
                                 transition={{ delay: 0.25 }}
                             >
                                 <h2 className="text-lg font-black text-slate-900 flex items-center gap-2 mb-4">
-                                    <span className="material-symbols-outlined text-blue-600">link</span>
+                                    <Icon name='link' className='text-blue-600' />
                                     Useful Links
                                 </h2>
                                 <div className="bg-white rounded-2xl border border-slate-200/70 overflow-hidden shadow-sm">
@@ -472,7 +478,7 @@ const ResourceCenterPage = () => {
                                                 className="flex items-center gap-3 cursor-pointer group"
                                             >
                                                 <div className={`w-10 h-10 rounded-xl ${rc.bg} flex items-center justify-center flex-shrink-0`}>
-                                                    <span className={`material-symbols-outlined ${rc.color} text-lg`}>{rc.icon}</span>
+                                                    <Icon name={rc.icon} className={`${rc.color} text-lg`} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-primary transition-colors">

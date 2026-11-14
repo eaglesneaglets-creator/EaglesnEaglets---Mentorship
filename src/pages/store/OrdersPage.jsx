@@ -3,6 +3,8 @@ import StoreHeader from '../../modules/store/components/StoreHeader';
 import { useOrders } from '../../modules/store/hooks/useOrders';
 import { useAuthStore } from '@store';
 
+import Icon from '@shared/components/ui/Icon';
+
 const STATUS_BADGE = {
     pending:         { label: 'Pending',          cls: 'bg-amber-100 text-amber-700',   dot: 'bg-amber-400' },
     payment_pending: { label: 'Awaiting Payment',  cls: 'bg-blue-100 text-blue-700',    dot: 'bg-blue-400' },
@@ -59,10 +61,10 @@ const OrderCard = ({ order, index }) => {
                 <div className="flex items-center gap-3 min-w-0">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors duration-200
                         ${isPendingPayment ? 'bg-blue-50 group-hover:bg-blue-100' : 'bg-primary/10 group-hover:bg-primary/20'}`}>
-                        <span className={`material-symbols-outlined text-base
-                            ${isPendingPayment ? 'text-blue-500' : 'text-primary'}`}>
-                            {isPendingPayment ? 'payment' : 'receipt'}
-                        </span>
+                        <Icon
+                            name={isPendingPayment ? 'payment' : 'receipt'}
+                            className={`text-base
+                            ${isPendingPayment ? 'text-blue-500' : 'text-primary'}`} />
                     </div>
                     <div className="min-w-0">
                         <p className="font-semibold text-slate-900 text-sm">
@@ -88,9 +90,9 @@ const OrderCard = ({ order, index }) => {
                             ? 'text-blue-500 group-hover:text-blue-700'
                             : 'text-slate-400 group-hover:text-primary'}`}>
                         {isPendingPayment ? 'Complete payment' : 'View details'}
-                        <span className="material-symbols-outlined text-sm transition-transform duration-150 group-hover:translate-x-0.5">
-                            arrow_forward
-                        </span>
+                        <Icon
+                            name='arrow_forward'
+                            className='text-sm transition-transform duration-150 group-hover:translate-x-0.5' />
                     </span>
                 </div>
             </div>
@@ -120,7 +122,7 @@ const OrdersPage = () => {
                         to="/store"
                         className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
                     >
-                        <span className="material-symbols-outlined text-base">storefront</span>
+                        <Icon name='storefront' className='text-base' />
                         <span className="hidden sm:inline">Browse Store</span>
                     </Link>
                 </div>
@@ -130,7 +132,7 @@ const OrdersPage = () => {
                     <div className="animate-fade-in-up text-center py-20"
                          style={{ animationDelay: '80ms', animationFillMode: 'both' }}>
                         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span className="material-symbols-outlined text-3xl text-primary">lock</span>
+                            <Icon name='lock' className='text-3xl text-primary' />
                         </div>
                         <h2 className="text-lg font-semibold text-slate-800">Sign in to view your orders</h2>
                         <p className="text-slate-500 text-sm mt-1 max-w-xs mx-auto">
@@ -141,14 +143,14 @@ const OrdersPage = () => {
                                 to="/login"
                                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-semibold rounded-2xl hover:bg-primary/90 active:scale-95 transition-all text-sm"
                             >
-                                <span className="material-symbols-outlined text-base">login</span>
+                                <Icon name='login' className='text-base' />
                                 Sign In
                             </Link>
                             <Link
                                 to="/store"
                                 className="inline-flex items-center gap-2 px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-2xl hover:bg-slate-50 active:scale-95 transition-all text-sm"
                             >
-                                <span className="material-symbols-outlined text-base">storefront</span>
+                                <Icon name='storefront' className='text-base' />
                                 Continue as Guest
                             </Link>
                         </div>
@@ -172,7 +174,7 @@ const OrdersPage = () => {
                 {isAuthenticated && isError && (
                     <div className="animate-fade-in-up text-center py-16"
                          style={{ animationFillMode: 'both' }}>
-                        <span className="material-symbols-outlined text-4xl text-slate-300">error_outline</span>
+                        <Icon name='error_outline' className='text-4xl text-slate-300' />
                         <p className="text-slate-500 mt-2 text-sm">Failed to load orders. Please refresh and try again.</p>
                     </div>
                 )}
@@ -182,7 +184,7 @@ const OrdersPage = () => {
                     <div className="animate-fade-in-up text-center py-20"
                          style={{ animationDelay: '80ms', animationFillMode: 'both' }}>
                         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span className="material-symbols-outlined text-3xl text-slate-400">receipt_long</span>
+                            <Icon name='receipt_long' className='text-3xl text-slate-400' />
                         </div>
                         <h2 className="text-lg font-semibold text-slate-700">No orders yet</h2>
                         <p className="text-slate-500 text-sm mt-1">When you place an order, it will appear here.</p>
@@ -190,7 +192,7 @@ const OrdersPage = () => {
                             to="/store"
                             className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold rounded-2xl hover:bg-primary/90 active:scale-95 transition-all text-sm"
                         >
-                            <span className="material-symbols-outlined text-base">storefront</span>
+                            <Icon name='storefront' className='text-base' />
                             Start Shopping
                         </Link>
                     </div>

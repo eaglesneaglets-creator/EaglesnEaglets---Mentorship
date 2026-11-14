@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCategories } from '../hooks/useStore';
 
+import Icon from '@shared/components/ui/Icon';
+
 const Field = ({ label, error, children }) => (
     <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
@@ -181,7 +183,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
                                     onClick={() => removeExistingImage(i)}
                                     className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                                 >
-                                    <span className="material-symbols-outlined text-white text-sm">close</span>
+                                    <Icon name='close' className='text-white text-sm' />
                                 </button>
                                 {img.is_primary && (
                                     <span className="absolute bottom-0 left-0 right-0 bg-primary/80 text-white text-[9px] text-center py-0.5">Primary</span>
@@ -202,7 +204,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
                                     onClick={() => removeNewImage(i)}
                                     className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                                 >
-                                    <span className="material-symbols-outlined text-white text-sm">close</span>
+                                    <Icon name='close' className='text-white text-sm' />
                                 </button>
                                 <span className="absolute bottom-0 left-0 right-0 bg-emerald-500/80 text-white text-[9px] text-center py-0.5">New</span>
                             </div>
@@ -225,7 +227,7 @@ const AdminProductForm = ({ product, onSubmit, onCancel, isLoading }) => {
                     onClick={() => fileInputRef.current?.click()}
                     className="flex items-center gap-2 px-3 py-2 border-2 border-dashed border-slate-300 rounded-xl text-sm text-slate-500 hover:border-primary hover:text-primary transition-colors w-full justify-center"
                 >
-                    <span className="material-symbols-outlined text-base">add_photo_alternate</span>
+                    <Icon name='add_photo_alternate' className='text-base' />
                     {imageFiles.length > 0 ? 'Add More Images' : 'Upload Images'}
                 </button>
                 <p className="text-xs text-slate-400 mt-1">JPEG, PNG, WebP, GIF • Max 5MB each • Multiple allowed</p>

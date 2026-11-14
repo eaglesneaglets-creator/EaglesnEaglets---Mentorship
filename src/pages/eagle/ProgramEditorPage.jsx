@@ -22,6 +22,8 @@ import { useNestDetail, useUpdateNest } from '../../modules/nest/hooks/useNests'
 import ProgramForm from '../../modules/program/components/ProgramForm';
 import ProgramObjectiveBuilder from '../../modules/program/components/ProgramObjectiveBuilder';
 
+import Icon from '@shared/components/ui/Icon';
+
 const STATUS_BADGE = {
     draft: 'bg-slate-100 text-slate-700',
     active: 'bg-emerald-100 text-emerald-700',
@@ -80,7 +82,7 @@ export default function ProgramEditorPage() {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
                 <div className="flex items-center gap-3 text-sm text-slate-500">
                     <Link to={`/eagle/nests/${nestId}`} className="hover:text-primary inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-base">arrow_back</span>
+                        <Icon name='arrow_back' className='text-base' />
                         Back to Nest
                     </Link>
                 </div>

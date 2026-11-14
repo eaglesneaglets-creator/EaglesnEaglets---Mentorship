@@ -34,9 +34,11 @@ const Button = ({
   };
 
   const sizes = {
-    sm: 'min-h-11 px-3 py-2 text-sm gap-1.5',
-    md: 'min-h-11 px-5 py-2.5 text-base gap-2',
-    lg: 'min-h-12 px-6 py-3 text-lg gap-2',
+    // 44px touch targets on touch-first breakpoints only; desktop keeps the
+    // compact sizes dense tables and toolbars are laid out around.
+    sm: 'max-lg:min-h-11 px-3 py-1.5 max-lg:py-2 text-sm gap-1.5',
+    md: 'max-lg:min-h-11 px-5 py-2.5 text-base gap-2',
+    lg: 'max-lg:min-h-12 px-6 py-3.5 max-lg:py-3 text-lg gap-2',
   };
 
   const disabledStyles = disabled || loading ? 'opacity-50 cursor-not-allowed' : '';

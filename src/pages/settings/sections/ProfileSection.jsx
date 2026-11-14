@@ -11,6 +11,8 @@ import {
   COUNTRY_OPTIONS,
 } from '../../../modules/kyc/schemas/kyc-schemas';
 
+import Icon from '@shared/components/ui/Icon';
+
 const SUPPORT_EMAIL = 'support.eaglesandeaglets@gmail.com';
 
 const STATUS_BADGE = {
@@ -119,7 +121,7 @@ function IdentityCard({ data }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6">
       <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-slate-400 text-lg">lock</span>
+        <Icon name='lock' className='text-slate-400 text-lg' />
         <h3 className="text-sm font-bold text-slate-700">Identity details</h3>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">

@@ -1,7 +1,7 @@
 /**
  * DonationForm
  *
- * Platform-themed donation form — emerald/slate palette, material-symbols icons,
+ * Platform-themed donation form — emerald/slate palette, lucide icons,
  * Framer Motion animations. Matches the Eagles & Eaglets design language.
  */
 
@@ -11,6 +11,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInitiateDonation, useDonationStatus } from '../hooks/useDonations';
 import donationService from '../services/donation-service';
 import { useAuthStore } from '@store';
+
+import Icon from '@shared/components/ui/Icon';
 
 const AMOUNT_PRESETS = [
   { value: 25, tier: 'Supporter' },
@@ -260,7 +262,7 @@ export default function DonationForm({ campaignId }) {
             onClick={() => { setStep(STEP_FORM); setOtpCode(''); setError(''); }}
             className="w-8 h-8 rounded-xl border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors"
           >
-            <span className="material-symbols-outlined text-sm text-slate-500">arrow_back</span>
+            <Icon name='arrow_back' className='text-sm text-slate-500' />
           </button>
           <div>
             <h3 className="text-lg font-black text-slate-900">Verify Your Phone</h3>
@@ -269,16 +271,16 @@ export default function DonationForm({ campaignId }) {
         </div>
 
         <div className="bg-emerald-50 rounded-2xl p-4 flex gap-3">
-          <span className="material-symbols-outlined text-emerald-500 text-xl shrink-0">sms</span>
+          <Icon name='sms' className='text-emerald-500 text-xl shrink-0' />
           <p className="text-sm text-emerald-800">
             A 6-digit verification code has been sent to your phone. Enter it below to proceed with your donation.
           </p>
         </div>
 
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base">
-            pin
-          </span>
+          <Icon
+            name='pin'
+            className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 text-base' />
           <input
             type="text"
             inputMode="numeric"
@@ -299,7 +301,7 @@ export default function DonationForm({ campaignId }) {
               exit={{ opacity: 0, y: -4 }}
               className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl px-4 py-3"
             >
-              <span className="material-symbols-outlined text-base shrink-0">error</span>
+              <Icon name='error' className='text-base shrink-0' />
               {error}
             </motion.div>
           )}
@@ -320,7 +322,7 @@ export default function DonationForm({ campaignId }) {
             </>
           ) : (
             <>
-              <span className="material-symbols-outlined text-lg">verified</span>
+              <Icon name='verified' className='text-lg' />
               Verify &amp; Donate GHS {finalAmount > 0 ? finalAmount.toLocaleString() : '—'}
             </>
           )}
@@ -352,9 +354,9 @@ export default function DonationForm({ campaignId }) {
             <motion.span
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="material-symbols-outlined text-emerald-500 text-4xl"
+              className="inline-flex text-emerald-500 text-4xl"
             >
-              smartphone
+              <Icon name="smartphone" />
             </motion.span>
           </div>
         </div>
@@ -383,7 +385,7 @@ export default function DonationForm({ campaignId }) {
               exit={{ opacity: 0, y: -4 }}
               className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-2xl px-4 py-3 text-left"
             >
-              <span className="material-symbols-outlined text-base shrink-0">info</span>
+              <Icon name='info' className='text-base shrink-0' />
               {waitingNotice}
             </motion.div>
           )}
@@ -404,7 +406,7 @@ export default function DonationForm({ campaignId }) {
             </>
           ) : (
             <>
-              <span className="material-symbols-outlined text-lg">task_alt</span>
+              <Icon name='task_alt' className='text-lg' />
               I&apos;ve Completed Payment
             </>
           )}
@@ -469,7 +471,7 @@ export default function DonationForm({ campaignId }) {
       >
         <div className="flex justify-center">
           <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center">
-            <span className="material-symbols-outlined text-red-400 text-3xl">cancel</span>
+            <Icon name='cancel' className='text-red-400 text-3xl' />
           </div>
         </div>
         <div>
@@ -504,7 +506,7 @@ export default function DonationForm({ campaignId }) {
           <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">All amounts in Ghana Cedis (GHS)</p>
         </div>
         <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-          <span className="material-symbols-outlined text-emerald-600 text-xl">volunteer_activism</span>
+          <Icon name='volunteer_activism' className='text-emerald-600 text-xl' />
         </div>
       </div>
 
@@ -576,9 +578,9 @@ export default function DonationForm({ campaignId }) {
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="relative min-w-0">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base pointer-events-none">
-              person
-            </span>
+            <Icon
+              name='person'
+              className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-base pointer-events-none' />
             <input
               type="text"
               placeholder="Your name"
@@ -588,9 +590,9 @@ export default function DonationForm({ campaignId }) {
             />
           </div>
           <div className="relative min-w-0">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base pointer-events-none">
-              smartphone
-            </span>
+            <Icon
+              name='smartphone'
+              className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-base pointer-events-none' />
             <input
               type="tel"
               placeholder="024XXXXXXX"
@@ -601,7 +603,7 @@ export default function DonationForm({ campaignId }) {
           </div>
         </div>
         <p className="text-[11px] text-slate-400 mt-1.5 flex items-start gap-1 leading-snug">
-          <span className="material-symbols-outlined text-xs mt-0.5 flex-shrink-0">info</span>
+          <Icon name='info' className='text-xs mt-0.5 flex-shrink-0' />
           <span>Ghana number — prompt will be sent to this phone (MTN/Vodafone/AirtelTigo)</span>
         </p>
       </div>
@@ -612,9 +614,9 @@ export default function DonationForm({ campaignId }) {
           Mobile Network
         </p>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-300 text-base pointer-events-none">
-            signal_cellular_alt
-          </span>
+          <Icon
+            name='signal_cellular_alt'
+            className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-base pointer-events-none' />
           <select
             value={network}
             onChange={(e) => setNetwork(e.target.value)}
@@ -626,16 +628,14 @@ export default function DonationForm({ campaignId }) {
               </option>
             ))}
           </select>
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-base pointer-events-none">
-            expand_more
-          </span>
+          <Icon
+            name='expand_more'
+            className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none' />
         </div>
         <p className="text-[11px] text-slate-400 mt-1.5">
           Leave as Auto-detect unless your number is ported to a different network.
         </p>
       </div>
-
-
 
       {/* Anonymous toggle */}
       <label className="flex items-center gap-3 cursor-pointer select-none group">
@@ -666,7 +666,7 @@ export default function DonationForm({ campaignId }) {
             exit={{ opacity: 0, y: -4 }}
             className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-2xl px-4 py-3"
           >
-            <span className="material-symbols-outlined text-base shrink-0">lock_clock</span>
+            <Icon name='lock_clock' className='text-base shrink-0' />
             {otpRequiredNotice}
           </motion.div>
         )}
@@ -681,7 +681,7 @@ export default function DonationForm({ campaignId }) {
             exit={{ opacity: 0, y: -4 }}
             className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl px-4 py-3"
           >
-            <span className="material-symbols-outlined text-base shrink-0">error</span>
+            <Icon name='error' className='text-base shrink-0' />
             {error}
           </motion.div>
         )}
@@ -703,9 +703,9 @@ export default function DonationForm({ campaignId }) {
           </>
         ) : (
           <>
-            <span className="material-symbols-outlined text-lg flex-shrink-0">
-              {isAuthenticated ? 'favorite' : 'verified'}
-            </span>
+            <Icon
+              name={isAuthenticated ? 'favorite' : 'verified'}
+              className='text-lg flex-shrink-0' />
             <span className="truncate">
               {isAuthenticated
                 ? `Donate GHS ${finalAmount > 0 ? finalAmount.toLocaleString() : '—'}`
@@ -718,12 +718,12 @@ export default function DonationForm({ campaignId }) {
       {/* Trust row */}
       <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs text-slate-400">
         <span className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-sm text-slate-300">lock</span>
+          <Icon name='lock' className='text-sm text-slate-300' />
           Secure Payment
         </span>
         <span className="w-px h-4 bg-slate-200" />
         <span className="flex items-center gap-1">
-          <span className="material-symbols-outlined text-sm text-slate-300">smartphone</span>
+          <Icon name='smartphone' className='text-sm text-slate-300' />
           Mobile Money
         </span>
       </div>
@@ -829,7 +829,7 @@ function ThankYouModal({ receipt, fallbackAmount, copiedRef, onCopy, onDonateAga
           className="absolute top-4 right-4 w-9 h-9 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors z-10"
           aria-label="Close"
         >
-          <span className="material-symbols-outlined text-slate-500">close</span>
+          <Icon name='close' className='text-slate-500' />
         </button>
 
         {/* Check icon */}
@@ -844,9 +844,9 @@ function ThankYouModal({ receipt, fallbackAmount, copiedRef, onCopy, onDonateAga
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: 'spring', stiffness: 260 }}
-              className="material-symbols-outlined text-white text-4xl"
+              className="inline-flex text-white text-4xl"
             >
-              check_circle
+              <Icon name="check_circle" />
             </motion.span>
           </motion.div>
         </div>
@@ -877,9 +877,7 @@ function ThankYouModal({ receipt, fallbackAmount, copiedRef, onCopy, onDonateAga
                 onClick={onCopy}
                 className="shrink-0 flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 px-2 py-1 rounded-lg hover:bg-emerald-50 transition-colors"
               >
-                <span className="material-symbols-outlined text-sm">
-                  {copiedRef ? 'check' : 'content_copy'}
-                </span>
+                <Icon name={copiedRef ? 'check' : 'content_copy'} className='text-sm' />
                 {copiedRef ? 'Copied' : 'Copy'}
               </button>
             </div>

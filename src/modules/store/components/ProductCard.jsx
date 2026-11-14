@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
+import Icon from '@shared/components/ui/Icon';
+
 const ProductCard = ({ product, onCategoryClick }) => {
     const { name, slug, price, stock_quantity, category_name, category_slug, primary_image } = product;
     const isOutOfStock = stock_quantity === 0;
@@ -21,7 +23,7 @@ const ProductCard = ({ product, onCategoryClick }) => {
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                        <span className="material-symbols-outlined text-5xl text-slate-300">shopping_bag</span>
+                        <Icon name='shopping_bag' className='text-5xl text-slate-300' />
                     </div>
                 )}
                 {isOutOfStock && (
@@ -59,7 +61,7 @@ const ProductCard = ({ product, onCategoryClick }) => {
                 <div className="mt-2 flex items-center justify-between">
                     <span className="text-lg font-bold text-primary">₵{Number(price).toLocaleString()}</span>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="material-symbols-outlined text-base text-slate-400">arrow_forward</span>
+                        <Icon name='arrow_forward' className='text-base text-slate-400' />
                     </div>
                 </div>
                 {isLowStock && !isOutOfStock && (

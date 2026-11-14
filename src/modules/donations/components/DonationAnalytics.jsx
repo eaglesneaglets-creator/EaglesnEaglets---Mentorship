@@ -21,6 +21,8 @@ import {
 import { useAdminDonationStats, useCampaigns } from '../hooks/useDonations';
 import CreateCampaignModal from './CreateCampaignModal';
 
+import Icon from '@shared/components/ui/Icon';
+
 // ── Custom chart tooltip ───────────────────────────────────────────────────
 
 const ChartTooltip = ({ active, payload, label }) => {
@@ -55,7 +57,7 @@ function StatCard({ label, value, growth, styleIdx }) {
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-3">
           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-            <span className="material-symbols-outlined text-white text-xl">{s.icon}</span>
+            <Icon name={s.icon} className='text-white text-xl' />
           </div>
           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
             isPositive ? 'bg-white/20 text-white' : 'bg-red-500/30 text-red-100'
@@ -130,7 +132,7 @@ export default function DonationAnalytics() {
   if (isError || !stats) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center space-y-3">
-        <span className="material-symbols-outlined text-red-300 text-3xl block">error</span>
+        <Icon name='error' className='text-red-300 text-3xl block' />
         <p className="text-red-600 text-sm font-medium">Unable to load donation analytics.</p>
         <button
           onClick={() => refetch()}
@@ -185,7 +187,7 @@ export default function DonationAnalytics() {
             onClick={() => setShowCreateCampaign(true)}
             className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-200"
           >
-            <span className="material-symbols-outlined text-base">add</span>
+            <Icon name='add' className='text-base' />
             New Campaign
           </motion.button>
         </div>
@@ -367,16 +369,14 @@ export default function DonationAnalytics() {
             onClick={() => exportCSV(recentDonations)}
             className="flex items-center gap-1 text-emerald-600 text-xs font-bold hover:text-emerald-700 transition-colors"
           >
-            <span className="material-symbols-outlined text-sm">download</span>
+            <Icon name='download' className='text-sm' />
             Export CSV
           </button>
         </div>
 
         {recentDonations.length === 0 ? (
           <div className="py-16 text-center space-y-2">
-            <span className="material-symbols-outlined text-slate-200 text-5xl block">
-              payments
-            </span>
+            <Icon name='payments' className='text-slate-200 text-5xl block' />
             <p className="text-slate-400 text-sm font-medium">No donations yet.</p>
             <p className="text-slate-300 text-xs">
               Create a campaign and share it to start receiving donations.
@@ -442,7 +442,7 @@ export default function DonationAnalytics() {
                     </td>
                     <td className="px-6 py-4">
                       <button className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
-                        <span className="material-symbols-outlined text-base">more_vert</span>
+                        <Icon name='more_vert' className='text-base' />
                       </button>
                     </td>
                   </motion.tr>

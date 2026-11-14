@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useUpdateModule } from '../hooks/useContent';
 import { sanitizeImageUrl } from '../../../shared/utils/sanitize';
 
+import Icon from '@shared/components/ui/Icon';
+
 const ContentEditModal = ({ isOpen, onClose, module }) => {
     const [formData, setFormData] = useState({
         title: module?.title || '',
@@ -71,7 +73,7 @@ const ContentEditModal = ({ isOpen, onClose, module }) => {
                     <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                         <h2 className="text-xl font-black text-slate-900">Edit Module</h2>
                         <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors">
-                            <span className="material-symbols-outlined">close</span>
+                            <Icon name='close' />
                         </button>
                     </div>
 
@@ -130,7 +132,7 @@ const ContentEditModal = ({ isOpen, onClose, module }) => {
                                     {(formData.thumbnailPreview || module.thumbnail_url) ? (
                                         <img src={sanitizeImageUrl(formData.thumbnailPreview || module.thumbnail_url)} alt="Preview" className="w-full h-full object-cover" />
                                     ) : (
-                                        <span className="material-symbols-outlined text-slate-300 text-3xl">image</span>
+                                        <Icon name='image' className='text-slate-300 text-3xl' />
                                     )}
                                 </div>
                                 <div className="flex-1">
@@ -154,7 +156,7 @@ const ContentEditModal = ({ isOpen, onClose, module }) => {
                                         htmlFor="module-thumb-edit"
                                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold hover:bg-slate-50 transition-all cursor-pointer"
                                     >
-                                        <span className="material-symbols-outlined text-base">cloud_upload</span>
+                                        <Icon name='cloud_upload' className='text-base' />
                                         Change Thumbnail
                                     </label>
                                     <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">

@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import Icon from '@shared/components/ui/Icon';
+
 const STATUS_CONFIG = {
     pending: {
         bg: 'bg-amber-50',
@@ -69,7 +71,7 @@ const StatusBadge = ({ status, label, size = 'sm', showDot = true, showIcon = fa
                 <span className={`w-1.5 h-1.5 rounded-full ${config.dot} animate-pulse`} />
             )}
             {showIcon && (
-                <span className="material-symbols-outlined text-[14px]">{config.icon}</span>
+                <Icon name={config.icon} className='text-[14px]' />
             )}
             {displayLabel}
         </span>

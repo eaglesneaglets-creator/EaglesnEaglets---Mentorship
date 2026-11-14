@@ -1,7 +1,7 @@
 // src/modules/nest/hooks/useUploadMedia.js
 import { useState } from 'react';
 import { tokenManager } from '@api';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 

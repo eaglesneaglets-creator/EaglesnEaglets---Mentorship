@@ -5,7 +5,7 @@
  * so MenteeLevelCard + auth-store passthroughs refresh after submit/withdraw.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import { useAuthStore } from '@store';
 import { MentorApplicationService } from '../services/mentor-application-service';
 

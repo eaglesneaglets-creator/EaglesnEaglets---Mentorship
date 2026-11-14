@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useBadges } from '../../modules/points/hooks/usePoints';
 
+import Icon from '@shared/components/ui/Icon';
+
 const CATEGORY_META = {
     courses_completed:       { label: 'Learning Journey',   colour: 'text-emerald-600', bg: 'bg-emerald-50',  ring: 'ring-emerald-200' },
     assignments_submitted:   { label: 'Assignment Mastery', colour: 'text-amber-600',   bg: 'bg-amber-50',    ring: 'ring-amber-200' },
@@ -58,7 +60,7 @@ const BadgeModal = ({ badge, onClose }) => {
                 <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3 ${meta.bg} ${meta.colour}`}>
                     {meta.label}
                     {badge.criteria_type === 'competitive' && (
-                        <span className="material-symbols-outlined text-sm">workspace_premium</span>
+                        <Icon name='workspace_premium' className='text-sm' />
                     )}
                 </div>
 
@@ -67,7 +69,7 @@ const BadgeModal = ({ badge, onClose }) => {
 
                 {badge.earned ? (
                     <div className="p-3 bg-emerald-50 rounded-xl flex items-center justify-center gap-2 text-emerald-700 text-sm font-semibold">
-                        <span className="material-symbols-outlined text-base">check_circle</span>
+                        <Icon name='check_circle' className='text-base' />
                         Earned {new Date(badge.earned_at).toLocaleDateString()}
                     </div>
                 ) : badge.criteria_type !== 'competitive' && badge.criteria_type !== 'one_time_event' && badge.criteria_type !== 'nests_joined' ? (
@@ -117,9 +119,9 @@ const BadgeCard = ({ badge, onClick }) => {
                 }`}
         >
             {badge.earned && (
-                <span className="absolute top-2 right-2 material-symbols-outlined text-emerald-500 text-base">
-                    verified
-                </span>
+                <Icon
+                    name='verified'
+                    className='absolute top-2 right-2 text-emerald-500 text-base' />
             )}
             <div className={`w-14 h-14 rounded-xl mb-3 flex items-center justify-center overflow-hidden
                 ${!badge.earned ? 'grayscale opacity-40' : ''}`}>
@@ -183,7 +185,7 @@ export default function BadgesPage() {
                 {/* Grid */}
                 {isError ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
-                        <span className="material-symbols-outlined text-4xl text-slate-300 mb-3">error_outline</span>
+                        <Icon name='error_outline' className='text-4xl text-slate-300 mb-3' />
                         <p className="text-slate-500 font-medium">Could not load badges</p>
                         <p className="text-sm text-slate-400">Please check your connection and try again.</p>
                     </div>

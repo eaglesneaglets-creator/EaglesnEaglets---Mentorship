@@ -46,17 +46,16 @@ describe('RoleSwitcher', () => {
     wrap();
     await userEvent.click(screen.getByRole('button', { name: /fin gojo/i }));
     // Both options visible
-    expect(screen.getByRole('menuitem', { name: /administrator/i })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: /mentor/i })).toBeInTheDocument();
-    // Checkmark on current (mentor)
-    const mentorItem = screen.getByRole('menuitem', { name: /mentor/i });
-    expect(mentorItem.textContent).toMatch(/check/i);
+    expect(screen.getByRole('menuitemradio', { name: /administrator/i })).toBeInTheDocument();
+    // Current mode (mentor) is announced as checked, not just shown as an icon
+    expect(screen.getByRole('menuitemradio', { name: /mentor/i })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('menuitemradio', { name: /administrator/i })).toHaveAttribute('aria-checked', 'false');
   });
 
   it('switching mode calls setCurrentMode + navigates to that mode home', async () => {
     wrap();
     await userEvent.click(screen.getByRole('button', { name: /fin gojo/i }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /administrator/i }));
+    await userEvent.click(screen.getByRole('menuitemradio', { name: /administrator/i }));
     expect(mockSetMode).toHaveBeenCalledWith('admin');
     expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
   });
@@ -64,7 +63,7 @@ describe('RoleSwitcher', () => {
   it('clicking current mode does not setCurrentMode but still navigates', async () => {
     wrap();
     await userEvent.click(screen.getByRole('button', { name: /fin gojo/i }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /mentor/i }));
+    await userEvent.click(screen.getByRole('menuitemradio', { name: /mentor/i }));
     expect(mockSetMode).not.toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
   });
@@ -141,15 +140,15 @@ describe('RoleSwitcher — stacked-mentee', () => {
   it('dropdown lists Administrator + Mentee (not Mentor)', async () => {
     wrap({ user: mentee });
     await userEvent.click(screen.getByRole('button', { name: /ada mente/i }));
-    expect(screen.getByRole('menuitem', { name: /administrator/i })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: /mentee/i })).toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: /^mentor$/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitemradio', { name: /administrator/i })).toBeInTheDocument();
+    expect(screen.getByRole('menuitemradio', { name: /mentee/i })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitemradio', { name: /^mentor$/i })).not.toBeInTheDocument();
   });
 
   it('switching to admin mode calls setCurrentMode("admin")', async () => {
     wrap({ user: mentee });
     await userEvent.click(screen.getByRole('button', { name: /ada mente/i }));
-    await userEvent.click(screen.getByRole('menuitem', { name: /administrator/i }));
+    await userEvent.click(screen.getByRole('menuitemradio', { name: /administrator/i }));
     expect(mockSetMode).toHaveBeenCalledWith('admin');
     expect(mockNavigate).toHaveBeenCalledWith('/admin/dashboard');
   });

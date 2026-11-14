@@ -4,9 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useAssignmentDetail, useSubmitAssignment } from '../../modules/content/hooks/useContent';
-import { toast } from 'sonner';
+import { toast } from '@shared/components/ui/toast-utils';
 import { stripCloudinarySignature, sanitizeUrl } from '../../shared/utils/sanitize';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
+
+import Icon from '@shared/components/ui/Icon';
 
 /* ─── Status Configs ─── */
 const STATUS_MAP = {
@@ -38,13 +40,15 @@ const ResourceItem = ({ resource }) => {
             className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-primary/30 hover:bg-primary/[0.02] transition-all group"
         >
             <div className={`w-10 h-10 rounded-lg ${iconBg} flex items-center justify-center shrink-0`}>
-                <span className="material-symbols-outlined text-lg">{icon}</span>
+                <Icon name={icon} className='text-lg' />
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-primary transition-colors">{name}</p>
                 {meta && <p className="text-[11px] text-slate-400">{meta}</p>}
             </div>
-            <span className="material-symbols-outlined text-slate-300 group-hover:text-primary text-lg transition-colors">download</span>
+            <Icon
+                name='download'
+                className='text-slate-300 group-hover:text-primary text-lg transition-colors' />
         </a>
     );
 };
@@ -122,7 +126,9 @@ const AssignmentDetailPage = () => {
                 <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
                     <button onClick={() => navigate(backPath)}
                         className="group flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined text-[18px] group-hover:-translate-x-0.5 transition-transform">arrow_back</span>
+                        <Icon
+                            name='arrow_back'
+                            className='text-[18px] group-hover:-translate-x-0.5 transition-transform' />
                         Back to Module
                     </button>
                 </motion.div>
@@ -172,7 +178,7 @@ const AssignmentDetailPage = () => {
                                             download
                                             className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-600 text-sm font-semibold rounded-xl hover:border-primary/30 hover:text-primary transition-all"
                                         >
-                                            <span className="material-symbols-outlined text-base">download</span>
+                                            <Icon name='download' className='text-base' />
                                             Assignment
                                         </a>
                                     ) : null}
@@ -194,7 +200,7 @@ const AssignmentDetailPage = () => {
                                 <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6">
                                     <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                                         <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-primary text-[18px]">article</span>
+                                            <Icon name='article' className='text-primary text-[18px]' />
                                         </span>
                                         Full Instructions
                                     </h2>
@@ -222,7 +228,7 @@ const AssignmentDetailPage = () => {
                                     <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6">
                                         <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                                             <span className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-emerald-600 text-[18px]">attach_file</span>
+                                                <Icon name='attach_file' className='text-emerald-600 text-[18px]' />
                                             </span>
                                             Attached Resources
                                         </h2>
@@ -239,7 +245,7 @@ const AssignmentDetailPage = () => {
                                     <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6">
                                         <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                                             <span className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-blue-600 text-[18px]">history</span>
+                                                <Icon name='history' className='text-blue-600 text-[18px]' />
                                             </span>
                                             Your Submission
                                         </h2>
@@ -247,7 +253,7 @@ const AssignmentDetailPage = () => {
                                         <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                                    <span className="material-symbols-outlined text-primary">description</span>
+                                                    <Icon name='description' className='text-primary' />
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-semibold text-slate-900">Submitted File</p>
@@ -259,7 +265,7 @@ const AssignmentDetailPage = () => {
                                             {latestSubmission.file_url && (
                                                 <a href={sanitizeUrl(stripCloudinarySignature(latestSubmission.file_url))} target="_blank" rel="noopener noreferrer"
                                                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-lg transition-colors">
-                                                    <span className="material-symbols-outlined text-[14px]">download</span>
+                                                    <Icon name='download' className='text-[14px]' />
                                                     View
                                                 </a>
                                             )}
@@ -269,7 +275,7 @@ const AssignmentDetailPage = () => {
                                         {latestSubmission.grade != null && (
                                             <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center gap-3">
                                                 <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                                    <span className="material-symbols-outlined text-emerald-600 text-[24px]">grade</span>
+                                                    <Icon name='grade' className='text-emerald-600 text-[24px]' />
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-emerald-700">Grade: {latestSubmission.grade}%</p>
@@ -293,7 +299,7 @@ const AssignmentDetailPage = () => {
                                 <div className="bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 sticky top-0">
                                     <h2 className="text-base font-bold text-slate-900 mb-5 flex items-center gap-2">
                                         <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-primary text-[18px]">cloud_upload</span>
+                                            <Icon name='cloud_upload' className='text-primary text-[18px]' />
                                         </span>
                                         Submit Your Work
                                     </h2>
@@ -318,7 +324,7 @@ const AssignmentDetailPage = () => {
                                             {file ? (
                                                 <div className="flex flex-col items-center gap-2">
                                                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                                                        <span className="material-symbols-outlined text-primary">description</span>
+                                                        <Icon name='description' className='text-primary' />
                                                     </div>
                                                     <p className="text-sm font-semibold text-slate-900 truncate max-w-full">{file.name}</p>
                                                     <button type="button" onClick={(e) => { e.stopPropagation(); handleRemoveFile(); }}
@@ -327,7 +333,7 @@ const AssignmentDetailPage = () => {
                                             ) : (
                                                 <>
                                                     <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-2">
-                                                        <span className="material-symbols-outlined text-slate-400 text-2xl">add</span>
+                                                        <Icon name='add' className='text-slate-400 text-2xl' />
                                                     </div>
                                                     <p className="text-sm font-bold text-slate-700">Upload files</p>
                                                     <p className="text-xs text-slate-400 mt-0.5">Drag and drop or browse files</p>
@@ -356,7 +362,7 @@ const AssignmentDetailPage = () => {
                                             className="w-full py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
                                         >
                                             {submitMutation.isPending ? (
-                                                <><span className="material-symbols-outlined animate-spin text-base">sync</span> Submitting...</>
+                                                <><Icon name='sync' className='animate-spin text-base' /> Submitting...</>
                                             ) : (
                                                 'Submit Assignment'
                                             )}
@@ -365,7 +371,7 @@ const AssignmentDetailPage = () => {
                                         {/* Request Late Submission */}
                                         <button type="button"
                                             className="w-full py-2.5 text-primary text-sm font-semibold rounded-xl border border-primary/20 hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
-                                            <span className="material-symbols-outlined text-base">schedule</span>
+                                            <Icon name='schedule' className='text-base' />
                                             Request Late Submission
                                         </button>
 
@@ -381,103 +387,103 @@ const AssignmentDetailPage = () => {
                 )}
             </div>
 
-        {/* ─── Success Modal ─── */}
-        <AnimatePresence>
-            {showSuccess && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-                    onClick={() => setShowSuccess(false)}
-                >
+            {/* ─── Success Modal ─── */}
+            <AnimatePresence>
+                {showSuccess && (
                     <motion.div
-                        initial={{ scale: 0.85, opacity: 0, y: 20 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 10 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+                        onClick={() => setShowSuccess(false)}
                     >
-                        {/* Animated checkmark */}
                         <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.1, type: 'spring', stiffness: 400, damping: 20 }}
-                            className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5"
+                            initial={{ scale: 0.85, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 10 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center"
                         >
-                            <motion.span
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.25 }}
-                                className="material-symbols-outlined text-emerald-600 text-4xl"
+                            {/* Animated checkmark */}
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.1, type: 'spring', stiffness: 400, damping: 20 }}
+                                className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5"
                             >
-                                check_circle
-                            </motion.span>
+                                <motion.span
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.25 }}
+                                    className="inline-flex text-emerald-600 text-4xl"
+                                >
+                                    <Icon name="check_circle" />
+                                </motion.span>
+                            </motion.div>
+
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Submitted!</h2>
+                            <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                                Your assignment has been submitted successfully. Your mentor will review it and provide feedback soon.
+                            </p>
+
+                            <div className="flex flex-col gap-3">
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.97 }}
+                                    onClick={() => setShowSuccess(false)}
+                                    className="w-full py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+                                >
+                                    Done
+                                </motion.button>
+                                <button
+                                    onClick={() => { setShowSuccess(false); navigate(backPath); }}
+                                    className="w-full py-2.5 text-slate-500 text-sm font-medium hover:text-slate-700 transition-colors"
+                                >
+                                    Back to Assignments
+                                </button>
+                            </div>
                         </motion.div>
+                    </motion.div>
+                )}
 
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Submitted!</h2>
-                        <p className="text-slate-500 text-sm leading-relaxed mb-6">
-                            Your assignment has been submitted successfully. Your mentor will review it and provide feedback soon.
-                        </p>
-
-                        <div className="flex flex-col gap-3">
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.97 }}
-                                onClick={() => setShowSuccess(false)}
-                                className="w-full py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
+                {/* ─── Fail Modal ─── */}
+                {showError && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+                        onClick={() => setShowError(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.85, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 10 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center"
+                        >
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.1, type: 'spring', stiffness: 400, damping: 20 }}
+                                className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-5"
                             >
-                                Done
-                            </motion.button>
+                                <Icon name='error' className='text-red-500 text-4xl' />
+                            </motion.div>
+                            <h2 className="text-xl font-bold text-slate-900 mb-2">Submission Failed</h2>
+                            <p className="text-sm text-slate-500 leading-relaxed mb-6">{errorMessage}</p>
                             <button
-                                onClick={() => { setShowSuccess(false); navigate(backPath); }}
-                                className="w-full py-2.5 text-slate-500 text-sm font-medium hover:text-slate-700 transition-colors"
+                                onClick={() => setShowError(false)}
+                                className="w-full py-3 bg-red-500 text-white font-bold text-sm rounded-xl hover:bg-red-600 transition-colors"
                             >
-                                Back to Assignments
+                                Try Again
                             </button>
-                        </div>
-                    </motion.div>
-                </motion.div>
-            )}
-
-            {/* ─── Fail Modal ─── */}
-            {showError && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-                    onClick={() => setShowError(false)}
-                >
-                    <motion.div
-                        initial={{ scale: 0.85, opacity: 0, y: 20 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 10 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center"
-                    >
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.1, type: 'spring', stiffness: 400, damping: 20 }}
-                            className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-5"
-                        >
-                            <span className="material-symbols-outlined text-red-500 text-4xl">error</span>
                         </motion.div>
-                        <h2 className="text-xl font-bold text-slate-900 mb-2">Submission Failed</h2>
-                        <p className="text-sm text-slate-500 leading-relaxed mb-6">{errorMessage}</p>
-                        <button
-                            onClick={() => setShowError(false)}
-                            className="w-full py-3 bg-red-500 text-white font-bold text-sm rounded-xl hover:bg-red-600 transition-colors"
-                        >
-                            Try Again
-                        </button>
                     </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+                )}
+            </AnimatePresence>
 
         </DashboardLayout>
     );

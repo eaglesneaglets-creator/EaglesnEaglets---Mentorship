@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import { useCreateItem } from '../hooks/useContent';
 import { sanitizeImageUrl } from '../../../shared/utils/sanitize';
 import { directUpload } from '../../../shared/utils/direct-upload';
+
+import Icon from '@shared/components/ui/Icon';
 
 const INITIAL_FORM = {
     title: '',
@@ -179,7 +181,7 @@ const ContentItemUploadModal = ({ isOpen, onClose, moduleId }) => {
                         }}
                         className="text-slate-400 hover:text-slate-600 transition-colors"
                     >
-                        <span className="material-symbols-outlined">close</span>
+                        <Icon name='close' />
                     </button>
                 </div>
 
@@ -238,7 +240,7 @@ const ContentItemUploadModal = ({ isOpen, onClose, moduleId }) => {
                                 <div className="flex flex-col items-center justify-center py-6 px-4 text-center pointer-events-none">
                                     {fileOptions.file ? (
                                         <>
-                                            <span className="material-symbols-outlined text-primary text-3xl mb-1">description</span>
+                                            <Icon name='description' className='text-primary text-3xl mb-1' />
                                             <p className="text-sm font-semibold text-slate-800 truncate max-w-full">
                                                 {fileOptions.file.name}
                                             </p>
@@ -248,7 +250,7 @@ const ContentItemUploadModal = ({ isOpen, onClose, moduleId }) => {
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined text-slate-400 text-3xl mb-1">cloud_upload</span>
+                                            <Icon name='cloud_upload' className='text-slate-400 text-3xl mb-1' />
                                             <p className="text-sm font-semibold text-slate-700">
                                                 Drop file here or click to browse
                                             </p>
@@ -342,7 +344,7 @@ const ContentItemUploadModal = ({ isOpen, onClose, moduleId }) => {
                                 {fileOptions.thumbnailPreview ? (
                                     <img src={sanitizeImageUrl(fileOptions.thumbnailPreview)} alt="Preview" className="w-full h-full object-cover" />
                                 ) : (
-                                    <span className="material-symbols-outlined text-slate-300 text-2xl">image</span>
+                                    <Icon name='image' className='text-slate-300 text-2xl' />
                                 )}
                             </div>
                             <div className="flex-1">
@@ -369,7 +371,7 @@ const ContentItemUploadModal = ({ isOpen, onClose, moduleId }) => {
                                         submitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 cursor-pointer'
                                     }`}
                                 >
-                                    <span className="material-symbols-outlined text-base">cloud_upload</span>
+                                    <Icon name='cloud_upload' className='text-base' />
                                     {fileOptions.thumbnail ? 'Change' : 'Upload'} Image
                                 </label>
                                 <p className="text-[10px] text-slate-400 mt-2 leading-relaxed">

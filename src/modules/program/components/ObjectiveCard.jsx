@@ -9,6 +9,8 @@ import { useState } from 'react';
 import RuleTemplatePicker from './RuleTemplatePicker';
 import { RULE_TEMPLATE_BY_TYPE } from '../constants/ruleTemplates';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function ObjectiveCard({
     objective,
     onUpdateTitle,
@@ -49,7 +51,7 @@ export default function ObjectiveCard({
                     className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
                     aria-label="Delete objective"
                 >
-                    <span className="material-symbols-outlined text-lg">delete</span>
+                    <Icon name='delete' className='text-lg' />
                 </button>
             </div>
 
@@ -104,7 +106,7 @@ function RuleRow({ rule, onUpdateRule, onDeleteRule }) {
 
     return (
         <div className="flex items-center flex-wrap gap-2 sm:gap-3 p-2.5 bg-slate-50 rounded-lg">
-            <span className="material-symbols-outlined text-primary text-lg shrink-0">{template.icon}</span>
+            <Icon name={template.icon} className='text-primary text-lg shrink-0' />
             <div className="flex-1 min-w-0 flex items-center flex-wrap gap-2">
                 <span className="text-sm font-medium text-slate-700">{template.label}:</span>
                 <input
@@ -124,7 +126,7 @@ function RuleRow({ rule, onUpdateRule, onDeleteRule }) {
                 className="p-1 shrink-0 text-slate-400 hover:text-red-500 transition-colors"
                 aria-label="Remove rule"
             >
-                <span className="material-symbols-outlined text-base">close</span>
+                <Icon name='close' className='text-base' />
             </button>
         </div>
     );

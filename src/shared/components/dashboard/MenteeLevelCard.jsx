@@ -13,6 +13,8 @@ import {
     useMentorApplicationEligible,
 } from '@store';
 
+import Icon from '@shared/components/ui/Icon';
+
 function MentorApplicationStrip() {
     const eligible = useMentorApplicationEligible();
     const status = useMentorApplicationStatus();
@@ -23,7 +25,7 @@ function MentorApplicationStrip() {
         return (
             <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 min-w-0">
-                    <span className="material-symbols-outlined text-emerald-600 text-lg shrink-0">verified</span>
+                    <Icon name='verified' className='text-emerald-600 text-lg shrink-0' />
                     <p className="text-xs font-semibold text-emerald-900 truncate">You’re now a mentor</p>
                 </div>
                 <Link
@@ -39,7 +41,7 @@ function MentorApplicationStrip() {
     if (status === 'submitted') {
         return (
             <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2">
-                <span className="material-symbols-outlined text-amber-600 text-lg">hourglass_top</span>
+                <Icon name='hourglass_top' className='text-amber-600 text-lg' />
                 <p className="text-xs font-semibold text-amber-900">
                     Application pending — we’ll email you when reviewed
                 </p>
@@ -51,7 +53,7 @@ function MentorApplicationStrip() {
         return (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
-                    <span className="material-symbols-outlined text-red-600 text-lg">error</span>
+                    <Icon name='error' className='text-red-600 text-lg' />
                     <p className="text-xs font-semibold text-red-900">
                         Application not approved — you can review & re-apply
                     </p>
@@ -70,7 +72,7 @@ function MentorApplicationStrip() {
         return (
             <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
                 <div className="flex items-center gap-2 mb-2">
-                    <span className="material-symbols-outlined text-slate-600 text-lg">undo</span>
+                    <Icon name='undo' className='text-slate-600 text-lg' />
                     <p className="text-xs font-semibold text-slate-800">
                         Application withdrawn — re-apply when ready
                     </p>
@@ -95,14 +97,14 @@ function MentorApplicationStrip() {
                 className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between gap-2 hover:bg-amber-100 transition group"
             >
                 <div className="flex items-center gap-2 min-w-0">
-                    <span className="material-symbols-outlined text-amber-600 text-lg shrink-0">military_tech</span>
+                    <Icon name='military_tech' className='text-amber-600 text-lg shrink-0' />
                     <p className="text-xs font-semibold text-amber-900">
                         Apply to become a mentor
                     </p>
                 </div>
-                <span className="material-symbols-outlined text-amber-700 text-base group-hover:translate-x-0.5 transition-transform">
-                    arrow_forward
-                </span>
+                <Icon
+                    name='arrow_forward'
+                    className='text-amber-700 text-base group-hover:translate-x-0.5 transition-transform' />
             </Link>
         );
     }
@@ -132,7 +134,7 @@ export default function MenteeLevelCard() {
                     </p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md">
-                    <span className="material-symbols-outlined text-white">trending_up</span>
+                    <Icon name='trending_up' className='text-white' />
                 </div>
             </div>
 

@@ -9,6 +9,8 @@ const STORE_TABS = [
 ];
 import { useAdminOrders, useAdminOrderDetail, useUpdateOrderStatus } from '../../modules/store/hooks/useAdminOrders';
 
+import Icon from '@shared/components/ui/Icon';
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const STATUS_BADGE = {
@@ -119,13 +121,13 @@ const OrderDetailModal = ({ orderId, onClose }) => {
                         )}
                     </div>
                     <button onClick={onClose} className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors">
-                        <span className="material-symbols-outlined text-slate-500">close</span>
+                        <Icon name='close' className='text-slate-500' />
                     </button>
                 </div>
 
                 {isLoading && (
                     <div className="p-12 text-center text-slate-400">
-                        <span className="material-symbols-outlined text-4xl animate-pulse">hourglass_empty</span>
+                        <Icon name='hourglass_empty' className='text-4xl animate-pulse' />
                         <p className="mt-2">Loading order details…</p>
                     </div>
                 )}
@@ -140,7 +142,7 @@ const OrderDetailModal = ({ orderId, onClose }) => {
                             <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Customer</h3>
                             <div className="flex items-start gap-4">
                                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                    <span className="material-symbols-outlined text-primary text-base">person</span>
+                                    <Icon name='person' className='text-primary text-base' />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-semibold text-slate-900">{order.customer_name}</p>
@@ -240,9 +242,9 @@ const OrderDetailModal = ({ orderId, onClose }) => {
                                         {order.status_history.map((entry) => (
                                             <div key={entry.id} className="flex items-start gap-4 relative">
                                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 border-white ${STATUS_BADGE[entry.to_status] || 'bg-slate-100'}`}>
-                                                    <span className="material-symbols-outlined text-sm">
-                                                        {STATUS_ICON[entry.to_status] || 'radio_button_checked'}
-                                                    </span>
+                                                    <Icon
+                                                        name={STATUS_ICON[entry.to_status] || 'radio_button_checked'}
+                                                        className='text-sm' />
                                                 </div>
                                                 <div className="flex-1 min-w-0 pt-0.5">
                                                     <div className="flex items-center gap-2 flex-wrap">
@@ -282,12 +284,12 @@ const OrderDetailModal = ({ orderId, onClose }) => {
                                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                         : 'bg-red-50 text-red-600 border border-red-200'
                                 }`}>
-                                    <span className="material-symbols-outlined text-base flex-shrink-0">
-                                        {feedback.type === 'success' ? 'check_circle' : 'error'}
-                                    </span>
+                                    <Icon
+                                        name={feedback.type === 'success' ? 'check_circle' : 'error'}
+                                        className='text-base flex-shrink-0' />
                                     <span>{feedback.message}</span>
                                     <button onClick={() => setFeedback(null)} className="ml-auto opacity-60 hover:opacity-100">
-                                        <span className="material-symbols-outlined text-base">close</span>
+                                        <Icon name='close' className='text-base' />
                                     </button>
                                 </div>
                             )}
@@ -384,7 +386,9 @@ const AdminOrdersPage = () => {
                 {/* Filter Bar */}
                 <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
                     <div className="relative flex-1 min-w-48">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+                        <Icon
+                            name='search'
+                            className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base' />
                         <input
                             type="text"
                             placeholder="Search by name or email…"
@@ -443,7 +447,7 @@ const AdminOrdersPage = () => {
                         <LoadError title="Failed to load orders" detail={error.message} onRetry={() => refetch()} />
                     ) : orders.length === 0 ? (
                         <div className="p-12 text-center">
-                            <span className="material-symbols-outlined text-4xl text-slate-300">receipt_long</span>
+                            <Icon name='receipt_long' className='text-4xl text-slate-300' />
                             <p className="text-slate-400 mt-2">
                                 {hasFilters ? 'No orders match your filters.' : 'No orders yet.'}
                             </p>
@@ -506,7 +510,7 @@ const AdminOrdersPage = () => {
                                                     className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
                                                     title="View order"
                                                 >
-                                                    <span className="material-symbols-outlined text-slate-500 text-base">open_in_new</span>
+                                                    <Icon name='open_in_new' className='text-slate-500 text-base' />
                                                 </button>
                                             </td>
                                         </tr>

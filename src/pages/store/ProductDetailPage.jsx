@@ -7,6 +7,8 @@ import ProductCard from '../../modules/store/components/ProductCard';
 import StoreHeader from '../../modules/store/components/StoreHeader';
 import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 
+import Icon from '@shared/components/ui/Icon';
+
 const ProductDetailPage = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
@@ -88,13 +90,13 @@ const ProductDetailPage = () => {
             {/* 404 state */}
             {!isLoading && !product && (
                 <div className="text-center py-20">
-                    <span className="material-symbols-outlined text-6xl text-slate-300">search_off</span>
+                    <Icon name='search_off' className='text-6xl text-slate-300' />
                     <h2 className="text-xl font-bold text-slate-700 mt-4">Product not found</h2>
                     <Link
                         to="/store"
                         className="mt-4 inline-flex items-center gap-2 text-primary hover:underline"
                     >
-                        <span className="material-symbols-outlined text-base">arrow_back</span>
+                        <Icon name='arrow_back' className='text-base' />
                         Back to Store
                     </Link>
                 </div>
@@ -186,7 +188,7 @@ const ProductDetailPage = () => {
                             <div className="mt-2">
                                 {isOutOfStock ? (
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-600 text-sm font-medium rounded-full">
-                                        <span className="material-symbols-outlined text-base">block</span>
+                                        <Icon name='block' className='text-base' />
                                         Out of Stock
                                     </span>
                                 ) : product.stock_quantity <= 5 ? (
@@ -204,7 +206,7 @@ const ProductDetailPage = () => {
                                     </div>
                                 ) : (
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 text-sm font-medium rounded-full">
-                                        <span className="material-symbols-outlined text-base">check_circle</span>
+                                        <Icon name='check_circle' className='text-base' />
                                         In Stock
                                     </span>
                                 )}
@@ -220,7 +222,7 @@ const ProductDetailPage = () => {
                                             disabled={qty <= 1}
                                             className="w-10 h-10 flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-colors"
                                         >
-                                            <span className="material-symbols-outlined text-base">remove</span>
+                                            <Icon name='remove' className='text-base' />
                                         </button>
                                         <span className="w-10 text-center font-semibold text-slate-900 text-sm">
                                             {qty}
@@ -230,7 +232,7 @@ const ProductDetailPage = () => {
                                             disabled={qty >= maxQty}
                                             className="w-10 h-10 flex items-center justify-center hover:bg-slate-50 disabled:opacity-40 transition-colors"
                                         >
-                                            <span className="material-symbols-outlined text-base">add</span>
+                                            <Icon name='add' className='text-base' />
                                         </button>
                                     </div>
                                 </div>
@@ -249,7 +251,7 @@ const ProductDetailPage = () => {
                                     </>
                                 ) : addedFeedback ? (
                                     <>
-                                        <span className="material-symbols-outlined text-base">check</span>
+                                        <Icon name='check' className='text-base' />
                                         Added!
                                     </>
                                 ) : isOutOfStock ? (
@@ -272,9 +274,7 @@ const ProductDetailPage = () => {
                                         key={badge.label}
                                         className="flex flex-col items-center gap-1 text-center"
                                     >
-                                        <span className="material-symbols-outlined text-slate-400 text-xl">
-                                            {badge.icon}
-                                        </span>
+                                        <Icon name={badge.icon} className='text-slate-400 text-xl' />
                                         <span className="text-xs text-slate-500 font-medium">
                                             {badge.label}
                                         </span>

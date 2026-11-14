@@ -13,6 +13,8 @@ import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } fro
 import AdminProductForm from '../../modules/store/components/AdminProductForm';
 import LoadError from '../../shared/components/ui/LoadError';
 
+import Icon from '@shared/components/ui/Icon';
+
 const AdminStorePage = () => {
     const { user } = useAuthStore();
     const visibleTabs = user?.is_superuser
@@ -102,7 +104,7 @@ const AdminStorePage = () => {
                         onClick={() => { setEditingProduct(null); setShowForm(true); }}
                         className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary/90 transition-colors"
                     >
-                        <span className="material-symbols-outlined text-base">add</span>
+                        <Icon name='add' className='text-base' />
                         New Product
                     </button>
                 </div>
@@ -110,7 +112,9 @@ const AdminStorePage = () => {
                 {/* Search + Filter Bar */}
                 <div className="flex flex-col sm:flex-row gap-3">
                     <div className="relative flex-1">
-                        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
+                        <Icon
+                            name='search'
+                            className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base' />
                         <input
                             type="text"
                             placeholder="Search products..."
@@ -155,11 +159,11 @@ const AdminStorePage = () => {
                             <div className={`w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center ${
                                 resultModal.type === 'success' ? 'bg-emerald-100' : 'bg-red-100'
                             }`}>
-                                <span className={`material-symbols-outlined text-2xl ${
-                                    resultModal.type === 'success' ? 'text-emerald-600' : 'text-red-600'
-                                }`}>
-                                    {resultModal.type === 'success' ? 'check_circle' : 'error'}
-                                </span>
+                                <Icon
+                                    name={resultModal.type === 'success' ? 'check_circle' : 'error'}
+                                    className={`text-2xl ${
+                                        resultModal.type === 'success' ? 'text-emerald-600' : 'text-red-600'
+                                    }`} />
                             </div>
                             <h3 className={`text-lg font-bold mb-2 ${
                                 resultModal.type === 'success' ? 'text-emerald-700' : 'text-red-700'
@@ -189,12 +193,12 @@ const AdminStorePage = () => {
                         <LoadError title="Failed to load products" detail={error.message} onRetry={() => refetch()} />
                     ) : products.length === 0 ? (
                         <div className="p-12 text-center">
-                            <span className="material-symbols-outlined text-4xl text-slate-300">storefront</span>
+                            <Icon name='storefront' className='text-4xl text-slate-300' />
                             <p className="text-slate-400 mt-2">No products yet. Create your first product.</p>
                         </div>
                     ) : filteredProducts.length === 0 ? (
                         <div className="p-8 text-center">
-                            <span className="material-symbols-outlined text-4xl text-slate-300">search_off</span>
+                            <Icon name='search_off' className='text-4xl text-slate-300' />
                             <p className="text-slate-400 mt-2">No products match your search.</p>
                             <button
                                 onClick={() => { setSearch(''); setStatusFilter('all'); }}
@@ -225,7 +229,7 @@ const AdminStorePage = () => {
                                                         <img src={p.primary_image} alt={p.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                                                     ) : (
                                                         <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                                                            <span className="material-symbols-outlined text-slate-400 text-base">shopping_bag</span>
+                                                            <Icon name='shopping_bag' className='text-slate-400 text-base' />
                                                         </div>
                                                     )}
                                                     <span className="font-medium text-slate-900">{p.name}</span>
@@ -242,10 +246,10 @@ const AdminStorePage = () => {
                                             <td className="px-5 py-3 text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <button onClick={() => handleEdit(p)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-                                                        <span className="material-symbols-outlined text-base text-slate-500">edit</span>
+                                                        <Icon name='edit' className='text-base text-slate-500' />
                                                     </button>
                                                     <button onClick={() => handleDelete(p.id, p.name)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors">
-                                                        <span className="material-symbols-outlined text-base text-slate-400 hover:text-red-500">archive</span>
+                                                        <Icon name='archive' className='text-base text-slate-400 hover:text-red-500' />
                                                     </button>
                                                 </div>
                                             </td>

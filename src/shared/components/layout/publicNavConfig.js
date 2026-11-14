@@ -113,5 +113,5 @@ export function navMenuBtnClass(useDarkText) {
 }
 
 export function navMenuIconClass(useDarkText) {
-  return `material-symbols-outlined text-xl ${useDarkText ? 'text-slate-700' : 'text-white'}`;
+  return `text-xl ${useDarkText ? 'text-slate-700' : 'text-white'}`;
 }

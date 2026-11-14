@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useNestDetail, useNestRequests, useRespondToRequest, useUpdateNest } from '../../modules/nest/hooks/useNests';
-import { toast } from 'sonner';
+import { toast } from '@shared/components/ui/toast-utils';
 import { apiClient } from '@api';
 import { sanitizeImageUrl } from '../../shared/utils/sanitize';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
 import Avatar from '../../shared/components/ui/Avatar';
+
+import Icon from '@shared/components/ui/Icon';
 
 /* ─── Soft animated background ─── */
 
@@ -157,7 +159,7 @@ const NestSettingsPage = () => {
                         onClick={() => navigate(`/eagle/nests/${nestId}`)}
                         className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm"
                     >
-                        <span className="material-symbols-outlined text-lg">arrow_back</span>
+                        <Icon name='arrow_back' className='text-lg' />
                     </button>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">Nest Settings</h1>
@@ -177,7 +179,7 @@ const NestSettingsPage = () => {
                         <div className="p-6 md:p-8 space-y-5">
                             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 pb-3 border-b border-slate-100">
                                 <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-primary text-[18px]">info</span>
+                                    <Icon name='info' className='text-primary text-[18px]' />
                                 </span>
                                 Basic Information
                             </h2>
@@ -237,7 +239,7 @@ const NestSettingsPage = () => {
                                                 onClick={handleRemoveBanner}
                                                 className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors"
                                             >
-                                                <span className="material-symbols-outlined text-sm">close</span>
+                                                <Icon name='close' className='text-sm' />
                                             </button>
                                         )}
                                     </div>
@@ -255,7 +257,7 @@ const NestSettingsPage = () => {
                                     onClick={() => bannerInputRef.current?.click()}
                                     className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:border-primary/40 hover:text-primary transition-all"
                                 >
-                                    <span className="material-symbols-outlined text-base">upload</span>
+                                    <Icon name='upload' className='text-base' />
                                     {bannerFile ? bannerFile.name : 'Choose Image'}
                                 </button>
                                 <p className="text-xs text-slate-400 mt-1.5">JPG, PNG or WebP. Recommended: 1200×400px.</p>
@@ -280,7 +282,7 @@ const NestSettingsPage = () => {
                         <div className="p-6 md:p-8 border-t border-slate-100 space-y-4">
                             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 pb-3 border-b border-slate-100">
                                 <span className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-amber-600 text-[18px]">inbox</span>
+                                    <Icon name='inbox' className='text-amber-600 text-[18px]' />
                                 </span>
                                 Pending Requests
                                 {pendingRequests.length > 0 && (
@@ -292,7 +294,7 @@ const NestSettingsPage = () => {
 
                             {pendingRequests.length === 0 ? (
                                 <div className="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
-                                    <span className="material-symbols-outlined text-3xl text-slate-300 block mb-2">inbox</span>
+                                    <Icon name='inbox' className='text-3xl text-slate-300 block mb-2' />
                                     <p className="text-sm text-slate-400">No pending mentorship requests.</p>
                                 </div>
                             ) : (
@@ -321,7 +323,7 @@ const NestSettingsPage = () => {
                                                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                                                     onClick={() => handleRespond(req.id, 'approve')}
                                                     className="px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-sm disabled:opacity-50 flex items-center gap-1">
-                                                    <span className="material-symbols-outlined text-[14px]">check</span>
+                                                    <Icon name='check' className='text-[14px]' />
                                                     Approve
                                                 </motion.button>
                                             </div>
@@ -344,9 +346,9 @@ const NestSettingsPage = () => {
                                 disabled={updateMutation.isPending || isUploadingBanner}
                                 className="px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors font-bold text-sm shadow-lg shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2">
                                 {isUploadingBanner ? (
-                                    <><span className="material-symbols-outlined animate-spin text-base">sync</span> Uploading image...</>
+                                    <><Icon name='sync' className='animate-spin text-base' /> Uploading image...</>
                                 ) : updateMutation.isPending ? (
-                                    <><span className="material-symbols-outlined animate-spin text-base">sync</span> Saving...</>
+                                    <><Icon name='sync' className='animate-spin text-base' /> Saving...</>
                                 ) : (
                                     'Save Settings'
                                 )}

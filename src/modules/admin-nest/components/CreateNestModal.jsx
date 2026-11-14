@@ -6,6 +6,8 @@ import { useCreateNest, useAssignableMentors } from '../hooks/useAdminNests';
 import { CATEGORY_OPTIONS } from './nestMeta';
 import Avatar from '@shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 const selectClass =
   'w-full rounded-lg border border-border bg-white text-text-primary py-3 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors';
 
@@ -149,7 +151,7 @@ const CreateNestModal = ({ isOpen, onClose }) => {
                           <p className="text-sm font-medium text-slate-900 truncate">{name}</p>
                           <p className="text-[11px] text-slate-400 truncate">{m.email}</p>
                         </div>
-                        {selected && <span className="material-symbols-outlined text-primary text-[18px]">check_circle</span>}
+                        {selected && <Icon name='check_circle' className='text-primary text-[18px]' />}
                       </button>
                     );
                   })

@@ -8,6 +8,8 @@
 
 import { motion } from 'framer-motion';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function FundTransparency() {
   return (
     <motion.div
@@ -17,9 +19,7 @@ export default function FundTransparency() {
       className="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm"
     >
       <blockquote className="flex gap-2 bg-emerald-50 rounded-2xl p-4 text-sm text-slate-600 italic leading-relaxed">
-        <span className="material-symbols-outlined text-emerald-400 text-lg shrink-0 mt-0.5">
-          format_quote
-        </span>
+        <Icon name='format_quote' className='text-emerald-400 text-lg shrink-0 mt-0.5' />
         Every dollar is tracked and managed with the highest integrity to ensure maximum kingdom impact.
       </blockquote>
     </motion.div>

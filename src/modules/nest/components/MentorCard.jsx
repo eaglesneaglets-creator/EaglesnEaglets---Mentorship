@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import AvatarGroup from '../../../shared/components/ui/AvatarGroup';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * MentorCard — person-first mentor discovery card (Phase 28-02).
  *
@@ -77,7 +79,7 @@ const MentorCard = ({ nest, index = 0 }) => {
                                 title="Verified mentor"
                                 className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center ring-2 ring-white"
                             >
-                                <span className="material-symbols-outlined text-white text-[14px]">verified</span>
+                                <Icon name='verified' className='text-white text-[14px]' />
                             </span>
                         )}
                     </div>
@@ -115,14 +117,14 @@ const MentorCard = ({ nest, index = 0 }) => {
                     <div className="flex items-center gap-3 mb-5 text-xs text-slate-500">
                         {years > 0 && (
                             <span className="inline-flex items-center gap-1.5">
-                                <span className="material-symbols-outlined text-sm text-slate-400">workspace_premium</span>
+                                <Icon name='workspace_premium' className='text-sm text-slate-400' />
                                 <span className="font-medium">{years} {years === 1 ? 'yr' : 'yrs'} experience</span>
                             </span>
                         )}
                         {years > 0 && location && <span className="text-slate-300">·</span>}
                         {location && (
                             <span className="inline-flex items-center gap-1.5 truncate">
-                                <span className="material-symbols-outlined text-sm text-slate-400">location_on</span>
+                                <Icon name='location_on' className='text-sm text-slate-400' />
                                 <span className="font-medium truncate">{location}</span>
                             </span>
                         )}
@@ -142,7 +144,9 @@ const MentorCard = ({ nest, index = 0 }) => {
                         className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-full shadow-sm hover:bg-primary-dark hover:shadow-md hover:shadow-primary/20 transition-all duration-300 active:scale-95"
                     >
                         View Profile
-                        <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:translate-x-0.5">arrow_forward</span>
+                        <Icon
+                            name='arrow_forward'
+                            className='text-sm transition-transform duration-300 group-hover:translate-x-0.5' />
                     </Link>
                 </div>
             </div>

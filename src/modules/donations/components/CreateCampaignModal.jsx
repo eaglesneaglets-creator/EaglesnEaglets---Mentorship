@@ -12,6 +12,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@api';
 import { donationKeys } from '../hooks/useDonations';
 
+import Icon from '@shared/components/ui/Icon';
+
 async function createCampaign(data) {
   return apiClient.post('/donations/campaigns/', data);
 }
@@ -79,7 +81,7 @@ export default function CreateCampaignModal({ onClose, onSuccess }) {
         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-2xl bg-emerald-50 flex items-center justify-center">
-              <span className="material-symbols-outlined text-emerald-600 text-xl">campaign</span>
+              <Icon name='campaign' className='text-emerald-600 text-xl' />
             </div>
             <div>
               <h2 className="font-black text-slate-900 text-base">New Campaign</h2>
@@ -90,7 +92,7 @@ export default function CreateCampaignModal({ onClose, onSuccess }) {
             onClick={onClose}
             className="w-8 h-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
           >
-            <span className="material-symbols-outlined text-lg">close</span>
+            <Icon name='close' className='text-lg' />
           </button>
         </div>
 
@@ -174,7 +176,7 @@ export default function CreateCampaignModal({ onClose, onSuccess }) {
           {/* Error */}
           {error && (
             <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-2xl px-4 py-3">
-              <span className="material-symbols-outlined text-base shrink-0">error</span>
+              <Icon name='error' className='text-base shrink-0' />
               {error}
             </div>
           )}
@@ -202,7 +204,7 @@ export default function CreateCampaignModal({ onClose, onSuccess }) {
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-base">add</span>
+                  <Icon name='add' className='text-base' />
                   Create Campaign
                 </>
               )}

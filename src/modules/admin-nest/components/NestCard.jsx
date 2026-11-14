@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { categoryMeta, statusMeta } from './nestMeta';
 import Avatar from '@shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * NestCard — a single nest tile for the admin list. Supports two layouts:
  * `variant="grid"` (default, matches the supplied sample) and `variant="list"`
@@ -23,7 +25,7 @@ const MemberStack = ({ members = [], count, max }) => {
   const shown = members.slice(0, 3);
   return (
     <div className="flex items-center gap-2">
-      <span className="material-symbols-outlined text-[16px] text-slate-400">group</span>
+      <Icon name='group' className='text-[16px] text-slate-400' />
       <div className="flex -space-x-2">
         {shown.map((m, i) => {
           const u = m.user || m;
@@ -51,7 +53,7 @@ const NestCard = ({ nest, variant = 'grid' }) => {
         className="group flex items-center gap-4 p-4 rounded-xl bg-white border border-slate-200 hover:border-primary/40 hover:shadow-md transition-all"
       >
         <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center flex-shrink-0`}>
-          <span className="material-symbols-outlined text-white text-xl">{cat.icon}</span>
+          <Icon name={cat.icon} className='text-white text-xl' />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -61,7 +63,9 @@ const NestCard = ({ nest, variant = 'grid' }) => {
           <p className="text-xs text-slate-500 truncate mt-0.5">Eagle: {eagleName || '—'}</p>
         </div>
         <MemberStack members={nest.members} count={nest.member_count || 0} max={nest.max_members} />
-        <span className="material-symbols-outlined text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all">arrow_forward_ios</span>
+        <Icon
+          name='arrow_forward_ios'
+          className='text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all' />
       </Link>
     );
   }
@@ -74,9 +78,10 @@ const NestCard = ({ nest, variant = 'grid' }) => {
           <StatusPill status={nest.status} />
         </div>
         <div className="absolute -bottom-5 left-5 w-12 h-12 rounded-xl bg-white shadow-md flex items-center justify-center">
-          <span className={`material-symbols-outlined text-transparent bg-clip-text bg-gradient-to-br ${cat.gradient}`} style={{ WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text' }}>
-            {cat.icon}
-          </span>
+          <Icon
+            name={cat.icon}
+            className={`text-transparent bg-clip-text bg-gradient-to-br ${cat.gradient}`}
+            style={{ WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text' }} />
         </div>
       </div>
 
@@ -86,7 +91,7 @@ const NestCard = ({ nest, variant = 'grid' }) => {
 
         <div className="mt-4 space-y-2">
           <div className="flex items-center gap-2 text-sm">
-            <span className="material-symbols-outlined text-[16px] text-slate-400">person</span>
+            <Icon name='person' className='text-[16px] text-slate-400' />
             <span className="text-slate-400">Eagle</span>
             <span className="font-semibold text-slate-700 ml-auto truncate">{eagleName || '—'}</span>
           </div>

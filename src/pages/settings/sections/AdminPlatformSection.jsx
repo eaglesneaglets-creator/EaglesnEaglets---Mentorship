@@ -1,3 +1,4 @@
+import Icon from '@shared/components/ui/Icon';
 const PLANNED_ITEMS = [
   {
     icon: 'palette',
@@ -33,9 +34,7 @@ export default function AdminPlatformSection() {
 
       <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
         <div className="flex items-start gap-4">
-          <span className="material-symbols-outlined text-3xl text-primary flex-shrink-0">
-            schedule
-          </span>
+          <Icon name='schedule' className='text-3xl text-primary flex-shrink-0' />
           <div className="flex-1 min-w-0 space-y-4">
             <div>
               <p className="text-sm font-semibold text-slate-900">
@@ -52,9 +51,7 @@ export default function AdminPlatformSection() {
                   key={item.title}
                   className="flex items-start gap-3 rounded-lg bg-slate-50 p-3"
                 >
-                  <span className="material-symbols-outlined text-lg text-slate-500 flex-shrink-0">
-                    {item.icon}
-                  </span>
+                  <Icon name={item.icon} className='text-lg text-slate-500 flex-shrink-0' />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-slate-700">{item.title}</p>
                     <p className="mt-0.5 text-xs text-slate-500">{item.desc}</p>

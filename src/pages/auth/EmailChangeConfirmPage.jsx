@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../modules/auth/services/auth-service';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function EmailChangeConfirmPage() {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -39,7 +41,7 @@ export default function EmailChangeConfirmPage() {
         )}
         {state.status === 'success' && (
           <>
-            <span className="material-symbols-outlined text-5xl text-emerald-500">mark_email_read</span>
+            <Icon name='mark_email_read' className='text-5xl text-emerald-500' />
             <h1 className="mt-3 text-xl font-bold text-slate-900">Email updated</h1>
             <p className="mt-2 text-sm text-slate-600">{state.message}</p>
             <p className="mt-4 text-xs text-slate-400">Redirecting to sign in…</p>
@@ -47,7 +49,7 @@ export default function EmailChangeConfirmPage() {
         )}
         {state.status === 'error' && (
           <>
-            <span className="material-symbols-outlined text-5xl text-red-500">error</span>
+            <Icon name='error' className='text-5xl text-red-500' />
             <h1 className="mt-3 text-xl font-bold text-slate-900">Could not confirm email</h1>
             <p className="mt-2 text-sm text-slate-600">{state.message}</p>
             <Link

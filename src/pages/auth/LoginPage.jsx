@@ -12,6 +12,8 @@ import Logo from '../../assets/brand-wordmark.webp';
 import loginIllustration from '../../assets/LoginSVG.svg';
 import { validateRedirectUrl } from '../../shared/utils/sanitize';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ═══════════════════════════════════════════════
    LEFT-SIDE ILLUSTRATION — fills the whole half
    The vector artwork spans the full left panel (no
@@ -48,7 +50,7 @@ const BrandingIllustration = () => (
       animate={{ y: [0, -12, 0], rotate: [-4, 4, -4] }}
       transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
     >
-      <span className="material-symbols-outlined text-emerald-600 text-3xl">menu_book</span>
+      <Icon name='menu_book' className='text-emerald-600 text-3xl' />
     </motion.div>
 
     {/* Accent badge: lightbulb (top-right) */}
@@ -58,7 +60,7 @@ const BrandingIllustration = () => (
       animate={{ y: [0, -14, 0] }}
       transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
     >
-      <span className="material-symbols-outlined text-amber-500 text-4xl">lightbulb</span>
+      <Icon name='lightbulb' className='text-amber-500 text-4xl' />
     </motion.div>
 
     {/* Accent badge: graduation cap (mid-right) */}
@@ -68,7 +70,7 @@ const BrandingIllustration = () => (
       animate={{ y: [0, -10, 0], rotate: [0, -6, 0] }}
       transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1.4 }}
     >
-      <span className="material-symbols-outlined text-slate-700 text-3xl">school</span>
+      <Icon name='school' className='text-slate-700 text-3xl' />
     </motion.div>
 
     {/* Drifting sparkles */}
@@ -78,7 +80,7 @@ const BrandingIllustration = () => (
       animate={{ y: [0, -18, 0], opacity: [0.4, 1, 0.4], scale: [0.8, 1.1, 0.8] }}
       transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
     >
-      <span className="material-symbols-outlined text-xl">auto_awesome</span>
+      <Icon name='auto_awesome' className='text-xl' />
     </motion.span>
     <motion.span
       aria-hidden
@@ -86,7 +88,7 @@ const BrandingIllustration = () => (
       animate={{ y: [0, -16, 0], opacity: [0.3, 0.9, 0.3], scale: [0.8, 1, 0.8] }}
       transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}
     >
-      <span className="material-symbols-outlined text-lg">auto_awesome</span>
+      <Icon name='auto_awesome' className='text-lg' />
     </motion.span>
   </div>
 );

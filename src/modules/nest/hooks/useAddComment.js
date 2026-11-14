@@ -2,7 +2,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@api';
 import { nestKeys } from './useNests';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 
 /**
  * Adds a top-level comment to a post.

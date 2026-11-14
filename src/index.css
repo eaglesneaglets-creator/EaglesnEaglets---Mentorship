@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* =============================================================================
    EAGLES & EAGLETS DESIGN SYSTEM
@@ -11,19 +12,21 @@
      Tailwind green-500 (#22C55E), which is the warmer/yellower cousin
      of emerald. Unifying to emerald gives the whole app the same primary
      hue as the auth flow + email templates. */
-  --color-primary: #10B981;
-  --color-primary-rgb: 16 185 129;
-  --color-primary-dark: #059669;
+  --color-primary: #047857;            /* emerald-700: white text on it is 5.5:1 (was #10B981 at 2.5:1, failing WCAG AA) */
+  --color-primary-foreground: #FFFFFF;
+  --color-primary-rgb: 4 120 87;
+  --color-primary-dark: #065F46;
   --color-primary-light: #6EE7B7;
   --color-primary-50: #ECFDF5;
   --color-primary-100: #D1FAE5;
   --color-primary-200: #A7F3D0;
-  --color-primary-500: #10B981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
+  --color-primary-500: #047857;
+  --color-primary-600: #065F46;
+  --color-primary-700: #064E3B;
 
   /* Secondary Colors - Logo Gray */
   --color-secondary: #4B5563;
+  --color-secondary-foreground: #FFFFFF;
   --color-secondary-light: #6B7280;
   --color-secondary-dark: #374151;
 
@@ -34,7 +37,7 @@
   --color-text-white: #FFFFFF;
 
   /* Background Colors */
-  --color-background: #F9FAFB;
+  --color-background: #FAFAF9;        /* warm stone-50 */
   --color-background-alt: #F3F4F6;
   --color-surface: #FFFFFF;
 
@@ -43,14 +46,31 @@
   --color-border-dark: #D1D5DB;
 
   /* Status Colors */
-  --color-success: #10B981;
+  --color-success: #047857;
   --color-success-light: #ECFDF5;
-  --color-error: #EF4444;
+  --color-error: #DC2626;              /* white text on it is 4.8:1 */
   --color-error-light: #FEF2F2;
   --color-warning: #F59E0B;
   --color-warning-light: #FFFBEB;
   --color-info: #3B82F6;
   --color-info-light: #EFF6FF;
+
+  /* ---------------------------------------------------------------------
+     shadcn/ui semantic tokens (src/components/ui/*). Light theme only.
+     primary / secondary / background / border above are shared with them.
+     --------------------------------------------------------------------- */
+  --color-foreground: #1C1917;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1C1917;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1C1917;
+  --color-muted: #F5F5F4;
+  --color-muted-foreground: #57534E;   /* 7:1 on white — use for helper text */
+  --color-accent: #ECFDF5;
+  --color-accent-foreground: #065F46;
+  --color-destructive: #DC2626;
+  --color-input: #D6D3D1;
+  --color-ring: #047857;
 
   /* Font Families */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
@@ -525,17 +545,18 @@ body {
   position: absolute;
   left: 0;
   top: 50%;
-  transform: translateY(-50%);
+  /* Grow with a transform, not height: no layout work on hover. */
+  transform: translateY(-50%) scaleY(0);
   width: 3px;
-  height: 0;
+  height: 60%;
   background: var(--color-primary);
   border-radius: 0 4px 4px 0;
-  transition: height 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .admin-nav-item:hover::before,
 .admin-nav-item.active::before {
-  height: 60%;
+  transform: translateY(-50%) scaleY(1);
 }
 
 .admin-nav-item:hover,
@@ -584,13 +605,14 @@ body {
 .animation-delay-4000 { animation-delay: 4s; }
 
 /* Store UI animations */
-@keyframes bounce-once {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+/* One-time confirmation: settles in from slightly small, no overshoot. */
+@keyframes settle-in {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.animate-bounce-once {
-  animation: bounce-once 0.4s ease-in-out;
+.animate-settle-in {
+  animation: settle-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* =============================================================================
@@ -624,9 +646,12 @@ body {
   font-weight: 600;
 }
 
+/* Stacking: page content < tab bar (35) < drawer overlay (40) < drawer/cookie (50).
+   The tab bar must sit below the drawer overlay so it dims and stops taking taps
+   while the "More" drawer is open. */
 .ios-mobile-tabbar {
   position: fixed;
-  z-index: 45;
+  z-index: 35;
   right: 0;
   bottom: 0;
   left: 0;
@@ -667,12 +692,13 @@ body {
   place-items: center;
 }
 
-.ios-tab-icon > .material-symbols-outlined {
+.ios-tab-icon > .app-icon {
   font-size: 1.4rem;
 }
 
-.ios-mobile-tabbar .is-active .ios-tab-icon > .material-symbols-outlined {
-  font-variation-settings: 'FILL' 1;
+/* Active tab: heavier stroke (lucide has no filled variant). */
+.ios-mobile-tabbar .is-active .ios-tab-icon > .app-icon {
+  stroke-width: 2.5;
 }
 
 .ios-mobile-tabbar small {
@@ -708,7 +734,7 @@ body {
   background: #e2e8f0;
 }
 
-.ios-tab-icon > i.is-lock .material-symbols-outlined {
+.ios-tab-icon > i.is-lock .app-icon {
   font-size: 0.55rem;
 }
 
@@ -720,13 +746,20 @@ body {
 }
 
 @media (max-width: 1023px) {
-  body {
+  /* Scoped to the authenticated shell only — public pages keep their own
+     background and native pull-to-refresh. */
+  body:has(.ios-app-shell) {
     background: #f2f2f7;
     overscroll-behavior-y: none;
   }
 
   .ios-app-shell {
     background: #f2f2f7;
+  }
+
+  /* Lift the cookie notice above the fixed tab bar inside the app shell. */
+  body:has(.ios-mobile-tabbar) .ios-cookie-notice {
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
   }
 
   .ios-app-header {
@@ -744,19 +777,13 @@ body {
     scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
   }
 
-  .ios-page-content > div {
+  /* Flowing pages grow with their content so the main's bottom padding clears
+     the tab bar. Full-height pages (chat, content viewer) opt out via the
+     layout's `fullHeight` prop and keep the definite h-full height their
+     internal scroll regions depend on. */
+  .ios-page-content > .ios-page-flow {
     height: auto;
     min-height: 100%;
-  }
-
-  .ios-page-content h1 {
-    font-size: clamp(1.75rem, 8vw, 2.25rem);
-    line-height: 1.05;
-    letter-spacing: -0.045em;
-  }
-
-  .ios-page-content h2 {
-    letter-spacing: -0.025em;
   }
 
   .ios-page-content .card,
@@ -844,6 +871,22 @@ body {
   .ios-cookie-notice p {
     font-size: 0.75rem;
     line-height: 1.45;
+  }
+}
+
+/* Mobile heading defaults live in the components layer so any explicit
+   Tailwind text-size / tracking utility on a heading still wins. */
+@layer components {
+  @media (max-width: 1023px) {
+    .ios-page-content h1 {
+      font-size: clamp(1.75rem, 8vw, 2.25rem);
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+    }
+
+    .ios-page-content h2 {
+      letter-spacing: -0.025em;
+    }
   }
 }
 

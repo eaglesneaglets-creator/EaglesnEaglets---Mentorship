@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import Avatar from '@shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * NestActivityTimeline — renders the NestActivity audit log (admin detail
  * "Activity" tab). Newest-first. Humanizes action_type + target.
@@ -42,7 +44,7 @@ const Row = ({ item }) => {
           <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0">{fmtDate(item.created_at)}</span>
         </div>
         <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-1.5">
-          <span className={`material-symbols-outlined text-[15px] ${meta.color}`}>{meta.icon}</span>
+          <Icon name={meta.icon} className={`text-[15px] ${meta.color}`} />
           {meta.verb}
           {item.target ? <span className="font-medium text-slate-700 truncate">— {item.target}</span> : null}
         </p>
@@ -66,7 +68,7 @@ const NestActivityTimeline = ({ items = [], isLoading }) => {
   if (!items.length) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">history</span>
+        <Icon name='history' className='text-4xl text-slate-300 mb-2' />
         <p className="text-sm text-slate-400">No activity recorded yet.</p>
       </div>
     );

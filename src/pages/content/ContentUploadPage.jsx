@@ -5,8 +5,10 @@ import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useCreateModule, useCreateItem, useModules } from '../../modules/content/hooks/useContent';
 import { useNests } from '../../modules/nest/hooks/useNests';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import AnimatedBg from '../../shared/components/ui/AnimatedBg';
+
+import Icon from '@shared/components/ui/Icon';
 
 /* ─── Constants ─── */
 const CONTENT_TYPES = [
@@ -44,9 +46,9 @@ const UploadSuccessOverlay = ({ itemTitle, onDone }) => (
                     initial={{ scale: 0, rotate: -45 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
-                    className="material-symbols-outlined text-4xl text-primary"
+                    className="inline-flex text-4xl text-primary"
                 >
-                    check_circle
+                    <Icon name="check_circle" />
                 </motion.span>
             </motion.div>
 
@@ -139,12 +141,12 @@ const ThumbnailUpload = ({ value, onChange, label = 'Thumbnail (optional)' }) =>
                         </div>
                         <button type="button" onClick={clear}
                             className="w-7 h-7 rounded-full hover:bg-red-50 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors flex-shrink-0">
-                            <span className="material-symbols-outlined text-[16px]">close</span>
+                            <Icon name='close' className='text-[16px]' />
                         </button>
                     </div>
                 ) : (
                     <div className="flex items-center gap-3 p-4 text-slate-400">
-                        <span className="material-symbols-outlined text-[22px]">add_photo_alternate</span>
+                        <Icon name='add_photo_alternate' className='text-[22px]' />
                         <span className="text-sm">Upload cover image — drag or click</span>
                     </div>
                 )}
@@ -317,16 +319,16 @@ const ContentUploadPage = () => {
                             ? 'bg-white text-slate-900 shadow-md border border-slate-200'
                             : 'bg-transparent text-slate-400 border border-transparent hover:text-slate-600'
                             }`}>
-                        <span className="material-symbols-outlined text-[18px]">library_books</span>
+                        <Icon name='library_books' className='text-[18px]' />
                         Create Module
                     </button>
-                    <span className="material-symbols-outlined text-slate-300 text-lg">chevron_right</span>
+                    <Icon name='chevron_right' className='text-slate-300 text-lg' />
                     <button onClick={() => setActiveStep(STEP.ITEM)}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${activeStep === STEP.ITEM
                             ? 'bg-white text-slate-900 shadow-md border border-slate-200'
                             : 'bg-transparent text-slate-400 border border-transparent hover:text-slate-600'
                             }`}>
-                        <span className="material-symbols-outlined text-[18px]">upload_file</span>
+                        <Icon name='upload_file' className='text-[18px]' />
                         Add Content
                     </button>
                 </div>
@@ -342,7 +344,7 @@ const ContentUploadPage = () => {
                             <form onSubmit={handleModuleSubmit} className="p-6 md:p-8 space-y-6">
                                 {!isAdmin && myNests.length === 0 && (
                                     <div className="bg-amber-50 text-amber-700 p-4 rounded-xl text-sm border border-amber-200 flex items-start gap-3">
-                                        <span className="material-symbols-outlined text-amber-500 mt-0.5">warning</span>
+                                        <Icon name='warning' className='text-amber-500 mt-0.5' />
                                         <span><strong>No Active Nest Found:</strong> Create a Nest first before uploading content.</span>
                                     </div>
                                 )}
@@ -415,9 +417,9 @@ const ContentUploadPage = () => {
                                         disabled={createModuleMutation.isPending || (!isAdmin && myNests.length === 0)}
                                         className="inline-flex items-center gap-2 px-7 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
                                         {createModuleMutation.isPending ? (
-                                            <><span className="material-symbols-outlined animate-spin text-[18px]">sync</span> Creating...</>
+                                            <><Icon name='sync' className='animate-spin text-[18px]' /> Creating...</>
                                         ) : (
-                                            <><span className="material-symbols-outlined text-[18px]">add_circle</span> Create Module</>
+                                            <><Icon name='add_circle' className='text-[18px]' /> Create Module</>
                                         )}
                                     </motion.button>
                                 </div>
@@ -461,7 +463,7 @@ const ContentUploadPage = () => {
                                     </select>
                                     {modules.length === 0 && (
                                         <p className="text-xs text-amber-600 mt-2 flex items-center gap-1.5">
-                                            <span className="material-symbols-outlined text-[14px]">info</span>
+                                            <Icon name='info' className='text-[14px]' />
                                             No modules found. Create one first.
                                         </p>
                                     )}
@@ -488,9 +490,9 @@ const ContentUploadPage = () => {
                                             {file ? (
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                                                        <span className="material-symbols-outlined text-primary">
-                                                            {contentType === 'video' ? 'videocam' : 'description'}
-                                                        </span>
+                                                        <Icon
+                                                            name={contentType === 'video' ? 'videocam' : 'description'}
+                                                            className='text-primary' />
                                                     </div>
                                                     <div className="text-left">
                                                         <p className="text-sm font-bold text-slate-900 truncate max-w-[200px]">{file.name}</p>
@@ -499,13 +501,13 @@ const ContentUploadPage = () => {
                                                     <button type="button"
                                                         onClick={(e) => { e.stopPropagation(); setFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
                                                         className="ml-2 w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors">
-                                                        <span className="material-symbols-outlined text-[18px]">close</span>
+                                                        <Icon name='close' className='text-[18px]' />
                                                     </button>
                                                 </div>
                                             ) : (
                                                 <>
                                                     <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                                                        <span className="material-symbols-outlined text-primary text-2xl">cloud_upload</span>
+                                                        <Icon name='cloud_upload' className='text-primary text-2xl' />
                                                     </div>
                                                     <p className="text-sm font-bold text-slate-700">Drag and drop file here</p>
                                                     <p className="text-xs text-slate-400 mt-1">or click to browse your files</p>
@@ -547,9 +549,9 @@ const ContentUploadPage = () => {
                                         disabled={createItemMutation.isPending || !selectedModuleId || (contentType !== 'reading' && !file) || isUploading}
                                         className="inline-flex items-center gap-2 px-7 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
                                         {createItemMutation.isPending || isUploading ? (
-                                            <><span className="material-symbols-outlined animate-spin text-[18px]">sync</span> Uploading...</>
+                                            <><Icon name='sync' className='animate-spin text-[18px]' /> Uploading...</>
                                         ) : (
-                                            <><span className="material-symbols-outlined text-[18px]">publish</span> Publish Content</>
+                                            <><Icon name='publish' className='text-[18px]' /> Publish Content</>
                                         )}
                                     </motion.button>
                                 </div>

@@ -14,6 +14,8 @@ import {
 } from '../../modules/mentor-application/hooks/useMentorApplicationAdmin';
 import { ADMIN_USERS_TABS } from './adminUsersTabs';
 
+import Icon from '@shared/components/ui/Icon';
+
 const STATUS_TABS = [
     { value: 'submitted', label: 'Submitted', icon: 'schedule' },
     { value: 'approved', label: 'Approved', icon: 'verified' },
@@ -156,7 +158,7 @@ function MobileCards({ apps, onApprove, onReject, busy, showReason }) {
 function EmptyState({ status }) {
     return (
         <div className="bg-white rounded-2xl border border-slate-200 p-10 text-center shadow-sm">
-            <span className="material-symbols-outlined text-5xl text-slate-300">inbox</span>
+            <Icon name='inbox' className='text-5xl text-slate-300' />
             <p className="mt-3 text-sm font-semibold text-slate-700">
                 No {status} applications
             </p>
@@ -250,7 +252,7 @@ export default function AdminMentorApplicationsPage() {
                                     : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
                             }`}
                         >
-                            <span className="material-symbols-outlined text-base">{t.icon}</span>
+                            <Icon name={t.icon} className='text-base' />
                             {t.label}
                         </button>
                     ))}

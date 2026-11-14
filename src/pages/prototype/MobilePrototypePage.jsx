@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   ArrowRight,
   Bell,
@@ -24,7 +25,7 @@ import {
 } from 'lucide-react';
 import BrandLogo from '@shared/components/ui/BrandLogo';
 import PrototypeCatalogScreen from './PrototypeCatalogScreen';
-import { getPrototypeRoute, getPrototypeScreen, PROTOTYPE_CATALOG } from './prototypeCatalog';
+import { getPrototypeRoute, getPrototypeScreen, PROTOTYPE_CATALOG } from './prototype-catalog';
 import './mobile-prototype.css';
 
 const NAV_ITEMS = {
@@ -239,6 +240,29 @@ const ProfileScreen = ({ role, onOpenSettings }) => (
   </>
 );
 
+const SCREEN_PROP_TYPES = {
+  role: PropTypes.string,
+  onOpenSheet: PropTypes.func,
+  onOpenSettings: PropTypes.func.isRequired,
+};
+
+ScreenHeader.propTypes = {
+  eyebrow: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  onOpenSettings: PropTypes.func.isRequired,
+};
+HomeScreen.propTypes = { ...SCREEN_PROP_TYPES, role: PropTypes.string.isRequired, onOpenSheet: PropTypes.func.isRequired };
+LearnScreen.propTypes = SCREEN_PROP_TYPES;
+NestScreen.propTypes = SCREEN_PROP_TYPES;
+ProfileScreen.propTypes = { ...SCREEN_PROP_TYPES, role: PropTypes.string.isRequired };
+
+// Accessible names for each bottom-sheet variant.
+const SHEET_LABELS = {
+  catalog: 'All screens',
+  customize: 'Customize prototype',
+  session: 'Session details',
+};
+
 const MobilePrototypePage = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [role, setRole] = useState('eaglet');
@@ -344,7 +368,7 @@ const MobilePrototypePage = () => {
 
           {sheet && (
             <div className="mp-sheet-layer" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setSheet(null)}>
-              <section className="mp-bottom-sheet" role="dialog" aria-modal="true" aria-label={sheet === 'customize' ? 'Customize prototype' : 'Session details'}>
+              <section className="mp-bottom-sheet" role="dialog" aria-modal="true" aria-label={SHEET_LABELS[sheet] || 'Details'}>
                 <span className="mp-sheet-grabber" />
                 <button type="button" className="mp-sheet-close" aria-label="Close sheet" onClick={() => setSheet(null)}><X aria-hidden="true" /></button>
                 {sheet === 'catalog' ? (

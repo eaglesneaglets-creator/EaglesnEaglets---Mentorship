@@ -16,6 +16,8 @@ import ChatHeader from './components/ChatHeader';
 import MessageInput from './components/MessageInput';
 import NewChatDropdown from './components/NewChatDropdown';
 
+import Icon from '@shared/components/ui/Icon';
+
 const ChatPage = () => {
     const { user } = useAuthStore();
     const [activeConversation, setActiveConversation] = useState(null);
@@ -113,13 +115,13 @@ const ChatPage = () => {
     const variant = user?.role === 'eagle' ? 'eagle' : user?.role === 'admin' ? 'admin' : 'eaglet';
 
     return (
-        <DashboardLayout variant={variant}>
+        <DashboardLayout variant={variant} fullHeight>
             <div className="h-full min-h-0 flex flex-col">
                 {/* Page Header */}
                 <div className="flex items-center justify-between mb-4 flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/80 to-emerald-600 flex items-center justify-center shadow-md shadow-primary/15">
-                            <span className="material-symbols-outlined text-white text-xl">chat</span>
+                            <Icon name='chat' className='text-white text-xl' />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-slate-900">Messages</h1>
@@ -141,7 +143,9 @@ const ChatPage = () => {
                         <div className="p-3 border-b border-slate-100">
                             <div className="relative flex items-center gap-2">
                                 <div className="relative flex-1">
-                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">search</span>
+                                    <Icon
+                                        name='search'
+                                        className='absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400' />
                                     <input
                                         type="text"
                                         placeholder="Search conversations..."
@@ -159,9 +163,7 @@ const ChatPage = () => {
                                             : 'bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700'
                                     }`}
                                 >
-                                    <span className="material-symbols-outlined text-lg">
-                                        {showNewChat ? 'close' : 'person_add'}
-                                    </span>
+                                    <Icon name={showNewChat ? 'close' : 'person_add'} className='text-lg' />
                                 </button>
                             </div>
                             {/* New Chat Dropdown */}
@@ -195,7 +197,7 @@ const ChatPage = () => {
                                 ))
                             ) : (
                                 <div className="py-12 text-center px-4">
-                                    <span className="material-symbols-outlined text-3xl text-slate-300">chat_bubble</span>
+                                    <Icon name='chat_bubble' className='text-3xl text-slate-300' />
                                     <p className="text-sm text-slate-400 mt-2">No conversations yet.</p>
                                 </div>
                             )}
@@ -232,7 +234,7 @@ const ChatPage = () => {
                                         </div>
                                     ) : messages.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center h-full text-center">
-                                            <span className="material-symbols-outlined text-3xl text-slate-300 mb-2">chat_bubble_outline</span>
+                                            <Icon name='chat_bubble_outline' className='text-3xl text-slate-300 mb-2' />
                                             <p className="text-sm text-slate-400">No messages yet. Say hello!</p>
                                         </div>
                                     ) : (
@@ -265,7 +267,7 @@ const ChatPage = () => {
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
                                 <div className="w-20 h-20 rounded-2xl bg-slate-50 flex items-center justify-center mb-4">
-                                    <span className="material-symbols-outlined text-4xl text-slate-300">forum</span>
+                                    <Icon name='forum' className='text-4xl text-slate-300' />
                                 </div>
                                 <h3 className="text-lg font-bold text-slate-900 mb-1">Select a conversation</h3>
                                 <p className="text-sm text-slate-400">Choose a conversation from the sidebar to start chatting.</p>

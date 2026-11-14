@@ -12,6 +12,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { sanitizeUrl, sanitizeImageUrl } from '@shared/utils/sanitize';
 import Avatar from '../../../shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 // ---------------------------------------------------------------------------
 // PostComposer — create new post with emoji + file upload
 // ---------------------------------------------------------------------------
@@ -86,15 +88,15 @@ const PostComposer = ({ nestId, user }) => {
         {/* Attachment preview */}
         {attachment && (
           <div className="mt-2 ml-13 flex items-center gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200">
-            <span className="material-symbols-outlined text-slate-500 text-lg">
-              {attachment.type === 'image' ? 'image' : attachment.type === 'video' ? 'videocam' : 'attach_file'}
-            </span>
+            <Icon
+              name={attachment.type === 'image' ? 'image' : attachment.type === 'video' ? 'videocam' : 'attach_file'}
+              className='text-slate-500 text-lg' />
             <span className="text-xs text-slate-600 flex-1 truncate">Attachment ready</span>
             <button
               onClick={() => { setAttachment(null); resetUpload(); }}
               className="text-slate-400 hover:text-red-500 transition-colors"
             >
-              <span className="material-symbols-outlined text-sm">close</span>
+              <Icon name='close' className='text-sm' />
             </button>
           </div>
         )}
@@ -125,7 +127,7 @@ const PostComposer = ({ nestId, user }) => {
                   className="w-9 h-9 flex items-center justify-center text-amber-500 hover:bg-slate-100 rounded-lg transition-colors"
                   title="Emoji"
                 >
-                  <span className="material-symbols-outlined text-xl">mood</span>
+                  <Icon name='mood' className='text-xl' />
                 </button>
 
                 {/* Hidden file input */}
@@ -142,7 +144,7 @@ const PostComposer = ({ nestId, user }) => {
                   className="w-9 h-9 flex items-center justify-center text-blue-500 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-40"
                   title="Attach file"
                 >
-                  <span className="material-symbols-outlined text-xl">attach_file</span>
+                  <Icon name='attach_file' className='text-xl' />
                 </button>
               </div>
 
@@ -152,7 +154,7 @@ const PostComposer = ({ nestId, user }) => {
                 className="bg-primary hover:bg-primary/90 disabled:opacity-40 text-white text-sm font-bold px-5 py-2 rounded-xl transition-colors flex items-center gap-2 shadow-sm"
               >
                 {createMutation.isPending ? 'Posting...' : 'Post'}
-                <span className="material-symbols-outlined text-lg">send</span>
+                <Icon name='send' className='text-lg' />
               </button>
             </div>
           </motion.div>
@@ -224,7 +226,7 @@ const PostCard = ({ post, nestId }) => {
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors text-sm text-primary font-medium mb-4"
           >
-            <span className="material-symbols-outlined text-lg">attach_file</span>
+            <Icon name='attach_file' className='text-lg' />
             Download Attachment
           </a>
         )}
@@ -240,12 +242,7 @@ const PostCard = ({ post, nestId }) => {
             post.liked_by_me ? 'text-red-500' : 'text-slate-400 hover:text-red-400'
           }`}
         >
-          <span
-            className="material-symbols-outlined text-xl"
-            style={{ fontVariationSettings: post.liked_by_me ? "'FILL' 1" : "'FILL' 0" }}
-          >
-            favorite
-          </span>
+          <Icon name='favorite' className='text-xl' />
           <span>{post.likes_count || 0}</span>
         </motion.button>
 
@@ -256,7 +253,7 @@ const PostCard = ({ post, nestId }) => {
             commentsOpen ? 'text-primary' : 'text-slate-400 hover:text-primary'
           }`}
         >
-          <span className="material-symbols-outlined text-xl">chat_bubble_outline</span>
+          <Icon name='chat_bubble_outline' className='text-xl' />
           <span>{post.comments_count || 0}</span>
         </button>
       </div>

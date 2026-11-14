@@ -5,6 +5,8 @@ import { adminService } from '../../modules/auth/services/auth-service';
 import { sanitizeToText, stripCloudinarySignature, sanitizeImageUrl, sanitizeUrl } from '../../shared/utils/sanitize';
 import Avatar from '../../shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const BACKEND_URL = API_BASE_URL.replace('/api/v1', '');
 
@@ -34,7 +36,7 @@ const daysBetween = (d) => d ? Math.max(0, Math.floor((Date.now() - new Date(d))
 
 const Badge = ({ config }) => (
   <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${config.bg} ${config.text}`}>
-    <span className="material-symbols-outlined text-sm">{config.icon}</span>
+    <Icon name={config.icon} className='text-sm' />
     {config.label}
   </span>
 );
@@ -45,11 +47,11 @@ const InfoField = ({ label, value, isLink, isDocument, onDocClick }) => (
     {isLink && value ? (
       <a href={value} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline flex items-center gap-1 truncate">
         {value}
-        <span className="material-symbols-outlined text-sm">open_in_new</span>
+        <Icon name='open_in_new' className='text-sm' />
       </a>
     ) : isDocument && value ? (
       <button onClick={onDocClick} className="text-sm font-medium text-primary hover:underline flex items-center gap-1 text-left">
-        <span className="material-symbols-outlined text-sm">description</span>
+        <Icon name='description' className='text-sm' />
         View Document
       </button>
     ) : (
@@ -60,7 +62,7 @@ const InfoField = ({ label, value, isLink, isDocument, onDocClick }) => (
 
 const StatBadge = ({ icon, label, value, color = 'text-slate-500' }) => (
   <div className="flex flex-col items-center text-center">
-    <span className={`material-symbols-outlined text-lg ${color} mb-0.5`}>{icon}</span>
+    <Icon name={icon} className={`text-lg ${color} mb-0.5`} />
     <p className="text-xs text-slate-400 font-medium">{label}</p>
     <p className="text-sm font-bold text-slate-900">{value}</p>
   </div>
@@ -87,11 +89,11 @@ const Modal = ({ isOpen, onClose, title, icon, children }) => {
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-0 overflow-hidden">
         <div className="flex items-center gap-3 p-5 border-b border-slate-100">
           <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-            <span className="material-symbols-outlined text-slate-600">{icon}</span>
+            <Icon name={icon} className='text-slate-600' />
           </div>
           <h3 className="text-lg font-bold text-slate-900">{title}</h3>
           <button onClick={onClose} className="ml-auto p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-            <span className="material-symbols-outlined text-slate-400">close</span>
+            <Icon name='close' className='text-slate-400' />
           </button>
         </div>
         <div className="p-5">{children}</div>
@@ -108,8 +110,10 @@ const DocumentViewer = ({ isOpen, onClose, url, title }) => {
   const rawUrl = url?.startsWith('http') ? url : `${BACKEND_URL}${url}`;
   const fullUrl = stripCloudinarySignature(rawUrl);
   // Detect by extension OR Cloudinary URL patterns
-  const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url || '') || url?.includes('image/upload') || url?.includes('profile_pictures') || url?.includes('content_images');
-  const isPdf = /\.pdf/i.test(url || '') || url?.includes('/cvs/') || url?.includes('/documents/');
+  // Private KYC documents arrive as short-lived signed download links
+  // (…/image/download?…&format=jpg…), so match on the format query param too.
+  const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url || '') || /[?&]format=(jpe?g|png|gif|webp)\b/i.test(url || '') || url?.includes('/image/download') || url?.includes('image/upload') || url?.includes('profile_pictures') || url?.includes('content_images');
+  const isPdf = !isImage && (/\.pdf/i.test(url || '') || /[?&]format=pdf\b/i.test(url || '') || url?.includes('/raw/download') || url?.includes('/cvs/') || url?.includes('/documents/'));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -121,10 +125,10 @@ const DocumentViewer = ({ isOpen, onClose, url, title }) => {
             <a href={fullUrl} target="_blank" rel="noopener noreferrer"
               className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500 hover:text-primary"
               title="Open in new tab">
-              <span className="material-symbols-outlined text-sm">open_in_new</span>
+              <Icon name='open_in_new' className='text-sm' />
             </a>
             <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-              <span className="material-symbols-outlined text-slate-400">close</span>
+              <Icon name='close' className='text-slate-400' />
             </button>
           </div>
         </div>
@@ -144,7 +148,7 @@ const DocumentViewer = ({ isOpen, onClose, url, title }) => {
             // Direct the admin to open in a new tab for proper viewing.
             <div className="text-center py-12">
               <div className="w-20 h-20 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-4xl text-red-400">picture_as_pdf</span>
+                <Icon name='picture_as_pdf' className='text-4xl text-red-400' />
               </div>
               <h4 className="font-bold text-slate-900 mb-1">{title}</h4>
               <p className="text-slate-500 text-sm mb-5 max-w-xs mx-auto">
@@ -152,17 +156,17 @@ const DocumentViewer = ({ isOpen, onClose, url, title }) => {
               </p>
               <a href={fullUrl} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25">
-                <span className="material-symbols-outlined text-sm">open_in_new</span>
+                <Icon name='open_in_new' className='text-sm' />
                 Open PDF
               </a>
             </div>
           ) : (
             <div className="text-center py-12">
-              <span className="material-symbols-outlined text-5xl text-slate-300 mb-3">description</span>
+              <Icon name='description' className='text-5xl text-slate-300 mb-3' />
               <p className="text-slate-500 mb-4">Preview not available for this file type.</p>
               <a href={fullUrl} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition-colors">
-                <span className="material-symbols-outlined text-sm">download</span> Download File
+                <Icon name='download' className='text-sm' /> Download File
               </a>
             </div>
           )}
@@ -339,12 +343,12 @@ const AdminKYCDetailPage = () => {
       <DashboardLayout variant="admin">
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-12 shadow-lg text-center max-w-md border border-slate-200/50">
-            <span className="material-symbols-outlined text-6xl text-red-300 mb-4">error_outline</span>
+            <Icon name='error_outline' className='text-6xl text-red-300 mb-4' />
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Application Not Found</h2>
             <p className="text-slate-500 mb-8">The requested KYC application could not be found.</p>
             <Link to="/admin/kyc"
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors">
-              <span className="material-symbols-outlined text-sm">arrow_back</span> Back to Applications
+              <Icon name='arrow_back' className='text-sm' /> Back to Applications
             </Link>
           </div>
         </div>
@@ -432,7 +436,7 @@ const AdminKYCDetailPage = () => {
               className="w-32 h-32 object-cover rounded-xl border border-slate-200 hover:shadow-lg transition-shadow"
               onError={(e) => {
                 e.target.style.display = 'none';
-                e.target.parentElement.innerHTML = '<div class="w-32 h-32 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-300"><span class="material-symbols-outlined text-3xl">broken_image</span><span class="text-xs mt-1">Not available</span></div>';
+                e.target.parentElement.innerHTML = '<div class="w-32 h-32 rounded-xl border border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center text-slate-300"><svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><line x1="18" x2="21" y1="12" y2="15"/><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/></svg><span class="text-xs mt-1">Not available</span></div>';
               }}
             />
           </button>
@@ -479,24 +483,24 @@ const AdminKYCDetailPage = () => {
         {/* ── Breadcrumb ──────────────────────────────────────────────────── */}
         <nav className="flex items-center gap-2 text-sm">
           <Link to="/admin" className="text-slate-400 hover:text-primary transition-colors">Admin</Link>
-          <span className="material-symbols-outlined text-slate-300 text-sm">chevron_right</span>
+          <Icon name='chevron_right' className='text-slate-300 text-sm' />
           <Link to="/admin/kyc" className="text-slate-400 hover:text-primary transition-colors">KYC Reviews</Link>
-          <span className="material-symbols-outlined text-slate-300 text-sm">chevron_right</span>
+          <Icon name='chevron_right' className='text-slate-300 text-sm' />
           <span className="text-slate-900 font-medium">#{kycId?.slice(0, 8)}</span>
         </nav>
 
         {/* ── Messages ────────────────────────────────────────────────────── */}
         {successMessage && (
           <div className="flex items-center gap-3 px-5 py-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm font-medium">
-            <span className="material-symbols-outlined text-lg">check_circle</span>
+            <Icon name='check_circle' className='text-lg' />
             {successMessage}
           </div>
         )}
         {error && (
           <div className="flex items-center gap-3 px-5 py-3.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
-            <span className="material-symbols-outlined text-lg">error</span>
+            <Icon name='error' className='text-lg' />
             {error}
-            <button onClick={() => setError('')} className="ml-auto"><span className="material-symbols-outlined text-sm">close</span></button>
+            <button onClick={() => setError('')} className="ml-auto"><Icon name='close' className='text-sm' /></button>
           </div>
         )}
 
@@ -505,7 +509,7 @@ const AdminKYCDetailPage = () => {
           {/* Suspended banner */}
           {isSuspended && (
             <div className="flex items-center gap-3 px-6 py-3 bg-red-500 text-white text-sm font-medium">
-              <span className="material-symbols-outlined text-lg">gpp_bad</span>
+              <Icon name='gpp_bad' className='text-lg' />
               This user is currently suspended
               {kyc.suspension_reason && <span className="opacity-80">— {kyc.suspension_reason}</span>}
             </div>
@@ -529,7 +533,7 @@ const AdminKYCDetailPage = () => {
               />
               {isSuspended && (
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center ring-2 ring-white">
-                  <span className="material-symbols-outlined text-white text-xs">block</span>
+                  <Icon name='block' className='text-white text-xs' />
                 </div>
               )}
             </div>
@@ -540,14 +544,14 @@ const AdminKYCDetailPage = () => {
               <p className="text-slate-500 text-sm mb-3">{email}</p>
               <div className="flex flex-wrap items-center gap-2">
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${isMentor ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
-                  <span className="material-symbols-outlined text-sm">{isMentor ? 'school' : 'person'}</span>
+                  <Icon name={isMentor ? 'school' : 'person'} className='text-sm' />
                   {isMentor ? 'Eagle (Mentor)' : 'Eaglet (Mentee)'}
                 </span>
                 <Badge config={statusConfig} />
                 {isApproved && <Badge config={userStatusConfig} />}
                 {kyc.is_email_verified !== false && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-sky-50 text-sky-600">
-                    <span className="material-symbols-outlined text-sm">verified</span>
+                    <Icon name='verified' className='text-sm' />
                     Verified
                   </span>
                 )}
@@ -583,7 +587,7 @@ const AdminKYCDetailPage = () => {
                       ? 'border-primary text-primary bg-white'
                       : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-white/50'
                       }`}>
-                    <span className="material-symbols-outlined text-lg">{tab.icon}</span>
+                    <Icon name={tab.icon} className='text-lg' />
                     {tab.label}
                   </button>
                 ))}
@@ -597,7 +601,7 @@ const AdminKYCDetailPage = () => {
             {kyc.review_notes && (
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-outlined text-slate-400">sticky_note_2</span>
+                  <Icon name='sticky_note_2' className='text-slate-400' />
                   <h3 className="text-base font-bold text-slate-900">Internal Notes</h3>
                 </div>
                 <div className="text-sm text-slate-600 whitespace-pre-wrap bg-slate-50 rounded-xl p-4">{kyc.review_notes}</div>
@@ -608,7 +612,7 @@ const AdminKYCDetailPage = () => {
             {kyc.rejection_reason && (
               <div className="bg-red-50/60 backdrop-blur-sm rounded-2xl border border-red-200/50 shadow-sm p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-outlined text-red-400">warning</span>
+                  <Icon name='warning' className='text-red-400' />
                   <h3 className="text-base font-bold text-red-800">Rejection Reason</h3>
                 </div>
                 <div className="text-sm text-red-700 whitespace-pre-wrap">{kyc.rejection_reason}</div>
@@ -626,19 +630,19 @@ const AdminKYCDetailPage = () => {
                 <div className="flex flex-col gap-3">
                   <button onClick={handleApprove} disabled={isApproving}
                     className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500 text-white rounded-xl font-semibold text-sm hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span className="material-symbols-outlined text-lg">{isApproving ? 'hourglass_top' : 'check_circle'}</span>
+                    <Icon name={isApproving ? 'hourglass_top' : 'check_circle'} className='text-lg' />
                     {isApproving ? 'Approving…' : 'Approve'}
                   </button>
 
                   <button onClick={() => setShowChangesModal(true)}
                     className="flex items-center justify-center gap-2 w-full py-3 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">
-                    <span className="material-symbols-outlined text-lg">edit</span>
+                    <Icon name='edit' className='text-lg' />
                     Request Changes
                   </button>
 
                   <button onClick={() => setShowRejectModal(true)}
                     className="flex items-center justify-center gap-2 w-full py-3 bg-white text-red-600 border-2 border-red-200 rounded-xl font-semibold text-sm hover:bg-red-50 transition-all">
-                    <span className="material-symbols-outlined text-lg">cancel</span>
+                    <Icon name='cancel' className='text-lg' />
                     Reject
                   </button>
                 </div>
@@ -654,7 +658,7 @@ const AdminKYCDetailPage = () => {
                 {!isSuspended ? (
                   <button onClick={() => setShowSuspendModal(true)}
                     className="flex items-center justify-center gap-2 w-full py-3 bg-red-500 text-white rounded-xl font-semibold text-sm hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30">
-                    <span className="material-symbols-outlined text-lg">block</span>
+                    <Icon name='block' className='text-lg' />
                     Suspend User
                   </button>
                 ) : (
@@ -666,7 +670,7 @@ const AdminKYCDetailPage = () => {
                     </div>
                     <button onClick={handleReactivate} disabled={isReactivating}
                       className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500 text-white rounded-xl font-semibold text-sm hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50">
-                      <span className="material-symbols-outlined text-lg">{isReactivating ? 'hourglass_top' : 'lock_open'}</span>
+                      <Icon name={isReactivating ? 'hourglass_top' : 'lock_open'} className='text-lg' />
                       {isReactivating ? 'Reactivating…' : 'Reactivate User'}
                     </button>
                   </div>
@@ -677,7 +681,7 @@ const AdminKYCDetailPage = () => {
             {/* ── Timeline ──────────────────────────────────────────────── */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm p-5">
               <div className="flex items-center gap-2 mb-4">
-                <span className="material-symbols-outlined text-slate-400 text-lg">timeline</span>
+                <Icon name='timeline' className='text-slate-400 text-lg' />
                 <h3 className="text-base font-bold text-slate-900">Timeline</h3>
               </div>
 
@@ -790,7 +794,7 @@ const AdminKYCDetailPage = () => {
       <Modal isOpen={showSuspendModal} onClose={() => setShowSuspendModal(false)} title="Suspend User" icon="gpp_bad">
         <div className="space-y-4">
           <div className="p-3 bg-red-50 rounded-xl text-sm text-red-700 flex items-start gap-2">
-            <span className="material-symbols-outlined text-lg mt-0.5">warning</span>
+            <Icon name='warning' className='text-lg mt-0.5' />
             <div>
               <p className="font-semibold">This will immediately revoke the user&apos;s access.</p>
               <p className="text-xs opacity-80 mt-1">They will be unable to log in or use any platform features until reactivated.</p>

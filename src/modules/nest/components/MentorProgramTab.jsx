@@ -12,12 +12,14 @@
  */
 import PropTypes from 'prop-types';
 
+import Icon from '@shared/components/ui/Icon';
+
 const MentorProgramTab = ({ program }) => {
     if (!program) {
         return (
             <div className="space-y-3 animate-fade-in py-6 text-center">
                 <div className="mx-auto w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-slate-400 text-2xl">flag</span>
+                    <Icon name='flag' className='text-slate-400 text-2xl' />
                 </div>
                 <h3 className="font-bold text-slate-900">No active program yet</h3>
                 <p className="text-sm text-slate-500 max-w-sm mx-auto">
@@ -54,9 +56,7 @@ const MentorProgramTab = ({ program }) => {
                                 key={obj.id}
                                 className="flex items-start gap-3 p-4 rounded-xl border border-slate-200/60 bg-white"
                             >
-                                <span className="material-symbols-outlined text-primary text-xl mt-0.5">
-                                    flag
-                                </span>
+                                <Icon name='flag' className='text-primary text-xl mt-0.5' />
                                 <div className="min-w-0 flex-1">
                                     <p className="font-semibold text-slate-900 text-sm">{obj.title}</p>
                                     <p className="text-xs text-slate-500 mt-1">{obj.rule_summary}</p>

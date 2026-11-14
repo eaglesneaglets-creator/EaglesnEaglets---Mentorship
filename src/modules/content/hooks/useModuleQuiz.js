@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@api';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import { contentKeys } from './useContent';
 
 const quizKeys = {

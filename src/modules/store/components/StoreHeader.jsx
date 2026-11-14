@@ -33,6 +33,8 @@ import {
   useNavbarScrollThreshold,
 } from '../../../shared/components/layout/useFloatingNavbarState';
 
+import Icon from '@shared/components/ui/Icon';
+
 function StoreActionIcons({ useDarkText, cartCount }) {
   const iconBtnClass = navIconBtnClass(useDarkText);
 
@@ -44,7 +46,7 @@ function StoreActionIcons({ useDarkText, cartCount }) {
         aria-label="My orders"
         title="My Orders"
       >
-        <span className="material-symbols-outlined text-xl">receipt_long</span>
+        <Icon name='receipt_long' className='text-xl' />
       </Link>
       <Link
         to="/store/cart"
@@ -52,7 +54,7 @@ function StoreActionIcons({ useDarkText, cartCount }) {
         aria-label="View cart"
         title="Cart"
       >
-        <span className="material-symbols-outlined text-xl">shopping_cart</span>
+        <Icon name='shopping_cart' className='text-xl' />
         {cartCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-primary rounded-full text-white text-[10px] font-bold flex items-center justify-center px-0.5">
             {cartCount > 9 ? '9+' : cartCount}
@@ -144,7 +146,7 @@ export default function StoreHeader({ forceScrolled = false }) {
               aria-label="Cart"
               title="Cart"
             >
-              <span className="material-symbols-outlined text-xl">shopping_cart</span>
+              <Icon name='shopping_cart' className='text-xl' />
               {cartCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-0.5 text-[9px] font-bold text-white">
                   {cartCount > 9 ? '9+' : cartCount}

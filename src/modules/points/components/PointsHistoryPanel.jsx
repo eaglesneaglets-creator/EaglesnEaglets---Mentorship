@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useTransactions } from '../hooks/usePoints';
 
+import Icon from '@shared/components/ui/Icon';
+
 const PAGE_SIZE = 10;
 
 const sourceLabel = (source) => {
@@ -47,14 +49,14 @@ const PointsHistoryPanel = () => {
             {/* Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
-                    <span className="material-symbols-outlined text-amber-600 text-lg">history</span>
+                    <Icon name='history' className='text-amber-600 text-lg' />
                 </div>
                 <h3 className="text-base font-bold text-slate-900">Points History</h3>
             </div>
 
             {transactions.length === 0 ? (
                 <div className="py-12 text-center">
-                    <span className="material-symbols-outlined text-3xl text-slate-300">receipt_long</span>
+                    <Icon name='receipt_long' className='text-3xl text-slate-300' />
                     <p className="text-sm text-slate-400 mt-2">No transactions yet. Start earning points!</p>
                 </div>
             ) : (
@@ -116,7 +118,7 @@ const PointsHistoryPanel = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <span className="material-symbols-outlined text-sm">expand_more</span>
+                                        <Icon name='expand_more' className='text-sm' />
                                         Load More
                                     </>
                                 )}

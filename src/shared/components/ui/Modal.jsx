@@ -1,87 +1,59 @@
-import { useEffect, useCallback } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
+import { X } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 const sizeClasses = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-2xl',
-  full: 'max-w-5xl',
+  sm: 'sm:max-w-sm',
+  md: 'sm:max-w-md',
+  lg: 'sm:max-w-lg',
+  xl: 'sm:max-w-2xl',
+  full: 'sm:max-w-5xl',
 };
 
 /**
- * Modal — generic accessible modal with backdrop, ESC key, Framer Motion
+ * Modal — the app's generic dialog, built on shadcn/ui Dialog (Radix).
+ *
+ * Same props as before, so existing callers are unchanged. Radix supplies
+ * what the hand-rolled version lacked: focus is trapped inside and restored
+ * on close, Escape closes, background content is hidden from screen readers,
+ * and page scroll is locked without leaking on unmount.
+ *
+ * On phones it docks to the bottom edge as a sheet.
  */
 const Modal = ({
   isOpen,
   onClose,
-  title,
   size = 'md',
   children,
   className = '',
   closeOnBackdrop = true,
-}) => {
-  const handleEsc = useCallback(
-    (e) => {
-      if (e.key === 'Escape') onClose();
-    },
-    [onClose]
-  );
-
-  useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = '';
-    };
-  }, [isOpen, handleEsc]);
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="ios-modal-layer fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={closeOnBackdrop ? onClose : undefined}
-            aria-hidden="true"
-          />
-
-          {/* Panel */}
-          <motion.div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={title ? 'modal-title' : undefined}
-            initial={{ opacity: 0, scale: 0.95, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 8 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className={`
-              ios-modal-panel relative z-10 w-full ${sizeClasses[size]}
-              bg-white rounded-2xl shadow-xl border border-slate-100
-              flex flex-col max-h-[90vh]
-              ${className}
-            `}
-          >
-            {children}
-          </motion.div>
-        </div>
+}) => (
+  <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <DialogContent
+      showCloseButton={false}
+      aria-describedby={undefined}
+      onInteractOutside={(event) => { if (!closeOnBackdrop) event.preventDefault(); }}
+      className={cn(
+        // Layout: header / scrolling body / footer.
+        'flex max-h-[90vh] flex-col gap-0 overflow-hidden rounded-2xl border-slate-100 bg-white p-0 shadow-xl',
+        // Phones: bottom sheet.
+        'max-sm:top-auto max-sm:bottom-0 max-sm:max-h-[92svh] max-sm:max-w-none max-sm:translate-y-0',
+        'max-sm:rounded-b-none max-sm:border-x-0 max-sm:border-b-0 max-sm:pb-[env(safe-area-inset-bottom)]',
+        'max-sm:data-[state=open]:slide-in-from-bottom-4 max-sm:data-[state=open]:zoom-in-100',
+        sizeClasses[size],
+        className,
       )}
-    </AnimatePresence>
-  );
-};
+    >
+      {children}
+    </DialogContent>
+  </Dialog>
+);
 
 Modal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  /** @deprecated Title text now comes from <Modal.Header>. Kept so old callers don't warn. */
   title: PropTypes.string,
   size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl', 'full']),
   children: PropTypes.node.isRequired,
@@ -90,25 +62,24 @@ Modal.propTypes = {
 };
 
 /**
- * ModalHeader — title row with close button
+ * ModalHeader — title row with close button. The title is the dialog's
+ * accessible name.
  */
 const ModalHeader = ({ children, onClose, className = '' }) => (
   <div
-    className={`ios-modal-header flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100 flex-shrink-0 ${className}`}
+    className={cn(
+      'flex flex-shrink-0 items-center justify-between gap-4 border-b border-slate-100 px-6 pt-6 pb-4 max-sm:px-5 max-sm:pt-4 max-sm:pb-3',
+      className,
+    )}
   >
-    <h2 id="modal-title" className="text-lg font-bold text-slate-800">
-      {children}
-    </h2>
+    <DialogTitle className="text-lg font-bold text-slate-800">{children}</DialogTitle>
     {onClose && (
-      <button
-        onClick={onClose}
-        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-        aria-label="Close modal"
+      <DialogClose
+        className="grid size-9 flex-shrink-0 place-items-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        aria-label="Close"
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+        <X className="size-5" aria-hidden="true" />
+      </DialogClose>
     )}
   </div>
 );
@@ -119,11 +90,9 @@ ModalHeader.propTypes = {
   className: PropTypes.string,
 };
 
-/**
- * ModalBody — scrollable content area
- */
+/** ModalBody — scrollable content area */
 const ModalBody = ({ children, className = '' }) => (
-  <div className={`ios-modal-body flex-1 overflow-y-auto px-6 py-4 ${className}`}>
+  <div className={cn('flex-1 overflow-y-auto px-6 py-4 max-sm:px-5', className)}>
     {children}
   </div>
 );
@@ -133,12 +102,14 @@ ModalBody.propTypes = {
   className: PropTypes.string,
 };
 
-/**
- * ModalFooter — sticky action row
- */
+/** ModalFooter — sticky action row; buttons stack full-width on phones */
 const ModalFooter = ({ children, className = '' }) => (
   <div
-    className={`ios-modal-footer flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 flex-shrink-0 ${className}`}
+    className={cn(
+      'flex flex-shrink-0 items-center justify-end gap-3 border-t border-slate-100 px-6 py-4',
+      'max-sm:flex-col-reverse max-sm:items-stretch max-sm:px-5 max-sm:[&>*]:min-h-11 max-sm:[&>*]:w-full',
+      className,
+    )}
   >
     {children}
   </div>

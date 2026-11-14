@@ -3,7 +3,7 @@
  * application queue (plan 16-03). Reuses MentorApplicationService from 16-02.
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import { MentorApplicationService } from '../services/mentor-application-service';
 
 const adminListKey = (status) => ['mentor-application', 'admin', status];

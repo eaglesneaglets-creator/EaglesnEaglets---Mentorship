@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar } from './_shared';
 
+import Icon from '@shared/components/ui/Icon';
+
 const QUICK_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
 const EmojiPicker = ({ onSelect, isOwn }) => (
@@ -54,7 +56,7 @@ export default function MessageBubble({ message, isOwn, showAvatar, senderName, 
                             aria-label="Add reaction"
                             className={`absolute top-1/2 -translate-y-1/2 ${isOwn ? '-left-7' : '-right-7'} opacity-0 group-hover:opacity-100 transition-opacity duration-150 w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500`}
                         >
-                            <span className="material-symbols-outlined text-base">add_reaction</span>
+                            <Icon name='add_reaction' className='text-base' />
                         </button>
                     )}
                 </div>

@@ -1,9 +1,10 @@
 import React, { useRef, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
-import { useAuthStore } from '@store';
+import { useAuthStore, useHasActiveProgram } from '@store';
+import { formatCount } from '@shared/utils/format';
 import { useEagletDashboardStats, useCheckIn } from '../../modules/analytics/hooks/useAnalytics';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import StatCard from '../../shared/components/ui/StatCard';
 import AnimatedContentItem from '../../shared/components/ui/AnimatedContentItem';
 import BadgeShelf from '../../shared/components/ui/BadgeShelf';
@@ -11,14 +12,16 @@ import ActiveProgramCard from '../../shared/components/dashboard/ActiveProgramCa
 import MenteeLevelCard from '../../shared/components/dashboard/MenteeLevelCard';
 import WelcomeTourHost from '../../shared/components/onboarding/WelcomeTourHost';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * Quick Action Button
  */
 const QuickAction = ({ icon, iconColor, label }) => (
   <button className="flex flex-col items-center justify-center gap-2 p-4 bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-xl hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300 group hover:-translate-y-1">
-    <span className={`material-symbols-outlined text-2xl ${iconColor} transition-transform duration-300 group-hover:scale-110`}>
-      {icon}
-    </span>
+    <Icon
+      name={icon}
+      className={`text-2xl ${iconColor} transition-transform duration-300 group-hover:scale-110`} />
     <span className="text-xs font-bold text-slate-900 text-center">{label}</span>
   </button>
 );
@@ -68,7 +71,12 @@ const EagletDashboardPage = () => {
   // program and no content. In that state "Resume Learning" is meaningless, so
   // we swap the header CTA (and the empty content state) for a prompt that
   // actually moves them forward: find a mentor.
-  const hasActiveProgram = Boolean(dashboardData?.active_program || dashboardData?.has_active_program);
+  // Enrollment truth lives in access_status (auth store). The analytics
+  // dashboard payload does not carry active_program, so relying on it alone
+  // told every ENROLLED mentee to "Find your first mentor".
+  const hasActiveProgramFromAccess = useHasActiveProgram();
+  const hasActiveProgram = hasActiveProgramFromAccess
+    || Boolean(dashboardData?.active_program || dashboardData?.has_active_program);
 
   const handleCheckIn = () => {
     if (checkInLockRef.current) return;
@@ -90,7 +98,7 @@ const EagletDashboardPage = () => {
   const stats = [
     { icon: 'psychiatry', iconColor: 'text-emerald-500', label: 'Growth Points', value: points.toLocaleString(), subValue: 'Keep earning!', progress: Math.min((points % 1000) / 10, 100) },
     { icon: 'school', iconColor: 'text-blue-500', label: 'Modules Completed', value: modulesCompleted.toString(), subValue: 'Total completed', subColor: 'text-slate-400' },
-    { icon: 'local_fire_department', iconColor: 'text-orange-500', label: 'Learning Streak', value: `${streak} Days`, subValue: 'Keep it going!', subColor: 'text-emerald-600' },
+    { icon: 'local_fire_department', iconColor: 'text-orange-500', label: 'Learning Streak', value: formatCount(streak, 'day'), subValue: 'Keep it going!', subColor: 'text-emerald-600' },
   ];
 
   const recentContent = dashboardData?.recent_content || [];
@@ -102,7 +110,7 @@ const EagletDashboardPage = () => {
       <div className="flex flex-col gap-4 md:gap-6 lg:gap-8">
         {/* Welcome Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div className="pl-3 border-l-4 border-primary/40 sm:pl-0 sm:border-l-0">
+          <div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
               Welcome back, {user?.first_name || 'Eaglet'}!
             </h1>
@@ -113,7 +121,9 @@ const EagletDashboardPage = () => {
               onClick={() => navigate('/eaglet/assignments')}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 group"
             >
-              <span className="material-symbols-outlined text-lg group-hover:animate-bounce">play_arrow</span>
+              <Icon
+                name='play_arrow'
+                className='text-lg transition-transform duration-200 group-hover:translate-x-0.5' />
               Resume Learning
             </button>
           ) : (
@@ -121,7 +131,9 @@ const EagletDashboardPage = () => {
               onClick={() => navigate('/eaglet/nest')}
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 md:px-6 md:py-3 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5 group"
             >
-              <span className="material-symbols-outlined text-lg group-hover:translate-x-0.5 transition-transform">travel_explore</span>
+              <Icon
+                name='travel_explore'
+                className='text-lg group-hover:translate-x-0.5 transition-transform' />
               Find your first mentor
             </button>
           )}
@@ -157,9 +169,9 @@ const EagletDashboardPage = () => {
                   className="text-primary text-sm font-medium hover:underline flex items-center gap-1 group"
                 >
                   View All
-                  <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:translate-x-1">
-                    arrow_forward
-                  </span>
+                  <Icon
+                    name='arrow_forward'
+                    className='text-sm transition-transform duration-300 group-hover:translate-x-1' />
                 </Link>
               </div>
 
@@ -195,7 +207,7 @@ const EagletDashboardPage = () => {
                   })
                 ) : (
                   <div className="text-center py-8 px-4 border border-dashed border-slate-200 rounded-xl">
-                    <span className="material-symbols-outlined text-3xl text-slate-300 mb-2">explore</span>
+                    <Icon name='explore' className='text-3xl text-slate-300 mb-2' />
                     <p className="text-slate-600 text-sm font-medium mb-1">
                       {hasActiveProgram ? 'No new content yet' : 'Join a nest to start learning'}
                     </p>
@@ -209,7 +221,7 @@ const EagletDashboardPage = () => {
                         to="/eaglet/nest"
                         className="inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
                       >
-                        <span className="material-symbols-outlined text-base">travel_explore</span>
+                        <Icon name='travel_explore' className='text-base' />
                         Discover mentors
                       </Link>
                     )}
@@ -228,7 +240,7 @@ const EagletDashboardPage = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-slate-900">Daily Check-in</h3>
                 <div className="flex items-center gap-1 text-emerald-600">
-                  <span className="material-symbols-outlined text-sm">local_fire_department</span>
+                  <Icon name='local_fire_department' className='text-sm' />
                   <span className="text-sm font-bold">{streak} day streak</span>
                 </div>
               </div>
@@ -243,7 +255,7 @@ const EagletDashboardPage = () => {
                         : 'bg-slate-100 text-slate-400'
                         }`}>
                         {isChecked ? (
-                          <span className="material-symbols-outlined text-sm">check</span>
+                          <Icon name='check' className='text-sm' />
                         ) : day}
                       </div>
                     </div>
@@ -260,7 +272,7 @@ const EagletDashboardPage = () => {
 
               <div className="relative z-10">
                 <div className="flex items-start gap-2 mb-3">
-                  <span className="material-symbols-outlined opacity-80">format_quote</span>
+                  <Icon name='format_quote' className='opacity-80' />
                   <p className="text-xs font-medium opacity-80 uppercase tracking-widest">Daily Verse</p>
                 </div>
                 <p className="text-sm italic font-medium leading-relaxed mb-4">
@@ -277,9 +289,9 @@ const EagletDashboardPage = () => {
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 p-5 shadow-sm hover:shadow-lg transition-all duration-300 group">
               <div className="flex items-center gap-4">
                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${hasCheckedInToday ? 'from-emerald-400 to-emerald-600' : 'from-amber-400 to-orange-500'} flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
-                  <span className="material-symbols-outlined text-white text-2xl">
-                    {hasCheckedInToday ? 'verified' : 'schedule'}
-                  </span>
+                  <Icon
+                    name={hasCheckedInToday ? 'verified' : 'schedule'}
+                    className='text-white text-2xl' />
                 </div>
                 <div className="flex-1">
                   <h4 className="font-bold text-slate-900">Daily Check-In</h4>

@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import { usePayment } from '../hooks/usePayment';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * PaystackCheckout — renders a "Pay Now" button that opens the Paystack inline popup.
  *
@@ -13,7 +15,7 @@ const PaystackCheckout = ({ order }) => {
     return (
         <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-6">
             <div className="flex items-start gap-3 mb-3">
-                <span className="material-symbols-outlined text-primary text-xl mt-0.5">payment</span>
+                <Icon name='payment' className='text-primary text-xl mt-0.5' />
                 <div>
                     <p className="font-semibold text-slate-800 text-sm">Complete Your Payment</p>
                     <p className="text-slate-500 text-xs mt-0.5">Secure payment powered by Paystack</p>
@@ -22,7 +24,7 @@ const PaystackCheckout = ({ order }) => {
 
             {error && (
                 <div className="flex items-center gap-2 text-red-600 text-xs bg-red-50 border border-red-100 rounded-xl px-3 py-2 mb-3">
-                    <span className="material-symbols-outlined text-sm">error</span>
+                    <Icon name='error' className='text-sm' />
                     {error}
                 </div>
             )}
@@ -39,7 +41,7 @@ const PaystackCheckout = ({ order }) => {
                     </>
                 ) : (
                     <>
-                        <span className="material-symbols-outlined text-base">lock</span>
+                        <Icon name='lock' className='text-base' />
                         Pay Now &mdash; &#8373;{Number(order.total_amount).toLocaleString()}
                     </>
                 )}

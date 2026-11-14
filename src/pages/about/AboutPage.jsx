@@ -8,6 +8,8 @@ import LearningIllustration from '@shared/components/visual/LearningIllustration
 import storyPic640 from '../../assets/story-pic-640.webp';
 import storyPic960 from '../../assets/story-pic-960.webp';
 
+import Icon from '@shared/components/ui/Icon';
+
 /* ═══════════════════════════════════════════════
    HERO — text left, photo right with floating badge
    ═══════════════════════════════════════════════ */
@@ -217,7 +219,7 @@ const CoreEcosystemSection = () => {
                                 className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-7 lg:p-8 hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-300 group h-full"
                             >
                                 <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${feat.iconBg} ${feat.color} flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                                    <span className="material-symbols-outlined text-xl sm:text-2xl">{feat.icon}</span>
+                                    <Icon name={feat.icon} className='text-xl sm:text-2xl' />
                                 </div>
                                 <h3 className="text-base sm:text-lg font-black text-slate-900 mb-2 sm:mb-3">{feat.title}</h3>
                                 <p className="text-sm text-slate-400 leading-relaxed">{feat.description}</p>

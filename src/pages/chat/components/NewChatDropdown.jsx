@@ -3,6 +3,8 @@ import { useContacts } from '../../../modules/chat/hooks/useChat';
 import { chatRoleLabel } from '../../../modules/chat/utils/roleLabel';
 import { Avatar } from './_shared';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function NewChatDropdown({ onSelect, onClose }) {
     const { data: contacts = [], isLoading } = useContacts();
     const [filter, setFilter] = useState('');
@@ -75,7 +77,7 @@ export default function NewChatDropdown({ onSelect, onClose }) {
                     ))
                 ) : (
                     <div className="py-6 text-center">
-                        <span className="material-symbols-outlined text-2xl text-slate-300">person_off</span>
+                        <Icon name='person_off' className='text-2xl text-slate-300' />
                         <p className="text-xs text-slate-400 mt-1">No contacts found</p>
                     </div>
                 )}

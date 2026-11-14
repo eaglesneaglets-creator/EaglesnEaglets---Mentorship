@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import adminNestService from '../services/admin-nest-service';
 
 const adminNestKeys = {

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import Icon from '@shared/components/ui/Icon';
+
 function ToggleSwitch({ checked, onChange, disabled, label }) {
   return (
     <button
@@ -64,13 +66,11 @@ export default function DomainPrefCard({ domain, onUpdate, isUpdating }) {
           aria-expanded={open}
           className="flex items-center gap-3 flex-1 min-w-0 text-left rounded-lg hover:bg-slate-50 -m-2 p-2 transition-colors"
         >
-          <span
-            className={`material-symbols-outlined text-slate-500 transition-transform ${
+          <Icon
+            name='chevron_right'
+            className={`text-slate-500 transition-transform ${
               open ? 'rotate-90' : ''
-            }`}
-          >
-            chevron_right
-          </span>
+            }`} />
           <div>
             <h3 className="text-sm font-semibold text-slate-800">{domain.label}</h3>
             <p className="text-xs text-slate-500">{domain.events.length} events</p>

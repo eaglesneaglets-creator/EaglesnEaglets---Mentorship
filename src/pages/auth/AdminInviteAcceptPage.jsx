@@ -25,6 +25,8 @@ import { useAuthStore } from '@store';
 import { useAcceptInvite } from '@modules/admin-role/hooks/useAdminRole';
 import Logo from '@/assets/brand-wordmark.webp';
 
+import Icon from '@shared/components/ui/Icon';
+
 // Module-scoped — persists across all mounts of this page within the
 // current SPA session. Maps token -> { status, code? } so we never
 // re-fire the mutation, and we always render the right card.
@@ -54,7 +56,7 @@ function Card({ icon, iconBg, title, children, actions }) {
   return (
     <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/40 p-8 sm:p-10">
       <div className={`w-14 h-14 mx-auto rounded-2xl ${iconBg} flex items-center justify-center mb-4`}>
-        <span className="material-symbols-outlined text-3xl">{icon}</span>
+        <Icon name={icon} className='text-3xl' />
       </div>
       <h1 className="text-2xl font-bold text-slate-900 text-center mb-3">{title}</h1>
       <div className="text-sm text-slate-600 text-center leading-relaxed">{children}</div>

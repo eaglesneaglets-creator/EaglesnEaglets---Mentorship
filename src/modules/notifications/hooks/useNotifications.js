@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import NotificationService from '../services/notification-service';
 import { useWebSocket } from '@hooks/useWebSocket';
 import { useAuthStore } from '@store';

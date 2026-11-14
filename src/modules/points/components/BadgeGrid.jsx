@@ -1,3 +1,4 @@
+import Icon from '@shared/components/ui/Icon';
 const BadgeGrid = ({ badges = [], isLoading }) => {
     if (isLoading) {
         return <div className="text-center py-6 text-slate-500">Loading badges...</div>;
@@ -17,7 +18,7 @@ const BadgeGrid = ({ badges = [], isLoading }) => {
                                         <img src={badge.icon} alt={badge.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                                     ) : (
                                         <div className="w-full h-full bg-blue-100 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-xl sm:text-2xl text-blue-500">military_tech</span>
+                                            <Icon name='military_tech' className='text-xl sm:text-2xl text-blue-500' />
                                         </div>
                                     )}
                                 </div>
@@ -31,7 +32,7 @@ const BadgeGrid = ({ badges = [], isLoading }) => {
                 </div>
             ) : (
                 <div className="text-center py-6 border border-dashed border-slate-200 rounded-xl">
-                    <span className="material-symbols-outlined text-slate-300 text-4xl mb-2">workspace_premium</span>
+                    <Icon name='workspace_premium' className='text-slate-300 text-4xl mb-2' />
                     <p className="text-slate-500 text-sm sm:text-base px-4">You haven't earned any badges yet. Keep learning!</p>
                 </div>
             )}

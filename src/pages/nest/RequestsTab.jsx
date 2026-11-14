@@ -10,6 +10,8 @@ import EmptyState from '../../shared/components/ui/EmptyState';
 import TabBar from '../../shared/components/ui/TabBar';
 import { useEnums, isStatusInGroup } from '@hooks/useEnums';
 
+import Icon from '@shared/components/ui/Icon';
+
 const FILTER_TABS = [
     { value: 'all', label: 'All' },
     { value: 'pending', label: 'Pending', icon: 'schedule' },
@@ -102,7 +104,7 @@ export default function RequestsTab() {
                                 <div key={request.id || idx}
                                     className="px-4 md:px-6 py-4 hover:bg-slate-50/80 transition-colors group flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-emerald-50 flex items-center justify-center flex-shrink-0">
-                                        <span className="material-symbols-outlined text-primary text-lg">diversity_3</span>
+                                        <Icon name='diversity_3' className='text-primary text-lg' />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm font-semibold text-slate-900 truncate">{nestName}</p>

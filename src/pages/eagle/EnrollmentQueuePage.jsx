@@ -24,6 +24,8 @@ import EnrollmentRow from '../../modules/program/components/EnrollmentRow';
 import ReasonModal from '../../modules/program/components/ReasonModal';
 import { useEnums } from '@hooks/useEnums';
 
+import Icon from '@shared/components/ui/Icon';
+
 // Tab structure (value + icon are FE-owned). Label resolved at render time
 // from the BE-served enrollment_status enum so server-side label changes
 // flow through automatically.
@@ -153,7 +155,7 @@ export default function EnrollmentQueuePage() {
             <div className="max-w-5xl mx-auto space-y-6">
                 <div className="flex items-center gap-3 text-sm text-slate-500">
                     <Link to={`/eagle/nests/${nestId}`} className="hover:text-primary inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-base">arrow_back</span>
+                        <Icon name='arrow_back' className='text-base' />
                         Back to Nest
                     </Link>
                 </div>

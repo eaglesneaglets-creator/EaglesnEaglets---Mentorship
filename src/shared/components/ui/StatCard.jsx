@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 
+import Icon from '@shared/components/ui/Icon';
+
 /**
  * Shared StatCard component — auto-selects visual style from props:
  *
@@ -43,15 +45,13 @@ const StatCard = ({
                 <div className="relative flex items-start justify-between">
                     <div className="flex flex-col gap-1">
                         <div className={`p-2 md:p-2.5 rounded-xl w-fit mb-1 md:mb-2 ${iconBg}`}>
-                            <span className="material-symbols-outlined text-lg md:text-xl">{icon}</span>
+                            <Icon name={icon} className='text-lg md:text-xl' />
                         </div>
                         <div className="flex items-baseline gap-2">
                             <p className="text-2xl md:text-3xl font-bold text-white">{value}</p>
                             {change !== undefined && change !== null && (
                                 <span className="flex items-center gap-0.5 text-xs font-bold px-1.5 py-0.5 rounded-full bg-white/20 text-white">
-                                    <span className="material-symbols-outlined text-xs">
-                                        {change > 0 ? 'trending_up' : 'trending_down'}
-                                    </span>
+                                    <Icon name={change > 0 ? 'trending_up' : 'trending_down'} className='text-xs' />
                                     {Math.abs(change)}%
                                 </span>
                             )}
@@ -71,7 +71,7 @@ const StatCard = ({
                 style={{ animationDelay: `${delay}ms` }}
             >
                 <div className={`absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500 ${iconColor}`}>
-                    <span className="material-symbols-outlined text-4xl md:text-6xl">{icon}</span>
+                    <Icon name={icon} className='text-4xl md:text-6xl' />
                 </div>
                 <p className="text-slate-500 text-xs md:text-sm font-medium">{label}</p>
                 <div className="flex items-baseline gap-2 mt-1">
@@ -104,7 +104,9 @@ const StatCard = ({
                         <p className="text-slate-900 text-2xl md:text-3xl font-bold transition-colors duration-500">{value}</p>
                     </div>
                     <div className={`p-2 md:p-2.5 rounded-xl ${iconBg} transition-transform duration-700 ease-out group-hover:scale-105 group-hover:-translate-y-1`}>
-                        <span className="material-symbols-outlined text-lg md:text-xl transition-transform duration-500 group-hover:rotate-6">{icon}</span>
+                        <Icon
+                            name={icon}
+                            className='text-lg md:text-xl transition-transform duration-500 group-hover:rotate-6' />
                     </div>
                 </div>
             </div>
@@ -118,7 +120,7 @@ const StatCard = ({
             className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-slate-200/50 shadow-sm flex items-center gap-5 transition-all duration-300"
         >
             <div className={`w-14 h-14 rounded-xl ${colorClass} flex items-center justify-center shadow-inner`}>
-                <span className="material-symbols-outlined text-2xl">{icon}</span>
+                <Icon name={icon} className='text-2xl' />
             </div>
             <div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{label}</p>

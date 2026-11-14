@@ -12,6 +12,8 @@ import { useActiveProgram, usePendingProgramRequest } from '@store';
 import EmptyState from '../../shared/components/ui/EmptyState';
 import { useEnums } from '@hooks/useEnums';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function MyProgramTab({ onSwitchTab }) {
     const active = useActiveProgram();
     const pending = usePendingProgramRequest();
@@ -24,7 +26,7 @@ export default function MyProgramTab({ onSwitchTab }) {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
                     <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="material-symbols-outlined">verified</span>
+                            <Icon name='verified' />
                             <span className="text-xs font-semibold tracking-wider uppercase">Active Program</span>
                         </div>
                         <h1 className="text-3xl font-extrabold tracking-tight mb-2">
@@ -67,7 +69,7 @@ export default function MyProgramTab({ onSwitchTab }) {
                         <Link to={`/eaglet/nest/${active.nest_id}`}
                             className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors">
                             Go to Nest
-                            <span className="material-symbols-outlined text-base">arrow_forward</span>
+                            <Icon name='arrow_forward' className='text-base' />
                         </Link>
                     </div>
                 )}
@@ -80,7 +82,7 @@ export default function MyProgramTab({ onSwitchTab }) {
             <section className="flex flex-col gap-4">
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex items-start gap-4">
                     <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                        <span className="material-symbols-outlined text-amber-600">schedule</span>
+                        <Icon name='schedule' className='text-amber-600' />
                     </div>
                     <div className="flex-1">
                         <h2 className="text-lg font-bold text-amber-900 mb-1">Application Pending</h2>

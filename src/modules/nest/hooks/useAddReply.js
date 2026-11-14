@@ -1,7 +1,7 @@
 // src/modules/nest/hooks/useAddReply.js
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@api';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 
 /**
  * Adds a reply to a comment.

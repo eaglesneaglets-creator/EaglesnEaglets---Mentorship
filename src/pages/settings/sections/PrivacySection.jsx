@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@shared/components/ui/toast-utils';
 import { useAuthStore } from '@store';
+
+import Icon from '@shared/components/ui/Icon';
 
 const OPTIONS = [
   {
@@ -67,13 +69,11 @@ export default function PrivacySection() {
                   : 'border-slate-200 hover:border-slate-300 bg-white'
               }`}
             >
-              <span
-                className={`material-symbols-outlined text-2xl flex-shrink-0 ${
+              <Icon
+                name={opt.icon}
+                className={`text-2xl flex-shrink-0 ${
                   selected ? 'text-primary' : 'text-slate-400'
-                }`}
-              >
-                {opt.icon}
-              </span>
+                }`} />
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-semibold ${selected ? 'text-slate-900' : 'text-slate-700'}`}>
                   {opt.title}

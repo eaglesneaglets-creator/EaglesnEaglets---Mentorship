@@ -6,6 +6,8 @@ import { useOwnedNests, useNestMembers } from '../../modules/nest/hooks/useNests
 import AwardPointsModal from '../../modules/points/components/AwardPointsModal';
 import Avatar from '../../shared/components/ui/Avatar';
 
+import Icon from '@shared/components/ui/Icon';
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const fmtDate = (iso) => {
@@ -69,7 +71,7 @@ const StatCard = ({ icon, iconBg, iconColor, label, value, delay = 0 }) => (
       <div
         className={`flex-shrink-0 w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
       >
-        <span className={`material-symbols-outlined text-2xl ${iconColor}`}>{icon}</span>
+        <Icon name={icon} className={`text-2xl ${iconColor}`} />
       </div>
       <div>
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>
@@ -148,7 +150,7 @@ const ActionBtn = ({ icon, title, onClick, className = '' }) => (
     onClick={onClick}
     className={`group/btn relative w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 ${className}`}
   >
-    <span className="material-symbols-outlined text-[18px]">{icon}</span>
+    <Icon name={icon} className='text-[18px]' />
   </button>
 );
 
@@ -202,7 +204,7 @@ const EagletRow = ({ member, nestName, onViewProfile, onMessage, onManage, onAwa
       {/* Nest */}
       <td className="py-4 px-3 hidden lg:table-cell">
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 text-primary text-xs font-medium">
-          <span className="material-symbols-outlined text-[13px]">diversity_3</span>
+          <Icon name='diversity_3' className='text-[13px]' />
           {nestName}
         </span>
       </td>
@@ -215,7 +217,7 @@ const EagletRow = ({ member, nestName, onViewProfile, onMessage, onManage, onAwa
       {/* Total points */}
       <td className="py-4 px-3 hidden sm:table-cell">
         <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-amber-500 text-[16px]">stars</span>
+          <Icon name='stars' className='text-amber-500 text-[16px]' />
           <span className="text-sm font-bold text-slate-800 tabular-nums">
             {typeof points === 'number' ? points.toLocaleString() : points}
           </span>
@@ -286,7 +288,7 @@ EagletRow.propTypes = {
 const EmptyState = ({ query }) => (
   <div className="flex flex-col items-center justify-center py-20 text-center">
     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-blue-50 flex items-center justify-center mb-5 shadow-inner">
-      <span className="material-symbols-outlined text-4xl text-primary/40">group_off</span>
+      <Icon name='group_off' className='text-4xl text-primary/40' />
     </div>
     <h3 className="text-lg font-bold text-slate-700 mb-2">
       {query ? `No results for "${query}"` : 'No eaglets yet'}
@@ -507,18 +509,18 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
                 to="/eagle/nests"
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm text-sm font-semibold text-slate-600 hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300 shadow-sm"
               >
-                <span className="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:-rotate-12">
-                  diversity_3
-                </span>
+                <Icon
+                  name='diversity_3'
+                  className='text-[18px] transition-transform duration-300 group-hover:-rotate-12' />
                 Manage Nest
               </Link>
               <Link
                 to="/eagle/messages"
                 className="group flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary/90 text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
               >
-                <span className="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:rotate-12">
-                  send
-                </span>
+                <Icon
+                  name='send'
+                  className='text-[18px] transition-transform duration-300 group-hover:rotate-12' />
                 Broadcast Message
               </Link>
             </div>
@@ -560,9 +562,9 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
           <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row gap-2 sm:gap-3">
             {/* Search */}
             <div className="relative flex-1">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[18px] pointer-events-none">
-                search
-              </span>
+              <Icon
+                name='search'
+                className='absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none' />
               <input
                 type="text"
                 value={search}
@@ -678,7 +680,7 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
                   disabled={page === 1}
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
                 >
-                  <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                  <Icon name='chevron_left' className='text-[18px]' />
                 </button>
 
                 {[...Array(totalPages)].map((_, i) => {
@@ -718,7 +720,7 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
                   disabled={page === totalPages}
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200"
                 >
-                  <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                  <Icon name='chevron_right' className='text-[18px]' />
                 </button>
               </div>
             </div>
@@ -730,7 +732,7 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[20px]">diversity_3</span>
+                <Icon name='diversity_3' className='text-primary text-[20px]' />
                 Your Nests
               </h2>
               <Link
@@ -738,7 +740,7 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
                 className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
               >
                 View all
-                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                <Icon name='arrow_forward' className='text-[14px]' />
               </Link>
             </div>
 
@@ -755,7 +757,7 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
                   >
                     {/* Icon */}
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/10 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover:from-primary/20 transition-all duration-400">
-                      <span className="material-symbols-outlined text-primary text-xl">nest_eco_leaf</span>
+                      <Icon name='nest_eco_leaf' className='text-primary text-xl' />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm text-slate-900 truncate group-hover:text-primary transition-colors duration-300">
@@ -765,9 +767,9 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
                         {memberCount} {memberCount === 1 ? 'eaglet' : 'eaglets'}
                       </p>
                     </div>
-                    <span className="material-symbols-outlined text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 text-[18px]">
-                      arrow_forward_ios
-                    </span>
+                    <Icon
+                      name='arrow_forward_ios'
+                      className='text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 text-[18px]' />
                   </Link>
                 );
               })}
@@ -779,7 +781,7 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
         {!embedded && !nestsLoading && nests.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-blue-50 flex items-center justify-center mb-5">
-              <span className="material-symbols-outlined text-4xl text-primary/40">nest_eco_leaf</span>
+              <Icon name='nest_eco_leaf' className='text-4xl text-primary/40' />
             </div>
             <h3 className="text-lg font-bold text-slate-700 mb-2">No Nests created yet</h3>
             <p className="text-sm text-slate-400 max-w-xs mb-6 leading-relaxed">
@@ -789,7 +791,7 @@ export const MyEagletsSection = ({ embedded = false, nestId: providedNestId = nu
               to="/eagle/nests"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
             >
-              <span className="material-symbols-outlined text-[18px]">add</span>
+              <Icon name='add' className='text-[18px]' />
               Create a Nest
             </Link>
           </div>

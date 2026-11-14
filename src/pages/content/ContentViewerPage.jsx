@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardLayout from '../../shared/components/layout/DashboardLayout';
 import { useAuthStore } from '@store';
 import { useModuleDetail, useModuleItems, useUpdateProgress, useContentProgressList } from '../../modules/content/hooks/useContent';
-import toast from 'react-hot-toast';
+import { toast } from '@shared/components/ui/toast-utils';
 import DocumentViewer from '../../shared/components/visual/DocumentViewer';
 import { sanitizeUrl } from '../../shared/utils/sanitize';
 import Avatar from '../../shared/components/ui/Avatar';
+
+import Icon from '@shared/components/ui/Icon';
 
 const TYPE_CONFIG = {
     video: { icon: 'play_circle', color: 'emerald', label: 'Video' },
@@ -180,6 +182,7 @@ const ContentViewerPage = () => {
             hideHeader
             fullWidth
             noPadding
+            fullHeight
         >
             <div className="flex flex-col h-full overflow-hidden bg-white">
 
@@ -194,7 +197,7 @@ const ContentViewerPage = () => {
                                 to={user?.role === 'eagle' ? '/eagle/content' : '/eaglet/assignments'}
                                 className="w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-500 hover:text-white transition-all duration-300 border border-slate-100"
                             >
-                                <span className="material-symbols-outlined text-[20px] sm:text-[22px]">close</span>
+                                <Icon name='close' className='text-[20px] sm:text-[22px]' />
                             </Link>
                             <div className="min-w-0 flex-1">
                                 <h1 className="text-sm sm:text-base md:text-lg font-black text-slate-900 truncate tracking-tight">
@@ -234,23 +237,21 @@ const ContentViewerPage = () => {
                                 aria-controls="course-content-sidebar"
                                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all border border-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
                             >
-                                <span className="material-symbols-outlined text-[20px]">
-                                    {sidebarOpen ? 'menu_open' : 'menu'}
-                                </span>
+                                <Icon name={sidebarOpen ? 'menu_open' : 'menu'} className='text-[20px]' />
                             </button>
                             <button
                                 disabled
                                 title="Coming soon"
                                 className="hidden sm:flex w-10 h-10 rounded-xl bg-slate-50 items-center justify-center text-slate-400 opacity-60 cursor-not-allowed border border-slate-100"
                             >
-                                <span className="material-symbols-outlined text-[20px]">settings</span>
+                                <Icon name='settings' className='text-[20px]' />
                             </button>
                             <button
                                 disabled
                                 title="Coming soon"
                                 className="hidden sm:flex w-10 h-10 rounded-xl bg-slate-50 items-center justify-center text-slate-400 opacity-60 cursor-not-allowed border border-slate-100"
                             >
-                                <span className="material-symbols-outlined text-[20px]">share</span>
+                                <Icon name='share' className='text-[20px]' />
                             </button>
                         </div>
 
@@ -340,7 +341,7 @@ const ContentViewerPage = () => {
                                                         title="Coming soon"
                                                         className="self-start shrink-0 flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border border-slate-200 text-slate-500 font-bold text-sm opacity-60 cursor-not-allowed"
                                                     >
-                                                        <span className="material-symbols-outlined text-[20px]">download</span>
+                                                        <Icon name='download' className='text-[20px]' />
                                                         Resources
                                                     </button>
                                                 </div>
@@ -373,7 +374,7 @@ const ContentViewerPage = () => {
                                     ) : (
                                         <div className="flex-1 flex flex-col items-center justify-center text-center py-20">
                                             <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                                                <span className="material-symbols-outlined text-4xl text-slate-300">auto_stories</span>
+                                                <Icon name='auto_stories' className='text-4xl text-slate-300' />
                                             </div>
                                             <h3 className="text-2xl font-black text-slate-900 mb-2">No content selected</h3>
                                             <p className="text-slate-500 font-medium">Pick a lesson from the sidebar to begin.</p>
@@ -392,7 +393,7 @@ const ContentViewerPage = () => {
                                     disabled={!hasPrev}
                                     className="flex items-center gap-1.5 sm:gap-3 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-slate-200 text-slate-500 font-bold transition-all hover:bg-slate-50 disabled:opacity-30 disabled:pointer-events-none text-sm sm:text-base"
                                 >
-                                    <span className="material-symbols-outlined text-lg sm:text-2xl">arrow_back</span>
+                                    <Icon name='arrow_back' className='text-lg sm:text-2xl' />
                                     <span className="hidden sm:inline">Previous</span>
                                 </button>
 
@@ -408,18 +409,18 @@ const ContentViewerPage = () => {
                                 >
                                     {isCompleted(effectiveItemId) ? (
                                         <>
-                                            <span className="material-symbols-outlined text-lg sm:text-xl">check_circle</span>
+                                            <Icon name='check_circle' className='text-lg sm:text-xl' />
                                             <span className="hidden xs:inline">Mark as Complete</span>
                                             <span className="xs:hidden">Done</span>
                                         </>
                                     ) : isSaving ? (
                                         <>
-                                            <span className="material-symbols-outlined animate-spin text-lg sm:text-xl">refresh</span>
+                                            <Icon name='refresh' className='animate-spin text-lg sm:text-xl' />
                                             Saving...
                                         </>
                                     ) : (
                                         <>
-                                            <span className="material-symbols-outlined text-lg sm:text-xl">check_circle</span>
+                                            <Icon name='check_circle' className='text-lg sm:text-xl' />
                                             <span className="hidden sm:inline">Mark as Complete</span>
                                             <span className="sm:hidden">Complete</span>
                                         </>
@@ -433,9 +434,9 @@ const ContentViewerPage = () => {
                                     className="flex items-center gap-1.5 sm:gap-3 px-3 sm:px-6 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl bg-slate-900 text-white font-black transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-30 shadow-xl shadow-slate-900/20 text-sm sm:text-base"
                                 >
                                     <span className="hidden sm:inline">Next</span>
-                                    <span className="material-symbols-outlined text-lg sm:text-2xl">
-                                        {hasNext && !nextIsUnlocked ? 'lock' : 'arrow_forward'}
-                                    </span>
+                                    <Icon
+                                        name={hasNext && !nextIsUnlocked ? 'lock' : 'arrow_forward'}
+                                        className='text-lg sm:text-2xl' />
                                 </button>
 
                             </div>
@@ -458,7 +459,7 @@ const ContentViewerPage = () => {
                     <aside id="course-content-sidebar" className={`shrink-0 border-l border-slate-200 bg-white flex flex-col overflow-hidden transition-all duration-300 absolute lg:static inset-y-0 right-0 z-30 shadow-2xl lg:shadow-none ${sidebarOpen ? 'w-[85vw] sm:w-[340px] lg:w-[400px]' : 'w-0'}`}>
                         <div className="shrink-0 p-6 flex items-center justify-between border-b border-slate-200 bg-white">
                             <div className="flex items-center gap-3">
-                                <span className="material-symbols-outlined text-emerald-500">list_alt</span>
+                                <Icon name='list_alt' className='text-emerald-500' />
                                 <h3 className="font-black text-slate-900 uppercase tracking-wider text-sm">Course Content</h3>
                             </div>
                         </div>
@@ -478,87 +479,88 @@ const ContentViewerPage = () => {
                                         const unlocked = isItemUnlocked(gIdx);
                                         const completed = isCompleted(group.id);
                                         return (
-                                        <div key={gIdx} className="border-b border-slate-100 last:border-0">
-                                            <div className="px-6 py-4 bg-white flex items-center justify-between cursor-pointer group">
-                                                <h4 className="font-black text-[11px] text-emerald-600 uppercase tracking-widest">
-                                                    Module {gIdx + 1}: {group.title?.split(' ')[0] || 'Content'}
-                                                </h4>
-                                                <span className="material-symbols-outlined text-lg text-slate-300 group-hover:text-emerald-500 transition-colors">keyboard_arrow_down</span>
-                                            </div>
-
-
-                                            {/* Sub-item matching your reference (2.1, 2.2, etc) */}
-                                            <button
-                                                onClick={() => {
-                                                    if (!unlocked) {
-                                                        toast.error('Complete previous lessons first.');
-                                                        return;
-                                                    }
-                                                    setActiveItemId(group.id);
-                                                }}
-                                                disabled={!unlocked}
-                                                title={!unlocked ? 'Locked — finish the previous lesson to unlock.' : undefined}
-                                                className={`w-full text-left px-6 py-6 flex items-center gap-5 transition-all relative ${
-                                                    !unlocked
-                                                        ? 'opacity-60 cursor-not-allowed bg-slate-50/50'
-                                                        : effectiveItemId === group.id
-                                                            ? 'bg-emerald-50/50'
-                                                            : 'hover:bg-slate-50'
-                                                    }`}
-                                            >
-
-                                                {/* Active Indicator Bar */}
-                                                {effectiveItemId === group.id && (
-                                                    <motion.div layoutId="sidebar-active" className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
-                                                )}
-
-                                                <div className={`shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${completed
-                                                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                                                    : effectiveItemId === group.id
-                                                        ? 'bg-slate-900 text-white shadow-lg'
-                                                        : 'bg-slate-100 text-slate-400'
-                                                    }`}>
-
-                                                    {completed ? (
-                                                        <span className="material-symbols-outlined text-[20px]">check</span>
-                                                    ) : effectiveItemId === group.id ? (
-                                                        <span className="material-symbols-outlined text-[20px] animate-pulse">play_arrow</span>
-                                                    ) : (
-                                                        <span className="material-symbols-outlined text-[20px]">
-                                                            {TYPE_CONFIG[group.content_type]?.icon || 'description'}
-                                                        </span>
-                                                    )}
+                                            <div key={gIdx} className="border-b border-slate-100 last:border-0">
+                                                <div className="px-6 py-4 bg-white flex items-center justify-between cursor-pointer group">
+                                                    <h4 className="font-black text-[11px] text-emerald-600 uppercase tracking-widest">
+                                                        Module {gIdx + 1}: {group.title?.split(' ')[0] || 'Content'}
+                                                    </h4>
+                                                    <Icon
+                                                        name='keyboard_arrow_down'
+                                                        className='text-lg text-slate-300 group-hover:text-emerald-500 transition-colors' />
                                                 </div>
 
-                                                <div className="flex-1 min-w-0">
-                                                    <p className={`text-sm font-bold truncate ${effectiveItemId === group.id ? 'text-slate-900' : 'text-slate-600'
+                                                {/* Sub-item matching your reference (2.1, 2.2, etc) */}
+                                                <button
+                                                    onClick={() => {
+                                                        if (!unlocked) {
+                                                            toast.error('Complete previous lessons first.');
+                                                            return;
+                                                        }
+                                                        setActiveItemId(group.id);
+                                                    }}
+                                                    disabled={!unlocked}
+                                                    title={!unlocked ? 'Locked — finish the previous lesson to unlock.' : undefined}
+                                                    className={`w-full text-left px-6 py-6 flex items-center gap-5 transition-all relative ${
+                                                        !unlocked
+                                                            ? 'opacity-60 cursor-not-allowed bg-slate-50/50'
+                                                            : effectiveItemId === group.id
+                                                                ? 'bg-emerald-50/50'
+                                                                : 'hover:bg-slate-50'
+                                                        }`}
+                                                >
+
+                                                    {/* Active Indicator Bar */}
+                                                    {effectiveItemId === group.id && (
+                                                        <motion.div layoutId="sidebar-active" className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
+                                                    )}
+
+                                                    <div className={`shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center transition-all ${completed
+                                                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                                                        : effectiveItemId === group.id
+                                                            ? 'bg-slate-900 text-white shadow-lg'
+                                                            : 'bg-slate-100 text-slate-400'
                                                         }`}>
 
-                                                        {gIdx + 1}.{1} {group.title}
-                                                    </p>
-                                                    <div className="flex items-center gap-3 mt-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                                        <span className="flex items-center gap-1">
-                                                            <span className="material-symbols-outlined text-[12px]">{TYPE_CONFIG[group.content_type]?.icon}</span>
-                                                            {TYPE_CONFIG[group.content_type]?.label}
-                                                        </span>
-                                                        {group.duration_minutes > 0 && (
-                                                            <>
-                                                                <span>·</span>
-                                                                <span>{group.duration_minutes}m</span>
-                                                            </>
+                                                        {completed ? (
+                                                            <Icon name='check' className='text-[20px]' />
+                                                        ) : effectiveItemId === group.id ? (
+                                                            <Icon name='play_arrow' className='text-[20px] animate-pulse' />
+                                                        ) : (
+                                                            <Icon
+                                                                name={TYPE_CONFIG[group.content_type]?.icon || 'description'}
+                                                                className='text-[20px]' />
                                                         )}
                                                     </div>
-                                                </div>
 
-                                                {/* Trailing indicator: lock if not yet unlocked,
-                                                    check_circle if completed, blank otherwise. */}
-                                                {!unlocked ? (
-                                                    <span className="material-symbols-outlined text-[18px] text-slate-300">lock</span>
-                                                ) : completed ? (
-                                                    <span className="material-symbols-outlined text-[18px] text-emerald-500">check_circle</span>
-                                                ) : null}
-                                            </button>
-                                        </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className={`text-sm font-bold truncate ${effectiveItemId === group.id ? 'text-slate-900' : 'text-slate-600'
+                                                            }`}>
+
+                                                            {gIdx + 1}.{1} {group.title}
+                                                        </p>
+                                                        <div className="flex items-center gap-3 mt-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                                            <span className="flex items-center gap-1">
+                                                                <Icon name={TYPE_CONFIG[group.content_type]?.icon} className='text-[12px]' />
+                                                                {TYPE_CONFIG[group.content_type]?.label}
+                                                            </span>
+                                                            {group.duration_minutes > 0 && (
+                                                                <>
+                                                                    <span>·</span>
+                                                                    <span>{group.duration_minutes}m</span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Trailing indicator: lock if not yet unlocked,
+                                                        check_circle if completed, blank otherwise. */}
+                                                    {!unlocked ? (
+                                                        <Icon name='lock' className='text-[18px] text-slate-300' />
+                                                    ) : completed ? (
+                                                        <Icon name='check_circle' className='text-[18px] text-emerald-500' />
+                                                    ) : null}
+                                                </button>
+                                            </div>
                                         );
                                     })}
                                 </div>

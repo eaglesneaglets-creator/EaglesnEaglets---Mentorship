@@ -1,6 +1,8 @@
 import { Avatar } from './_shared';
 import { chatRoleLabel } from '../../../modules/chat/utils/roleLabel';
 
+import Icon from '@shared/components/ui/Icon';
+
 export default function ChatHeader({ conversation, onBack, currentUserId }) {
     if (!conversation) return null;
     const isNest = conversation.conversation_type === 'nest_group';
@@ -13,7 +15,7 @@ export default function ChatHeader({ conversation, onBack, currentUserId }) {
     return (
         <div className="flex items-center gap-3 px-5 py-3 border-b border-slate-100 bg-white">
             <button onClick={onBack} className="lg:hidden w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors">
-                <span className="material-symbols-outlined text-xl text-slate-500">arrow_back</span>
+                <Icon name='arrow_back' className='text-xl text-slate-500' />
             </button>
             <Avatar user={other} name={displayName} isNest={isNest} />
             <div className="flex-1 min-w-0">
@@ -27,14 +29,14 @@ export default function ChatHeader({ conversation, onBack, currentUserId }) {
                     title="Coming soon"
                     className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center opacity-60 cursor-not-allowed"
                 >
-                    <span className="material-symbols-outlined text-xl text-slate-400">search</span>
+                    <Icon name='search' className='text-xl text-slate-400' />
                 </button>
                 <button
                     disabled
                     title="Coming soon"
                     className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center opacity-60 cursor-not-allowed"
                 >
-                    <span className="material-symbols-outlined text-xl text-slate-400">more_vert</span>
+                    <Icon name='more_vert' className='text-xl text-slate-400' />
                 </button>
             </div>
         </div>

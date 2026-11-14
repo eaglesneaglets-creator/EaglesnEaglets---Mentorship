@@ -10,6 +10,8 @@ import { useNests, useJoinedNests } from '../../modules/nest/hooks/useNests';
 import MentorCard from '../../modules/nest/components/MentorCard';
 import EmptyState from '../../shared/components/ui/EmptyState';
 
+import Icon from '@shared/components/ui/Icon';
+
 const SkeletonCard = () => (
     <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
         <div className="h-1.5 bg-slate-100" />
@@ -71,7 +73,7 @@ export default function DiscoverNestsTab() {
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
                 <div className="relative z-10 max-w-xl">
                     <div className="flex items-center gap-2 mb-3">
-                        <span className="material-symbols-outlined text-primary text-2xl">explore</span>
+                        <Icon name='explore' className='text-primary text-2xl' />
                         <span className="text-xs font-semibold text-primary tracking-wider uppercase">Discover Mentors</span>
                     </div>
                     <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-3">Find Your Mentor</h1>
@@ -83,7 +85,9 @@ export default function DiscoverNestsTab() {
 
             <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="relative flex-1 max-w-md">
-                    <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                    <Icon
+                        name='search'
+                        className='absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xl' />
                     <input type="text" placeholder="Search by mentor name or topic..."
                         value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300" />
